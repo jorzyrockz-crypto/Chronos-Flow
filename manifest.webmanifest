@@ -22,5 +22,14 @@
       "type": "image/png",
       "purpose": "any"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/chronos-banner-opt.jpg",
+      "sizes": "1600x893",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Chronos Flow Collaborative Workspace"
+    }
   ]
 }

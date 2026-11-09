@@ -1,11 +1,12 @@
-const CACHE_NAME = 'chronos-flow-5.10-v78';
+const CACHE_NAME = 'chronos-flow-5.10-v79';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/chronos.svg',
   './icons/chronos-192.png',
-  './icons/chronos-512.png'
+  './icons/chronos-512.png',
+  './icons/chronos-banner-opt.jpg'
 ];
 
 self.addEventListener('install', event => {
