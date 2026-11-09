@@ -3571,8 +3571,8 @@ html[data-accent] #tasksPage .project-lane .project-task {
 
 /* Notes Studio */
 html:not([data-theme="dark"])[data-accent] .notes-studio-v2 .note-card {
-  background: var(--surface) !important;
-  border: 1px solid var(--line) !important;
+  background: var(--note-tint, var(--surface));
+  border: 1px solid var(--note-edge, var(--line));
   border-radius: 18px !important;
   box-shadow: 0 8px 24px -4px var(--accent-glow) !important;
 }
@@ -4481,14 +4481,77 @@ html[data-theme="dark"] .note-img-stat-chip {
 }
 
 /* 6. Dual-Mode Responsive Color Theming */
-/* Light Mode Tints */
-.note-card[data-color="coral"] { --note-tint: #fff1f2; --note-edge: #fecdd3; --card-accent: #f43f5e; }
-.note-card[data-color="peach"] { --note-tint: #fff7ed; --note-edge: #fed7aa; --card-accent: #f97316; }
-.note-card[data-color="sand"] { --note-tint: #fefce8; --note-edge: #fef08a; --card-accent: #eab308; }
-.note-card[data-color="mint"] { --note-tint: #f0fdf4; --note-edge: #bbf7d0; --card-accent: #22c55e; }
-.note-card[data-color="sky"] { --note-tint: #f0f9ff; --note-edge: #bae6fd; --card-accent: #0ea5e9; }
-.note-card[data-color="lavender"] { --note-tint: #faf5ff; --note-edge: #e9d5ff; --card-accent: #a855f7; }
-.note-card[data-color="default"] { --note-tint: var(--surface); --note-edge: var(--line); }
+/* Light Mode Note Card Tints */
+.note-card[data-color="coral"],
+html:not([data-theme="dark"]) .note-card[data-color="coral"] {
+  --note-tint: #ffebee !important;
+  --note-edge: #fecdd3 !important;
+  --card-accent: #f43f5e !important;
+  background: #ffebee !important;
+  border-color: #fecdd3 !important;
+}
+.note-card[data-color="peach"],
+html:not([data-theme="dark"]) .note-card[data-color="peach"] {
+  --note-tint: #fff3e0 !important;
+  --note-edge: #fed7aa !important;
+  --card-accent: #f97316 !important;
+  background: #fff3e0 !important;
+  border-color: #fed7aa !important;
+}
+.note-card[data-color="sand"],
+html:not([data-theme="dark"]) .note-card[data-color="sand"] {
+  --note-tint: #fefde8 !important;
+  --note-edge: #fef08a !important;
+  --card-accent: #eab308 !important;
+  background: #fefde8 !important;
+  border-color: #fef08a !important;
+}
+.note-card[data-color="mint"],
+html:not([data-theme="dark"]) .note-card[data-color="mint"] {
+  --note-tint: #e8f8f0 !important;
+  --note-edge: #bbf7d0 !important;
+  --card-accent: #10b981 !important;
+  background: #e8f8f0 !important;
+  border-color: #bbf7d0 !important;
+}
+.note-card[data-color="sky"],
+html:not([data-theme="dark"]) .note-card[data-color="sky"] {
+  --note-tint: #e8f4fd !important;
+  --note-edge: #bae6fd !important;
+  --card-accent: #0ea5e9 !important;
+  background: #e8f4fd !important;
+  border-color: #bae6fd !important;
+}
+.note-card[data-color="lavender"],
+html:not([data-theme="dark"]) .note-card[data-color="lavender"] {
+  --note-tint: #f4ecfb !important;
+  --note-edge: #e9d5ff !important;
+  --card-accent: #a855f7 !important;
+  background: #f4ecfb !important;
+  border-color: #e9d5ff !important;
+}
+.note-card[data-color="default"],
+html:not([data-theme="dark"]) .note-card[data-color="default"] {
+  --note-tint: var(--surface) !important;
+  --note-edge: var(--line) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+}
+
+/* Note Preview Modal Dynamic Color Theming */
+.item-preview-modal[data-color="coral"] { background: #fff5f5 !important; border-color: #fecdd3 !important; }
+.item-preview-modal[data-color="peach"] { background: #fffaf0 !important; border-color: #fed7aa !important; }
+.item-preview-modal[data-color="sand"] { background: #fffef0 !important; border-color: #fef08a !important; }
+.item-preview-modal[data-color="mint"] { background: #f2faf5 !important; border-color: #bbf7d0 !important; }
+.item-preview-modal[data-color="sky"] { background: #f2f8fd !important; border-color: #bae6fd !important; }
+.item-preview-modal[data-color="lavender"] { background: #faf5fd !important; border-color: #e9d5ff !important; }
+
+html[data-theme="dark"] .item-preview-modal[data-color="coral"] { background: linear-gradient(145deg, rgba(74, 28, 40, 0.95), #0f172a 92%) !important; border-color: rgba(251, 113, 133, 0.42) !important; }
+html[data-theme="dark"] .item-preview-modal[data-color="peach"] { background: linear-gradient(145deg, rgba(76, 40, 24, 0.95), #0f172a 92%) !important; border-color: rgba(251, 146, 60, 0.42) !important; }
+html[data-theme="dark"] .item-preview-modal[data-color="sand"] { background: linear-gradient(145deg, rgba(72, 58, 20, 0.95), #0f172a 92%) !important; border-color: rgba(250, 204, 21, 0.42) !important; }
+html[data-theme="dark"] .item-preview-modal[data-color="mint"] { background: linear-gradient(145deg, rgba(20, 68, 48, 0.95), #0f172a 92%) !important; border-color: rgba(74, 222, 128, 0.42) !important; }
+html[data-theme="dark"] .item-preview-modal[data-color="sky"] { background: linear-gradient(145deg, rgba(22, 54, 92, 0.95), #0f172a 92%) !important; border-color: rgba(56, 189, 248, 0.42) !important; }
+html[data-theme="dark"] .item-preview-modal[data-color="lavender"] { background: linear-gradient(145deg, rgba(58, 30, 94, 0.95), #0f172a 92%) !important; border-color: rgba(192, 132, 252, 0.42) !important; }
 
 /* Dark Mode Dual-Layer Luminescent Gradients */
 html[data-theme="dark"] .note-card[data-color="coral"] {
@@ -7565,9 +7628,9 @@ const schoolCalendarActivities=[
  ...activitySeries('img_apr2027_nfot','2027 NFOT','2027-04-26','2027-04-30')
 ];
 const sampleNotes=[
-{id:'n1',title:'Ideas to explore',body:'Keep a running list of ideas that deserve a second look. Start with the smallest useful experiment, then learn from it.',tag:'Ideas',pinned:true,updated:Date.now()},
-{id:'n2',title:'Weekly reflection',body:'What moved forward this week? What felt harder than it needed to? What is one thing to make simpler next week?',tag:'Personal',pinned:false,updated:Date.now()-86400000},
-{id:'n3',title:'Meeting notes',body:'Decisions, owners, and next steps. Capture the action item while the conversation is still fresh.',tag:'Work',pinned:false,updated:Date.now()-172800000}
+{id:'n1',title:'Ideas to explore',body:'Keep a running list of ideas that deserve a second look. Start with the smallest useful experiment, then learn from it.',tag:'Ideas',color:'lavender',pinned:true,updated:Date.now()},
+{id:'n2',title:'Weekly reflection',body:'What moved forward this week? What felt harder than it needed to? What is one thing to make simpler next week?',tag:'Personal',color:'mint',pinned:false,updated:Date.now()-86400000},
+{id:'n3',title:'Meeting notes',body:'Decisions, owners, and next steps. Capture the action item while the conversation is still fresh.',tag:'Work',color:'sky',pinned:false,updated:Date.now()-172800000}
 ];
 const DEFAULT_FIREBASE_CONFIG={apiKey:'AIzaSyDVurj0n57qBiSBwuCjaDpi5CSQs-3I3f0',authDomain:'paperuss-2.firebaseapp.com',projectId:'paperuss-2',messagingSenderId:'158402331948',appId:'1:158402331948:web:a3abb73a2c84b14e78d889',measurementId:'G-1ZC6WLYCPG'};
 let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig={...DEFAULT_FIREBASE_CONFIG};let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
@@ -12812,6 +12875,12 @@ function openItemPreview(type, id, extraMeta){
   if(!backdrop || !modal) return;
   
   currentPreviewConfig = { type, id, extraMeta };
+  if (type === 'note') {
+    const n = (typeof findNoteById === 'function') ? findNoteById(id) : null;
+    modal.setAttribute('data-color', n?.color || 'default');
+  } else {
+    modal.removeAttribute('data-color');
+  }
   let html = '';
   try {
     html = renderPreviewHTML(type, id, extraMeta);
@@ -13405,10 +13474,21 @@ function renderNotePreviewHTML(id){
     </div>
   `;
 
+const noteColorTintMap = {
+    coral: '#f43f5e',
+    peach: '#f97316',
+    sand: '#eab308',
+    mint: '#10b981',
+    sky: '#0ea5e9',
+    lavender: '#a855f7',
+    default: 'var(--teal)'
+  };
+  const noteTintAccent = noteColorTintMap[n.color || 'default'] || 'var(--teal)';
+
   return `
-    <div class="preview-modal-head" style="--preview-tint:var(--teal)">
+    <div class="preview-modal-head" style="--preview-tint:${noteTintAccent}">
       <div class="preview-modal-head-left">
-        <span class="preview-chip" style="color:var(--teal);border-color:var(--teal)">
+        <span class="preview-chip" style="color:${noteTintAccent};border-color:${noteTintAccent}">
           ${getLucideSvg('file-text', 12)} Planning Note
         </span>
         ${n.tag ? `<span class="preview-chip">#${esc(n.tag)}</span>` : ''}
