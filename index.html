@@ -7889,35 +7889,63 @@ function recordLocalTombstone(type, id){
     localStorage.setItem(uKey, JSON.stringify(u));
   } catch(e){}
 }
+function cloudKind(type){
+  return (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
+}
+function cleanCloudId(id){return String(id).replace(/[.#$\[\]/]/g, '_')}
+function teamTombstoneKey(teamId,type,id){return String(teamId)+'|'+cloudKind(type)+'|'+String(id)}
+function recordLocalTeamTombstone(teamId,type,id){
+  if(!teamId||id==null)return;
+  const kind=cloudKind(type),key=teamTombstoneKey(teamId,kind,id),entry={teamId:String(teamId),type:kind,id:String(id),deletedAt:Date.now()};
+  try{
+    const pending=JSON.parse(localStorage.getItem('chronos60.teamTombstones')||'{}');
+    const previous=pending[key];
+    pending[key]=previous&&Number(previous.deletedAt||0)>entry.deletedAt?previous:entry;
+    localStorage.setItem('chronos60.teamTombstones',JSON.stringify(pending));
+  }catch(e){}
+}
+function localTeamTombstones(){try{return JSON.parse(localStorage.getItem('chronos60.teamTombstones')||'{}')}catch(e){return {}}}
+function isLocallyTeamTombstoned(teamId,type,id){
+  if(!teamId||id==null)return false;
+  return !!localTeamTombstones()[teamTombstoneKey(teamId,type,id)];
+}
+async function syncPendingTeamTombstones(){
+  if(!firebaseUser||!firebaseDb||!navigator.onLine)return;
+  const pending=localTeamTombstones();
+  for(const [key,t] of Object.entries(pending)){
+    if(!t?.teamId||!t?.type||t.id==null){delete pending[key];continue}
+    try{
+      const teamRef=firebaseDb.collection('teams').doc(String(t.teamId)),recordRef=teamRef.collection(cloudKind(t.type)).doc(cleanCloudId(t.id)),tombRef=teamRef.collection('tombstones').doc(cleanCloudId(t.id));
+      const batch=firebaseDb.batch();
+      batch.set(tombRef,{id:String(t.id),type:cloudKind(t.type),deletedAt:Number(t.deletedAt)||Date.now(),deletedBy:firebaseUser.uid},{merge:true});
+      batch.delete(recordRef);
+      await batch.commit();
+      delete pending[key];
+    }catch(err){console.warn('Pending team deletion could not sync',t,err)}
+  }
+  try{localStorage.setItem('chronos60.teamTombstones',JSON.stringify(pending))}catch(e){}
+}
 async function deleteCloudDocumentDirectly(type, id, teamId = null){
   if(!id) return;
   recordLocalTombstone(type, id);
+  if(teamId) recordLocalTeamTombstone(teamId,type,id);
   if(!navigator.onLine) return;
-  const kind = (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
-  const cleanId = String(id).replace(/[.#$\[\]/]/g, '_');
+  const kind=cloudKind(type),cleanId=cleanCloudId(id);
   const now = Date.now();
 
   try {
-    if(teamId && typeof firebaseDb !== 'undefined' && firebaseDb){
-      await firebaseDb.collection('teams').doc(teamId).collection(kind).doc(String(id)).delete().catch(()=>{});
-      await firebaseDb.collection('teams').doc(teamId).collection('tombstones').doc(String(id)).set({
-        id: String(id),
-        type: kind,
-        deletedAt: now,
-        deletedBy: (typeof firebaseUser !== 'undefined' && firebaseUser) ? firebaseUser.uid : 'local'
-      }, { merge: true }).catch(()=>{});
-    }
+    if(teamId && typeof firebaseDb !== 'undefined' && firebaseDb) await syncPendingTeamTombstones();
   } catch(err){ console.warn('Team cloud deletion failed for ' + id, err); }
 
   try {
     if(typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb){
-      await firebaseDb.collection('users').doc(firebaseUser.uid).collection(kind).doc(cleanId).delete().catch(()=>{});
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection(kind).doc(cleanId).delete();
       await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones').doc(kind + '_' + cleanId).set({
         id: String(id),
         type: kind,
         deletedAt: now,
         tombstoneKey: kind + '|' + String(id)
-      }, { merge: true }).catch(()=>{});
+      }, { merge: true });
     }
   } catch(err){ console.warn('User cloud deletion failed for ' + id, err); }
 }
@@ -9393,7 +9421,7 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
  if(failures.length)throw Error('Some team shares failed. '+failures.join(' | '));
  renderSharedItemsInMainScreens();renderOverviewTeam();
 }
-async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date)}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
+async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!isLocallyTeamTombstoned(team.id,'events',e.sourceId))}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
 const EVENT_COVER_PRESETS = {
   'preset:strategy': {
     name: 'Strategy Sync',
@@ -10272,7 +10300,7 @@ function openNote(id=null){
 }
 function movePeriod(delta,animate=true){if(view==='month')selected=new Date(selected.getFullYear(),selected.getMonth()+delta,Math.min(selected.getDate(),28),12);else if(view==='week')selected.setDate(selected.getDate()+delta*7);else if(view==='day')selected.setDate(selected.getDate()+delta);else selected=new Date(selected.getFullYear(),selected.getMonth()+delta,1,12);render();if(animate&&delta!==0){applyCalendarSlideAnimation(delta>0?'next':'prev')}}
 function applyCalendarSlideAnimation(direction){if(settings.motion==='off'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const canvas=$('calendarCanvas');if(!canvas)return;canvas.classList.remove('calendar-slide-next','calendar-slide-prev');void canvas.offsetWidth;canvas.classList.add(direction==='next'?'calendar-slide-next':'calendar-slide-prev');if(navigator.vibrate)try{navigator.vibrate(15)}catch{}setTimeout(()=>{canvas.classList.remove('calendar-slide-next','calendar-slide-prev')},300)}
-async function handleClick(e){const dateBtn=e.target.closest('[data-date]');if(dateBtn){selected=parseDate(dateBtn.dataset.date);render();return}const edit=e.target.closest('[data-edit-event]');if(edit){if(e.target.closest('.journey-card-menu-btn')||edit.dataset.forceEdit){openEvent(edit.dataset.editEvent)}else{openItemPreview('event',edit.dataset.editEvent)}return}const del=e.target.closest('[data-delete-event]');if(del){const ok=await confirmCustomInApp('Delete this event from your calendar?',{title:'Delete Event',confirmText:'Delete',danger:true});if(ok){const delId=del.dataset.deleteEvent;recordLocalTombstone('events',delId);const targetEv=(events||[]).find(e=>String(e.id)===String(delId));deleteCloudDocumentDirectly('events',delId,targetEv?.teamId);events=events.filter(x=>String(x.id)!==String(delId));persist();render();notify('Event deleted.')}return}const forceEditNote=e.target.closest('[data-force-edit-note]');if(forceEditNote){openNote(forceEditNote.dataset.forceEditNote);return}const note=e.target.closest('[data-edit-note], [data-preview-note]');if(note&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){const nId=note.dataset.previewNote||note.dataset.editNote||note.dataset.noteId;if(note.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}}
+async function handleClick(e){const dateBtn=e.target.closest('[data-date]');if(dateBtn){selected=parseDate(dateBtn.dataset.date);render();return}const edit=e.target.closest('[data-edit-event]');if(edit){if(e.target.closest('.journey-card-menu-btn')||edit.dataset.forceEdit){openEvent(edit.dataset.editEvent)}else{openItemPreview('event',edit.dataset.editEvent)}return}const del=e.target.closest('[data-delete-event]');if(del){const ok=await confirmCustomInApp('Delete this event from your calendar?',{title:'Delete Event',confirmText:'Delete',danger:true});if(ok){const delId=del.dataset.deleteEvent;recordLocalTombstone('events',delId);const targetEv=(events||[]).find(e=>String(e.id)===String(delId));await deleteCloudDocumentDirectly('events',delId,targetEv?.teamId);events=events.filter(x=>String(x.id)!==String(delId));persist();render();notify('Event deleted.')}return}const forceEditNote=e.target.closest('[data-force-edit-note]');if(forceEditNote){openNote(forceEditNote.dataset.forceEditNote);return}const note=e.target.closest('[data-edit-note], [data-preview-note]');if(note&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){const nId=note.dataset.previewNote||note.dataset.editNote||note.dataset.noteId;if(note.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}}
 document.addEventListener('click',handleClick);document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.id==='previewSound'||b.id==='previewSuccess'||b.matches('[data-page]'))return;if(b.type==='submit')return;playInterfaceSound()},{passive:true});
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;toggleMonthPicker(false);renderCalendar()}));
@@ -10552,7 +10580,7 @@ $('deleteEvent')?.addEventListener('click', async () => {
   if(ok){
     recordLocalTombstone('events', id);
     const targetEv = (events||[]).find(e => String(e.id) === String(id));
-    deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
+    await deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
     events = events.filter(e => String(e.id) !== String(id));
     if(typeof persist === 'function') persist();
     closeEvent();
@@ -11752,7 +11780,7 @@ document.addEventListener('click',async e=>{
         const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});
         if(ok){
           recordLocalTombstone('notes', id);
-          deleteCloudDocumentDirectly('notes', id);
+          await deleteCloudDocumentDirectly('notes', id, n.teamId);
           try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}
           notes=notes.filter(x=>String(x.id)!==String(id));
           persist();renderNotes();notify('Note permanently deleted.');
@@ -13017,7 +13045,7 @@ const noteTemplates={lesson:{title:'Lesson Plan',collection:'Lesson Planning',ta
 $('newTemplateBtn')?.addEventListener('click',()=>{const box=document.createElement('div');box.className='modal-backdrop';box.style.zIndex='2147483100';box.innerHTML='<section class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h3>Start from a template</h3><button class="close" type="button" data-template-close>×</button></div><div class="note-template-grid" style="padding:16px">'+Object.entries(noteTemplates).map(([k,t])=>`<button class="note-template" type="button" data-template="${k}"><strong>${esc(t.title)}</strong><small>${esc(t.collection)}</small></button>`).join('')+'</div></section>';document.body.appendChild(box);box.addEventListener('click',e=>{if(e.target===box||e.target.closest('[data-template-close]')){box.remove();return}const b=e.target.closest('[data-template]');if(b){const t=noteTemplates[b.dataset.template];box.remove();openNote();$('noteTitle').value=t.title;$('noteCollection').value=t.collection;$('noteTag').value=t.tag;$('noteBody').value=t.body.replace(/\\n/g,'\n');scheduleNoteAutosave();$('noteBody').focus()}})});
 $('exportNoteMdBtn')?.addEventListener('click',()=>{const title=$('noteTitle').value.trim()||'Untitled note',body=$('noteBody').value||'',content=(title?'# '+title+'\n\n':'')+body;downloadFile((title.replace(/[^a-z0-9-_]+/gi,'-').replace(/^-|-$/g,'')||'chronos-note')+'.md',content,'text/markdown;charset=utf-8');notify('Markdown source exported.')});
 $('noteHistoryBtn')?.addEventListener('click',()=>{const id=$('noteId').value,n=notes.find(x=>x.id===id);if(!n){notify('Save the note once before opening version history.');return}const history=(n.history||[]).slice().reverse();const box=document.createElement('div');box.className='modal-backdrop';box.style.zIndex='2147483100';box.innerHTML='<section class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h3>Note history</h3><button class="close" type="button" data-history-close>×</button></div><div style="padding:0 16px 16px"><p class="muted-label">Up to 20 previous versions are kept locally on this device.</p><div class="note-history-list">'+(history.map((h,i)=>`<div class="note-history-item"><div><strong>${esc(h.title||'Untitled note')}</strong><small>${new Date(h.savedAt).toLocaleString()} · ${String(h.body||'').length} characters</small></div><button class="btn" type="button" data-history-restore="${(n.history||[]).length-1-i}">Restore</button></div>`).join('')||'<p class="empty">No previous versions yet. Chronos records versions as you edit.</p>')+'</div></div></section>';document.body.appendChild(box);box.addEventListener('click',async e=>{if(e.target===box||e.target.closest('[data-history-close]')){box.remove();return}const b=e.target.closest('[data-history-restore]');if(b){const version=n.history[Number(b.dataset.historyRestore)];if(!version)return;const ok=await confirmCustomInApp('Restore this version into the editor? The current draft will be autosaved as a newer history entry.',{title:'Restore Note Version',confirmText:'Restore draft',danger:false});if(!ok)return;$('noteTitle').value=version.title;$('noteBody').value=version.body;scheduleNoteAutosave();box.remove();notify('Previous version loaded into the editor.')}})});
-$('deleteNote')?.addEventListener('click',async()=>{const id=$('noteId').value,n=notes.find(x=>x.id===id);if(!n)return;if(n.trashed){const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});if(!ok)return;recordLocalTombstone('notes',id);deleteCloudDocumentDirectly('notes',id);try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}notes=notes.filter(x=>String(x.id)!==String(id));persist();$('noteBackdrop').classList.add('hidden');renderNotes();notify('Note permanently deleted.')}else{const ok=await confirmCustomInApp('Move this note to Trash? You can restore it later.',{title:'Move to Trash',confirmText:'Move to Trash',danger:true});if(!ok)return;n.trashed=true;n.pinned=false;n.updated=Date.now();persist();$('noteBackdrop').classList.add('hidden');renderNotes();notify('Note moved to Trash.')}});
+$('deleteNote')?.addEventListener('click',async()=>{const id=$('noteId').value,n=notes.find(x=>x.id===id);if(!n)return;if(n.trashed){const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});if(!ok)return;recordLocalTombstone('notes',id);await deleteCloudDocumentDirectly('notes',id,n.teamId);try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}notes=notes.filter(x=>String(x.id)!==String(id));persist();$('noteBackdrop').classList.add('hidden');renderNotes();notify('Note permanently deleted.')}else{const ok=await confirmCustomInApp('Move this note to Trash? You can restore it later.',{title:'Move to Trash',confirmText:'Move to Trash',danger:true});if(!ok)return;n.trashed=true;n.pinned=false;n.updated=Date.now();persist();$('noteBackdrop').classList.add('hidden');renderNotes();notify('Note moved to Trash.')}});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-wiki-note]');if(a){e.preventDefault();e.stopPropagation();const id=a.dataset.wikiNote;if($('noteBackdrop')&&!$('noteBackdrop').classList.contains('hidden'))$('noteBackdrop').classList.add('hidden');if(typeof openItemPreview==='function'){openItemPreview('note',id)}else{openNote(id)}}});
 
 $('globalSearch').addEventListener('input',e=>{query=e.target.value.toLowerCase().trim();if($('noteSearch'))$('noteSearch').value=query;if(query&&notes.some(n=>`${n.title} ${n.body}`.toLowerCase().includes(query))&& !events.some(v=>`${v.title} ${v.description}`.toLowerCase().includes(query)))setPage('notes');else setPage('calendar');$('noteSearch').value=query;render()});
@@ -14202,7 +14230,7 @@ document.addEventListener('click', async e => {
     if(ok){
       if(typeof recordLocalTombstone==='function') recordLocalTombstone('events', id);
       const targetEv = (events||[]).find(e => String(e.id) === String(id));
-      if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
+      if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
       events = events.filter(x => String(x.id) !== String(id));
       persist();
       render();
@@ -14229,7 +14257,7 @@ document.addEventListener('click', async e => {
     if(ok){
       if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', id);
       const targetTask = (tasks||[]).find(t => String(t.id) === String(id));
-      if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('tasks', id, targetTask?.teamId);
+      if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly('tasks', id, targetTask?.teamId);
       tasks = tasks.filter(t => String(t.id) !== String(id));
       persist();
       renderTasks();
@@ -16500,7 +16528,8 @@ async function deleteTeamAssignedTask(teamId,id){
  try{
   if(!firebaseUser||!firebaseDb)throw Error('Sign in before deleting a team task.');
   if(!navigator.onLine)throw Error('Deleting shared tasks requires an internet connection.');
-  await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).delete();
+  recordLocalTeamTombstone(teamId,'tasks',id);
+  await syncPendingTeamTombstones();
   teamAssignedTasks=(teamAssignedTasks||[]).filter(t=>!(String(t.id)===String(id)&&String(t.teamId)===String(teamId)));
   if(teamLiveData[teamId]?.tasks){teamLiveData[teamId].tasks=teamLiveData[teamId].tasks.filter(t=>String(t.id)!==String(id))}
   if(activeTeamId===teamId&&teamRecords.tasks){teamRecords.tasks=teamRecords.tasks.filter(t=>String(t.id)!==String(id))}
@@ -16543,7 +16572,7 @@ function triggerDayCompletionCelebration(dateKey){
 function toggleTask(id,done){const t=tasks.find(x=>x.id===id);if(!t)return;const wasDone=!!t.done;t.done=done;t.updated=Date.now();if(done&&!wasDone&&t.recurrence&&t.recurrence!=='none'&&t.due){let nextDue=nextTaskDue(t.due,t.recurrence),todayKey=iso(new Date());let guard=0;while(nextDue&&nextDue<=todayKey&&guard++<500)nextDue=nextTaskDue(nextDue,t.recurrence);const root=t.recurrenceParentId||t.id;if(nextDue&&!tasks.some(x=>(x.recurrenceParentId||x.id)===root&&x.due===nextDue)){tasks.push({...t,id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,due:nextDue,done:false,reminderFiredKey:'',subtasks:(t.subtasks||[]).map(st=>({...st,id:`st${Date.now()}${Math.random().toString(36).slice(2,5)}`,done:false})),recurrenceParentId:root,updated:Date.now()})}}persist();renderTasks();renderDashboard();renderSelectedTasks();if(done){const card=[...document.querySelectorAll('.task-card')].find(el=>el.querySelector('[data-task-toggle]')?.dataset.taskToggle===id);if(card)card.classList.add('just-completed');playAppSound('success');if(t.due){const dayTasks=tasks.filter(x=>x.due===t.due);if(dayTasks.length>0&&dayTasks.every(x=>x.done)){triggerDayCompletionCelebration(t.due);}}}else playInterfaceSound();}
 $('taskForm').addEventListener('submit',async e=>{e.preventDefault();const title=$('taskTitle').value.trim(),due=$('taskDue').value,dueTime=$('taskDueTime').value,reminder=$('taskReminder').value;if(!title)return;if(reminder==='hourBefore'&&due&&!dueTime){notify('Add a due time to use the 1-hour-before reminder.');$('taskDueTime').focus();return}if(reminder!=='none'&&!due){notify('Choose a due date to schedule a task reminder.');$('taskDue').focus();return}const id=$('taskId').value||`t${Date.now()}`,i=tasks.findIndex(t=>t.id===id),old=tasks[i],subLines=$('taskSubtasks').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),oldSubs=old?.subtasks||[],subtasks=subLines.map(title=>({...oldSubs.find(x=>x.title===title),id:oldSubs.find(x=>x.title===title)?.id||`st${Date.now()}${Math.random().toString(36).slice(2,6)}`,title,done:!!oldSubs.find(x=>x.title===title)?.done})),reminderChanged=!old||old.reminder!==reminder||old.due!==due||old.dueTime!==dueTime,t={...old,id,title,due,dueTime,priority:$('taskPriority').value,details:$('taskDetails').value.trim(),recurrence:$('taskRecurrence').value,reminder,reminderFiredKey:reminderChanged?'':(old?.reminderFiredKey||''),linkedNoteId:$('taskLinkedNote').value,subtasks,done:old?.done||false,teamAssignments:selectedMulti('taskAssignees').map(v=>{const [teamId,uid]=v.split('|');return {teamId,uid}}),sharedTeamIds:[],createdBy:old?.createdBy||(firebaseUser?firebaseUser.uid:'local'),createdByName:old?.createdByName||(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:old?.createdByPhotoURL||(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()};t.sharedTeamIds=[...new Set([...selectedMulti('taskShareTeams'),...(t.teamAssignments||[]).map(a=>a.teamId)])];if(i>=0)tasks[i]=t;else tasks.push(t);persist();try{await publishToTeams('tasks',t,t.sharedTeamIds,t.teamAssignments)}catch(err){notify('Task saved locally, but team sharing failed: '+err.message)}closeTask();renderTasks();renderDashboard();renderSelectedTasks();notify(i>=0?'Task updated.':'Task added.');checkReminders();});
 $('taskQuickAddBtn')?.addEventListener('click',()=>{const title=$('taskQuickTitle').value.trim();if(!title){$('taskQuickTitle').focus();return}tasks.push({id:`t${Date.now()}`,title,due:$('taskQuickDue').value,priority:'medium',details:'',dueTime:'',done:false,recurrence:'none',reminder:'none',reminderFiredKey:'',subtasks:[],...(selectedProjectId?{projectId:selectedProjectId}:{}),createdBy:(firebaseUser?firebaseUser.uid:'local'),createdByName:(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()});$('taskQuickTitle').value='';persist();renderTasks();renderDashboard();notify('Task added.')});$('taskQuickTitle')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('taskQuickAddBtn').click()}});
-$('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);tasks=tasks.filter(t=>String(t.id)!==String(id));persist();closeTask();renderTasks();renderDashboard();notify('Task deleted.')}});
+$('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));await deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);tasks=tasks.filter(t=>String(t.id)!==String(id));persist();closeTask();renderTasks();renderDashboard();notify('Task deleted.')}});
 document.addEventListener('change',e=>{if(e.target.matches('[data-task-toggle]'))toggleTask(e.target.dataset.taskToggle,e.target.checked)});
 document.addEventListener('click',e=>{const sched=e.target.closest('[data-schedule-task]');if(sched){e.stopPropagation();const t=tasks.find(x=>x.id===sched.dataset.scheduleTask);if(t){openEvent(null,t.due||iso(selected));$('eventTitle').value=t.title;$('eventDescription').value=t.details||'';$('eventLinkedNote').value=t.linkedNoteId||'';notify('Review event details, then save to schedule this task.')}return}const noteLink=e.target.closest('[data-edit-note], [data-preview-note]');if(noteLink&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){e.stopPropagation();const nId=noteLink.dataset.previewNote||noteLink.dataset.editNote||noteLink.dataset.noteId;if(noteLink.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}const t=e.target.closest('[data-edit-task]');if(t){if(t.dataset.forceEdit||e.target.closest('.journey-card-menu-btn')){openTask(t.dataset.editTask)}else{openItemPreview('task',t.dataset.editTask)}return}const g=e.target.closest('[data-goto]');if(g)setPage(g.dataset.goto)});
 document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks()}));
@@ -17460,7 +17489,7 @@ document.addEventListener('dblclick', e => {
 // Firebase cloud sync. User owns/configures their project; never store server credentials here.
 function updateSyncStatus(message){const el=$('syncStatus');if(!el)return;const configured=!!(firebaseConfig&&firebaseConfig.apiKey&&firebaseConfig.projectId);el.classList.toggle('connected',!!firebaseUser);el.classList.toggle('pending',!!message);const label=message||(firebaseUser?'Signed in · '+(firebaseUser.displayName||firebaseUser.email||firebaseUser.uid):configured?'Configured · sign in with Google':'Firebase not configured');el.innerHTML=`<span class="status-dot"></span><span>${esc(label)}</span>`}
 function fillFirebaseConfig(){const input=$('firebaseConfigJson');if(input&&firebaseConfig&&Object.keys(firebaseConfig).length)input.value=JSON.stringify(firebaseConfig,null,2);updateSyncStatus()}
-let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}refreshTeamWorkspace()}else{stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
+let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');syncPendingTeamTombstones().catch(err=>console.warn('Team deletion retry failed',err));if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}refreshTeamWorkspace()}else{stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
 $('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=parsed;localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
 async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent='Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent='Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}if(status){status.classList.add('error');status.textContent=err.message||'Google sign-in failed. Check your Firebase Authentication settings and authorized domain.'}notify(err.message||'Google sign-in failed.')}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
 $('firebaseGoogleSignIn').addEventListener('click',()=>startFirebaseGoogleSignIn('settings'));
@@ -17474,7 +17503,7 @@ function teamIdSafe(v){return String(v||'').replace(/[^A-Za-z0-9_-]/g,'_').slice
 function teamCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const bytes=new Uint8Array(8);if(window.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<8;i++)bytes[i]=Math.floor(Math.random()*256);return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('')}
 function teamCacheKey(){return 'chronos70.teamCache.'+(firebaseUser?.uid||'local')}
 function saveTeamCache(){try{localStorage.setItem(teamCacheKey(),JSON.stringify({teams:chronosTeams,activeTeamId,activeTeam,members:teamMembers,records:teamRecords,updatedAt:Date.now()}))}catch{}}
-function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];teamRecords=c.records||{events:[],tasks:[],notes:[]};renderTeamWorkspace();return true}}catch{}return false}
+function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];const keep=(kind,row)=>!isLocallyTeamTombstoned(row?.teamId||activeTeamId,kind,row?.id)&&!localTombstones()[kind+'|'+String(row?.id||'')];const cached=c.records||{events:[],tasks:[],notes:[]};teamRecords={events:(cached.events||[]).filter(x=>keep('events',x)),tasks:(cached.tasks||[]).filter(x=>keep('tasks',x)),notes:(cached.notes||[]).filter(x=>keep('notes',x))};renderTeamWorkspace();return true}}catch{}return false}
 function currentTeamRole(){return teamMembers.find(m=>m.uid===firebaseUser?.uid)?.role||chronosTeams.find(t=>t.id===activeTeamId)?.role||''}
 function isTeamAdmin(){return ['owner','admin'].includes(currentTeamRole())}
 function renderSharedItemsInMainScreens(){const tp=$('teamSharedTasksPanel'),tl=$('teamSharedTasksList'),np=$('teamSharedNotesPanel'),nl=$('teamSharedNotesList');const sharedTasks=teamRecords.tasks||[],sharedNotes=teamRecords.notes||[];if(tp&&tl){tp.classList.add('hidden');tl.innerHTML=sharedTasks.map(t=>{const person=teamMembers.find(m=>m.uid===(t.assigneeUid||''))||{uid:t.assigneeUid,displayName:t.assigneeName||t.assigneeEmail||'Unassigned',photoURL:t.assigneePhotoURL||''};return `<article class="task-card"><div class="task-main"><strong>${teamEsc(t.title||'Untitled task')}</strong><p>${teamEsc(t.body||t.details||'')}</p><div class="team-record-byline">${t.assigneeUid?avatarMarkup(person,'sm')+'<span>Assigned to '+teamEsc(person.displayName||person.email||'team member')+'</span>':'<span>Unassigned · '+teamEsc(activeTeam?.name||'Team')+'</span>'}${t.date?'<span>· Due '+teamEsc(t.date)+'</span>':''}</div></div><select data-main-shared-task-status="${teamEsc(t.id)}" aria-label="Update team task status" ${(t.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin())?'disabled':''}><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${t.status==='done'?'selected':''}>Completed</option></select></article>`}).join('')||'<div class="team-empty">No team tasks for the selected team yet.</div>';tl.querySelectorAll('[data-main-shared-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.mainSharedTaskStatus,sel.value)))}if(np&&nl){np.classList.toggle('hidden',!firebaseUser||!activeTeam);nl.innerHTML=sharedNotes.map(n=>{const author=teamMembers.find(m=>m.uid===n.createdBy)||{uid:n.createdBy,displayName:n.createdByName||'Team member',photoURL:n.createdByPhotoURL||''};return `<article class="note-card" data-preview-note="${teamEsc(n.id)}" style="cursor:pointer"><span class="note-chip">${teamEsc(activeTeam?.name||'Team')} · Shared plan</span><h3>${teamEsc(n.title||'Untitled note')}</h3><p>${teamEsc(n.body||'')}</p><div class="team-record-byline">${avatarMarkup(author,'sm')}<span>By ${teamEsc(author.displayName||author.email||'Team member')}</span></div></article>`}).join('')||'<div class="team-empty">No team notes for the selected team yet.</div>'}}
@@ -17562,12 +17591,12 @@ function applyTeamLiveData(){
  for(const team of chronosTeams){
   const data=teamLiveData[team.id]||{events:[],tasks:[],notes:[]};
   for(const ev of data.events||[]){
-   if(ev.date && !tombs['events|'+String(ev.id)] && !tombs['events|'+String(ev.sourceId||'')]) {
+   if(ev.date && !tombs['events|'+String(ev.id)] && !tombs['events|'+String(ev.sourceId||'')] && !isLocallyTeamTombstoned(team.id,'events',ev.id) && !isLocallyTeamTombstoned(team.id,'events',ev.sourceId||'')) {
     allEvents.push({...ev,id:'team_'+team.id+'_'+ev.id,sourceId:ev.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',date:ev.date||''});
    }
   }
   for(const task of data.tasks||[]){
-   if(tombs['tasks|'+String(task.id)]) continue;
+   if(tombs['tasks|'+String(task.id)] || isLocallyTeamTombstoned(team.id,'tasks',task.id)) continue;
    const uids=Array.isArray(task.assigneeUids)?task.assigneeUids:[];
    if(firebaseUser&&((task.assigneeUid&&task.assigneeUid===firebaseUser.uid)||uids.includes(firebaseUser.uid))){
     assigned.push({...task,id:task.id,teamId:team.id,teamName:team.name||task.teamName||'Team',teamShared:true,done:task.status==='done'||!!task.done});
@@ -17577,9 +17606,9 @@ function applyTeamLiveData(){
  teamCalendarEvents=allEvents;teamAssignedTasks=assigned;
  if(activeTeamId&&teamLiveData[activeTeamId]){
   teamRecords={
-   events:(teamLiveData[activeTeamId].events||[]).filter(x=>!tombs['events|'+String(x.id)]),
-   tasks:(teamLiveData[activeTeamId].tasks||[]).filter(x=>!tombs['tasks|'+String(x.id)]),
-   notes:(teamLiveData[activeTeamId].notes||[]).filter(x=>!tombs['notes|'+String(x.id)])
+   events:(teamLiveData[activeTeamId].events||[]).filter(x=>!tombs['events|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'events',x.id)),
+   tasks:(teamLiveData[activeTeamId].tasks||[]).filter(x=>!tombs['tasks|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'tasks',x.id)),
+   notes:(teamLiveData[activeTeamId].notes||[]).filter(x=>!tombs['notes|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'notes',x.id))
   };
  }
 
@@ -17636,7 +17665,7 @@ function startTeamRealtimeSync(){
  }}
 }
 async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>t.teamId===teamId&&t.id===id?{...t,...patch}:t);applyTeamLiveData();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
-async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
+async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{await syncPendingTeamTombstones();teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);const keep=(kind,row)=>!isLocallyTeamTombstoned(activeTeamId,kind,row?.id)&&!localTombstones()[kind+'|'+String(row?.id||'')];teamRecords={events:ev.filter(x=>keep('events',x)),tasks:ta.filter(x=>keep('tasks',x)),notes:no.filter(x=>keep('notes',x))};teamLiveData[activeTeamId]={events:teamRecords.events,tasks:teamRecords.tasks,notes:teamRecords.notes};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
   // Ensure active team has a verified cloud invite code ready
   if (activeTeam && (isTeamAdmin() || activeTeam.ownerUid === firebaseUser.uid)) {
     ensureTeamInviteCode(activeTeam).catch(e => console.warn('Background invite ensure:', e));
@@ -17779,7 +17808,7 @@ async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks, 
 }
 function mergeTombstones(localMap,cloudItems){const out={...(localMap||{})};for(const t of cloudItems||[]){if(!t?.type||t.id==null)continue;const k=t.type+'|'+String(t.id);if(!out[k]||Number(t.deletedAt||0)>Number(out[k].deletedAt||0))out[k]={type:t.type,id:String(t.id),deletedAt:Number(t.deletedAt)||Date.now()}}return out}
 function withoutTombstones(items,type,tombs){return (items||[]).filter(x=>x&&x.id!=null&&!tombs[type+'|'+String(x.id)])}
-async function writeTombstones(tombs){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');const entries=Object.entries(tombs||{});for(let i=0;i<entries.length;i+=400){const batch=firebaseDb.batch();for(const [key,t] of entries.slice(i,i+400)){const docId=String(key).replace(/[.#$\[\]/]/g,'_');batch.set(col.doc(docId),{...t,id:String(t.id),tombstoneKey:key},{merge:true})}await batch.commit()}}
+async function writeTombstones(tombs){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');const entries=Object.entries(tombs||{});for(let i=0;i<entries.length;i+=400){const batch=firebaseDb.batch();for(const [key,t] of entries.slice(i,i+400)){if(!t?.type||t.id==null)continue;const docId=String(t.type)+'_'+cleanCloudId(t.id);batch.set(col.doc(docId),{...t,id:String(t.id),tombstoneKey:key},{merge:true})}await batch.commit()}}
 async function firebaseMergeSync(){if(firebaseSyncBusy)return;firebaseSyncBusy=true;const btn=$('firebaseSyncNow');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{if(!firebaseConfig.apiKey)throw Error('Save your Firebase Web App configuration first.');if(!firebaseAuth||!firebaseUser)throw Error('Sign in with Google before syncing.');if(!navigator.onLine)throw Error('You are offline. Your local changes remain saved and can sync when you are online.');const firstMigration=localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid;if(firstMigration){updateSyncStatus('Creating local backup…');downloadLocalPreSyncBackup();const ok=await confirmCustomInApp('A local JSON backup has been downloaded and saved in this browser. Merge local and cloud records by ID and update time? Existing records are not wholesale replaced.',{title:'Merge Cloud Workspace',confirmText:'Merge & sync'});if(!ok)return;}const userRef=firebaseDb.collection('users').doc(firebaseUser.uid);await userRef.set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});updateSyncStatus('Reading cloud data…');const [cloudEvents,cloudNotes,cloudTasks,cloudSettings,cloudTombstones,cloudProjects]=await Promise.all([
   firestoreReadCollection('events'),
   firestoreReadCollection('notes'),
@@ -17858,7 +17887,7 @@ async function firebaseBackgroundSync(){
   }
 }
 function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),5000)}
-window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace()}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine)refreshTeamWorkspace()});
+window.addEventListener('online',()=>{if(firebaseUser){syncPendingTeamTombstones().finally(()=>{scheduleFirebaseSync();refreshTeamWorkspace()})}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){syncPendingTeamTombstones().finally(()=>refreshTeamWorkspace())}});
 // Restore saved config without blocking standalone startup. Firebase SDK is loaded only
 // on a secure origin when the user chooses to connect; file:// stays local-first and usable.
 try{firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG};if(firebaseConfig.apiKey&&firebaseConfig.projectId){$('firebaseConfigJson').value=JSON.stringify(firebaseConfig,null,2);if(location.protocol==='file:'){updateSyncStatus('Standalone mode · local workspace ready')}else{initFirebase(firebaseConfig).catch(err=>{console.warn('Firebase configuration not initialized:',err);updateSyncStatus('Firebase unavailable · local mode remains active')})}}}catch(err){console.warn('Firebase configuration not initialized:',err)}
@@ -20760,7 +20789,7 @@ html[data-theme=dark] .btn-act-compact {
     const tombs=typeof localTombstones==='function'?localTombstones():{};
     const add=(task,teamId)=>{
       if(!task?.id||!task.projectId)return;
-      if(tombs['tasks|'+String(task.id)])return;
+      if(tombs['tasks|'+String(task.id)]||isLocallyTeamTombstoned(task.teamId||teamId,'tasks',task.id))return;
       const key=String(task.id);
       const value={...task,teamId:task.teamId||teamId,teamShared:true,status:normalizeStatus(task.status)};
       const previous=out.get(key);
@@ -20788,9 +20817,9 @@ html[data-theme=dark] .btn-act-compact {
     });
     chronosProjects=[...map.values()];
   }
- function collectSharedProjects(){sharedProjects.splice(0,sharedProjects.length);Object.entries(teamLiveData||{}).forEach(([teamId,data])=>(data?.projects||[]).forEach(project=>sharedProjects.push({...project,id:project.id||project.projectId,teamId:project.teamId||teamId,teamName:project.teamName||chronosTeams.find(t=>t.id===teamId)?.name||'Team',teamShared:true})));mergeSharedProjects()}
- async function syncSharedProject(project){if(!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(project.teamShared&&!canManageProject(project))return;const teamId=project.teamId||activeTeamId;if(!teamId)return;const now=Date.now(),team=chronosTeams.find(t=>String(t.id)===String(teamId));project.teamId=teamId;project.teamName=project.teamName||team?.name||activeTeam?.name||'Team';project.teamShared=true;project.updatedAt=now;const record={...project,id:String(project.id),teamId,teamName:project.teamName,sharedProject:true,createdBy:project.createdBy||firebaseUser.uid,createdByName:project.createdByName||firebaseUser.displayName||firebaseUser.email||'',updatedBy:firebaseUser.uid,updatedAt:now};await firebaseDb.collection('teams').doc(teamId).collection('projects').doc(String(project.id)).set(record,{merge:true});saveChronosProjects()}
- async function syncSharedProjectTask(task){const project=projectFor(task?.projectId);if(!task||!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;const teamId=task.teamId||project.teamId;if(!teamId)return;const assignments=Array.isArray(task.teamAssignments)?task.teamAssignments.filter(a=>String(a.teamId)===String(teamId)).map(a=>a.uid).filter(Boolean):[];const assigneeUids=[...new Set([...(task.assigneeUids||[]),...(task.assigneeUid?[task.assigneeUid]:[]),...assignments])];const member=teamMembers.find(m=>String(m.uid)===String(assigneeUids[0]||''));const status=normalizeStatus(task.status),record={id:String(task.id),type:'tasks',sourceType:'project',teamShared:true,teamId,teamName:project.teamName||activeTeam?.name||'Team',projectId:String(project.id),projectName:project.name||'Project',projectDescription:project.description||'',title:task.title||'Untitled task',body:task.details||task.body||'',details:task.details||'',date:task.due||task.date||'',due:task.due||task.date||'',dueTime:task.dueTime||'',priority:task.priority||'medium',status:status==='in_progress'?'in-progress':status,done:status==='done'||!!task.done,assigneeUid:assigneeUids[0]||'',assigneeUids,assigneeEmail:member?.email||task.assigneeEmail||'',assigneeName:member?.displayName||task.assigneeName||'',assigneePhotoURL:member?.photoURL||task.assigneePhotoURL||'',createdBy:task.createdBy||firebaseUser.uid,createdByName:task.createdByName||firebaseUser.displayName||firebaseUser.email||'',createdAt:task.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:firebaseUser.uid};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(task.id)).set(record,{merge:true});task.teamId=teamId;task.teamShared=true;task.sharedRecordId=String(task.id)}
+ function collectSharedProjects(){sharedProjects.splice(0,sharedProjects.length);Object.entries(teamLiveData||{}).forEach(([teamId,data])=>(data?.projects||[]).forEach(project=>{const id=project.id||project.projectId;if(isLocallyTeamTombstoned(project.teamId||teamId,'projects',id))return;sharedProjects.push({...project,id,teamId:project.teamId||teamId,teamName:project.teamName||chronosTeams.find(t=>t.id===teamId)?.name||'Team',teamShared:true})}));mergeSharedProjects()}
+ async function syncSharedProject(project){if(!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(project.teamShared&&!canManageProject(project))return;const teamId=project.teamId||activeTeamId;if(!teamId||isLocallyTeamTombstoned(teamId,'projects',project.id))return;const now=Date.now(),team=chronosTeams.find(t=>String(t.id)===String(teamId));project.teamId=teamId;project.teamName=project.teamName||team?.name||activeTeam?.name||'Team';project.teamShared=true;project.updatedAt=now;const record={...project,id:String(project.id),teamId,teamName:project.teamName,sharedProject:true,createdBy:project.createdBy||firebaseUser.uid,createdByName:project.createdByName||firebaseUser.displayName||firebaseUser.email||'',updatedBy:firebaseUser.uid,updatedAt:now};await firebaseDb.collection('teams').doc(teamId).collection('projects').doc(String(project.id)).set(record,{merge:true});saveChronosProjects()}
+ async function syncSharedProjectTask(task){const project=projectFor(task?.projectId);if(!task||!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;const teamId=task.teamId||project.teamId;if(!teamId||isLocallyTeamTombstoned(teamId,'tasks',task.id)||isLocallyTeamTombstoned(teamId,'projects',project.id))return;const assignments=Array.isArray(task.teamAssignments)?task.teamAssignments.filter(a=>String(a.teamId)===String(teamId)).map(a=>a.uid).filter(Boolean):[];const assigneeUids=[...new Set([...(task.assigneeUids||[]),...(task.assigneeUid?[task.assigneeUid]:[]),...assignments])];const member=teamMembers.find(m=>String(m.uid)===String(assigneeUids[0]||''));const status=normalizeStatus(task.status),record={id:String(task.id),type:'tasks',sourceType:'project',teamShared:true,teamId,teamName:project.teamName||activeTeam?.name||'Team',projectId:String(project.id),projectName:project.name||'Project',projectDescription:project.description||'',title:task.title||'Untitled task',body:task.details||task.body||'',details:task.details||'',date:task.due||task.date||'',due:task.due||task.date||'',dueTime:task.dueTime||'',priority:task.priority||'medium',status:status==='in_progress'?'in-progress':status,done:status==='done'||!!task.done,assigneeUid:assigneeUids[0]||'',assigneeUids,assigneeEmail:member?.email||task.assigneeEmail||'',assigneeName:member?.displayName||task.assigneeName||'',assigneePhotoURL:member?.photoURL||task.assigneePhotoURL||'',createdBy:task.createdBy||firebaseUser.uid,createdByName:task.createdByName||firebaseUser.displayName||firebaseUser.email||'',createdAt:task.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:firebaseUser.uid};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(task.id)).set(record,{merge:true});task.teamId=teamId;task.teamShared=true;task.sharedRecordId=String(task.id)}
  async function syncAllSharedProjects(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;const currentTeamId=activeTeamId;if(!currentTeamId)return;const memberIds=new Set((teamMembers||[]).map(member=>String(member.uid||member.id||'')));const candidates=chronosProjects.filter(project=>{if(project.teamId)return true;const people=[project.ownerUid,...(project.memberUids||project.officerUids||[])].filter(Boolean).map(String);return people.some(uid=>memberIds.has(uid))});if(!candidates.length)return;sharedProjectSyncBusy=true;try{for(const project of candidates){if(!project.teamId)project.teamId=currentTeamId;await syncSharedProject(project)}}catch(err){console.warn('Project sharing backfill failed:',err)}finally{sharedProjectSyncBusy=false}}
  async function syncAllSharedProjectTasks(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;sharedProjectSyncBusy=true;try{for(const task of tasks.filter(t=>t.projectId)){const project=projectFor(task.projectId);if(project?.teamId)await syncSharedProjectTask(task)}}catch(err){console.warn('Project task sharing failed:',err)}finally{sharedProjectSyncBusy=false}}
  const basePersistForProjects=window.persist;if(typeof basePersistForProjects==='function'&&!window.chronosSharedProjectPersist){window.chronosSharedProjectPersist=true;window.persist=function(){const result=basePersistForProjects.apply(this,arguments);setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},0);return result};persist=window.persist}
@@ -20804,7 +20833,7 @@ html[data-theme=dark] .btn-act-compact {
   const project=projectFor(task?.projectId);
   if(!task||!project||!canManageProject(project))throw Error('Only the project owner or a team administrator can delete this task.');
   if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id);
-  if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('tasks', task.id, project.teamId);
+  if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly('tasks', task.id, project.teamId);
   tasks=tasks.filter(item=>String(item.id)!==String(task.id));
   persist();
   closeTask();
@@ -20818,27 +20847,22 @@ html[data-theme=dark] .btn-act-compact {
   if(typeof recordLocalTombstone==='function') recordLocalTombstone('projects', project.id);
   const linkedTasks = (tasks||[]).filter(task=>String(task.projectId)===String(project.id));
   linkedTasks.forEach(task => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id); });
+  if(project.teamId){
+    recordLocalTeamTombstone(project.teamId,'projects',project.id);
+    linkedTasks.forEach(task=>recordLocalTeamTombstone(project.teamId,'tasks',task.id));
+  }
   if(navigator.onLine&&typeof firebaseDb!=='undefined'&&firebaseDb){
     if(typeof firebaseUser!=='undefined'&&firebaseUser){
       try{
-        const batch=firebaseDb.batch();
-        const userProjCol=firebaseDb.collection('users').doc(firebaseUser.uid).collection('projects');
-        const userTasksCol=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tasks');
-        batch.delete(userProjCol.doc(String(project.id).replace(/[.#$\[\]/]/g,'_')));
-        linkedTasks.forEach(t=>{ batch.delete(userTasksCol.doc(String(t.id).replace(/[.#$\[\]/]/g,'_'))); });
-        await batch.commit();
+        await deleteCloudDocumentDirectly('projects',project.id);
+        for(const task of linkedTasks) await deleteCloudDocumentDirectly('tasks',task.id);
       }catch(e){console.warn('Personal cloud project delete failed', e)}
     }
     if(project.teamId){
       try{
-        const teamRef=firebaseDb.collection('teams').doc(project.teamId),
-              snap=await teamRef.collection('tasks').where('projectId','==',String(project.id)).get(),
-              refs=[...snap.docs.map(doc=>doc.ref),teamRef.collection('projects').doc(String(project.id))];
-        for(let i=0;i<refs.length;i+=400){
-          const batch=firebaseDb.batch();
-          refs.slice(i,i+400).forEach(ref=>batch.delete(ref));
-          await batch.commit();
-        }
+        const snap=await firebaseDb.collection('teams').doc(project.teamId).collection('tasks').where('projectId','==',String(project.id)).get();
+        snap.docs.forEach(doc=>recordLocalTeamTombstone(project.teamId,'tasks',doc.id));
+        await syncPendingTeamTombstones();
       }catch(e){console.warn('Team cloud project delete failed', e)}
     }
   }
@@ -20946,7 +20970,7 @@ html[data-theme=dark] .btn-act-compact {
  $('teamRecordEditBackdrop')?.addEventListener('click',e=>{if(e.target===$('teamRecordEditBackdrop'))$('teamRecordEditBackdrop').classList.add('hidden')});
  $('teamRecordEditForm')?.addEventListener('submit',saveTeamRecordEdit);
 
- async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType==='project'||!activeTeam||!firebaseUser||!firebaseDb)throw Error('This shared record cannot be deleted here.');if(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))throw Error('Only the record creator or a team administrator can delete this shared item.');if(!navigator.onLine)throw Error('Deleting shared records requires an internet connection.');await firebaseDb.collection('teams').doc(activeTeam.id).collection(type).doc(String(record.id)).delete();teamRecords[type]=(teamRecords[type]||[]).filter(item=>String(item.id)!==String(record.id));if(teamLiveData[activeTeam.id]?.[type])teamLiveData[activeTeam.id][type]=teamLiveData[activeTeam.id][type].filter(item=>String(item.id)!==String(record.id));if(type==='tasks')teamAssignedTasks=(teamAssignedTasks||[]).filter(item=>String(item.id)!==String(record.id));renderTeamRecords();renderTasks();renderCalendar();renderSharedItemsInMainScreens();saveTeamCache();notify('Shared '+type.slice(0,-1)+' deleted.')}
+async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType==='project'||!activeTeam||!firebaseUser||!firebaseDb)throw Error('This shared record cannot be deleted here.');if(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))throw Error('Only the record creator or a team administrator can delete this shared item.');if(!navigator.onLine)throw Error('Deleting shared records requires an internet connection.');recordLocalTeamTombstone(activeTeam.id,type,record.id);await syncPendingTeamTombstones();teamRecords[type]=(teamRecords[type]||[]).filter(item=>String(item.id)!==String(record.id));if(teamLiveData[activeTeam.id]?.[type])teamLiveData[activeTeam.id][type]=teamLiveData[activeTeam.id][type].filter(item=>String(item.id)!==String(record.id));if(type==='tasks')teamAssignedTasks=(teamAssignedTasks||[]).filter(item=>String(item.id)!==String(record.id));renderTeamRecords();renderTasks();renderCalendar();renderSharedItemsInMainScreens();saveTeamCache();notify('Shared '+type.slice(0,-1)+' deleted.')}
  function decorateTeamRecordActions(){const box=$('teamRecordsList');if(!box||!activeTeam||!firebaseUser)return;const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';box.querySelectorAll('[data-team-record-id]').forEach(card=>{const record=(teamRecords[type]||[]).find(item=>String(item.id)===String(card.dataset.teamRecordId));if(!record||record.sourceType==='project'||(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))||card.querySelector('.team-record-actions'))return;const actions=document.createElement('div');actions.className='team-record-actions';actions.innerHTML=`<button type="button" class="btn team-record-edit" data-team-record-edit="${projectEsc(record.id)}" data-team-record-type="${projectEsc(type)}">Edit</button><button type="button" class="btn danger team-record-delete" data-team-record-delete="${projectEsc(record.id)}">Delete</button>`;card.querySelector('.team-record-main')?.appendChild(actions)})}
  const baseTeamRenderRecordsWithActions=renderTeamRecords;renderTeamRecords=function(){baseTeamRenderRecordsWithActions.apply(this,arguments);decorateTeamRecordActions()};
  document.addEventListener('click',async e=>{const editBtn=e.target.closest('[data-team-record-edit]');if(editBtn){e.preventDefault();e.stopImmediatePropagation();const type=editBtn.dataset.teamRecordType||(teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes'),record=(teamRecords[type]||[]).find(item=>String(item.id)===String(editBtn.dataset.teamRecordEdit));if(record)openTeamRecordEditModal(record,type);return}const button=e.target.closest('[data-team-record-delete]');if(!button)return;e.preventDefault();e.stopImmediatePropagation();const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',record=(teamRecords[type]||[]).find(item=>String(item.id)===String(button.dataset.teamRecordDelete));if(!record)return;const ok=await confirmCustomInApp(`Delete shared ${type.slice(0,-1)} "${record.title||'Untitled'}"? This cannot be undone.`,{title:'Delete Shared Item',confirmText:'Delete item',danger:true});if(!ok)return;try{await deleteSharedTeamRecord(record,type)}catch(err){notify('Could not delete shared item: '+(err.message||'Check your connection.'))}},true);
@@ -24065,8 +24089,10 @@ html[data-theme=dark] .batch-menu button:hover{
       if (!ok) return;
 
       const toDelete = (tasks || []).filter(t => (t.deliverableGroup === groupKey || t.deliverableTitle === groupKey || t.title === groupKey) && (!project || String(t.projectId) === String(project.id)));
+      toDelete.forEach(t => { if(t.teamId || activeTeamId) recordLocalTeamTombstone(t.teamId || activeTeamId,'tasks',t.id); });
       tasks = (tasks || []).filter(t => !toDelete.includes(t));
       if (typeof persist === 'function') persist();
+      if (typeof syncPendingTeamTombstones === 'function') await syncPendingTeamTombstones();
 
       // Cloud delete if active
       if (typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb && navigator.onLine) {
@@ -24097,8 +24123,10 @@ html[data-theme=dark] .batch-menu button:hover{
         confirm(`Remove ${personName} from requirement "${reqTitle}"?`);
       if (!ok) return;
 
+      recordLocalTeamTombstone(task.teamId || activeTeamId,'tasks',taskId);
       tasks = (tasks || []).filter(t => String(t.id) !== String(taskId));
       if (typeof persist === 'function') persist();
+      if (typeof syncPendingTeamTombstones === 'function') await syncPendingTeamTombstones();
 
       if (typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb && navigator.onLine) {
         const teamId = task.teamId || activeTeamId;
@@ -25162,7 +25190,7 @@ html[data-theme=dark] .batch-menu button:hover{
       if (!ok) return;
       const idsToDelete = new Set(selectedBatchTaskIds);
       const deletedTasksList = (tasks || []).filter(t => idsToDelete.has(String(t.id)));
-      deletedTasksList.forEach(t => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', t.id); });
+      deletedTasksList.forEach(t => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', t.id); if(typeof recordLocalTeamTombstone==='function'&&(t.teamId||activeTeamId)) recordLocalTeamTombstone(t.teamId||activeTeamId,'tasks',t.id); });
       tasks = (tasks || []).filter(t => !idsToDelete.has(String(t.id)));
       if (typeof persist === 'function') persist();
       if (navigator.onLine && typeof firebaseDb !== 'undefined' && firebaseDb) {
@@ -25179,6 +25207,7 @@ html[data-theme=dark] .batch-menu button:hover{
                 await batch.commit();
               }
             }
+            await syncPendingTeamTombstones();
             for (const t of deletedTasksList) {
               const teamId = t.teamId || (t.projectId && typeof projectFor === 'function' && projectFor(t.projectId)?.teamId);
               if (teamId) {

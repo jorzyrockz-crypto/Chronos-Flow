@@ -32,6 +32,7 @@ service cloud.firestore {
     }
     function isUserTombstoned(userId, type, recordId) {
       return exists(userTombstonePath(userId, type + '_' + recordId))
+        || exists(userTombstonePath(userId, type + '|' + recordId))
         || exists(userTombstonePath(userId, recordId));
     }
 
@@ -82,7 +83,9 @@ service cloud.firestore {
       // Shared Team Tombstones: prevents deleted team records from resurrecting across all members
       match /tombstones/{tombstoneId} {
         allow read: if isMember(teamId);
-        allow create, update: if isMember(teamId)
+        allow create: if isMember(teamId)
+          && request.resource.data.deletedBy == request.auth.uid;
+        allow update: if isMember(teamId)
           && request.resource.data.deletedBy == request.auth.uid;
         allow delete: if isAdmin(teamId);
       }
