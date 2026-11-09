@@ -4898,7 +4898,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
       <aside class="side-card"><div class="side-head"><div class="date-label">SELECTED DAY</div><h3 id="selectedTitle">Wednesday, 28</h3><p id="selectedSubtitle">Your day, at a glance.</p></div><div class="agenda-list" id="selectedAgenda"></div><div class="selected-tasks"><div class="selected-tasks-head"><strong>Tasks for this day</strong><button type="button" class="text-btn" id="addTaskForSelected" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add task</button></div><div id="selectedTasksList"></div></div><div class="side-footer"><button class="btn primary" id="addSelected" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add to this day</button></div></aside>
     </div>
   </section>
-  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
+  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button type="button" class="btn btn-showcase-sample-btn" onclick="window.openShowcaseProject()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:6px 14px;background:var(--surface2,rgba(255,255,255,0.06));border:1px solid var(--line,rgba(255,255,255,0.14));color:var(--text);margin-right:8px;" title="Open Complete Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Sample Project</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
 <div class="project-quick-filter-chips" id="projectQuickFilterChips" role="group" aria-label="Quick project filters">
   <button type="button" class="proj-filter-chip active" data-proj-filter="active">Active Projects</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="all">All Projects</button>
@@ -5168,6 +5168,14 @@ html[data-theme="dark"] .note-card .md-card-preview {
 
         <!-- Right Side: Collection Select + Tag Select + Sort + View Mode -->
         <div class="notes-tools-cluster">
+          <!-- Team Filter Select -->
+          <div class="notes-select-pill-wrap" id="noteTeamFilterWrap">
+            <select id="noteTeamFilter" class="notes-select-pill" aria-label="Filter by team">
+              <option value="all">👥 All notes & teams</option>
+              <option value="personal">👤 Personal only</option>
+            </select>
+          </div>
+
           <!-- Collection Filter Select -->
           <div class="notes-select-pill-wrap">
             <select id="noteCollectionFilter" class="notes-select-pill" aria-label="Filter by collection">
@@ -7459,6 +7467,8 @@ html:not([data-theme=dark]) .journey-month-divider-pill{background:rgba(255,255,
 /* Chips on Note Cards */
 .note-chip.note-readonly-chip{background:rgba(59,130,246,0.14);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);font-weight:700}
 .note-chip.note-comment-chip{background:rgba(16,185,129,0.14);color:#10b981;border:1px solid rgba(16,185,129,0.3);font-weight:700}
+.note-chip.note-team-chip{background:rgba(99,102,241,0.12);color:#6366f1;border:1px solid rgba(99,102,241,0.28);font-weight:700;display:inline-flex;align-items:center;gap:4px}
+[data-theme="dark"] .note-chip.note-team-chip{background:rgba(129,140,248,0.18);color:#a5b4fc;border-color:rgba(129,140,248,0.35)}
 
 .notes-studio-v2 .keep-capture-v2{position:relative}
 .notes-studio-v2 .capture-more{position:relative;display:flex;align-items:center}
@@ -7764,7 +7774,7 @@ const sampleNotes=[
 {id:'n3',title:'Meeting notes',body:'Decisions, owners, and next steps. Capture the action item while the conversation is still fresh.',tag:'Work',color:'sky',pinned:false,updated:Date.now()-172800000}
 ];
 const DEFAULT_FIREBASE_CONFIG={apiKey:'AIzaSyDVurj0n57qBiSBwuCjaDpi5CSQs-3I3f0',authDomain:'paperuss-2.firebaseapp.com',projectId:'paperuss-2',messagingSenderId:'158402331948',appId:'1:158402331948:web:a3abb73a2c84b14e78d889',measurementId:'G-1ZC6WLYCPG'};
-let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig={...DEFAULT_FIREBASE_CONFIG};let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let sharedTeamNotes=[];let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
+let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig={...DEFAULT_FIREBASE_CONFIG};let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
 const defaultSettings={homePage:'dashboard',mode:'dark',accent:'cloud_pastel',density:'comfortable',motion:'full',notifications:true,browserNotifications:false,leadTime:10,quietHours:true,quietStart:'22:00',quietEnd:'07:00',sounds:true,interfaceSounds:true,volume:50,soundProfile:'gentle',weekStart:'monday',timeFormat:'24',duration:60,flowStickyBarEnabled:true,projectWorkspaceSize:'card',projectDefaultTab:'tasks',projectCutoffTime:'17:00',projectGracePeriod:0,projectSupervisorTitle:'Master Teacher / Department Head',projectSchoolDivision:'Department of Education',projectSchoolName:'Main Academic Office',projectApprovingAuthority:'School Head / Principal'};let settings={...defaultSettings},notifiedReminders=new Set(),reminderTimer=null;
 function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStorage.getItem('chronos20.notes');events=e?JSON.parse(e):sampleEvents;notes=n?JSON.parse(n):sampleNotes;if(!Array.isArray(events)||!Array.isArray(notes))throw Error('bad data');notes=notes.map(x=>({collection:'',trashed:false,archived:false,tags:[],...x}))}catch(err){events=sampleEvents;notes=sampleNotes;notify('Sample data loaded. Local storage was unavailable.')}try{const t=localStorage.getItem('chronos20.theme');if(t)document.documentElement.dataset.theme=t;try{if(document.documentElement.dataset.skin==='ipados-tablet')delete document.documentElement.dataset.skin;localStorage.removeItem('chronos.tabletSkin')}catch{}const savedSettings=JSON.parse(localStorage.getItem('chronos50.settings')||'null');localSettingsPresent=!!savedSettings;settings={...defaultSettings,...(savedSettings&&typeof savedSettings==='object'?savedSettings:{})};applySettings(false);const raw=localStorage.getItem('chronos40.tasks');tasks=raw?JSON.parse(raw):[];if(!Array.isArray(tasks))tasks=[];firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG}}catch{tasks=[];firebaseConfig={}}}
 function ensureSchoolCalendarActivities(){const marker='chronos90.calendarImageImport.schoolYear2026_2027.v3';try{if(localStorage.getItem(marker)==='1')return;const byId=new Map(events.map(e=>[String(e.id),e]));let changed=false;for(const activity of schoolCalendarActivities){const existing=byId.get(activity.id);if(existing){if(existing.reminderMinutes!==1440){existing.reminderMinutes=1440;changed=true}if(!existing.importSource){existing.importSource=activity.importSource;changed=true}}else{events.push(activity);changed=true}}if(changed)persist();localStorage.setItem(marker,'1')}catch(err){console.warn('Could not import 2026–2027 school activities',err)}}
@@ -7889,63 +7899,35 @@ function recordLocalTombstone(type, id){
     localStorage.setItem(uKey, JSON.stringify(u));
   } catch(e){}
 }
-function cloudKind(type){
-  return (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
-}
-function cleanCloudId(id){return String(id).replace(/[.#$\[\]/]/g, '_')}
-function teamTombstoneKey(teamId,type,id){return String(teamId)+'|'+cloudKind(type)+'|'+String(id)}
-function recordLocalTeamTombstone(teamId,type,id){
-  if(!teamId||id==null)return;
-  const kind=cloudKind(type),key=teamTombstoneKey(teamId,kind,id),entry={teamId:String(teamId),type:kind,id:String(id),deletedAt:Date.now()};
-  try{
-    const pending=JSON.parse(localStorage.getItem('chronos60.teamTombstones')||'{}');
-    const previous=pending[key];
-    pending[key]=previous&&Number(previous.deletedAt||0)>entry.deletedAt?previous:entry;
-    localStorage.setItem('chronos60.teamTombstones',JSON.stringify(pending));
-  }catch(e){}
-}
-function localTeamTombstones(){try{return JSON.parse(localStorage.getItem('chronos60.teamTombstones')||'{}')}catch(e){return {}}}
-function isLocallyTeamTombstoned(teamId,type,id){
-  if(!teamId||id==null)return false;
-  return !!localTeamTombstones()[teamTombstoneKey(teamId,type,id)];
-}
-async function syncPendingTeamTombstones(){
-  if(!firebaseUser||!firebaseDb||!navigator.onLine)return;
-  const pending=localTeamTombstones();
-  for(const [key,t] of Object.entries(pending)){
-    if(!t?.teamId||!t?.type||t.id==null){delete pending[key];continue}
-    try{
-      const teamRef=firebaseDb.collection('teams').doc(String(t.teamId)),recordRef=teamRef.collection(cloudKind(t.type)).doc(cleanCloudId(t.id)),tombRef=teamRef.collection('tombstones').doc(cleanCloudId(t.id));
-      const batch=firebaseDb.batch();
-      batch.set(tombRef,{id:String(t.id),type:cloudKind(t.type),deletedAt:Number(t.deletedAt)||Date.now(),deletedBy:firebaseUser.uid},{merge:true});
-      batch.delete(recordRef);
-      await batch.commit();
-      delete pending[key];
-    }catch(err){console.warn('Pending team deletion could not sync',t,err)}
-  }
-  try{localStorage.setItem('chronos60.teamTombstones',JSON.stringify(pending))}catch(e){}
-}
 async function deleteCloudDocumentDirectly(type, id, teamId = null){
   if(!id) return;
   recordLocalTombstone(type, id);
-  if(teamId) recordLocalTeamTombstone(teamId,type,id);
   if(!navigator.onLine) return;
-  const kind=cloudKind(type),cleanId=cleanCloudId(id);
+  const kind = (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
+  const cleanId = String(id).replace(/[.#$\[\]/]/g, '_');
   const now = Date.now();
 
   try {
-    if(teamId && typeof firebaseDb !== 'undefined' && firebaseDb) await syncPendingTeamTombstones();
+    if(teamId && typeof firebaseDb !== 'undefined' && firebaseDb){
+      await firebaseDb.collection('teams').doc(teamId).collection(kind).doc(String(id)).delete().catch(()=>{});
+      await firebaseDb.collection('teams').doc(teamId).collection('tombstones').doc(String(id)).set({
+        id: String(id),
+        type: kind,
+        deletedAt: now,
+        deletedBy: (typeof firebaseUser !== 'undefined' && firebaseUser) ? firebaseUser.uid : 'local'
+      }, { merge: true }).catch(()=>{});
+    }
   } catch(err){ console.warn('Team cloud deletion failed for ' + id, err); }
 
   try {
     if(typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb){
-      await firebaseDb.collection('users').doc(firebaseUser.uid).collection(kind).doc(cleanId).delete();
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection(kind).doc(cleanId).delete().catch(()=>{});
       await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones').doc(kind + '_' + cleanId).set({
         id: String(id),
         type: kind,
         deletedAt: now,
         tombstoneKey: kind + '|' + String(id)
-      }, { merge: true });
+      }, { merge: true }).catch(()=>{});
     }
   } catch(err){ console.warn('User cloud deletion failed for ' + id, err); }
 }
@@ -8047,6 +8029,7 @@ x=x.replace(/\[📎\s*([^\]]+)\]\(([^)]+)\)/g,(_,name,link)=>hold('<div class="n
 x=x.replace(/\[(?:♫|Voice:)\s*([^\]]+)\]\(([^)]+)\)/g,(_,name,link)=>{const key=link.replace(/^local-(?:media|voice):/,'');return hold('<div class="note-inline-audio-chip" draggable="true" contenteditable="false" data-voice-key="'+key+'" data-voice-name="'+name+'"><span class="chip-drag-handle" title="Drag to rearrange">⠿</span><span class="voice-icon">'+getLucideSvg('mic',16)+'</span><span class="audio-name">'+name+'</span><audio controls preload="metadata" data-voice-key="'+key+'"></audio><button type="button" class="file-remove-btn" title="Remove" style="display:inline-flex;align-items:center;justify-content:center">'+getLucideSvg('x', 13)+'</button></div>');});x=x.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)(?:\s+"([^"]*)")?\)/g,(_,label,url,title)=>hold('<a href="'+url+'" target="_blank" rel="noopener noreferrer"'+(title?' title="'+title+'"':'')+'>'+label+'</a>'));x=x.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/__(.+?)__/g,'<strong>$1</strong>').replace(/\*(?!\s)(.+?)(?<!\s)\*/g,'<em>$1</em>').replace(/(^|[^\w])_(?!\s)(.+?)(?<!\s)_/g,'$1<em>$2</em>').replace(/~~(.+?)~~/g,'<del>$1</del>').replace(/\\([\\`*_{}\[\]()#+.!|>~-])/g,'$1');x=x.replace(/@@MD(\d+)@@/g,(_,i)=>stash[+i]);return x}
 let noteMarkdownPreviewMode=false;
 let activeNoteFilter='all';
+let activeTeamNotesFilter='all';
 let notesViewMode=localStorage.getItem('chronos_notes_view')||'grid';
 let activeTagFilter='';
 let activeCollectionFilter='all';
@@ -8438,7 +8421,7 @@ function countNoteBodyImages(body){
 window.countNoteBodyImages = countNoteBodyImages;
 
 function toggleNoteLike(noteId, buttonEl){
-  const n = findNoteById(noteId);
+  const n = (typeof findNoteById === 'function' ? findNoteById(noteId) : null) || (notes || []).find(x => String(x.id) === String(noteId));
   if(!n) return;
   if(!Array.isArray(n.likedBy)) n.likedBy = [];
   const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
@@ -8452,6 +8435,26 @@ function toggleNoteLike(noteId, buttonEl){
   n.likes = n.likedBy.length;
   n.updated = Date.now();
   persist();
+
+  // Also synchronize in teamLiveData and teamRecords if this is a team note
+  if(typeof teamLiveData !== 'undefined' && teamLiveData){
+    Object.values(teamLiveData).forEach(d => {
+      const match = (d?.notes || []).find(x => String(x.id) === String(noteId));
+      if(match){
+        match.likedBy = n.likedBy;
+        match.likes = n.likes;
+        match.updated = n.updated;
+      }
+    });
+  }
+  if(typeof teamRecords !== 'undefined' && Array.isArray(teamRecords?.notes)){
+    const match = teamRecords.notes.find(x => String(x.id) === String(noteId));
+    if(match){
+      match.likedBy = n.likedBy;
+      match.likes = n.likes;
+      match.updated = n.updated;
+    }
+  }
 
   // Synchronize all like button elements on screen (card grid & modals)
   document.querySelectorAll('[data-note-like="' + noteId + '"], [data-modal-note-like="' + noteId + '"]').forEach(btn => {
@@ -8473,9 +8476,11 @@ function toggleNoteLike(noteId, buttonEl){
 
   if(typeof playInterfaceSound === 'function') playInterfaceSound();
 
-  if(n.sharedTeamIds && n.sharedTeamIds.length){
-    try { publishToTeams('notes', n, n.sharedTeamIds, []); } catch(e){}
+  const targetTeams = (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n.teamId ? [n.teamId] : []);
+  if(targetTeams.length){
+    try { publishToTeams('notes', n, targetTeams, []); } catch(e){}
   }
+  if(typeof renderNotes === 'function') renderNotes();
 }
 window.toggleNoteLike = toggleNoteLike;
 
@@ -8554,31 +8559,167 @@ function closeNoteLikesModal(){
 }
 window.closeNoteLikesModal = closeNoteLikesModal;
 
+function getAllAccessibleNotes(){
+  const tombs = (typeof window.getLocalTombstones === 'function') ? window.getLocalTombstones() : (window._localTombstones || {});
+  const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
+  const notesMap = new Map();
+
+  // 1. Ingest personal notes
+  (notes || []).forEach(n => {
+    if(!n || !n.id) return;
+    const sId = String(n.id);
+    if(tombs['notes|' + sId]) return;
+
+    const sharedIds = Array.isArray(n.sharedTeamIds) ? [...n.sharedTeamIds] : (n.teamId ? [n.teamId] : []);
+    const teamNames = sharedIds.map(tid => chronosTeams.find(t => t.id === tid)?.name || 'Team');
+
+    notesMap.set(sId, {
+      ...n,
+      id: sId,
+      sharedTeamIds: sharedIds,
+      teamNames: teamNames,
+      teamShared: sharedIds.length > 0 || !!n.teamShared,
+      isLocalAuthor: true
+    });
+  });
+
+  // 2. Ingest team notes from chronosTeams, teamLiveData, and teamRecords
+  const teamsToScan = Array.isArray(chronosTeams) ? chronosTeams : [];
+  teamsToScan.forEach(team => {
+    const list = [
+      ...(teamLiveData?.[team.id]?.notes || []),
+      ...(activeTeamId === team.id ? (teamRecords?.notes || []) : [])
+    ];
+
+    list.forEach(tn => {
+      if(!tn || !tn.id) return;
+      const sId = String(tn.id);
+      if(tombs['notes|' + sId]) return;
+
+      const teamName = team.name || tn.teamName || 'Team';
+
+      if(notesMap.has(sId)){
+        // Note already exists (e.g. author's local note or present in multiple teams)
+        const existing = notesMap.get(sId);
+        if(!existing.sharedTeamIds.includes(team.id)){
+          existing.sharedTeamIds.push(team.id);
+        }
+        if(!existing.teamNames.includes(teamName)){
+          existing.teamNames.push(teamName);
+        }
+        existing.teamShared = true;
+
+        // Merge comments
+        if(Array.isArray(tn.comments) && tn.comments.length){
+          const commentMap = new Map();
+          (existing.comments || []).forEach(c => commentMap.set(c.id, c));
+          tn.comments.forEach(c => {
+            if(!commentMap.has(c.id)) commentMap.set(c.id, c);
+          });
+          existing.comments = Array.from(commentMap.values()).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+        }
+
+        // Merge likes
+        if(Array.isArray(tn.likedBy)){
+          const likedSet = new Set([...(existing.likedBy || []), ...tn.likedBy]);
+          existing.likedBy = Array.from(likedSet);
+          existing.likes = existing.likedBy.length;
+        }
+
+        // Merge allowed editors
+        if(Array.isArray(tn.allowedEditorUids)){
+          const editorSet = new Set([...(existing.allowedEditorUids || []), ...tn.allowedEditorUids]);
+          existing.allowedEditorUids = Array.from(editorSet);
+        }
+
+        // If remote update is newer and from a collaborator, update body & title
+        const remoteUpdated = Number(tn.updated || tn.updatedAt || 0);
+        const localUpdated = Number(existing.updated || existing.updatedAt || 0);
+        if(remoteUpdated > localUpdated){
+          existing.title = tn.title || existing.title;
+          existing.body = tn.body || existing.body;
+          existing.updated = remoteUpdated;
+          if(tn.color) existing.color = tn.color;
+          if(tn.tag) existing.tag = tn.tag;
+        }
+      } else {
+        // Shared team note authored by another member or on another device
+        const authorUid = tn.authorUid || tn.createdBy || '';
+        const authorName = tn.authorName || tn.createdByName || 'Team member';
+        const authorPhoto = tn.authorPhoto || tn.createdByPhotoURL || '';
+        const perm = getNotePermissions(tn);
+
+        notesMap.set(sId, {
+          ...tn,
+          id: sId,
+          title: tn.title || 'Untitled note',
+          body: tn.body || '',
+          tag: tn.tag || '',
+          collection: tn.collection || '',
+          color: tn.color || 'default',
+          pinned: !!tn.pinned,
+          trashed: !!tn.trashed,
+          archived: !!tn.archived,
+          updated: Number(tn.updated || tn.updatedAt || Date.now()),
+          authorUid,
+          authorName,
+          authorPhoto,
+          teamId: team.id,
+          teamName: teamName,
+          teamShared: true,
+          sharedTeamIds: [team.id],
+          teamNames: [teamName],
+          allowedEditorUids: Array.isArray(tn.allowedEditorUids) ? tn.allowedEditorUids : [],
+          comments: Array.isArray(tn.comments) ? tn.comments : [],
+          likedBy: Array.isArray(tn.likedBy) ? tn.likedBy : [],
+          likes: Array.isArray(tn.likedBy) ? tn.likedBy.length : (Number(tn.likes) || 0),
+          isLocalAuthor: (authorUid === currentUid),
+          readOnly: !perm.canEdit
+        });
+      }
+    });
+  });
+
+  return Array.from(notesMap.values());
+}
+window.getAllAccessibleNotes = getAllAccessibleNotes;
+
 function renderNotes(){
   const searchInput=$('noteSearch');
   const q=(searchInput?.value||'').toLowerCase().trim();
-  const noteList=notesForNotesPage();
   $('noteSearchClear')?.classList.toggle('hidden',!q);
 
   const sortSelect=$('noteSortSelect');
   if(sortSelect)sortSelect.value=noteSortOrder;
 
-  const countAll=noteList.filter(n=>!n.trashed&&!n.archived).length;
-  const countPinned=noteList.filter(n=>!n.trashed&&!n.archived&&n.pinned).length;
-  const countTagged=noteList.filter(n=>!n.trashed&&!n.archived&&parseTags(n.tag).length).length;
-  const countArchived=noteList.filter(n=>!n.trashed&&n.archived).length;
-  const countTrash=noteList.filter(n=>n.trashed).length;
+  const allAccessible = getAllAccessibleNotes();
+
+  const countAll = allAccessible.filter(n=>!n.trashed&&!n.archived).length;
+  const countTeam = allAccessible.filter(n=>!n.trashed&&!n.archived&&(n.teamShared||(Array.isArray(n.sharedTeamIds)&&n.sharedTeamIds.length>0))).length;
+  const countPinned = allAccessible.filter(n=>!n.trashed&&!n.archived&&n.pinned).length;
+  const countTagged = allAccessible.filter(n=>!n.trashed&&!n.archived&&parseTags(n.tag).length).length;
+  const countArchived = allAccessible.filter(n=>!n.trashed&&n.archived).length;
+  const countTrash = allAccessible.filter(n=>n.trashed).length;
 
   if($('countFilterAll'))$('countFilterAll').textContent=countAll;
+  if($('teamNotesTabBadge'))$('teamNotesTabBadge').textContent=countTeam;
   if($('countFilterPinned'))$('countFilterPinned').textContent=countPinned;
   if($('countFilterTagged'))$('countFilterTagged').textContent=countTagged;
   if($('countFilterArchived'))$('countFilterArchived').textContent=countArchived;
   if($('countFilterTrash'))$('countFilterTrash').textContent=countTrash;
   $('emptyTrashBtn')?.classList.toggle('hidden',activeNoteFilter!=='trash'||countTrash===0);
 
-  // Extract all distinct collections
+  // Populate clean Team Filter Select Dropdown
+  const teamSelect=$('noteTeamFilter');
+  if(teamSelect){
+    const teamOpts=(chronosTeams||[]).map(t=>`<option value="${esc(t.id)}" ${activeTeamNotesFilter===t.id?'selected':''}>👥 ${esc(t.name||'Team')}</option>`).join('');
+    teamSelect.innerHTML=`<option value="all" ${activeTeamNotesFilter==='all'?'selected':''}>👥 All notes & teams</option><option value="personal" ${activeTeamNotesFilter==='personal'?'selected':''}>👤 Personal only</option>${teamOpts}`;
+    $('noteTeamFilterWrap')?.classList.toggle('hidden',(chronosTeams||[]).length===0);
+  }
+
+  // Extract all distinct collections across all accessible notes
   const collectionsSet=new Set(['Lesson Planning','Research','School Operations','Ideas & Reference']);
-  noteList.forEach(n=>{if(n.collection)collectionsSet.add(n.collection)});
+  allAccessible.forEach(n=>{if(n.collection)collectionsSet.add(n.collection)});
   const colls=[...collectionsSet].sort();
   const collPillsBox=$('notesCollectionPills');
   if(collPillsBox){
@@ -8595,9 +8736,9 @@ function renderNotes(){
       `<option value="__new__">+ New collection…</option>`;
   }
 
-  // Extract all distinct tags
+  // Extract all distinct tags across all accessible notes
   const tagsMap=new Map();
-  noteList.filter(n=>!n.trashed).forEach(n=>{
+  allAccessible.filter(n=>!n.trashed).forEach(n=>{
     parseTags(n.tag).forEach(t=>{
       tagsMap.set(t,(tagsMap.get(t)||0)+1);
     });
@@ -8618,7 +8759,7 @@ function renderNotes(){
   }
 
   // Filter notes
-  let filtered=noteList.filter(n=>{
+  let filtered=allAccessible.filter(n=>{
     const trash=!!n.trashed,archived=!!n.archived;
     if(activeNoteFilter==='trash')return trash;
     if(trash)return false;
@@ -8626,10 +8767,21 @@ function renderNotes(){
     if(archived)return false;
     if(activeNoteFilter==='pinned'&&!n.pinned)return false;
     if(activeNoteFilter==='tagged'&&!parseTags(n.tag).length)return false;
+    if(activeNoteFilter==='team'&&!n.teamShared&&(!n.sharedTeamIds||!n.sharedTeamIds.length))return false;
+
+    // Filter by Team Select
+    if(activeTeamNotesFilter==='personal'){
+      if(n.teamShared||(Array.isArray(n.sharedTeamIds)&&n.sharedTeamIds.length>0))return false;
+    }else if(activeTeamNotesFilter!=='all'){
+      const belongs=(n.teamId===activeTeamNotesFilter)||(Array.isArray(n.sharedTeamIds)&&n.sharedTeamIds.includes(activeTeamNotesFilter));
+      if(!belongs)return false;
+    }
+
     if(activeCollectionFilter!=='all'&&(n.collection||'')!==activeCollectionFilter)return false;
     if(activeTagFilter&&!parseTags(n.tag).some(t=>t.toLowerCase()===activeTagFilter.toLowerCase()))return false;
     if(q){
-      const match=`${n.title} ${n.body} ${n.tag} ${n.collection||''} ${(n.attachmentNames||[]).join(' ')} ${(n.recordingNames||[]).join(' ')}`.toLowerCase();
+      const teamText=(n.teamNames||[]).join(' ')+' '+(n.teamName||'');
+      const match=`${n.title} ${n.body} ${n.tag} ${n.collection||''} ${teamText} ${(n.attachmentNames||[]).join(' ')} ${(n.recordingNames||[]).join(' ')}`.toLowerCase();
       if(!match.includes(q))return false;
     }
     return true;
@@ -8647,7 +8799,7 @@ function renderNotes(){
   }
 
   // Preserve pinned on top in 'all' view when default sorting
-  if(activeNoteFilter==='all'&&noteSortOrder==='recent'&&!q&&activeCollectionFilter==='all'&&!activeTagFilter){
+  if(activeNoteFilter==='all'&&noteSortOrder==='recent'&&!q&&activeCollectionFilter==='all'&&!activeTagFilter&&activeTeamNotesFilter==='all'){
     filtered.sort((a,b)=>(Number(!!b.pinned)-Number(!!a.pinned))||b.updated-a.updated);
   }
 
@@ -8672,6 +8824,21 @@ function renderNotes(){
     const isLiked = Array.isArray(n.likedBy) ? n.likedBy.includes(currentUid) : false;
     const commentsList = Array.isArray(n.comments) ? n.comments : [];
     const commentsCount = commentsList.length;
+
+    // Team chip badge
+    let teamBadgeHtml = '';
+    const hasTeam = n.teamShared || (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length > 0);
+    if(hasTeam){
+      const names = (n.teamNames && n.teamNames.length) ? n.teamNames : (n.teamName ? [n.teamName] : ['Team']);
+      const firstTeam = names[0];
+      const extraTeams = names.length - 1;
+      const teamTooltip = names.join(', ');
+      teamBadgeHtml = `
+        <span class="note-chip note-team-chip" title="Shared with team: ${esc(teamTooltip)}">
+          ${getLucideSvg('users', 11)} ${esc(firstTeam)}${extraTeams > 0 ? ` +${extraTeams}` : ''}
+        </span>
+      `;
+    }
 
     // 1 to 3 lines recent comment preview snippet with Commenter Profile Avatar
     let commentSnippetHtml = '';
@@ -8736,10 +8903,22 @@ function renderNotes(){
     }).join('') + (overflowCount > 0 ? `<span class="note-facepile-overflow" title="${overflowCount} more collaborator${overflowCount === 1 ? '' : 's'}">+${overflowCount}</span>` : '');
 
     const collaboratorsTitle = allContributors.map(u => `${u.displayName}${u.role ? ' (' + u.role + ')' : ''}`).join(', ');
-    const isTeamOnly = isTeamOnlyNote(n);
-    const noteActionsHtml = isTeamOnly ? '' : `
+
+    return `
+    <article class="note-card" data-note-id="${esc(n.id)}" data-preview-note="${esc(n.id)}" data-color="${esc(n.color||'default')}" data-trashed="${!!n.trashed}" style="cursor:pointer">
+      <div class="note-card-top">
+        <div class="note-meta">
+          <span class="note-date">${formattedDate}</span>
+          ${teamBadgeHtml}
+          ${n.pinned ? `<span class="pin" title="Pinned note">${getLucideSvg('pin', 12)} Pinned</span>` : ''}
+          ${n.archived ? `<span class="note-chip">${getLucideSvg('archive', 11)} Archived</span>` : ''}
+          ${n.trashed ? `<span class="note-chip">${getLucideSvg('trash-2', 11)} Trash</span>` : ''}
+          ${!canEditNote(n) ? `<span class="note-chip note-readonly-chip" title="Read-only preview">${getLucideSvg('lock', 11)} Preview</span>` : ''}
+        </div>
+        <div class="note-card-actions" role="toolbar" aria-label="Note quick actions">
           <button type="button" class="card-action-btn" data-force-edit-note="${esc(n.id)}" title="Edit in Notes Studio">${getLucideSvg('pen', 14)}</button>
           <button type="button" class="card-action-btn ${n.pinned ? 'active' : ''}" data-card-pin="${esc(n.id)}" title="${n.pinned ? 'Unpin note' : 'Pin note'}">${getLucideSvg(n.pinned ? 'pin-active' : 'pin', 14)}</button>
+          <!-- Secondary Actions in More Menu (and visible when long-pressed / .actions-revealed) -->
           <button type="button" class="card-action-btn note-more-hidden-action" data-card-color="${esc(n.id)}" title="Cycle note color">${getLucideSvg('palette', 14)}</button>
           <button type="button" class="card-action-btn note-more-hidden-action" data-card-archive="${esc(n.id)}" title="${n.archived ? 'Restore from archive' : 'Archive note'}">${getLucideSvg('archive', 14)}</button>
           <button type="button" class="card-action-btn note-more-hidden-action" data-card-duplicate="${esc(n.id)}" title="Duplicate note">${getLucideSvg('copy', 14)}</button>
@@ -8751,20 +8930,7 @@ function renderNotes(){
               <button type="button" class="dropdown-item" data-card-duplicate="${esc(n.id)}">${getLucideSvg('copy', 13)} <span>Duplicate</span></button>
             </div>
           </div>
-          <button type="button" class="card-action-btn danger-hover" data-card-trash="${esc(n.id)}" title="${n.trashed ? 'Permanently delete' : 'Move to trash'}">${getLucideSvg('trash-2', 14)}</button>`;
-
-    return `
-    <article class="note-card" data-note-id="${esc(n.id)}" data-preview-note="${esc(n.id)}" data-color="${esc(n.color||'default')}" data-trashed="${!!n.trashed}" style="cursor:pointer">
-      <div class="note-card-top">
-        <div class="note-meta">
-          <span class="note-date">${formattedDate}</span>
-          ${n.pinned ? `<span class="pin" title="Pinned note">${getLucideSvg('pin', 12)} Pinned</span>` : ''}
-          ${n.archived ? `<span class="note-chip">${getLucideSvg('archive', 11)} Archived</span>` : ''}
-          ${n.trashed ? `<span class="note-chip">${getLucideSvg('trash-2', 11)} Trash</span>` : ''}
-          ${isTeamOnly ? `<span class="note-chip note-readonly-chip" title="Shared from a team">${getLucideSvg('users', 11)} Team note</span>` : !canEditNote(n) ? `<span class="note-chip note-readonly-chip" title="Read-only preview">${getLucideSvg('lock', 11)} Preview</span>` : ''}
-        </div>
-        <div class="note-card-actions" role="toolbar" aria-label="Note quick actions">
-          ${noteActionsHtml}
+          <button type="button" class="card-action-btn danger-hover" data-card-trash="${esc(n.id)}" title="${n.trashed ? 'Permanently delete' : 'Move to trash'}">${getLucideSvg('trash-2', 14)}</button>
         </div>
       </div>
       <div class="note-card-body" data-preview-note="${esc(n.id)}" data-edit-note="${esc(n.id)}">
@@ -8796,7 +8962,7 @@ function renderNotes(){
     </article>`;
   };
 
-  const pinned=(activeNoteFilter==='all'&&!q&&activeCollectionFilter==='all'&&!activeTagFilter)?filtered.filter(n=>n.pinned&&!n.archived&&!n.trashed):[];
+  const pinned=(activeNoteFilter==='all'&&!q&&activeCollectionFilter==='all'&&!activeTagFilter&&activeTeamNotesFilter==='all')?filtered.filter(n=>n.pinned&&!n.archived&&!n.trashed):[];
   const rest=pinned.length?filtered.filter(n=>!pinned.some(p=>p.id===n.id)):filtered;
 
   $('pinnedNotesSection')?.classList.toggle('hidden',!pinned.length);
@@ -8805,7 +8971,7 @@ function renderNotes(){
     $('notesGrid').innerHTML=rest.map(card).join('')||`<div class="empty">${activeNoteFilter==='trash'?'Trash is empty.':activeNoteFilter==='archived'?'No archived notes.':q?`No notes found matching "${esc(q)}".`:'No notes here yet. Capture a thought above.'}</div>`;
   }
 
-  const titleText=activeNoteFilter==='pinned'?'Pinned notes':activeNoteFilter==='tagged'?'Labeled notes':activeNoteFilter==='archived'?'Archived notes':activeNoteFilter==='trash'?'Trash':activeTagFilter?`Tag #${activeTagFilter}`:activeCollectionFilter!=='all'?activeCollectionFilter:'Your notes';
+  const titleText=activeNoteFilter==='team'?'Team notes':activeNoteFilter==='pinned'?'Pinned notes':activeNoteFilter==='tagged'?'Labeled notes':activeNoteFilter==='archived'?'Archived notes':activeNoteFilter==='trash'?'Trash':activeTagFilter?`Tag #${activeTagFilter}`:activeCollectionFilter!=='all'?activeCollectionFilter:'Your notes';
   if($('allNotesTitle'))$('allNotesTitle').textContent=titleText;
   if($('allNotesMeta'))$('allNotesMeta').textContent=noteSortOrder==='title'?'Sorted A–Z':noteSortOrder==='created'?'Sorted by created date':noteSortOrder==='color'?'Grouped by color':'Recently updated';
   $('allNotesHeading')?.classList.toggle('hidden',!rest.length&&!!pinned.length);
@@ -9405,26 +9571,80 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
   renderTeamShareChips('taskTeamQuickChips', 'taskShareTeams');
   renderTeamShareChips('noteTeamQuickChips', 'noteShareTeams');
 }async function publishToTeams(type,record,teamIds,assignees=[]){
- const assignedTeamIds=(type==='tasks'?(assignees||[]).map(a=>a.teamId):[]);
- const targets=[...new Set([...(teamIds||[]),...assignedTeamIds])];
- if(!targets.length)return;
- if(!firebaseUser||!firebaseDb)throw Error('Sign in to share this item with a team.');
- if(!navigator.onLine)throw Error('Team sharing requires an internet connection.');
- const failures=[];
- for(const teamId of targets){
-  const team=chronosTeams.find(t=>t.id===teamId);
-  if(!team){failures.push((teamId||'Unknown team')+': team membership was not loaded');continue;}
-  const members=team.members||[];
-  const validAssignees=type==='tasks'?(assignees||[]).filter(a=>a.teamId===teamId&&members.some(m=>m.uid===a.uid)).map(a=>a.uid):[];
-  const payload={...record,id:record.id,teamId,teamName:team.name||'Team',teamShared:true,createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'',createdByPhotoURL:firebaseUser.photoURL||'',updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||'',updatedAt:Date.now(),assigneeUids:validAssignees};
-  try{await firebaseDb.collection('teams').doc(teamId).collection(type).doc(record.id).set(payload,{merge:true});
-   if(teamId===activeTeamId){const arr=teamRecords[type]||[];teamRecords[type]=[payload,...arr.filter(x=>x.id!==record.id)];}
-  }catch(err){failures.push((team.name||teamId)+': '+(err.message||'write failed'));}
- }
- if(failures.length)throw Error('Some team shares failed. '+failures.join(' | '));
- renderSharedItemsInMainScreens();renderOverviewTeam();
+  const assignedTeamIds=(type==='tasks'?(assignees||[]).map(a=>a.teamId):[]);
+  const targets=[...new Set([...(teamIds||[]),...assignedTeamIds])];
+  if(!firebaseUser||!firebaseDb)throw Error('Sign in to share this item with a team.');
+  if(!navigator.onLine)throw Error('Team sharing requires an internet connection.');
+
+  // Clean up from unselected teams if a note was previously shared with them
+  if(type==='notes' && record && record.id && Array.isArray(chronosTeams)){
+    for(const team of chronosTeams){
+      if(!targets.includes(team.id)){
+        try{
+          const existingDoc = teamLiveData[team.id]?.notes?.find(x => String(x.id) === String(record.id));
+          if(existingDoc && (String(existingDoc.createdBy) === String(firebaseUser.uid) || isTeamAdmin())){
+            await firebaseDb.collection('teams').doc(team.id).collection('notes').doc(String(record.id)).delete();
+            if(teamLiveData[team.id]?.notes){
+              teamLiveData[team.id].notes = teamLiveData[team.id].notes.filter(x => String(x.id) !== String(record.id));
+            }
+          }
+        }catch(e){
+          console.warn('Unshare cleanup error for team', team.id, e);
+        }
+      }
+    }
+  }
+
+  if(!targets.length){
+    renderSharedItemsInMainScreens();
+    renderOverviewTeam();
+    if(typeof renderNotes === 'function') renderNotes();
+    return;
+  }
+
+  const failures=[];
+  for(const teamId of targets){
+    const team=chronosTeams.find(t=>t.id===teamId);
+    if(!team){failures.push((teamId||'Unknown team')+': team membership was not loaded');continue;}
+    const members=team.members||[];
+    const validAssignees=type==='tasks'?(assignees||[]).filter(a=>a.teamId===teamId&&members.some(m=>m.uid===a.uid)).map(a=>a.uid):[];
+
+    const createdBy = record.createdBy || record.authorUid || firebaseUser.uid;
+    const createdByName = record.createdByName || record.authorName || firebaseUser.displayName || firebaseUser.email || '';
+    const createdByPhotoURL = record.createdByPhotoURL || record.authorPhoto || firebaseUser.photoURL || '';
+
+    const payload={
+      ...record,
+      id:record.id,
+      teamId,
+      teamName:team.name||'Team',
+      teamShared:true,
+      createdBy,
+      createdByName,
+      createdByPhotoURL,
+      updatedBy:firebaseUser.uid,
+      updatedByName:firebaseUser.displayName||firebaseUser.email||'',
+      updatedAt:Date.now(),
+      assigneeUids:validAssignees
+    };
+    try{
+      await firebaseDb.collection('teams').doc(teamId).collection(type).doc(record.id).set(payload,{merge:true});
+      if(teamId===activeTeamId){
+        const arr=teamRecords[type]||[];
+        teamRecords[type]=[payload,...arr.filter(x=>x.id!==record.id)];
+      }
+      if(teamLiveData[teamId]?.[type]){
+        const list=teamLiveData[teamId][type]||[];
+        teamLiveData[teamId][type]=[payload,...list.filter(x=>x.id!==record.id)];
+      }
+    }catch(err){failures.push((team.name||teamId)+': '+(err.message||'write failed'));}
+  }
+  if(failures.length)throw Error('Some team shares failed. '+failures.join(' | '));
+  renderSharedItemsInMainScreens();
+  renderOverviewTeam();
+  if(typeof renderNotes === 'function') renderNotes();
 }
-async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!isLocallyTeamTombstoned(team.id,'events',e.sourceId))}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
+async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date)}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
 const EVENT_COVER_PRESETS = {
   'preset:strategy': {
     name: 'Strategy Sync',
@@ -9677,11 +9897,14 @@ window.closeEvent = closeEvent;
 let noteMediaDB=null,activeRecorder=null,recordedChunks=[],recordingStream=null,recordingStarted=0,noteAutoSaveTimer=null;const NOTE_MEDIA_DB='chronos55-media',NOTE_MEDIA_STORE='blobs';function openMediaDB(){return new Promise((resolve,reject)=>{if(!('indexedDB'in window)){reject(Error('IndexedDB is not available in this browser'));return}if(noteMediaDB){resolve(noteMediaDB);return}const req=indexedDB.open(NOTE_MEDIA_DB,1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(NOTE_MEDIA_STORE))db.createObjectStore(NOTE_MEDIA_STORE,{keyPath:'key'})};req.onsuccess=()=>{noteMediaDB=req.result;resolve(noteMediaDB)};req.onerror=()=>reject(req.error||Error('Could not open media storage'))})}async function putMedia(item){const db=await openMediaDB();return new Promise((resolve,reject)=>{const tx=db.transaction(NOTE_MEDIA_STORE,'readwrite');tx.objectStore(NOTE_MEDIA_STORE).put(item);tx.oncomplete=()=>resolve(item);tx.onerror=()=>reject(tx.error||Error('Could not save media'))})}async function getNoteMedia(noteId){const db=await openMediaDB();return new Promise((resolve,reject)=>{const req=db.transaction(NOTE_MEDIA_STORE,'readonly').objectStore(NOTE_MEDIA_STORE).getAll();req.onsuccess=()=>resolve(req.result.filter(x=>x.noteId===noteId));req.onerror=()=>reject(req.error)})}async function deleteMedia(key){const db=await openMediaDB();return new Promise((resolve,reject)=>{const tx=db.transaction(NOTE_MEDIA_STORE,'readwrite');tx.objectStore(NOTE_MEDIA_STORE).delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
 async function getAllWorkspaceMedia(){const db=await openMediaDB();return new Promise((resolve,reject)=>{const req=db.transaction(NOTE_MEDIA_STORE,'readonly').objectStore(NOTE_MEDIA_STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error)})}
 async function getMediaItemByKey(key){const db=await openMediaDB();return new Promise((resolve,reject)=>{const req=db.transaction(NOTE_MEDIA_STORE,'readonly').objectStore(NOTE_MEDIA_STORE).get(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}function prettyBytes(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(0)+' KB';return (n/1048576).toFixed(1)+' MB'}function ensureNoteId(){let id=$('noteId').value;if(!id){id='n'+Date.now();$('noteId').value=id;$('noteModalTitle').textContent='New note';$('deleteNote').classList.remove('hidden')}return id}function draftNote(){
-  const id=ensureNoteId(),prior=notes.find(n=>n.id===id);
+  const id=ensureNoteId();
+  const prior=(typeof findNoteById==='function'?findNoteById(id):null)||notes.find(n=>n.id===id);
   const currentUid=(typeof firebaseUser!=='undefined'&&firebaseUser?.uid)?firebaseUser.uid:'local';
   const currentName=(typeof firebaseUser!=='undefined'&&(firebaseUser?.displayName||firebaseUser?.email))?(firebaseUser.displayName||firebaseUser.email):'You';
-  const authorUid=prior?.authorUid||currentUid;
-  const authorName=prior?.authorName||currentName;
+  const currentPhoto=(typeof firebaseUser!=='undefined'&&firebaseUser?.photoURL)?firebaseUser.photoURL:'';
+  const authorUid=prior?.authorUid||prior?.createdBy||currentUid;
+  const authorName=prior?.authorName||prior?.createdByName||currentName;
+  const authorPhoto=prior?.authorPhoto||prior?.createdByPhotoURL||currentPhoto;
   const allowedEditorUids=selectedMulti('noteAllowedEditors');
   return {
     id,
@@ -9696,8 +9919,11 @@ async function getMediaItemByKey(key){const db=await openMediaDB();return new Pr
     sharedTeamIds:selectedMulti('noteShareTeams'),
     authorUid,
     authorName,
+    authorPhoto,
     allowedEditorUids:allowedEditorUids.length?allowedEditorUids:(prior?.allowedEditorUids||[]),
     comments:prior?.comments||[],
+    likes:prior?.likes||0,
+    likedBy:prior?.likedBy||[],
     updated:Date.now(),
     attachmentNames:prior?.attachmentNames||[],
     recordingNames:prior?.recordingNames||[],
@@ -10210,7 +10436,7 @@ function submitNoteComment(){
   const text=input.value.trim();
   if(!text)return;
   const noteId=$('noteId')?.value;
-  let note=findNoteById(noteId);
+  let note=notes.find(n=>n.id===noteId);
   if(!note){
     saveNoteDraft(false);
     note=notes.find(n=>n.id===ensureNoteId());
@@ -10229,8 +10455,9 @@ function submitNoteComment(){
   note.comments.push(newComment);
   note.updated=Date.now();
   persist();
-  if(note.sharedTeamIds&&note.sharedTeamIds.length){
-    try{publishToTeams('notes',note,note.sharedTeamIds,[])}catch(e){}
+  const targetTeams = (Array.isArray(note.sharedTeamIds) && note.sharedTeamIds.length) ? note.sharedTeamIds : (note.teamId ? [note.teamId] : []);
+  if(targetTeams.length){
+    try{publishToTeams('notes',note,targetTeams,[])}catch(e){}
   }
   input.value='';
   renderNoteComments(note);
@@ -10240,12 +10467,12 @@ function submitNoteComment(){
 
 function openNote(id=null){
   const n=(typeof findNoteById==='function'?findNoteById(id):null)||notes.find(x=>String(x.id)===String(id));
-  if(n&&isTeamOnlyNote(n)){notify('Shared team notes open in preview from your Notes page.');return}
   $('noteForm').reset();
   $('noteOptionsDrawer')?.classList.add('hidden');
   populateTeamSelectors();
   populateNoteAllowedEditors(n?.allowedEditorUids||[]);
-  setMulti('noteShareTeams',n?.sharedTeamIds||[]);
+  const selectedTeams = (Array.isArray(n?.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n?.teamId ? [n.teamId] : []);
+  setMulti('noteShareTeams', selectedTeams);
   $('noteId').value=n?.id||'';
 
   const perm=getNotePermissions(n);
@@ -10280,9 +10507,10 @@ function openNote(id=null){
   // Allowed editors selector is only visible to the author
   $('noteAllowedEditorsWrap')?.classList.toggle('hidden',!perm.isAuthor);
 
-  $('deleteNote').classList.toggle('hidden',!n||isReadOnly);
+  const canDelete = !n || (perm.isAuthor || isTeamAdmin());
+  $('deleteNote').classList.toggle('hidden',!n||isReadOnly||!canDelete);
   $('deleteNote').textContent=n?.trashed?'Delete permanently':'Move to trash';
-  $('archiveNoteBtn').classList.toggle('hidden',!n||isReadOnly);
+  $('archiveNoteBtn').classList.toggle('hidden',!n||isReadOnly||!canDelete);
   $('archiveNoteBtn').textContent=n?.trashed?'Restore from trash':(n?.archived?'Restore note':'Archive note');
   $('duplicateNoteBtn')?.classList.toggle('hidden',!n);
   $('saveNoteBtn')?.classList.toggle('hidden',isReadOnly);
@@ -10304,7 +10532,7 @@ function openNote(id=null){
 }
 function movePeriod(delta,animate=true){if(view==='month')selected=new Date(selected.getFullYear(),selected.getMonth()+delta,Math.min(selected.getDate(),28),12);else if(view==='week')selected.setDate(selected.getDate()+delta*7);else if(view==='day')selected.setDate(selected.getDate()+delta);else selected=new Date(selected.getFullYear(),selected.getMonth()+delta,1,12);render();if(animate&&delta!==0){applyCalendarSlideAnimation(delta>0?'next':'prev')}}
 function applyCalendarSlideAnimation(direction){if(settings.motion==='off'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const canvas=$('calendarCanvas');if(!canvas)return;canvas.classList.remove('calendar-slide-next','calendar-slide-prev');void canvas.offsetWidth;canvas.classList.add(direction==='next'?'calendar-slide-next':'calendar-slide-prev');if(navigator.vibrate)try{navigator.vibrate(15)}catch{}setTimeout(()=>{canvas.classList.remove('calendar-slide-next','calendar-slide-prev')},300)}
-async function handleClick(e){const dateBtn=e.target.closest('[data-date]');if(dateBtn){selected=parseDate(dateBtn.dataset.date);render();return}const edit=e.target.closest('[data-edit-event]');if(edit){if(e.target.closest('.journey-card-menu-btn')||edit.dataset.forceEdit){openEvent(edit.dataset.editEvent)}else{openItemPreview('event',edit.dataset.editEvent)}return}const del=e.target.closest('[data-delete-event]');if(del){const ok=await confirmCustomInApp('Delete this event from your calendar?',{title:'Delete Event',confirmText:'Delete',danger:true});if(ok){const delId=del.dataset.deleteEvent;recordLocalTombstone('events',delId);const targetEv=(events||[]).find(e=>String(e.id)===String(delId));await deleteCloudDocumentDirectly('events',delId,targetEv?.teamId);events=events.filter(x=>String(x.id)!==String(delId));persist();render();notify('Event deleted.')}return}const forceEditNote=e.target.closest('[data-force-edit-note]');if(forceEditNote){openNote(forceEditNote.dataset.forceEditNote);return}const note=e.target.closest('[data-edit-note], [data-preview-note]');if(note&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){const nId=note.dataset.previewNote||note.dataset.editNote||note.dataset.noteId;if(note.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}}
+async function handleClick(e){const dateBtn=e.target.closest('[data-date]');if(dateBtn){selected=parseDate(dateBtn.dataset.date);render();return}const edit=e.target.closest('[data-edit-event]');if(edit){if(e.target.closest('.journey-card-menu-btn')||edit.dataset.forceEdit){openEvent(edit.dataset.editEvent)}else{openItemPreview('event',edit.dataset.editEvent)}return}const del=e.target.closest('[data-delete-event]');if(del){const ok=await confirmCustomInApp('Delete this event from your calendar?',{title:'Delete Event',confirmText:'Delete',danger:true});if(ok){const delId=del.dataset.deleteEvent;recordLocalTombstone('events',delId);const targetEv=(events||[]).find(e=>String(e.id)===String(delId));deleteCloudDocumentDirectly('events',delId,targetEv?.teamId);events=events.filter(x=>String(x.id)!==String(delId));persist();render();notify('Event deleted.')}return}const forceEditNote=e.target.closest('[data-force-edit-note]');if(forceEditNote){openNote(forceEditNote.dataset.forceEditNote);return}const note=e.target.closest('[data-edit-note], [data-preview-note]');if(note&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){const nId=note.dataset.previewNote||note.dataset.editNote||note.dataset.noteId;if(note.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}}
 document.addEventListener('click',handleClick);document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.id==='previewSound'||b.id==='previewSuccess'||b.matches('[data-page]'))return;if(b.type==='submit')return;playInterfaceSound()},{passive:true});
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;toggleMonthPicker(false);renderCalendar()}));
@@ -10584,7 +10812,7 @@ $('deleteEvent')?.addEventListener('click', async () => {
   if(ok){
     recordLocalTombstone('events', id);
     const targetEv = (events||[]).find(e => String(e.id) === String(id));
-    await deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
+    deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
     events = events.filter(e => String(e.id) !== String(id));
     if(typeof persist === 'function') persist();
     closeEvent();
@@ -10868,6 +11096,10 @@ document.querySelectorAll('[data-note-filter]').forEach(b=>b.addEventListener('c
   document.querySelectorAll('[data-note-filter]').forEach(x=>x.classList.toggle('active',x===b));
   renderNotes();
 }));
+$('noteTeamFilter')?.addEventListener('change',e=>{
+  activeTeamNotesFilter=e.target.value;
+  renderNotes();
+});
 $('noteCollectionFilter')?.addEventListener('change',e=>{
   if(e.target.value==='__new__'){
     const name=prompt('Enter new collection name:');
@@ -11778,22 +12010,51 @@ document.addEventListener('click',async e=>{
   const trashBtn=e.target.closest('[data-card-trash]');
   if(trashBtn){
     e.stopPropagation();
-    const id=trashBtn.dataset.cardTrash,n=notes.find(x=>x.id===id);
+    const id=trashBtn.dataset.cardTrash;
+    const n = (typeof findNoteById === 'function' ? findNoteById(id) : null) || notes.find(x=>x.id===id);
     if(n){
+      const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
+      const authorUid = n.authorUid || n.createdBy || 'local';
+      const isAuthor = (authorUid === currentUid) || (authorUid === 'local' && (!firebaseUser || !firebaseUser.uid));
+      const isShared = n.teamShared || (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length > 0);
+
+      if(isShared && !isAuthor && !isTeamAdmin()){
+        notify('Only the note author or a team administrator can delete this shared team note.');
+        return;
+      }
+
       if(n.trashed){
         const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});
         if(ok){
           recordLocalTombstone('notes', id);
-          await deleteCloudDocumentDirectly('notes', id, n.teamId);
+          deleteCloudDocumentDirectly('notes', id);
+          const targetTeams = (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n.teamId ? [n.teamId] : []);
+          for(const tId of targetTeams){
+            deleteCloudDocumentDirectly('notes', id, tId);
+          }
           try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}
           notes=notes.filter(x=>String(x.id)!==String(id));
-          persist();renderNotes();notify('Note permanently deleted.');
+          persist();
+          if(typeof teamLiveData !== 'undefined' && teamLiveData){
+            Object.values(teamLiveData).forEach(d => {
+              if(d?.notes) d.notes = d.notes.filter(x => String(x.id) !== String(id));
+            });
+          }
+          if(typeof teamRecords !== 'undefined' && Array.isArray(teamRecords?.notes)){
+            teamRecords.notes = teamRecords.notes.filter(x => String(x.id) !== String(id));
+          }
+          renderNotes();notify('Note permanently deleted.');
         }
       }else{
         const ok=await confirmCustomInApp('Move this note to Trash? You can restore it later.',{title:'Move to Trash',confirmText:'Move to Trash',danger:true});
         if(ok){
           n.trashed=true;n.pinned=false;n.updated=Date.now();
-          persist();renderNotes();notify('Note moved to Trash.');
+          persist();
+          const targetTeams = (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n.teamId ? [n.teamId] : []);
+          if(targetTeams.length){
+            try { publishToTeams('notes', n, targetTeams, []); } catch(e){}
+          }
+          renderNotes();notify('Note moved to Trash.');
         }
       }
     }
@@ -13049,7 +13310,55 @@ const noteTemplates={lesson:{title:'Lesson Plan',collection:'Lesson Planning',ta
 $('newTemplateBtn')?.addEventListener('click',()=>{const box=document.createElement('div');box.className='modal-backdrop';box.style.zIndex='2147483100';box.innerHTML='<section class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h3>Start from a template</h3><button class="close" type="button" data-template-close>×</button></div><div class="note-template-grid" style="padding:16px">'+Object.entries(noteTemplates).map(([k,t])=>`<button class="note-template" type="button" data-template="${k}"><strong>${esc(t.title)}</strong><small>${esc(t.collection)}</small></button>`).join('')+'</div></section>';document.body.appendChild(box);box.addEventListener('click',e=>{if(e.target===box||e.target.closest('[data-template-close]')){box.remove();return}const b=e.target.closest('[data-template]');if(b){const t=noteTemplates[b.dataset.template];box.remove();openNote();$('noteTitle').value=t.title;$('noteCollection').value=t.collection;$('noteTag').value=t.tag;$('noteBody').value=t.body.replace(/\\n/g,'\n');scheduleNoteAutosave();$('noteBody').focus()}})});
 $('exportNoteMdBtn')?.addEventListener('click',()=>{const title=$('noteTitle').value.trim()||'Untitled note',body=$('noteBody').value||'',content=(title?'# '+title+'\n\n':'')+body;downloadFile((title.replace(/[^a-z0-9-_]+/gi,'-').replace(/^-|-$/g,'')||'chronos-note')+'.md',content,'text/markdown;charset=utf-8');notify('Markdown source exported.')});
 $('noteHistoryBtn')?.addEventListener('click',()=>{const id=$('noteId').value,n=notes.find(x=>x.id===id);if(!n){notify('Save the note once before opening version history.');return}const history=(n.history||[]).slice().reverse();const box=document.createElement('div');box.className='modal-backdrop';box.style.zIndex='2147483100';box.innerHTML='<section class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h3>Note history</h3><button class="close" type="button" data-history-close>×</button></div><div style="padding:0 16px 16px"><p class="muted-label">Up to 20 previous versions are kept locally on this device.</p><div class="note-history-list">'+(history.map((h,i)=>`<div class="note-history-item"><div><strong>${esc(h.title||'Untitled note')}</strong><small>${new Date(h.savedAt).toLocaleString()} · ${String(h.body||'').length} characters</small></div><button class="btn" type="button" data-history-restore="${(n.history||[]).length-1-i}">Restore</button></div>`).join('')||'<p class="empty">No previous versions yet. Chronos records versions as you edit.</p>')+'</div></div></section>';document.body.appendChild(box);box.addEventListener('click',async e=>{if(e.target===box||e.target.closest('[data-history-close]')){box.remove();return}const b=e.target.closest('[data-history-restore]');if(b){const version=n.history[Number(b.dataset.historyRestore)];if(!version)return;const ok=await confirmCustomInApp('Restore this version into the editor? The current draft will be autosaved as a newer history entry.',{title:'Restore Note Version',confirmText:'Restore draft',danger:false});if(!ok)return;$('noteTitle').value=version.title;$('noteBody').value=version.body;scheduleNoteAutosave();box.remove();notify('Previous version loaded into the editor.')}})});
-$('deleteNote')?.addEventListener('click',async()=>{const id=$('noteId').value,n=notes.find(x=>x.id===id);if(!n)return;if(n.trashed){const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});if(!ok)return;recordLocalTombstone('notes',id);await deleteCloudDocumentDirectly('notes',id,n.teamId);try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}notes=notes.filter(x=>String(x.id)!==String(id));persist();$('noteBackdrop').classList.add('hidden');renderNotes();notify('Note permanently deleted.')}else{const ok=await confirmCustomInApp('Move this note to Trash? You can restore it later.',{title:'Move to Trash',confirmText:'Move to Trash',danger:true});if(!ok)return;n.trashed=true;n.pinned=false;n.updated=Date.now();persist();$('noteBackdrop').classList.add('hidden');renderNotes();notify('Note moved to Trash.')}});
+$('deleteNote')?.addEventListener('click',async()=>{
+  const id=$('noteId').value;
+  const n=(typeof findNoteById==='function'?findNoteById(id):null)||notes.find(x=>x.id===id);
+  if(!n)return;
+  const currentUid=(typeof firebaseUser!=='undefined'&&firebaseUser?.uid)?firebaseUser.uid:'local';
+  const authorUid=n.authorUid||n.createdBy||'local';
+  const isAuthor=(authorUid===currentUid)||(authorUid==='local'&&(!firebaseUser||!firebaseUser.uid));
+  const isShared=n.teamShared||(Array.isArray(n.sharedTeamIds)&&n.sharedTeamIds.length>0);
+
+  if(isShared&&!isAuthor&&!isTeamAdmin()){
+    notify('Only the note author or a team administrator can delete this shared team note.');
+    return;
+  }
+
+  if(n.trashed){
+    const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});
+    if(!ok)return;
+    recordLocalTombstone('notes',id);
+    deleteCloudDocumentDirectly('notes',id);
+    const targetTeams=(Array.isArray(n.sharedTeamIds)&&n.sharedTeamIds.length)?n.sharedTeamIds:(n.teamId?[n.teamId]:[]);
+    for(const tId of targetTeams){
+      deleteCloudDocumentDirectly('notes',id,tId);
+    }
+    try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}
+    notes=notes.filter(x=>String(x.id)!==String(id));
+    persist();
+    if(typeof teamLiveData!=='undefined'&&teamLiveData){
+      Object.values(teamLiveData).forEach(d=>{
+        if(d?.notes)d.notes=d.notes.filter(x=>String(x.id)!==String(id));
+      });
+    }
+    if(typeof teamRecords!=='undefined'&&Array.isArray(teamRecords?.notes)){
+      teamRecords.notes=teamRecords.notes.filter(x=>String(x.id)!==String(id));
+    }
+    $('noteBackdrop').classList.add('hidden');
+    renderNotes();notify('Note permanently deleted.');
+  }else{
+    const ok=await confirmCustomInApp('Move this note to Trash? You can restore it later.',{title:'Move to Trash',confirmText:'Move to Trash',danger:true});
+    if(!ok)return;
+    n.trashed=true;n.pinned=false;n.updated=Date.now();
+    persist();
+    const targetTeams=(Array.isArray(n.sharedTeamIds)&&n.sharedTeamIds.length)?n.sharedTeamIds:(n.teamId?[n.teamId]:[]);
+    if(targetTeams.length){
+      try{publishToTeams('notes',n,targetTeams,[])}catch(e){}
+    }
+    $('noteBackdrop').classList.add('hidden');
+    renderNotes();notify('Note moved to Trash.');
+  }
+});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-wiki-note]');if(a){e.preventDefault();e.stopPropagation();const id=a.dataset.wikiNote;if($('noteBackdrop')&&!$('noteBackdrop').classList.contains('hidden'))$('noteBackdrop').classList.add('hidden');if(typeof openItemPreview==='function'){openItemPreview('note',id)}else{openNote(id)}}});
 
 $('globalSearch').addEventListener('input',e=>{query=e.target.value.toLowerCase().trim();if($('noteSearch'))$('noteSearch').value=query;if(query&&notes.some(n=>`${n.title} ${n.body}`.toLowerCase().includes(query))&& !events.some(v=>`${v.title} ${v.description}`.toLowerCase().includes(query)))setPage('notes');else setPage('calendar');$('noteSearch').value=query;render()});
@@ -13700,7 +14009,7 @@ function renderTaskPreviewHTML(id){
 function findNoteById(id){
   if(id == null) return null;
   const sId = String(id);
-  let n = notesForNotesPage().find(x => String(x.id) === sId);
+  let n = (notes || []).find(x => String(x.id) === sId);
   if(n) return n;
   if(typeof teamRecords !== 'undefined' && Array.isArray(teamRecords?.notes)){
     n = teamRecords.notes.find(x => String(x.id) === sId);
@@ -13731,7 +14040,6 @@ function renderNotePreviewHTML(id){
   }
 
   const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
-  const isTeamOnly = isTeamOnlyNote(n);
   const authorUid = n.authorUid || n.createdBy || 'local';
   let authorName = n.authorName || n.createdByName || (authorUid === currentUid ? 'You' : 'Workspace Collaborator');
   let authorPhoto = n.createdByPhotoURL || '';
@@ -13936,7 +14244,8 @@ const noteColorTintMap = {
     </div>
     <div class="preview-modal-actions">
       <div class="preview-modal-actions-left">
-        ${isTeamOnly ? `<span class="note-chip" style="display:inline-flex;align-items:center;gap:5px">${getLucideSvg('users', 12)} Shared team note</span>` : `<button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button><button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>`}
+        <button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button>
+        <button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>
       </div>
       <button type="button" class="btn" data-preview-close>Close</button>
     </div>
@@ -14097,8 +14406,9 @@ function submitPreviewNoteComment(noteId){
   n.comments.push(newComment);
   n.updated = Date.now();
   persist();
-  if(n.sharedTeamIds && n.sharedTeamIds.length){
-    try { publishToTeams('notes', n, n.sharedTeamIds, []); } catch(e){}
+  const targetTeams = (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n.teamId ? [n.teamId] : []);
+  if(targetTeams.length){
+    try { publishToTeams('notes', n, targetTeams, []); } catch(e){}
   }
   if(typeof renderNotes === 'function') renderNotes();
   refreshItemPreviewInPlace();
@@ -14112,8 +14422,9 @@ function deletePreviewNoteComment(noteId, commentId){
   n.comments = n.comments.filter(c => c.id !== commentId);
   n.updated = Date.now();
   persist();
-  if(n.sharedTeamIds && n.sharedTeamIds.length){
-    try { publishToTeams('notes', n, n.sharedTeamIds, []); } catch(e){}
+  const delTargetTeams = (Array.isArray(n.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n.teamId ? [n.teamId] : []);
+  if(delTargetTeams.length){
+    try { publishToTeams('notes', n, delTargetTeams, []); } catch(e){}
   }
   if(typeof renderNotes === 'function') renderNotes();
   refreshItemPreviewInPlace();
@@ -14234,7 +14545,7 @@ document.addEventListener('click', async e => {
     if(ok){
       if(typeof recordLocalTombstone==='function') recordLocalTombstone('events', id);
       const targetEv = (events||[]).find(e => String(e.id) === String(id));
-      if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
+      if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
       events = events.filter(x => String(x.id) !== String(id));
       persist();
       render();
@@ -14261,7 +14572,7 @@ document.addEventListener('click', async e => {
     if(ok){
       if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', id);
       const targetTask = (tasks||[]).find(t => String(t.id) === String(id));
-      if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly('tasks', id, targetTask?.teamId);
+      if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('tasks', id, targetTask?.teamId);
       tasks = tasks.filter(t => String(t.id) !== String(id));
       persist();
       renderTasks();
@@ -16532,8 +16843,7 @@ async function deleteTeamAssignedTask(teamId,id){
  try{
   if(!firebaseUser||!firebaseDb)throw Error('Sign in before deleting a team task.');
   if(!navigator.onLine)throw Error('Deleting shared tasks requires an internet connection.');
-  recordLocalTeamTombstone(teamId,'tasks',id);
-  await syncPendingTeamTombstones();
+  await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).delete();
   teamAssignedTasks=(teamAssignedTasks||[]).filter(t=>!(String(t.id)===String(id)&&String(t.teamId)===String(teamId)));
   if(teamLiveData[teamId]?.tasks){teamLiveData[teamId].tasks=teamLiveData[teamId].tasks.filter(t=>String(t.id)!==String(id))}
   if(activeTeamId===teamId&&teamRecords.tasks){teamRecords.tasks=teamRecords.tasks.filter(t=>String(t.id)!==String(id))}
@@ -16576,7 +16886,7 @@ function triggerDayCompletionCelebration(dateKey){
 function toggleTask(id,done){const t=tasks.find(x=>x.id===id);if(!t)return;const wasDone=!!t.done;t.done=done;t.updated=Date.now();if(done&&!wasDone&&t.recurrence&&t.recurrence!=='none'&&t.due){let nextDue=nextTaskDue(t.due,t.recurrence),todayKey=iso(new Date());let guard=0;while(nextDue&&nextDue<=todayKey&&guard++<500)nextDue=nextTaskDue(nextDue,t.recurrence);const root=t.recurrenceParentId||t.id;if(nextDue&&!tasks.some(x=>(x.recurrenceParentId||x.id)===root&&x.due===nextDue)){tasks.push({...t,id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,due:nextDue,done:false,reminderFiredKey:'',subtasks:(t.subtasks||[]).map(st=>({...st,id:`st${Date.now()}${Math.random().toString(36).slice(2,5)}`,done:false})),recurrenceParentId:root,updated:Date.now()})}}persist();renderTasks();renderDashboard();renderSelectedTasks();if(done){const card=[...document.querySelectorAll('.task-card')].find(el=>el.querySelector('[data-task-toggle]')?.dataset.taskToggle===id);if(card)card.classList.add('just-completed');playAppSound('success');if(t.due){const dayTasks=tasks.filter(x=>x.due===t.due);if(dayTasks.length>0&&dayTasks.every(x=>x.done)){triggerDayCompletionCelebration(t.due);}}}else playInterfaceSound();}
 $('taskForm').addEventListener('submit',async e=>{e.preventDefault();const title=$('taskTitle').value.trim(),due=$('taskDue').value,dueTime=$('taskDueTime').value,reminder=$('taskReminder').value;if(!title)return;if(reminder==='hourBefore'&&due&&!dueTime){notify('Add a due time to use the 1-hour-before reminder.');$('taskDueTime').focus();return}if(reminder!=='none'&&!due){notify('Choose a due date to schedule a task reminder.');$('taskDue').focus();return}const id=$('taskId').value||`t${Date.now()}`,i=tasks.findIndex(t=>t.id===id),old=tasks[i],subLines=$('taskSubtasks').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),oldSubs=old?.subtasks||[],subtasks=subLines.map(title=>({...oldSubs.find(x=>x.title===title),id:oldSubs.find(x=>x.title===title)?.id||`st${Date.now()}${Math.random().toString(36).slice(2,6)}`,title,done:!!oldSubs.find(x=>x.title===title)?.done})),reminderChanged=!old||old.reminder!==reminder||old.due!==due||old.dueTime!==dueTime,t={...old,id,title,due,dueTime,priority:$('taskPriority').value,details:$('taskDetails').value.trim(),recurrence:$('taskRecurrence').value,reminder,reminderFiredKey:reminderChanged?'':(old?.reminderFiredKey||''),linkedNoteId:$('taskLinkedNote').value,subtasks,done:old?.done||false,teamAssignments:selectedMulti('taskAssignees').map(v=>{const [teamId,uid]=v.split('|');return {teamId,uid}}),sharedTeamIds:[],createdBy:old?.createdBy||(firebaseUser?firebaseUser.uid:'local'),createdByName:old?.createdByName||(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:old?.createdByPhotoURL||(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()};t.sharedTeamIds=[...new Set([...selectedMulti('taskShareTeams'),...(t.teamAssignments||[]).map(a=>a.teamId)])];if(i>=0)tasks[i]=t;else tasks.push(t);persist();try{await publishToTeams('tasks',t,t.sharedTeamIds,t.teamAssignments)}catch(err){notify('Task saved locally, but team sharing failed: '+err.message)}closeTask();renderTasks();renderDashboard();renderSelectedTasks();notify(i>=0?'Task updated.':'Task added.');checkReminders();});
 $('taskQuickAddBtn')?.addEventListener('click',()=>{const title=$('taskQuickTitle').value.trim();if(!title){$('taskQuickTitle').focus();return}tasks.push({id:`t${Date.now()}`,title,due:$('taskQuickDue').value,priority:'medium',details:'',dueTime:'',done:false,recurrence:'none',reminder:'none',reminderFiredKey:'',subtasks:[],...(selectedProjectId?{projectId:selectedProjectId}:{}),createdBy:(firebaseUser?firebaseUser.uid:'local'),createdByName:(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()});$('taskQuickTitle').value='';persist();renderTasks();renderDashboard();notify('Task added.')});$('taskQuickTitle')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('taskQuickAddBtn').click()}});
-$('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));await deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);tasks=tasks.filter(t=>String(t.id)!==String(id));persist();closeTask();renderTasks();renderDashboard();notify('Task deleted.')}});
+$('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);tasks=tasks.filter(t=>String(t.id)!==String(id));persist();closeTask();renderTasks();renderDashboard();notify('Task deleted.')}});
 document.addEventListener('change',e=>{if(e.target.matches('[data-task-toggle]'))toggleTask(e.target.dataset.taskToggle,e.target.checked)});
 document.addEventListener('click',e=>{const sched=e.target.closest('[data-schedule-task]');if(sched){e.stopPropagation();const t=tasks.find(x=>x.id===sched.dataset.scheduleTask);if(t){openEvent(null,t.due||iso(selected));$('eventTitle').value=t.title;$('eventDescription').value=t.details||'';$('eventLinkedNote').value=t.linkedNoteId||'';notify('Review event details, then save to schedule this task.')}return}const noteLink=e.target.closest('[data-edit-note], [data-preview-note]');if(noteLink&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){e.stopPropagation();const nId=noteLink.dataset.previewNote||noteLink.dataset.editNote||noteLink.dataset.noteId;if(noteLink.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}const t=e.target.closest('[data-edit-task]');if(t){if(t.dataset.forceEdit||e.target.closest('.journey-card-menu-btn')){openTask(t.dataset.editTask)}else{openItemPreview('task',t.dataset.editTask)}return}const g=e.target.closest('[data-goto]');if(g)setPage(g.dataset.goto)});
 document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks()}));
@@ -17493,7 +17803,7 @@ document.addEventListener('dblclick', e => {
 // Firebase cloud sync. User owns/configures their project; never store server credentials here.
 function updateSyncStatus(message){const el=$('syncStatus');if(!el)return;const configured=!!(firebaseConfig&&firebaseConfig.apiKey&&firebaseConfig.projectId);el.classList.toggle('connected',!!firebaseUser);el.classList.toggle('pending',!!message);const label=message||(firebaseUser?'Signed in · '+(firebaseUser.displayName||firebaseUser.email||firebaseUser.uid):configured?'Configured · sign in with Google':'Firebase not configured');el.innerHTML=`<span class="status-dot"></span><span>${esc(label)}</span>`}
 function fillFirebaseConfig(){const input=$('firebaseConfigJson');if(input&&firebaseConfig&&Object.keys(firebaseConfig).length)input.value=JSON.stringify(firebaseConfig,null,2);updateSyncStatus()}
-let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');syncPendingTeamTombstones().catch(err=>console.warn('Team deletion retry failed',err));if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}refreshTeamWorkspace()}else{stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
+let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}refreshTeamWorkspace()}else{stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
 $('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=parsed;localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
 async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent='Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent='Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}if(status){status.classList.add('error');status.textContent=err.message||'Google sign-in failed. Check your Firebase Authentication settings and authorized domain.'}notify(err.message||'Google sign-in failed.')}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
 $('firebaseGoogleSignIn').addEventListener('click',()=>startFirebaseGoogleSignIn('settings'));
@@ -17506,8 +17816,8 @@ function teamEsc(v){return esc(String(v??''))}
 function teamIdSafe(v){return String(v||'').replace(/[^A-Za-z0-9_-]/g,'_').slice(0,120)}
 function teamCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const bytes=new Uint8Array(8);if(window.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<8;i++)bytes[i]=Math.floor(Math.random()*256);return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('')}
 function teamCacheKey(){return 'chronos70.teamCache.'+(firebaseUser?.uid||'local')}
-function saveTeamCache(){try{localStorage.setItem(teamCacheKey(),JSON.stringify({teams:chronosTeams,activeTeamId,activeTeam,members:teamMembers,records:teamRecords,sharedNotes:sharedTeamNotes,updatedAt:Date.now()}))}catch{}}
-function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];const keep=(kind,row)=>!isLocallyTeamTombstoned(row?.teamId||activeTeamId,kind,row?.id)&&!localTombstones()[kind+'|'+String(row?.id||'')];const cached=c.records||{events:[],tasks:[],notes:[]};sharedTeamNotes=mergeSharedTeamNotes(c.sharedNotes||cached.notes||[]);teamRecords={events:(cached.events||[]).filter(x=>keep('events',x)),tasks:(cached.tasks||[]).filter(x=>keep('tasks',x)),notes:notesForActiveTeam().filter(x=>keep('notes',x))};renderTeamWorkspace();renderNotes();return true}}catch{}return false}
+function saveTeamCache(){try{localStorage.setItem(teamCacheKey(),JSON.stringify({teams:chronosTeams,activeTeamId,activeTeam,members:teamMembers,records:teamRecords,teamLiveData,updatedAt:Date.now()}))}catch{}}
+function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];teamRecords=c.records||{events:[],tasks:[],notes:[]};if(c.teamLiveData&&typeof c.teamLiveData==='object'){Object.assign(teamLiveData,c.teamLiveData);}renderTeamWorkspace();return true}}catch{}return false}
 function currentTeamRole(){return teamMembers.find(m=>m.uid===firebaseUser?.uid)?.role||chronosTeams.find(t=>t.id===activeTeamId)?.role||''}
 function isTeamAdmin(){return ['owner','admin'].includes(currentTeamRole())}
 function renderSharedItemsInMainScreens(){const tp=$('teamSharedTasksPanel'),tl=$('teamSharedTasksList'),np=$('teamSharedNotesPanel'),nl=$('teamSharedNotesList');const sharedTasks=teamRecords.tasks||[],sharedNotes=teamRecords.notes||[];if(tp&&tl){tp.classList.add('hidden');tl.innerHTML=sharedTasks.map(t=>{const person=teamMembers.find(m=>m.uid===(t.assigneeUid||''))||{uid:t.assigneeUid,displayName:t.assigneeName||t.assigneeEmail||'Unassigned',photoURL:t.assigneePhotoURL||''};return `<article class="task-card"><div class="task-main"><strong>${teamEsc(t.title||'Untitled task')}</strong><p>${teamEsc(t.body||t.details||'')}</p><div class="team-record-byline">${t.assigneeUid?avatarMarkup(person,'sm')+'<span>Assigned to '+teamEsc(person.displayName||person.email||'team member')+'</span>':'<span>Unassigned · '+teamEsc(activeTeam?.name||'Team')+'</span>'}${t.date?'<span>· Due '+teamEsc(t.date)+'</span>':''}</div></div><select data-main-shared-task-status="${teamEsc(t.id)}" aria-label="Update team task status" ${(t.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin())?'disabled':''}><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${t.status==='done'?'selected':''}>Completed</option></select></article>`}).join('')||'<div class="team-empty">No team tasks for the selected team yet.</div>';tl.querySelectorAll('[data-main-shared-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.mainSharedTaskStatus,sel.value)))}if(np&&nl){np.classList.toggle('hidden',!firebaseUser||!activeTeam);nl.innerHTML=sharedNotes.map(n=>{const author=teamMembers.find(m=>m.uid===n.createdBy)||{uid:n.createdBy,displayName:n.createdByName||'Team member',photoURL:n.createdByPhotoURL||''};return `<article class="note-card" data-preview-note="${teamEsc(n.id)}" style="cursor:pointer"><span class="note-chip">${teamEsc(activeTeam?.name||'Team')} · Shared plan</span><h3>${teamEsc(n.title||'Untitled note')}</h3><p>${teamEsc(n.body||'')}</p><div class="team-record-byline">${avatarMarkup(author,'sm')}<span>By ${teamEsc(author.displayName||author.email||'Team member')}</span></div></article>`}).join('')||'<div class="team-empty">No team notes for the selected team yet.</div>'}}
@@ -17586,14 +17896,8 @@ function renderTeamRecordComposer(){
  $('teamToggleComposerBtn')?.addEventListener('click',()=>{teamComposerOpen=!teamComposerOpen;renderTeamRecordComposer();if(teamComposerOpen)$('teamRecordTitle')?.focus()});
  const form=$('teamRecordForm');if(form)form.addEventListener('submit',async e=>{await submitTeamRecord(e);teamComposerOpen=false;renderTeamRecordComposer()})
 }
-function renderTeamRecords(){const box=$('teamRecordsList');if(!box)return;const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const list=(teamRecords[type]||[]).slice().sort((a,b)=>Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0));box.innerHTML=list.map(r=>{const author=teamMembers.find(m=>m.uid===r.createdBy)||{uid:r.createdBy,displayName:r.createdByName||'Team member',photoURL:r.createdByPhotoURL||''};const assignee=teamMembers.find(m=>m.uid===(r.assigneeUid||''))||{uid:r.assigneeUid,displayName:r.assigneeName||r.assigneeEmail||'',photoURL:r.assigneePhotoURL||''};const noteTeams=type==='notes'?(r.sharedTeamNames||[r.teamName||activeTeam?.name||'Team']).filter(Boolean):[];return `<article class="team-record" data-team-record-id="${teamEsc(r.id)}"><div class="team-record-main"><span class="team-record-type">${type==='events'?'Calendar event':type==='tasks'?'Assigned task':'Planning note'}${r.assigneeUid?' · Assigned':''}</span><strong>${teamEsc(r.title||'Untitled')}</strong><div class="team-record-byline">${avatarMarkup(author)}<span>By ${teamEsc(author.displayName||author.email||'team member')}</span>${noteTeams.length?`<span>· Shared with ${teamEsc(noteTeams.join(', '))}</span>`:''}${r.assigneeUid?`${avatarMarkup(assignee,'sm')}<span>Assigned to ${teamEsc(assignee.displayName||assignee.email||'team member')}</span>`:''}${r.date?`<span>· ${teamEsc(r.date)}</span>`:''}</div>${r.body?`<div class="team-note-body">${teamEsc(r.body)}</div>`:''}${type==='tasks'?`<label class="team-row" style="margin-top:10px;font-size:11px"><span>My progress</span><select data-team-task-status="${teamEsc(r.id)}" ${r.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin()?'disabled':''}><option value="open" ${(r.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${r.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${r.status==='done'?'selected':''}>Completed</option></select></label>`:''}</div></article>`}).join('')||'<div class="team-empty">No shared items yet. Team plans will appear here.</div>';box.querySelectorAll('[data-team-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.teamTaskStatus,sel.value)))}
-async function teamReadList(collection){const snap=await firebaseDb.collection('teams').doc(activeTeamId).collection(collection).get();return snap.docs.map(d=>({...d.data(),id:d.id,teamId:activeTeamId,teamName:activeTeam?.name||'Team'}))}
-async function teamReadListFor(teamId,collection){const snap=await firebaseDb.collection('teams').doc(teamId).collection(collection).get();const team=chronosTeams.find(t=>String(t.id)===String(teamId));return snap.docs.map(d=>({...d.data(),id:d.id,teamId,teamName:team?.name||d.data()?.teamName||'Team'}))}
-function visibleTeamRecord(teamId,kind,row){if(!row)return false;const id=String(row.id||'');return !isLocallyTeamTombstoned(teamId,kind,id)&&!localTombstones()[kind+'|'+id]}
-function mergeSharedTeamNotes(rows=[]){const byId=new Map();for(const row of rows){const teamId=String(row?.teamId||'');if(!teamId||!visibleTeamRecord(teamId,'notes',row))continue;const id=String(row.id||'');if(!id)continue;const teamName=row.teamName||chronosTeams.find(t=>String(t.id)===teamId)?.name||'Team';const existing=byId.get(id);if(!existing){byId.set(id,{...row,id,teamId,teamName,teamShared:true,sharedTeamIds:[teamId],sharedTeamNames:[teamName]});continue}const teamIds=[...(existing.sharedTeamIds||[]),teamId].filter((value,index,array)=>array.indexOf(value)===index);const teamNames=[...(existing.sharedTeamNames||[]),teamName].filter((value,index,array)=>array.indexOf(value)===index);const newer=Number(row.updatedAt||row.updated||row.createdAt||0)>=Number(existing.updatedAt||existing.updated||existing.createdAt||0);byId.set(id,{...(newer?row:existing),id,teamId:existing.teamId||teamId,teamName:existing.teamName||teamName,teamShared:true,sharedTeamIds:teamIds,sharedTeamNames:teamNames})}return [...byId.values()]}
-function notesForNotesPage(){const byId=new Map((notes||[]).map(note=>[String(note.id),note]));const result=[...(notes||[])];for(const shared of sharedTeamNotes||[]){const id=String(shared?.id||'');if(!id)continue;const local=byId.get(id);if(local){const sharedTeamIds=[...(local.sharedTeamIds||[]),...(shared.sharedTeamIds||[])].filter((value,index,array)=>array.indexOf(value)===index);const sharedTeamNames=[...(local.sharedTeamNames||[]),...(shared.sharedTeamNames||[])].filter((value,index,array)=>array.indexOf(value)===index);const index=result.findIndex(note=>String(note.id)===id);if(index>=0)result[index]={...local,sharedTeamIds,sharedTeamNames,teamShared:true}}else result.push({...shared,authorUid:shared.authorUid||shared.createdBy||'',authorName:shared.authorName||shared.createdByName||'Team member',authorPhoto:shared.authorPhoto||shared.createdByPhotoURL||'',teamShared:true,teamOnly:true,trashed:false,archived:false,pinned:false})}return result}
-function isTeamOnlyNote(note){return !!note?.teamOnly&&!((notes||[]).some(local=>String(local.id)===String(note.id)))}
-function notesForActiveTeam(){const teamId=String(activeTeamId||'');return (sharedTeamNotes||[]).filter(note=>!teamId||(note.sharedTeamIds||[]).some(id=>String(id)===teamId)||String(note.teamId||'')===teamId)}
+function renderTeamRecords(){const box=$('teamRecordsList');if(!box)return;const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const list=(teamRecords[type]||[]).slice().sort((a,b)=>Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0));box.innerHTML=list.map(r=>{const author=teamMembers.find(m=>m.uid===r.createdBy)||{uid:r.createdBy,displayName:r.createdByName||'Team member',photoURL:r.createdByPhotoURL||''};const assignee=teamMembers.find(m=>m.uid===(r.assigneeUid||''))||{uid:r.assigneeUid,displayName:r.assigneeName||r.assigneeEmail||'',photoURL:r.assigneePhotoURL||''};return `<article class="team-record" data-team-record-id="${teamEsc(r.id)}"><div class="team-record-main"><span class="team-record-type">${type==='events'?'Calendar event':type==='tasks'?'Assigned task':'Planning note'}${r.assigneeUid?' · Assigned':''}</span><strong>${teamEsc(r.title||'Untitled')}</strong><div class="team-record-byline">${avatarMarkup(author)}<span>By ${teamEsc(author.displayName||author.email||'team member')}</span>${r.assigneeUid?`${avatarMarkup(assignee,'sm')}<span>Assigned to ${teamEsc(assignee.displayName||assignee.email||'team member')}</span>`:''}${r.date?`<span>· ${teamEsc(r.date)}</span>`:''}</div>${r.body?`<div class="team-note-body">${teamEsc(r.body)}</div>`:''}${type==='tasks'?`<label class="team-row" style="margin-top:10px;font-size:11px"><span>My progress</span><select data-team-task-status="${teamEsc(r.id)}" ${r.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin()?'disabled':''}><option value="open" ${(r.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${r.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${r.status==='done'?'selected':''}>Completed</option></select></label>`:''}</div></article>`}).join('')||'<div class="team-empty">No shared items yet. Team plans will appear here.</div>';box.querySelectorAll('[data-team-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.teamTaskStatus,sel.value)))}
+async function teamReadList(collection){const snap=await firebaseDb.collection('teams').doc(activeTeamId).collection(collection).get();return snap.docs.map(d=>({...d.data(),id:d.id}))}
 function stopTeamRealtimeSync(){teamLiveUnsubs.forEach(unsub=>{try{unsub()}catch{}});teamLiveUnsubs=[];teamLiveData={};teamAssignedTasks=[];}
 function applyTeamLiveData(){
  const allEvents=[],assigned=[];
@@ -17601,12 +17905,12 @@ function applyTeamLiveData(){
  for(const team of chronosTeams){
   const data=teamLiveData[team.id]||{events:[],tasks:[],notes:[]};
   for(const ev of data.events||[]){
-   if(ev.date && !tombs['events|'+String(ev.id)] && !tombs['events|'+String(ev.sourceId||'')] && !isLocallyTeamTombstoned(team.id,'events',ev.id) && !isLocallyTeamTombstoned(team.id,'events',ev.sourceId||'')) {
+   if(ev.date && !tombs['events|'+String(ev.id)] && !tombs['events|'+String(ev.sourceId||'')]) {
     allEvents.push({...ev,id:'team_'+team.id+'_'+ev.id,sourceId:ev.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',date:ev.date||''});
    }
   }
   for(const task of data.tasks||[]){
-   if(tombs['tasks|'+String(task.id)] || isLocallyTeamTombstoned(team.id,'tasks',task.id)) continue;
+   if(tombs['tasks|'+String(task.id)]) continue;
    const uids=Array.isArray(task.assigneeUids)?task.assigneeUids:[];
    if(firebaseUser&&((task.assigneeUid&&task.assigneeUid===firebaseUser.uid)||uids.includes(firebaseUser.uid))){
     assigned.push({...task,id:task.id,teamId:team.id,teamName:team.name||task.teamName||'Team',teamShared:true,done:task.status==='done'||!!task.done});
@@ -17614,17 +17918,13 @@ function applyTeamLiveData(){
   }
  }
  teamCalendarEvents=allEvents;teamAssignedTasks=assigned;
-  if(activeTeamId&&teamLiveData[activeTeamId]){
-   const activeData=teamLiveData[activeTeamId]||{events:[],tasks:[],notes:[]};
-   const allNotes=Object.entries(teamLiveData||{}).flatMap(([teamId,data])=>(data?.notes||[]).map(row=>({...row,teamId:row.teamId||teamId,teamName:row.teamName||chronosTeams.find(t=>String(t.id)===String(teamId))?.name||'Team'})));
-   sharedTeamNotes=mergeSharedTeamNotes(allNotes);
-   const activeNotes=notesForActiveTeam();
-   teamRecords={
-    events:(activeData.events||[]).filter(x=>!tombs['events|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'events',x.id)),
-    tasks:(activeData.tasks||[]).filter(x=>!tombs['tasks|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'tasks',x.id)),
-    notes:activeNotes
-   };
-  }
+ if(activeTeamId&&teamLiveData[activeTeamId]){
+  teamRecords={
+   events:(teamLiveData[activeTeamId].events||[]).filter(x=>!tombs['events|'+String(x.id)]),
+   tasks:(teamLiveData[activeTeamId].tasks||[]).filter(x=>!tombs['tasks|'+String(x.id)]),
+   notes:(teamLiveData[activeTeamId].notes||[]).filter(x=>!tombs['notes|'+String(x.id)])
+  };
+ }
 
  // Dynamic Activity Beacon detection for Flow
  if(window._flowTeamSyncInitialized){
@@ -17679,7 +17979,7 @@ function startTeamRealtimeSync(){
  }}
 }
 async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>t.teamId===teamId&&t.id===id?{...t,...patch}:t);applyTeamLiveData();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
-async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{await syncPendingTeamTombstones();teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);const keep=(kind,row)=>!isLocallyTeamTombstoned(activeTeamId,kind,row?.id)&&!localTombstones()[kind+'|'+String(row?.id||'')];teamRecords={events:ev.filter(x=>keep('events',x)),tasks:ta.filter(x=>keep('tasks',x)),notes:no.filter(x=>keep('notes',x))};teamLiveData[activeTeamId]={events:teamRecords.events,tasks:teamRecords.tasks,notes:teamRecords.notes};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
+async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
   // Ensure active team has a verified cloud invite code ready
   if (activeTeam && (isTeamAdmin() || activeTeam.ownerUid === firebaseUser.uid)) {
     ensureTeamInviteCode(activeTeam).catch(e => console.warn('Background invite ensure:', e));
@@ -17822,7 +18122,7 @@ async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks, 
 }
 function mergeTombstones(localMap,cloudItems){const out={...(localMap||{})};for(const t of cloudItems||[]){if(!t?.type||t.id==null)continue;const k=t.type+'|'+String(t.id);if(!out[k]||Number(t.deletedAt||0)>Number(out[k].deletedAt||0))out[k]={type:t.type,id:String(t.id),deletedAt:Number(t.deletedAt)||Date.now()}}return out}
 function withoutTombstones(items,type,tombs){return (items||[]).filter(x=>x&&x.id!=null&&!tombs[type+'|'+String(x.id)])}
-async function writeTombstones(tombs){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');const entries=Object.entries(tombs||{});for(let i=0;i<entries.length;i+=400){const batch=firebaseDb.batch();for(const [key,t] of entries.slice(i,i+400)){if(!t?.type||t.id==null)continue;const docId=String(t.type)+'_'+cleanCloudId(t.id);batch.set(col.doc(docId),{...t,id:String(t.id),tombstoneKey:key},{merge:true})}await batch.commit()}}
+async function writeTombstones(tombs){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');const entries=Object.entries(tombs||{});for(let i=0;i<entries.length;i+=400){const batch=firebaseDb.batch();for(const [key,t] of entries.slice(i,i+400)){const docId=String(key).replace(/[.#$\[\]/]/g,'_');batch.set(col.doc(docId),{...t,id:String(t.id),tombstoneKey:key},{merge:true})}await batch.commit()}}
 async function firebaseMergeSync(){if(firebaseSyncBusy)return;firebaseSyncBusy=true;const btn=$('firebaseSyncNow');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{if(!firebaseConfig.apiKey)throw Error('Save your Firebase Web App configuration first.');if(!firebaseAuth||!firebaseUser)throw Error('Sign in with Google before syncing.');if(!navigator.onLine)throw Error('You are offline. Your local changes remain saved and can sync when you are online.');const firstMigration=localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid;if(firstMigration){updateSyncStatus('Creating local backup…');downloadLocalPreSyncBackup();const ok=await confirmCustomInApp('A local JSON backup has been downloaded and saved in this browser. Merge local and cloud records by ID and update time? Existing records are not wholesale replaced.',{title:'Merge Cloud Workspace',confirmText:'Merge & sync'});if(!ok)return;}const userRef=firebaseDb.collection('users').doc(firebaseUser.uid);await userRef.set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});updateSyncStatus('Reading cloud data…');const [cloudEvents,cloudNotes,cloudTasks,cloudSettings,cloudTombstones,cloudProjects]=await Promise.all([
   firestoreReadCollection('events'),
   firestoreReadCollection('notes'),
@@ -17901,7 +18201,7 @@ async function firebaseBackgroundSync(){
   }
 }
 function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),5000)}
-window.addEventListener('online',()=>{if(firebaseUser){syncPendingTeamTombstones().finally(()=>{scheduleFirebaseSync();refreshTeamWorkspace()})}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){syncPendingTeamTombstones().finally(()=>refreshTeamWorkspace())}});
+window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace()}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine)refreshTeamWorkspace()});
 // Restore saved config without blocking standalone startup. Firebase SDK is loaded only
 // on a secure origin when the user chooses to connect; file:// stays local-first and usable.
 try{firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG};if(firebaseConfig.apiKey&&firebaseConfig.projectId){$('firebaseConfigJson').value=JSON.stringify(firebaseConfig,null,2);if(location.protocol==='file:'){updateSyncStatus('Standalone mode · local workspace ready')}else{initFirebase(firebaseConfig).catch(err=>{console.warn('Firebase configuration not initialized:',err);updateSyncStatus('Firebase unavailable · local mode remains active')})}}}catch(err){console.warn('Firebase configuration not initialized:',err)}
@@ -18335,19 +18635,6 @@ function renderTeamAdminPanel3(){
  submitTeamRecord=async function(e){e.preventDefault();try{if(!activeTeam||!isAdmin3())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value,member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeUids:assigneeUid?[assigneeUid]:[],assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team'};await teamRef3(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='tasks'&&assigneeUid)teamAssignedTasks=[...teamAssignedTasks.filter(t=>!(t.teamId===activeTeamId&&t.id===id)),{...record,teamShared:true}];try{await notifyTeamRecipients3(activeTeamId,record,type,assigneeUid?[assigneeUid]:[])}catch(err){console.warn('Notification creation failed',err)}renderTeamRecords();renderOverviewTeam();renderTasks();$('teamRecordForm').reset();teamStatus('Published. Shared records sync live; eligible members have been notified.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}};
  // Notification clicks persist read state, then navigate to the related page/team.
  $('notificationList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-notification-key]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const teamId=b.dataset.notificationTeam,type=b.dataset.notificationType,targetId=b.dataset.notificationTargetId||b.dataset.notificationId;await markNotificationRead(b.dataset.notificationKey);closeNotifications();if(teamId){activeTeamId=teamId;try{localStorage.setItem('chronos70.activeTeamId',teamId)}catch{}await refreshTeamWorkspace()}setPage(type==='events'?'calendar':type==='tasks'?'tasks':'team');if(type==='notes'||type==='tasks'){teamTab=type;renderTeamWorkspace();if(type==='tasks')renderTasks()}else if(type==='events'){selected=new Date();if(typeof renderCalendar==='function')renderCalendar()}setTimeout(()=>{const target=targetId&&document.querySelector(`[data-team-record-id="${CSS.escape(targetId)}"]`);if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.classList.add('chronos-notice-target');setTimeout(()=>target.classList.remove('chronos-notice-target'),2200)}else if(type==='events'){const ev=document.querySelector('[data-event-id]');ev?.scrollIntoView({behavior:'smooth',block:'center'})}},180)},true);
- const baseRefreshTeamWorkspaceForAllTeamNotes=refreshTeamWorkspace;
- refreshTeamWorkspace=async function(){
-   await baseRefreshTeamWorkspaceForAllTeamNotes.apply(this,arguments);
-   if(!firebaseUser||!firebaseDb||!chronosTeams.length||!activeTeamId){sharedTeamNotes=[];renderNotes();return;}
-   try{
-     const noteSets=await Promise.all(chronosTeams.map(team=>teamReadListFor(team.id,'notes')));
-     const allNotes=mergeSharedTeamNotes(noteSets.flat());
-     sharedTeamNotes=allNotes;
-     teamRecords.notes=notesForActiveTeam();
-     if(teamLiveData[activeTeamId])teamLiveData[activeTeamId].notes=teamRecords.notes;
-     renderTeamWorkspace();renderNotes();renderSharedItemsInMainScreens();renderOverviewTeam();saveTeamCache();
-   }catch(err){console.warn('Could not refresh notes shared across teams:',err)}
- };
  window.addEventListener('online',()=>{if(firebaseUser&&chronosTeams.length)startTeamRealtimeSync()});
 })();
 </script>
@@ -18540,7 +18827,7 @@ function projectStatusLabel(v){return ({active:'Active',planning:'Planning',on_h
 function projectTone(p){if(p?.color)return p.color;return p?.status==='completed'?'#2aa889':p?.status==='planning'?'#8367d8':p?.status==='on_hold'?'#d18a35':p?.priority==='urgent'?'#d45b86':'#4388df'}
 function renderProjectManager(){const root=$('projectViewContent');if(!root)return;const todayKey=iso(today);$('pmActive').textContent=chronosProjects.filter(p=>!['completed','archived'].includes(p.status)).length;$('pmOpen').textContent=tasks.filter(t=>!t.done&&t.status!=='done').length+((teamAssignedTasks||[]).filter(t=>!t.done&&t.status!=='done').length);$('pmOverdue').textContent=tasks.filter(t=>!t.done&&t.due&&t.due<todayKey).length;$('pmDone').textContent=tasks.filter(t=>t.done||t.status==='done').length;const search=($('projectSearch')?.value||'').trim().toLowerCase(),filter=$('projectStatusFilter')?.value||'active';let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const rawLinked=projectTaskList(p),done=rawLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
     const allLinked=rawLinked.filter(t=>!t.isDeliverableSubmission);
-    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee"><option value="">Unassigned</option></select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
+    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill btn-showcase-demo" onclick="window.openShowcaseProject()" title="Switch to Complete Showcase Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Demo Project</button><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee"><option value="">Unassigned</option></select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
 if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null;const all=p?projectTaskList(p):tasks.filter(t=>t.projectId);const stages=[['open','To do'],['in_progress','In progress'],['review','In review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>`<article class="project-task">${projectEsc(t.title)}<small>${projectEsc(t.due?'Due '+t.due:'No deadline')}</small><select data-project-task-status="${projectEsc(t.id)}" aria-label="Change status for ${projectEsc(t.title)}"><option value="open" ${(!t.status||t.status==='open')&&!t.done?'selected':''}>To do</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${t.status==='review'?'selected':''}>In review</option><option value="done" ${t.done||t.status==='done'?'selected':''}>Done</option></select></article>`).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Board includes personal tasks linked to projects. Team tasks remain managed in the Team workspace.</p>`;return}
 if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><strong>${projectEsc(p.name)}</strong><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
 root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
@@ -18888,7 +19175,7 @@ renderProjectManager=function(){
  let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});
  const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);
  if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
-    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><div class="project-task-divider"><div><strong>Project tasks</strong><span>Edit assignments and status without leaving the project.</span></div></div><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee">${projectTaskAssigneeOptions(p)}</select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t,p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
+    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill btn-showcase-demo" onclick="window.openShowcaseProject()" title="Switch to Complete Showcase Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Demo Project</button><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><div class="project-task-divider"><div><strong>Project tasks</strong><span>Edit assignments and status without leaving the project.</span></div></div><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee">${projectTaskAssigneeOptions(p)}</select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t,p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
  if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null,all=p?projectTaskList(p):tasks.filter(t=>t.projectId),stages=[['open','To do'],['in_progress','In progress'],['review','In progress review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>projectBoardTaskMarkup(t,p||{})).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Select Edit on any task to update its details and assignment.</p>`;return}
  if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><div class="project-timeline-name">${projectAvatar(projectPeopleFor(p)[0]||{name:p.owner||'No owner'},'xs')}<strong>${projectEsc(p.name)}</strong></div><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
  root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
@@ -20816,7 +21103,7 @@ html[data-theme=dark] .btn-act-compact {
     const tombs=typeof localTombstones==='function'?localTombstones():{};
     const add=(task,teamId)=>{
       if(!task?.id||!task.projectId)return;
-      if(tombs['tasks|'+String(task.id)]||isLocallyTeamTombstoned(task.teamId||teamId,'tasks',task.id))return;
+      if(tombs['tasks|'+String(task.id)])return;
       const key=String(task.id);
       const value={...task,teamId:task.teamId||teamId,teamShared:true,status:normalizeStatus(task.status)};
       const previous=out.get(key);
@@ -20844,9 +21131,9 @@ html[data-theme=dark] .btn-act-compact {
     });
     chronosProjects=[...map.values()];
   }
- function collectSharedProjects(){sharedProjects.splice(0,sharedProjects.length);Object.entries(teamLiveData||{}).forEach(([teamId,data])=>(data?.projects||[]).forEach(project=>{const id=project.id||project.projectId;if(isLocallyTeamTombstoned(project.teamId||teamId,'projects',id))return;sharedProjects.push({...project,id,teamId:project.teamId||teamId,teamName:project.teamName||chronosTeams.find(t=>t.id===teamId)?.name||'Team',teamShared:true})}));mergeSharedProjects()}
- async function syncSharedProject(project){if(!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(project.teamShared&&!canManageProject(project))return;const teamId=project.teamId||activeTeamId;if(!teamId||isLocallyTeamTombstoned(teamId,'projects',project.id))return;const now=Date.now(),team=chronosTeams.find(t=>String(t.id)===String(teamId));project.teamId=teamId;project.teamName=project.teamName||team?.name||activeTeam?.name||'Team';project.teamShared=true;project.updatedAt=now;const record={...project,id:String(project.id),teamId,teamName:project.teamName,sharedProject:true,createdBy:project.createdBy||firebaseUser.uid,createdByName:project.createdByName||firebaseUser.displayName||firebaseUser.email||'',updatedBy:firebaseUser.uid,updatedAt:now};await firebaseDb.collection('teams').doc(teamId).collection('projects').doc(String(project.id)).set(record,{merge:true});saveChronosProjects()}
- async function syncSharedProjectTask(task){const project=projectFor(task?.projectId);if(!task||!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;const teamId=task.teamId||project.teamId;if(!teamId||isLocallyTeamTombstoned(teamId,'tasks',task.id)||isLocallyTeamTombstoned(teamId,'projects',project.id))return;const assignments=Array.isArray(task.teamAssignments)?task.teamAssignments.filter(a=>String(a.teamId)===String(teamId)).map(a=>a.uid).filter(Boolean):[];const assigneeUids=[...new Set([...(task.assigneeUids||[]),...(task.assigneeUid?[task.assigneeUid]:[]),...assignments])];const member=teamMembers.find(m=>String(m.uid)===String(assigneeUids[0]||''));const status=normalizeStatus(task.status),record={id:String(task.id),type:'tasks',sourceType:'project',teamShared:true,teamId,teamName:project.teamName||activeTeam?.name||'Team',projectId:String(project.id),projectName:project.name||'Project',projectDescription:project.description||'',title:task.title||'Untitled task',body:task.details||task.body||'',details:task.details||'',date:task.due||task.date||'',due:task.due||task.date||'',dueTime:task.dueTime||'',priority:task.priority||'medium',status:status==='in_progress'?'in-progress':status,done:status==='done'||!!task.done,assigneeUid:assigneeUids[0]||'',assigneeUids,assigneeEmail:member?.email||task.assigneeEmail||'',assigneeName:member?.displayName||task.assigneeName||'',assigneePhotoURL:member?.photoURL||task.assigneePhotoURL||'',createdBy:task.createdBy||firebaseUser.uid,createdByName:task.createdByName||firebaseUser.displayName||firebaseUser.email||'',createdAt:task.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:firebaseUser.uid};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(task.id)).set(record,{merge:true});task.teamId=teamId;task.teamShared=true;task.sharedRecordId=String(task.id)}
+ function collectSharedProjects(){sharedProjects.splice(0,sharedProjects.length);Object.entries(teamLiveData||{}).forEach(([teamId,data])=>(data?.projects||[]).forEach(project=>sharedProjects.push({...project,id:project.id||project.projectId,teamId:project.teamId||teamId,teamName:project.teamName||chronosTeams.find(t=>t.id===teamId)?.name||'Team',teamShared:true})));mergeSharedProjects()}
+ async function syncSharedProject(project){if(!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(project.teamShared&&!canManageProject(project))return;const teamId=project.teamId||activeTeamId;if(!teamId)return;const now=Date.now(),team=chronosTeams.find(t=>String(t.id)===String(teamId));project.teamId=teamId;project.teamName=project.teamName||team?.name||activeTeam?.name||'Team';project.teamShared=true;project.updatedAt=now;const record={...project,id:String(project.id),teamId,teamName:project.teamName,sharedProject:true,createdBy:project.createdBy||firebaseUser.uid,createdByName:project.createdByName||firebaseUser.displayName||firebaseUser.email||'',updatedBy:firebaseUser.uid,updatedAt:now};await firebaseDb.collection('teams').doc(teamId).collection('projects').doc(String(project.id)).set(record,{merge:true});saveChronosProjects()}
+ async function syncSharedProjectTask(task){const project=projectFor(task?.projectId);if(!task||!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;const teamId=task.teamId||project.teamId;if(!teamId)return;const assignments=Array.isArray(task.teamAssignments)?task.teamAssignments.filter(a=>String(a.teamId)===String(teamId)).map(a=>a.uid).filter(Boolean):[];const assigneeUids=[...new Set([...(task.assigneeUids||[]),...(task.assigneeUid?[task.assigneeUid]:[]),...assignments])];const member=teamMembers.find(m=>String(m.uid)===String(assigneeUids[0]||''));const status=normalizeStatus(task.status),record={id:String(task.id),type:'tasks',sourceType:'project',teamShared:true,teamId,teamName:project.teamName||activeTeam?.name||'Team',projectId:String(project.id),projectName:project.name||'Project',projectDescription:project.description||'',title:task.title||'Untitled task',body:task.details||task.body||'',details:task.details||'',date:task.due||task.date||'',due:task.due||task.date||'',dueTime:task.dueTime||'',priority:task.priority||'medium',status:status==='in_progress'?'in-progress':status,done:status==='done'||!!task.done,assigneeUid:assigneeUids[0]||'',assigneeUids,assigneeEmail:member?.email||task.assigneeEmail||'',assigneeName:member?.displayName||task.assigneeName||'',assigneePhotoURL:member?.photoURL||task.assigneePhotoURL||'',createdBy:task.createdBy||firebaseUser.uid,createdByName:task.createdByName||firebaseUser.displayName||firebaseUser.email||'',createdAt:task.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:firebaseUser.uid};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(task.id)).set(record,{merge:true});task.teamId=teamId;task.teamShared=true;task.sharedRecordId=String(task.id)}
  async function syncAllSharedProjects(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;const currentTeamId=activeTeamId;if(!currentTeamId)return;const memberIds=new Set((teamMembers||[]).map(member=>String(member.uid||member.id||'')));const candidates=chronosProjects.filter(project=>{if(project.teamId)return true;const people=[project.ownerUid,...(project.memberUids||project.officerUids||[])].filter(Boolean).map(String);return people.some(uid=>memberIds.has(uid))});if(!candidates.length)return;sharedProjectSyncBusy=true;try{for(const project of candidates){if(!project.teamId)project.teamId=currentTeamId;await syncSharedProject(project)}}catch(err){console.warn('Project sharing backfill failed:',err)}finally{sharedProjectSyncBusy=false}}
  async function syncAllSharedProjectTasks(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;sharedProjectSyncBusy=true;try{for(const task of tasks.filter(t=>t.projectId)){const project=projectFor(task.projectId);if(project?.teamId)await syncSharedProjectTask(task)}}catch(err){console.warn('Project task sharing failed:',err)}finally{sharedProjectSyncBusy=false}}
  const basePersistForProjects=window.persist;if(typeof basePersistForProjects==='function'&&!window.chronosSharedProjectPersist){window.chronosSharedProjectPersist=true;window.persist=function(){const result=basePersistForProjects.apply(this,arguments);setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},0);return result};persist=window.persist}
@@ -20860,7 +21147,7 @@ html[data-theme=dark] .btn-act-compact {
   const project=projectFor(task?.projectId);
   if(!task||!project||!canManageProject(project))throw Error('Only the project owner or a team administrator can delete this task.');
   if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id);
-  if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly('tasks', task.id, project.teamId);
+  if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('tasks', task.id, project.teamId);
   tasks=tasks.filter(item=>String(item.id)!==String(task.id));
   persist();
   closeTask();
@@ -20874,22 +21161,27 @@ html[data-theme=dark] .btn-act-compact {
   if(typeof recordLocalTombstone==='function') recordLocalTombstone('projects', project.id);
   const linkedTasks = (tasks||[]).filter(task=>String(task.projectId)===String(project.id));
   linkedTasks.forEach(task => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id); });
-  if(project.teamId){
-    recordLocalTeamTombstone(project.teamId,'projects',project.id);
-    linkedTasks.forEach(task=>recordLocalTeamTombstone(project.teamId,'tasks',task.id));
-  }
   if(navigator.onLine&&typeof firebaseDb!=='undefined'&&firebaseDb){
     if(typeof firebaseUser!=='undefined'&&firebaseUser){
       try{
-        await deleteCloudDocumentDirectly('projects',project.id);
-        for(const task of linkedTasks) await deleteCloudDocumentDirectly('tasks',task.id);
+        const batch=firebaseDb.batch();
+        const userProjCol=firebaseDb.collection('users').doc(firebaseUser.uid).collection('projects');
+        const userTasksCol=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tasks');
+        batch.delete(userProjCol.doc(String(project.id).replace(/[.#$\[\]/]/g,'_')));
+        linkedTasks.forEach(t=>{ batch.delete(userTasksCol.doc(String(t.id).replace(/[.#$\[\]/]/g,'_'))); });
+        await batch.commit();
       }catch(e){console.warn('Personal cloud project delete failed', e)}
     }
     if(project.teamId){
       try{
-        const snap=await firebaseDb.collection('teams').doc(project.teamId).collection('tasks').where('projectId','==',String(project.id)).get();
-        snap.docs.forEach(doc=>recordLocalTeamTombstone(project.teamId,'tasks',doc.id));
-        await syncPendingTeamTombstones();
+        const teamRef=firebaseDb.collection('teams').doc(project.teamId),
+              snap=await teamRef.collection('tasks').where('projectId','==',String(project.id)).get(),
+              refs=[...snap.docs.map(doc=>doc.ref),teamRef.collection('projects').doc(String(project.id))];
+        for(let i=0;i<refs.length;i+=400){
+          const batch=firebaseDb.batch();
+          refs.slice(i,i+400).forEach(ref=>batch.delete(ref));
+          await batch.commit();
+        }
       }catch(e){console.warn('Team cloud project delete failed', e)}
     }
   }
@@ -20997,7 +21289,7 @@ html[data-theme=dark] .btn-act-compact {
  $('teamRecordEditBackdrop')?.addEventListener('click',e=>{if(e.target===$('teamRecordEditBackdrop'))$('teamRecordEditBackdrop').classList.add('hidden')});
  $('teamRecordEditForm')?.addEventListener('submit',saveTeamRecordEdit);
 
-async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType==='project'||!activeTeam||!firebaseUser||!firebaseDb)throw Error('This shared record cannot be deleted here.');if(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))throw Error('Only the record creator or a team administrator can delete this shared item.');if(!navigator.onLine)throw Error('Deleting shared records requires an internet connection.');recordLocalTeamTombstone(activeTeam.id,type,record.id);await syncPendingTeamTombstones();teamRecords[type]=(teamRecords[type]||[]).filter(item=>String(item.id)!==String(record.id));if(teamLiveData[activeTeam.id]?.[type])teamLiveData[activeTeam.id][type]=teamLiveData[activeTeam.id][type].filter(item=>String(item.id)!==String(record.id));if(type==='tasks')teamAssignedTasks=(teamAssignedTasks||[]).filter(item=>String(item.id)!==String(record.id));renderTeamRecords();renderTasks();renderCalendar();renderSharedItemsInMainScreens();saveTeamCache();notify('Shared '+type.slice(0,-1)+' deleted.')}
+ async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType==='project'||!activeTeam||!firebaseUser||!firebaseDb)throw Error('This shared record cannot be deleted here.');if(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))throw Error('Only the record creator or a team administrator can delete this shared item.');if(!navigator.onLine)throw Error('Deleting shared records requires an internet connection.');await firebaseDb.collection('teams').doc(activeTeam.id).collection(type).doc(String(record.id)).delete();teamRecords[type]=(teamRecords[type]||[]).filter(item=>String(item.id)!==String(record.id));if(teamLiveData[activeTeam.id]?.[type])teamLiveData[activeTeam.id][type]=teamLiveData[activeTeam.id][type].filter(item=>String(item.id)!==String(record.id));if(type==='tasks')teamAssignedTasks=(teamAssignedTasks||[]).filter(item=>String(item.id)!==String(record.id));renderTeamRecords();renderTasks();renderCalendar();renderSharedItemsInMainScreens();saveTeamCache();notify('Shared '+type.slice(0,-1)+' deleted.')}
  function decorateTeamRecordActions(){const box=$('teamRecordsList');if(!box||!activeTeam||!firebaseUser)return;const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';box.querySelectorAll('[data-team-record-id]').forEach(card=>{const record=(teamRecords[type]||[]).find(item=>String(item.id)===String(card.dataset.teamRecordId));if(!record||record.sourceType==='project'||(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))||card.querySelector('.team-record-actions'))return;const actions=document.createElement('div');actions.className='team-record-actions';actions.innerHTML=`<button type="button" class="btn team-record-edit" data-team-record-edit="${projectEsc(record.id)}" data-team-record-type="${projectEsc(type)}">Edit</button><button type="button" class="btn danger team-record-delete" data-team-record-delete="${projectEsc(record.id)}">Delete</button>`;card.querySelector('.team-record-main')?.appendChild(actions)})}
  const baseTeamRenderRecordsWithActions=renderTeamRecords;renderTeamRecords=function(){baseTeamRenderRecordsWithActions.apply(this,arguments);decorateTeamRecordActions()};
  document.addEventListener('click',async e=>{const editBtn=e.target.closest('[data-team-record-edit]');if(editBtn){e.preventDefault();e.stopImmediatePropagation();const type=editBtn.dataset.teamRecordType||(teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes'),record=(teamRecords[type]||[]).find(item=>String(item.id)===String(editBtn.dataset.teamRecordEdit));if(record)openTeamRecordEditModal(record,type);return}const button=e.target.closest('[data-team-record-delete]');if(!button)return;e.preventDefault();e.stopImmediatePropagation();const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',record=(teamRecords[type]||[]).find(item=>String(item.id)===String(button.dataset.teamRecordDelete));if(!record)return;const ok=await confirmCustomInApp(`Delete shared ${type.slice(0,-1)} "${record.title||'Untitled'}"? This cannot be undone.`,{title:'Delete Shared Item',confirmText:'Delete item',danger:true});if(!ok)return;try{await deleteSharedTeamRecord(record,type)}catch(err){notify('Could not delete shared item: '+(err.message||'Check your connection.'))}},true);
@@ -21011,9 +21303,6 @@ async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType
  document.addEventListener('click',e=>{const open=e.target.closest('[data-open-assigned-project]');if(!open)return;selectedProjectId=open.dataset.openAssignedProject;setPage('tasks');renderProjectManager()});
  const baseRenderNotesWithSharing=renderNotes;renderNotes=function(){baseRenderNotesWithSharing.apply(this,arguments);renderAssignedProjectNotes()};
  const baseProjectCalendarItems=projectCalendarItemsFor;projectCalendarItemsFor=function(date){const map=new Map();baseProjectCalendarItems(date).filter(item=>item.projectTask).forEach(item=>map.set(String(item.taskId),item));(teamAssignedTasks||[]).filter(task=>(task.due||task.date)===date&&task.projectId).forEach(task=>{const project=projectFor(task.projectId),done=!!task.done||normalizeStatus(task.status)==='done';map.set(String(task.id),{projectTask:true,taskId:task.id,date:task.due||task.date,title:task.title||'Untitled task',description:task.body||task.details||'',allDay:true,done,projectName:project?.name||task.projectName||'Shared project',projectColor:done?'#2aa889':projectTone(project||{})})});return [...map.values()]};
- function renderTeamNoteLinksOnly(){if(teamTab!=='notes')return;const box=$('teamRecordsList');if(!box)return;box.querySelectorAll('[data-team-record-id]').forEach(card=>{const record=(teamRecords.notes||[]).find(item=>String(item.id)===String(card.dataset.teamRecordId));if(!record)return;const author=teamMembers.find(m=>m.uid===record.createdBy)||{uid:record.createdBy,displayName:record.createdByName||'Team member',photoURL:record.createdByPhotoURL||''};const names=(record.sharedTeamNames||[record.teamName||activeTeam?.name||'Team']).filter(Boolean).join(', ');const main=card.querySelector('.team-record-main');if(main)main.innerHTML=`<span class="team-record-type">Planning note · Shared with team</span><strong>${teamEsc(record.title||'Untitled')}</strong><div class="team-record-byline">${avatarMarkup(author)}<span>By ${teamEsc(author.displayName||author.email||'team member')}</span><span>· ${teamEsc(names)}</span></div><button type="button" class="btn" data-team-open-note="${teamEsc(record.id)}" style="margin-top:10px;display:inline-flex;align-items:center;gap:6px">${getLucideSvg('file-text',13)} Open in Notes</button>`})}
- const baseTeamRecordRendererFinal=renderTeamRecords;renderTeamRecords=function(){baseTeamRecordRendererFinal.apply(this,arguments);renderTeamNoteLinksOnly()};
- document.addEventListener('click',e=>{const open=e.target.closest('[data-team-open-note]');if(!open)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const id=open.dataset.teamOpenNote;setPage('notes');renderNotes();setTimeout(()=>openItemPreview('note',id),0)},true);
  if(typeof renderCalendar==='function')renderCalendar();if(typeof renderProjectManager==='function')renderProjectManager();if(typeof renderNotes==='function')renderNotes();
  window.updateSharedProjectTaskStatus=updateSharedProjectTaskStatus;
 })();
@@ -24119,10 +24408,8 @@ html[data-theme=dark] .batch-menu button:hover{
       if (!ok) return;
 
       const toDelete = (tasks || []).filter(t => (t.deliverableGroup === groupKey || t.deliverableTitle === groupKey || t.title === groupKey) && (!project || String(t.projectId) === String(project.id)));
-      toDelete.forEach(t => { if(t.teamId || activeTeamId) recordLocalTeamTombstone(t.teamId || activeTeamId,'tasks',t.id); });
       tasks = (tasks || []).filter(t => !toDelete.includes(t));
       if (typeof persist === 'function') persist();
-      if (typeof syncPendingTeamTombstones === 'function') await syncPendingTeamTombstones();
 
       // Cloud delete if active
       if (typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb && navigator.onLine) {
@@ -24153,10 +24440,8 @@ html[data-theme=dark] .batch-menu button:hover{
         confirm(`Remove ${personName} from requirement "${reqTitle}"?`);
       if (!ok) return;
 
-      recordLocalTeamTombstone(task.teamId || activeTeamId,'tasks',taskId);
       tasks = (tasks || []).filter(t => String(t.id) !== String(taskId));
       if (typeof persist === 'function') persist();
-      if (typeof syncPendingTeamTombstones === 'function') await syncPendingTeamTombstones();
 
       if (typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb && navigator.onLine) {
         const teamId = task.teamId || activeTeamId;
@@ -25220,7 +25505,7 @@ html[data-theme=dark] .batch-menu button:hover{
       if (!ok) return;
       const idsToDelete = new Set(selectedBatchTaskIds);
       const deletedTasksList = (tasks || []).filter(t => idsToDelete.has(String(t.id)));
-      deletedTasksList.forEach(t => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', t.id); if(typeof recordLocalTeamTombstone==='function'&&(t.teamId||activeTeamId)) recordLocalTeamTombstone(t.teamId||activeTeamId,'tasks',t.id); });
+      deletedTasksList.forEach(t => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', t.id); });
       tasks = (tasks || []).filter(t => !idsToDelete.has(String(t.id)));
       if (typeof persist === 'function') persist();
       if (navigator.onLine && typeof firebaseDb !== 'undefined' && firebaseDb) {
@@ -25237,7 +25522,6 @@ html[data-theme=dark] .batch-menu button:hover{
                 await batch.commit();
               }
             }
-            await syncPendingTeamTombstones();
             for (const t of deletedTasksList) {
               const teamId = t.teamId || (t.projectId && typeof projectFor === 'function' && projectFor(t.projectId)?.teamId);
               if (teamId) {
@@ -25732,33 +26016,20 @@ function ensureShowcaseMockProject(force = false) {
   }
 }
 
-// Remove the retired showcase project and its demo tasks from this workspace.
-async function removeShowcaseMockProject(){
-  const demoProjectId=CHRONOS_SHOWCASE_PROJECT_ID;
-  const demoProjects=(typeof chronosProjects!=='undefined'?chronosProjects:[]).filter(project=>String(project.id)===demoProjectId);
-  const demoTasks=(typeof tasks!=='undefined'?tasks:[]).filter(task=>String(task.projectId)===demoProjectId||String(task.id).startsWith('task_mock_stem_'));
-  if(!demoProjects.length&&!demoTasks.length&&!(firebaseUser&&firebaseDb&&navigator.onLine))return;
-  demoProjects.forEach(project=>recordLocalTombstone('projects',project.id));
-  demoTasks.forEach(task=>recordLocalTombstone('tasks',task.id));
-  if(typeof chronosProjects!=='undefined')chronosProjects=chronosProjects.filter(project=>String(project.id)!==demoProjectId);
-  if(typeof tasks!=='undefined')tasks=tasks.filter(task=>String(task.projectId)!==demoProjectId&&!String(task.id).startsWith('task_mock_stem_'));
-  if(String(selectedProjectId||'')===demoProjectId)selectedProjectId='';
-  try{localStorage.setItem('chronos90.projects',JSON.stringify(chronosProjects||[]));localStorage.setItem('chronos40.tasks',JSON.stringify(tasks||[]))}catch{}
-  try{if(typeof persist==='function')persist()}catch{}
-  if(firebaseUser&&firebaseDb&&navigator.onLine){
-    for(const project of demoProjects)await deleteCloudDocumentDirectly('projects',project.id);
-    for(const task of demoTasks)await deleteCloudDocumentDirectly('tasks',task.id);
-    try{
-      const remoteTasks=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tasks').where('projectId','==',demoProjectId).get();
-      for(const doc of remoteTasks.docs){if(!demoTasks.some(task=>String(task.id)===String(doc.id)))await deleteCloudDocumentDirectly('tasks',doc.id)}
-    }catch(err){console.warn('Could not remove remote showcase tasks:',err)}
-    try{await deleteCloudDocumentDirectly('projects',demoProjectId)}catch(err){console.warn('Could not remove remote showcase project:',err)}
-  }
-  if(typeof renderProjectManager==='function')renderProjectManager();
-  if(typeof renderTasks==='function')renderTasks();
-}
-setTimeout(()=>removeShowcaseMockProject().catch(err=>console.warn('Could not remove retired showcase data:',err)),200);
+// Auto-seed showcase project on startup
+setTimeout(() => {
+  ensureShowcaseMockProject();
+}, 200);
 
+// Global helper so user or dev can trigger / open demo
+window.openShowcaseProject = function() {
+  ensureShowcaseMockProject(true);
+  if (typeof openProjectWorkspaceModal === 'function') {
+    openProjectWorkspaceModal(CHRONOS_SHOWCASE_PROJECT_ID);
+  }
+};
+
+  
   // =========================================================
   // COMPACT DELIVERABLES ROSTER TOOLBAR & INTERACTION ENGINE
   // =========================================================
@@ -26030,8 +26301,7 @@ setTimeout(()=>removeShowcaseMockProject().catch(err=>console.warn('Could not re
     const btn = e.target.closest('[data-open-project-deliverables]');
     if (!btn) return;
     e.preventDefault();
-    const pid = btn.dataset.openProjectDeliverables;
-    if (!pid) return;
+    const pid = btn.dataset.openProjectDeliverables || CHRONOS_SHOWCASE_PROJECT_ID;
     if (typeof openProjectWorkspaceModal === 'function') {
       openProjectWorkspaceModal(pid);
     } else if (typeof openProject === 'function') {
