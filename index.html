@@ -900,6 +900,40 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
 .dawn-rollover-btn.secondary{background:var(--surface);color:var(--text);border:1px solid var(--line)}
 .dawn-rollover-btn.secondary:hover{background:var(--surface2);border-color:var(--muted)}
 
+/* Deliverable Milestone Cards & Micro-Facepile Styles */
+.deliverable-milestone-card{padding:14px 16px!important;border-left:3.5px solid var(--card-accent, var(--accent))!important}
+.deliverable-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.deliverable-card-badges{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.journey-deliv-badge{font-size:10px;font-weight:750;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--card-accent,var(--accent)) 14%,transparent);color:var(--card-accent,var(--accent));display:inline-flex;align-items:center;gap:4px}
+.journey-deliv-ratio-pill{font-size:10px;font-weight:750;padding:2px 7px;border-radius:6px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.journey-deliv-ratio-pill.is-100{background:rgba(16,185,129,.15);color:#10b981;border-color:rgba(16,185,129,.3)}
+.deliverable-title{display:block;font-size:14px;font-weight:750;line-height:1.35;color:var(--text)}
+.deliverable-stat-chips-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:6px 0 8px}
+.deliv-stat-chip{font-size:10.5px;font-weight:650;padding:2.5px 7px;border-radius:6px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.deliv-stat-chip.chip-submitted{background:rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.25)}
+.deliv-stat-chip.chip-paper{background:rgba(59,130,246,.12);color:#3b82f6;border-color:rgba(59,130,246,.25)}
+.deliv-stat-chip.chip-pending{background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.25)}
+.deliv-stat-chip.chip-overdue{background:rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.25)}
+.deliv-stat-chip.chip-ta{background:rgba(139,92,246,.12);color:#8b5cf6;border-color:rgba(139,92,246,.25)}
+.deliverable-milestone-progress-bar{width:100%;height:5px;border-radius:999px;background:var(--surface2);overflow:hidden;margin:7px 0 10px}
+.deliverable-milestone-progress-bar .fill{height:100%;border-radius:999px;background:var(--card-accent,var(--accent));transition:width .3s ease}
+.deliverable-milestone-roster-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--line);margin-top:6px}
+.deliverable-facepile-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.deliverable-avatar-stack{display:inline-flex!important;align-items:center!important;flex-direction:row!important;flex-wrap:nowrap!important}
+.deliverable-face-avatar{position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;max-width:26px!important;max-height:26px!important;border-radius:50%!important;margin-left:-7px;border:2px solid var(--surface);background:var(--surface2);overflow:hidden!important;box-shadow:0 1px 3px rgba(0,0,0,.12);flex-shrink:0!important}
+.deliverable-face-avatar:first-child{margin-left:0!important}
+.deliverable-face-avatar img{width:100%!important;height:100%!important;max-width:26px!important;max-height:26px!important;object-fit:cover!important;border-radius:50%!important;display:block!important}
+.deliverable-face-avatar .avatar-initial-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:750;color:var(--text)}
+.avatar-status-dot{position:absolute;bottom:0;right:0;width:6px;height:6px;border-radius:50%;border:1px solid var(--surface)}
+.avatar-status-dot.status-done{background:#10b981}
+.avatar-status-dot.status-pending{background:#f59e0b}
+.avatar-status-dot.status-overdue{background:#ef4444}
+.avatar-status-dot.status-hardcopy{background:#3b82f6}
+.deliverable-avatar-more{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--surface2);border:2px solid var(--surface);font-size:10px;font-weight:750;color:var(--muted);margin-left:-7px;flex-shrink:0}
+.deliverable-facepile-summary-label{font-size:11px;color:var(--muted);white-space:nowrap}
+.btn-open-roster-cta{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:8px;background:var(--surface2);border:1px solid var(--line);color:var(--text);font-size:11px;font-weight:650;cursor:pointer;transition:all .15s ease;white-space:nowrap}
+.btn-open-roster-cta:hover{background:var(--surface);border-color:var(--accent);color:var(--accent)}
+
 /* Universal Item Preview Modal & Card */
 #itemPreviewBackdrop {
   position: fixed !important;
@@ -14140,7 +14174,7 @@ function renderOverviewHorizon(options = {}){
 
         return `
           <span class="deliverable-face-avatar" title="${projectEsc(name)} (${projectEsc(role)}) — ${projectEsc(statusLabel)}">
-            ${photo ? `<img src="${projectEsc(photo)}" alt="${projectEsc(name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+            ${photo ? `<img src="${projectEsc(photo)}" alt="${projectEsc(name)}" width="26" height="26" style="width:26px;height:26px;border-radius:50%;object-fit:cover;display:block;" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
             <span class="avatar-initial-fallback" style="${photo ? 'display:none' : 'display:flex'}">${initial}</span>
             <span class="avatar-status-dot status-${statusClass}"></span>
           </span>
