@@ -2038,6 +2038,27 @@ html[data-theme="dark"] .journey-wing-right .journey-event-cluster:hover::before
   flex-direction: column;
   gap: 10px;
   margin-top: 6px;
+  animation: clusterFadeIn .2s cubic-bezier(.16, 1, .3, 1);
+}
+.journey-cluster-rows {
+  animation: clusterFadeIn .18s cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes clusterFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.journey-event-cluster.is-expanded {
+  padding: 10px 14px 12px !important;
+  background: var(--journey-card-bg, rgba(255, 255, 255, 0.98)) !important;
+  box-shadow: 0 12px 32px -4px rgba(15, 118, 110, 0.16), 0 0 0 1px rgba(20, 184, 166, 0.25) !important;
+}
+html[data-theme="dark"] .journey-event-cluster.is-expanded {
+  background: rgba(15, 23, 42, 0.96) !important;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(45, 212, 191, 0.3) !important;
+}
+.journey-event-cluster .journey-card::before,
+.journey-event-cluster .journey-card::after {
+  display: none !important;
 }
 
 /* Central Spine Illuminated Multi-Day Ribbon Track (Option A) */
@@ -12837,37 +12858,53 @@ function deletePreviewNoteComment(noteId, commentId){
 
 // Universal Item Preview Interactive Action Handlers
 document.addEventListener('click', async e => {
-  // 0b. Toggle Minimized Event Cluster in Flow
+  // 0b. Toggle Minimized Event Cluster in Flow (Seamless in-place toggle - ZERO viewport jump!)
   const toggleClusterBtn = e.target.closest('[data-toggle-cluster]');
   if(toggleClusterBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
     const cKey = toggleClusterBtn.dataset.toggleCluster;
     if(cKey){
-      const parts = cKey.split('_');
-      const dateKey = parts[0];
-
       if(!horizonState.expandedClusters) horizonState.expandedClusters = new Set();
-      if(horizonState.expandedClusters.has(cKey)){
-        horizonState.expandedClusters.delete(cKey);
-      } else {
+      const willBeExpanded = !horizonState.expandedClusters.has(cKey);
+      if(willBeExpanded){
         horizonState.expandedClusters.add(cKey);
+      } else {
+        horizonState.expandedClusters.delete(cKey);
       }
 
-      // CRITICAL: Lock focus to this specific date, NEVER return to today!
-      horizonState.focusedDateKey = dateKey;
-      horizonState.selectedDate = dateKey;
+      const clusterEl = toggleClusterBtn.closest('.journey-event-cluster');
+      if(clusterEl){
+        const rowsEl = clusterEl.querySelector('.journey-cluster-rows');
+        const bodyEl = clusterEl.querySelector('.journey-cluster-expanded-body');
+        const countEl = clusterEl.querySelector('.journey-cluster-count');
+        const countNum = clusterEl.dataset.eventCount || '';
 
-      // Lock current scroll position so viewport never jumps
-      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-      horizonState._preserveScrollY = scrollY;
+        clusterEl.classList.toggle('is-expanded', willBeExpanded);
+        clusterEl.classList.toggle('is-compact', !willBeExpanded);
 
-      if(typeof playInterfaceSound === 'function') playInterfaceSound();
-      renderOverviewHorizon();
+        if(rowsEl) rowsEl.style.display = willBeExpanded ? 'none' : '';
+        if(bodyEl) bodyEl.style.display = willBeExpanded ? '' : 'none';
 
-      window.scrollTo({ top: scrollY, behavior: 'instant' });
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollY, behavior: 'instant' });
-        delete horizonState._preserveScrollY;
-      });
+        if(countEl){
+          countEl.textContent = willBeExpanded
+            ? `✦ ${countNum ? countNum + ' ' : ''}EVENTS (EXPANDED)`
+            : `✦ ${countNum ? countNum + ' ' : ''}SCHEDULED EVENTS`;
+        }
+
+        toggleClusterBtn.innerHTML = willBeExpanded
+          ? `<span>Compact</span> ${getLucideSvg('chevron-up', 12)}`
+          : `<span>Expand</span> ${getLucideSvg('chevron-down', 12)}`;
+        toggleClusterBtn.title = willBeExpanded ? 'Collapse into compact view' : 'Click to expand full event cards';
+
+        if(typeof playInterfaceSound === 'function') playInterfaceSound();
+      } else {
+        // Safe fallback if DOM element not matched
+        if(typeof playInterfaceSound === 'function') playInterfaceSound();
+        renderOverviewHorizon();
+      }
     }
     return;
   }
@@ -14483,22 +14520,8 @@ function renderOverviewHorizon(options = {}){
 
       function renderEventCluster(eventsList, dateKey, wingSide){
         const clusterKey = `${dateKey}_${wingSide}`;
-        const isClusterExpanded = horizonState.expandedClusters && horizonState.expandedClusters.has(clusterKey);
-
-        if(isClusterExpanded){
-          const fullCardsHtml = eventsList.map(e => renderJourneyEventCard(e, isHeroEvent, dayHue, isDayToday, nowMins)).join('');
-          return `
-            <div class="journey-event-cluster is-expanded" data-cluster-key="${clusterKey}">
-              <div class="journey-cluster-header">
-                <span class="journey-cluster-count">✦ ${eventsList.length} EVENTS (EXPANDED)</span>
-                <button type="button" class="journey-cluster-toggle-btn" data-toggle-cluster="${clusterKey}" title="Collapse into compact view" style="display:inline-flex;align-items:center;gap:4px;">${getLucideSvg('chevron-up', 12)} Compact</button>
-              </div>
-              <div class="journey-cluster-expanded-body">
-                ${fullCardsHtml}
-              </div>
-            </div>
-          `;
-        }
+        const isClusterExpanded = !!(horizonState.expandedClusters && horizonState.expandedClusters.has(clusterKey));
+        const fullCardsHtml = eventsList.map(e => renderJourneyEventCard(e, isHeroEvent, dayHue, isDayToday, nowMins)).join('');
 
         const microRowsHtml = eventsList.map(e => {
           const creator = getCardCreatorProfile(e);
@@ -14528,15 +14551,18 @@ function renderOverviewHorizon(options = {}){
         }).join('');
 
         return `
-          <div class="journey-event-cluster is-compact" data-cluster-key="${clusterKey}">
+          <div class="journey-event-cluster ${isClusterExpanded ? 'is-expanded' : 'is-compact'}" data-cluster-key="${clusterKey}" data-event-count="${eventsList.length}">
             <div class="journey-cluster-header">
-              <span class="journey-cluster-count">✦ ${eventsList.length} SCHEDULED EVENTS</span>
-              <button type="button" class="journey-cluster-toggle-btn" data-toggle-cluster="${clusterKey}" title="Click to expand full event cards" style="display:inline-flex;align-items:center;gap:4px;">
-                <span>Expand</span> ${getLucideSvg('chevron-down', 12)}
+              <span class="journey-cluster-count">✦ ${eventsList.length} ${isClusterExpanded ? 'EVENTS (EXPANDED)' : 'SCHEDULED EVENTS'}</span>
+              <button type="button" class="journey-cluster-toggle-btn" data-toggle-cluster="${clusterKey}" title="${isClusterExpanded ? 'Collapse into compact view' : 'Click to expand full event cards'}" style="display:inline-flex;align-items:center;gap:4px;">
+                <span>${isClusterExpanded ? 'Compact' : 'Expand'}</span> ${getLucideSvg(isClusterExpanded ? 'chevron-up' : 'chevron-down', 12)}
               </button>
             </div>
-            <div class="journey-cluster-rows">
+            <div class="journey-cluster-rows" style="${isClusterExpanded ? 'display:none;' : ''}">
               ${microRowsHtml}
+            </div>
+            <div class="journey-cluster-expanded-body" style="${isClusterExpanded ? '' : 'display:none;'}">
+              ${fullCardsHtml}
             </div>
           </div>
         `;

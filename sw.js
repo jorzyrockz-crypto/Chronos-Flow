@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chronos-flow-5.10-v91';
+const CACHE_NAME = 'chronos-flow-5.10-v92';
 const APP_SHELL = [
   './',
   './index.html',
