@@ -7764,7 +7764,7 @@ const sampleNotes=[
 {id:'n3',title:'Meeting notes',body:'Decisions, owners, and next steps. Capture the action item while the conversation is still fresh.',tag:'Work',color:'sky',pinned:false,updated:Date.now()-172800000}
 ];
 const DEFAULT_FIREBASE_CONFIG={apiKey:'AIzaSyDVurj0n57qBiSBwuCjaDpi5CSQs-3I3f0',authDomain:'paperuss-2.firebaseapp.com',projectId:'paperuss-2',messagingSenderId:'158402331948',appId:'1:158402331948:web:a3abb73a2c84b14e78d889',measurementId:'G-1ZC6WLYCPG'};
-let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig={...DEFAULT_FIREBASE_CONFIG};let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
+let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig={...DEFAULT_FIREBASE_CONFIG};let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let sharedTeamNotes=[];let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
 const defaultSettings={homePage:'dashboard',mode:'dark',accent:'cloud_pastel',density:'comfortable',motion:'full',notifications:true,browserNotifications:false,leadTime:10,quietHours:true,quietStart:'22:00',quietEnd:'07:00',sounds:true,interfaceSounds:true,volume:50,soundProfile:'gentle',weekStart:'monday',timeFormat:'24',duration:60,flowStickyBarEnabled:true,projectWorkspaceSize:'card',projectDefaultTab:'tasks',projectCutoffTime:'17:00',projectGracePeriod:0,projectSupervisorTitle:'Master Teacher / Department Head',projectSchoolDivision:'Department of Education',projectSchoolName:'Main Academic Office',projectApprovingAuthority:'School Head / Principal'};let settings={...defaultSettings},notifiedReminders=new Set(),reminderTimer=null;
 function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStorage.getItem('chronos20.notes');events=e?JSON.parse(e):sampleEvents;notes=n?JSON.parse(n):sampleNotes;if(!Array.isArray(events)||!Array.isArray(notes))throw Error('bad data');notes=notes.map(x=>({collection:'',trashed:false,archived:false,tags:[],...x}))}catch(err){events=sampleEvents;notes=sampleNotes;notify('Sample data loaded. Local storage was unavailable.')}try{const t=localStorage.getItem('chronos20.theme');if(t)document.documentElement.dataset.theme=t;try{if(document.documentElement.dataset.skin==='ipados-tablet')delete document.documentElement.dataset.skin;localStorage.removeItem('chronos.tabletSkin')}catch{}const savedSettings=JSON.parse(localStorage.getItem('chronos50.settings')||'null');localSettingsPresent=!!savedSettings;settings={...defaultSettings,...(savedSettings&&typeof savedSettings==='object'?savedSettings:{})};applySettings(false);const raw=localStorage.getItem('chronos40.tasks');tasks=raw?JSON.parse(raw):[];if(!Array.isArray(tasks))tasks=[];firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG}}catch{tasks=[];firebaseConfig={}}}
 function ensureSchoolCalendarActivities(){const marker='chronos90.calendarImageImport.schoolYear2026_2027.v3';try{if(localStorage.getItem(marker)==='1')return;const byId=new Map(events.map(e=>[String(e.id),e]));let changed=false;for(const activity of schoolCalendarActivities){const existing=byId.get(activity.id);if(existing){if(existing.reminderMinutes!==1440){existing.reminderMinutes=1440;changed=true}if(!existing.importSource){existing.importSource=activity.importSource;changed=true}}else{events.push(activity);changed=true}}if(changed)persist();localStorage.setItem(marker,'1')}catch(err){console.warn('Could not import 2026–2027 school activities',err)}}
@@ -8438,7 +8438,7 @@ function countNoteBodyImages(body){
 window.countNoteBodyImages = countNoteBodyImages;
 
 function toggleNoteLike(noteId, buttonEl){
-  const n = (notes || []).find(x => String(x.id) === String(noteId));
+  const n = findNoteById(noteId);
   if(!n) return;
   if(!Array.isArray(n.likedBy)) n.likedBy = [];
   const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
@@ -8557,16 +8557,17 @@ window.closeNoteLikesModal = closeNoteLikesModal;
 function renderNotes(){
   const searchInput=$('noteSearch');
   const q=(searchInput?.value||'').toLowerCase().trim();
+  const noteList=notesForNotesPage();
   $('noteSearchClear')?.classList.toggle('hidden',!q);
 
   const sortSelect=$('noteSortSelect');
   if(sortSelect)sortSelect.value=noteSortOrder;
 
-  const countAll=notes.filter(n=>!n.trashed&&!n.archived).length;
-  const countPinned=notes.filter(n=>!n.trashed&&!n.archived&&n.pinned).length;
-  const countTagged=notes.filter(n=>!n.trashed&&!n.archived&&parseTags(n.tag).length).length;
-  const countArchived=notes.filter(n=>!n.trashed&&n.archived).length;
-  const countTrash=notes.filter(n=>n.trashed).length;
+  const countAll=noteList.filter(n=>!n.trashed&&!n.archived).length;
+  const countPinned=noteList.filter(n=>!n.trashed&&!n.archived&&n.pinned).length;
+  const countTagged=noteList.filter(n=>!n.trashed&&!n.archived&&parseTags(n.tag).length).length;
+  const countArchived=noteList.filter(n=>!n.trashed&&n.archived).length;
+  const countTrash=noteList.filter(n=>n.trashed).length;
 
   if($('countFilterAll'))$('countFilterAll').textContent=countAll;
   if($('countFilterPinned'))$('countFilterPinned').textContent=countPinned;
@@ -8577,7 +8578,7 @@ function renderNotes(){
 
   // Extract all distinct collections
   const collectionsSet=new Set(['Lesson Planning','Research','School Operations','Ideas & Reference']);
-  notes.forEach(n=>{if(n.collection)collectionsSet.add(n.collection)});
+  noteList.forEach(n=>{if(n.collection)collectionsSet.add(n.collection)});
   const colls=[...collectionsSet].sort();
   const collPillsBox=$('notesCollectionPills');
   if(collPillsBox){
@@ -8596,7 +8597,7 @@ function renderNotes(){
 
   // Extract all distinct tags
   const tagsMap=new Map();
-  notes.filter(n=>!n.trashed).forEach(n=>{
+  noteList.filter(n=>!n.trashed).forEach(n=>{
     parseTags(n.tag).forEach(t=>{
       tagsMap.set(t,(tagsMap.get(t)||0)+1);
     });
@@ -8617,7 +8618,7 @@ function renderNotes(){
   }
 
   // Filter notes
-  let filtered=notes.filter(n=>{
+  let filtered=noteList.filter(n=>{
     const trash=!!n.trashed,archived=!!n.archived;
     if(activeNoteFilter==='trash')return trash;
     if(trash)return false;
@@ -8735,21 +8736,10 @@ function renderNotes(){
     }).join('') + (overflowCount > 0 ? `<span class="note-facepile-overflow" title="${overflowCount} more collaborator${overflowCount === 1 ? '' : 's'}">+${overflowCount}</span>` : '');
 
     const collaboratorsTitle = allContributors.map(u => `${u.displayName}${u.role ? ' (' + u.role + ')' : ''}`).join(', ');
-
-    return `
-    <article class="note-card" data-note-id="${esc(n.id)}" data-preview-note="${esc(n.id)}" data-color="${esc(n.color||'default')}" data-trashed="${!!n.trashed}" style="cursor:pointer">
-      <div class="note-card-top">
-        <div class="note-meta">
-          <span class="note-date">${formattedDate}</span>
-          ${n.pinned ? `<span class="pin" title="Pinned note">${getLucideSvg('pin', 12)} Pinned</span>` : ''}
-          ${n.archived ? `<span class="note-chip">${getLucideSvg('archive', 11)} Archived</span>` : ''}
-          ${n.trashed ? `<span class="note-chip">${getLucideSvg('trash-2', 11)} Trash</span>` : ''}
-          ${!canEditNote(n) ? `<span class="note-chip note-readonly-chip" title="Read-only preview">${getLucideSvg('lock', 11)} Preview</span>` : ''}
-        </div>
-        <div class="note-card-actions" role="toolbar" aria-label="Note quick actions">
+    const isTeamOnly = isTeamOnlyNote(n);
+    const noteActionsHtml = isTeamOnly ? '' : `
           <button type="button" class="card-action-btn" data-force-edit-note="${esc(n.id)}" title="Edit in Notes Studio">${getLucideSvg('pen', 14)}</button>
           <button type="button" class="card-action-btn ${n.pinned ? 'active' : ''}" data-card-pin="${esc(n.id)}" title="${n.pinned ? 'Unpin note' : 'Pin note'}">${getLucideSvg(n.pinned ? 'pin-active' : 'pin', 14)}</button>
-          <!-- Secondary Actions in More Menu (and visible when long-pressed / .actions-revealed) -->
           <button type="button" class="card-action-btn note-more-hidden-action" data-card-color="${esc(n.id)}" title="Cycle note color">${getLucideSvg('palette', 14)}</button>
           <button type="button" class="card-action-btn note-more-hidden-action" data-card-archive="${esc(n.id)}" title="${n.archived ? 'Restore from archive' : 'Archive note'}">${getLucideSvg('archive', 14)}</button>
           <button type="button" class="card-action-btn note-more-hidden-action" data-card-duplicate="${esc(n.id)}" title="Duplicate note">${getLucideSvg('copy', 14)}</button>
@@ -8761,7 +8751,20 @@ function renderNotes(){
               <button type="button" class="dropdown-item" data-card-duplicate="${esc(n.id)}">${getLucideSvg('copy', 13)} <span>Duplicate</span></button>
             </div>
           </div>
-          <button type="button" class="card-action-btn danger-hover" data-card-trash="${esc(n.id)}" title="${n.trashed ? 'Permanently delete' : 'Move to trash'}">${getLucideSvg('trash-2', 14)}</button>
+          <button type="button" class="card-action-btn danger-hover" data-card-trash="${esc(n.id)}" title="${n.trashed ? 'Permanently delete' : 'Move to trash'}">${getLucideSvg('trash-2', 14)}</button>`;
+
+    return `
+    <article class="note-card" data-note-id="${esc(n.id)}" data-preview-note="${esc(n.id)}" data-color="${esc(n.color||'default')}" data-trashed="${!!n.trashed}" style="cursor:pointer">
+      <div class="note-card-top">
+        <div class="note-meta">
+          <span class="note-date">${formattedDate}</span>
+          ${n.pinned ? `<span class="pin" title="Pinned note">${getLucideSvg('pin', 12)} Pinned</span>` : ''}
+          ${n.archived ? `<span class="note-chip">${getLucideSvg('archive', 11)} Archived</span>` : ''}
+          ${n.trashed ? `<span class="note-chip">${getLucideSvg('trash-2', 11)} Trash</span>` : ''}
+          ${isTeamOnly ? `<span class="note-chip note-readonly-chip" title="Shared from a team">${getLucideSvg('users', 11)} Team note</span>` : !canEditNote(n) ? `<span class="note-chip note-readonly-chip" title="Read-only preview">${getLucideSvg('lock', 11)} Preview</span>` : ''}
+        </div>
+        <div class="note-card-actions" role="toolbar" aria-label="Note quick actions">
+          ${noteActionsHtml}
         </div>
       </div>
       <div class="note-card-body" data-preview-note="${esc(n.id)}" data-edit-note="${esc(n.id)}">
@@ -10207,7 +10210,7 @@ function submitNoteComment(){
   const text=input.value.trim();
   if(!text)return;
   const noteId=$('noteId')?.value;
-  let note=notes.find(n=>n.id===noteId);
+  let note=findNoteById(noteId);
   if(!note){
     saveNoteDraft(false);
     note=notes.find(n=>n.id===ensureNoteId());
@@ -10237,6 +10240,7 @@ function submitNoteComment(){
 
 function openNote(id=null){
   const n=(typeof findNoteById==='function'?findNoteById(id):null)||notes.find(x=>String(x.id)===String(id));
+  if(n&&isTeamOnlyNote(n)){notify('Shared team notes open in preview from your Notes page.');return}
   $('noteForm').reset();
   $('noteOptionsDrawer')?.classList.add('hidden');
   populateTeamSelectors();
@@ -13696,7 +13700,7 @@ function renderTaskPreviewHTML(id){
 function findNoteById(id){
   if(id == null) return null;
   const sId = String(id);
-  let n = (notes || []).find(x => String(x.id) === sId);
+  let n = notesForNotesPage().find(x => String(x.id) === sId);
   if(n) return n;
   if(typeof teamRecords !== 'undefined' && Array.isArray(teamRecords?.notes)){
     n = teamRecords.notes.find(x => String(x.id) === sId);
@@ -13727,6 +13731,7 @@ function renderNotePreviewHTML(id){
   }
 
   const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
+  const isTeamOnly = isTeamOnlyNote(n);
   const authorUid = n.authorUid || n.createdBy || 'local';
   let authorName = n.authorName || n.createdByName || (authorUid === currentUid ? 'You' : 'Workspace Collaborator');
   let authorPhoto = n.createdByPhotoURL || '';
@@ -13931,8 +13936,7 @@ const noteColorTintMap = {
     </div>
     <div class="preview-modal-actions">
       <div class="preview-modal-actions-left">
-        <button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button>
-        <button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>
+        ${isTeamOnly ? `<span class="note-chip" style="display:inline-flex;align-items:center;gap:5px">${getLucideSvg('users', 12)} Shared team note</span>` : `<button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button><button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>`}
       </div>
       <button type="button" class="btn" data-preview-close>Close</button>
     </div>
@@ -17502,8 +17506,8 @@ function teamEsc(v){return esc(String(v??''))}
 function teamIdSafe(v){return String(v||'').replace(/[^A-Za-z0-9_-]/g,'_').slice(0,120)}
 function teamCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const bytes=new Uint8Array(8);if(window.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<8;i++)bytes[i]=Math.floor(Math.random()*256);return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('')}
 function teamCacheKey(){return 'chronos70.teamCache.'+(firebaseUser?.uid||'local')}
-function saveTeamCache(){try{localStorage.setItem(teamCacheKey(),JSON.stringify({teams:chronosTeams,activeTeamId,activeTeam,members:teamMembers,records:teamRecords,updatedAt:Date.now()}))}catch{}}
-function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];const keep=(kind,row)=>!isLocallyTeamTombstoned(row?.teamId||activeTeamId,kind,row?.id)&&!localTombstones()[kind+'|'+String(row?.id||'')];const cached=c.records||{events:[],tasks:[],notes:[]};teamRecords={events:(cached.events||[]).filter(x=>keep('events',x)),tasks:(cached.tasks||[]).filter(x=>keep('tasks',x)),notes:(cached.notes||[]).filter(x=>keep('notes',x))};renderTeamWorkspace();return true}}catch{}return false}
+function saveTeamCache(){try{localStorage.setItem(teamCacheKey(),JSON.stringify({teams:chronosTeams,activeTeamId,activeTeam,members:teamMembers,records:teamRecords,sharedNotes:sharedTeamNotes,updatedAt:Date.now()}))}catch{}}
+function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];const keep=(kind,row)=>!isLocallyTeamTombstoned(row?.teamId||activeTeamId,kind,row?.id)&&!localTombstones()[kind+'|'+String(row?.id||'')];const cached=c.records||{events:[],tasks:[],notes:[]};sharedTeamNotes=mergeSharedTeamNotes(c.sharedNotes||cached.notes||[]);teamRecords={events:(cached.events||[]).filter(x=>keep('events',x)),tasks:(cached.tasks||[]).filter(x=>keep('tasks',x)),notes:notesForActiveTeam().filter(x=>keep('notes',x))};renderTeamWorkspace();renderNotes();return true}}catch{}return false}
 function currentTeamRole(){return teamMembers.find(m=>m.uid===firebaseUser?.uid)?.role||chronosTeams.find(t=>t.id===activeTeamId)?.role||''}
 function isTeamAdmin(){return ['owner','admin'].includes(currentTeamRole())}
 function renderSharedItemsInMainScreens(){const tp=$('teamSharedTasksPanel'),tl=$('teamSharedTasksList'),np=$('teamSharedNotesPanel'),nl=$('teamSharedNotesList');const sharedTasks=teamRecords.tasks||[],sharedNotes=teamRecords.notes||[];if(tp&&tl){tp.classList.add('hidden');tl.innerHTML=sharedTasks.map(t=>{const person=teamMembers.find(m=>m.uid===(t.assigneeUid||''))||{uid:t.assigneeUid,displayName:t.assigneeName||t.assigneeEmail||'Unassigned',photoURL:t.assigneePhotoURL||''};return `<article class="task-card"><div class="task-main"><strong>${teamEsc(t.title||'Untitled task')}</strong><p>${teamEsc(t.body||t.details||'')}</p><div class="team-record-byline">${t.assigneeUid?avatarMarkup(person,'sm')+'<span>Assigned to '+teamEsc(person.displayName||person.email||'team member')+'</span>':'<span>Unassigned · '+teamEsc(activeTeam?.name||'Team')+'</span>'}${t.date?'<span>· Due '+teamEsc(t.date)+'</span>':''}</div></div><select data-main-shared-task-status="${teamEsc(t.id)}" aria-label="Update team task status" ${(t.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin())?'disabled':''}><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${t.status==='done'?'selected':''}>Completed</option></select></article>`}).join('')||'<div class="team-empty">No team tasks for the selected team yet.</div>';tl.querySelectorAll('[data-main-shared-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.mainSharedTaskStatus,sel.value)))}if(np&&nl){np.classList.toggle('hidden',!firebaseUser||!activeTeam);nl.innerHTML=sharedNotes.map(n=>{const author=teamMembers.find(m=>m.uid===n.createdBy)||{uid:n.createdBy,displayName:n.createdByName||'Team member',photoURL:n.createdByPhotoURL||''};return `<article class="note-card" data-preview-note="${teamEsc(n.id)}" style="cursor:pointer"><span class="note-chip">${teamEsc(activeTeam?.name||'Team')} · Shared plan</span><h3>${teamEsc(n.title||'Untitled note')}</h3><p>${teamEsc(n.body||'')}</p><div class="team-record-byline">${avatarMarkup(author,'sm')}<span>By ${teamEsc(author.displayName||author.email||'Team member')}</span></div></article>`}).join('')||'<div class="team-empty">No team notes for the selected team yet.</div>'}}
@@ -17586,7 +17590,10 @@ function renderTeamRecords(){const box=$('teamRecordsList');if(!box)return;const
 async function teamReadList(collection){const snap=await firebaseDb.collection('teams').doc(activeTeamId).collection(collection).get();return snap.docs.map(d=>({...d.data(),id:d.id,teamId:activeTeamId,teamName:activeTeam?.name||'Team'}))}
 async function teamReadListFor(teamId,collection){const snap=await firebaseDb.collection('teams').doc(teamId).collection(collection).get();const team=chronosTeams.find(t=>String(t.id)===String(teamId));return snap.docs.map(d=>({...d.data(),id:d.id,teamId,teamName:team?.name||d.data()?.teamName||'Team'}))}
 function visibleTeamRecord(teamId,kind,row){if(!row)return false;const id=String(row.id||'');return !isLocallyTeamTombstoned(teamId,kind,id)&&!localTombstones()[kind+'|'+id]}
-function mergeSharedTeamNotes(rows=[]){const byId=new Map();for(const row of rows){const teamId=String(row?.teamId||'');if(!teamId||!visibleTeamRecord(teamId,'notes',row))continue;const id=String(row.id||'');if(!id)continue;const teamName=row.teamName||chronosTeams.find(t=>String(t.id)===teamId)?.name||'Team';const existing=byId.get(id);if(!existing){byId.set(id,{...row,id,teamId,teamName,sharedTeamIds:[teamId],sharedTeamNames:[teamName]});continue}const teamIds=[...(existing.sharedTeamIds||[]),teamId].filter((value,index,array)=>array.indexOf(value)===index);const teamNames=[...(existing.sharedTeamNames||[]),teamName].filter((value,index,array)=>array.indexOf(value)===index);const newer=Number(row.updatedAt||row.updated||row.createdAt||0)>=Number(existing.updatedAt||existing.updated||existing.createdAt||0);byId.set(id,{...(newer?row:existing),id,teamId:existing.teamId||teamId,teamName:existing.teamName||teamName,sharedTeamIds:teamIds,sharedTeamNames:teamNames})}return [...byId.values()]}
+function mergeSharedTeamNotes(rows=[]){const byId=new Map();for(const row of rows){const teamId=String(row?.teamId||'');if(!teamId||!visibleTeamRecord(teamId,'notes',row))continue;const id=String(row.id||'');if(!id)continue;const teamName=row.teamName||chronosTeams.find(t=>String(t.id)===teamId)?.name||'Team';const existing=byId.get(id);if(!existing){byId.set(id,{...row,id,teamId,teamName,teamShared:true,sharedTeamIds:[teamId],sharedTeamNames:[teamName]});continue}const teamIds=[...(existing.sharedTeamIds||[]),teamId].filter((value,index,array)=>array.indexOf(value)===index);const teamNames=[...(existing.sharedTeamNames||[]),teamName].filter((value,index,array)=>array.indexOf(value)===index);const newer=Number(row.updatedAt||row.updated||row.createdAt||0)>=Number(existing.updatedAt||existing.updated||existing.createdAt||0);byId.set(id,{...(newer?row:existing),id,teamId:existing.teamId||teamId,teamName:existing.teamName||teamName,teamShared:true,sharedTeamIds:teamIds,sharedTeamNames:teamNames})}return [...byId.values()]}
+function notesForNotesPage(){const byId=new Map((notes||[]).map(note=>[String(note.id),note]));const result=[...(notes||[])];for(const shared of sharedTeamNotes||[]){const id=String(shared?.id||'');if(!id)continue;const local=byId.get(id);if(local){const sharedTeamIds=[...(local.sharedTeamIds||[]),...(shared.sharedTeamIds||[])].filter((value,index,array)=>array.indexOf(value)===index);const sharedTeamNames=[...(local.sharedTeamNames||[]),...(shared.sharedTeamNames||[])].filter((value,index,array)=>array.indexOf(value)===index);const index=result.findIndex(note=>String(note.id)===id);if(index>=0)result[index]={...local,sharedTeamIds,sharedTeamNames,teamShared:true}}else result.push({...shared,authorUid:shared.authorUid||shared.createdBy||'',authorName:shared.authorName||shared.createdByName||'Team member',authorPhoto:shared.authorPhoto||shared.createdByPhotoURL||'',teamShared:true,teamOnly:true,trashed:false,archived:false,pinned:false})}return result}
+function isTeamOnlyNote(note){return !!note?.teamOnly&&!((notes||[]).some(local=>String(local.id)===String(note.id)))}
+function notesForActiveTeam(){const teamId=String(activeTeamId||'');return (sharedTeamNotes||[]).filter(note=>!teamId||(note.sharedTeamIds||[]).some(id=>String(id)===teamId)||String(note.teamId||'')===teamId)}
 function stopTeamRealtimeSync(){teamLiveUnsubs.forEach(unsub=>{try{unsub()}catch{}});teamLiveUnsubs=[];teamLiveData={};teamAssignedTasks=[];}
 function applyTeamLiveData(){
  const allEvents=[],assigned=[];
@@ -17610,10 +17617,12 @@ function applyTeamLiveData(){
   if(activeTeamId&&teamLiveData[activeTeamId]){
    const activeData=teamLiveData[activeTeamId]||{events:[],tasks:[],notes:[]};
    const allNotes=Object.entries(teamLiveData||{}).flatMap(([teamId,data])=>(data?.notes||[]).map(row=>({...row,teamId:row.teamId||teamId,teamName:row.teamName||chronosTeams.find(t=>String(t.id)===String(teamId))?.name||'Team'})));
+   sharedTeamNotes=mergeSharedTeamNotes(allNotes);
+   const activeNotes=notesForActiveTeam();
    teamRecords={
     events:(activeData.events||[]).filter(x=>!tombs['events|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'events',x.id)),
     tasks:(activeData.tasks||[]).filter(x=>!tombs['tasks|'+String(x.id)]&&!isLocallyTeamTombstoned(activeTeamId,'tasks',x.id)),
-    notes:mergeSharedTeamNotes(allNotes)
+    notes:activeNotes
    };
   }
 
@@ -18329,13 +18338,14 @@ function renderTeamAdminPanel3(){
  const baseRefreshTeamWorkspaceForAllTeamNotes=refreshTeamWorkspace;
  refreshTeamWorkspace=async function(){
    await baseRefreshTeamWorkspaceForAllTeamNotes.apply(this,arguments);
-   if(!firebaseUser||!firebaseDb||!chronosTeams.length||!activeTeamId)return;
+   if(!firebaseUser||!firebaseDb||!chronosTeams.length||!activeTeamId){sharedTeamNotes=[];renderNotes();return;}
    try{
      const noteSets=await Promise.all(chronosTeams.map(team=>teamReadListFor(team.id,'notes')));
      const allNotes=mergeSharedTeamNotes(noteSets.flat());
-     teamRecords.notes=allNotes;
-     if(teamLiveData[activeTeamId])teamLiveData[activeTeamId].notes=allNotes.filter(note=>String(note.teamId)===String(activeTeamId));
-     renderTeamWorkspace();renderSharedItemsInMainScreens();renderOverviewTeam();saveTeamCache();
+     sharedTeamNotes=allNotes;
+     teamRecords.notes=notesForActiveTeam();
+     if(teamLiveData[activeTeamId])teamLiveData[activeTeamId].notes=teamRecords.notes;
+     renderTeamWorkspace();renderNotes();renderSharedItemsInMainScreens();renderOverviewTeam();saveTeamCache();
    }catch(err){console.warn('Could not refresh notes shared across teams:',err)}
  };
  window.addEventListener('online',()=>{if(firebaseUser&&chronosTeams.length)startTeamRealtimeSync()});
@@ -21001,6 +21011,9 @@ async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType
  document.addEventListener('click',e=>{const open=e.target.closest('[data-open-assigned-project]');if(!open)return;selectedProjectId=open.dataset.openAssignedProject;setPage('tasks');renderProjectManager()});
  const baseRenderNotesWithSharing=renderNotes;renderNotes=function(){baseRenderNotesWithSharing.apply(this,arguments);renderAssignedProjectNotes()};
  const baseProjectCalendarItems=projectCalendarItemsFor;projectCalendarItemsFor=function(date){const map=new Map();baseProjectCalendarItems(date).filter(item=>item.projectTask).forEach(item=>map.set(String(item.taskId),item));(teamAssignedTasks||[]).filter(task=>(task.due||task.date)===date&&task.projectId).forEach(task=>{const project=projectFor(task.projectId),done=!!task.done||normalizeStatus(task.status)==='done';map.set(String(task.id),{projectTask:true,taskId:task.id,date:task.due||task.date,title:task.title||'Untitled task',description:task.body||task.details||'',allDay:true,done,projectName:project?.name||task.projectName||'Shared project',projectColor:done?'#2aa889':projectTone(project||{})})});return [...map.values()]};
+ function renderTeamNoteLinksOnly(){if(teamTab!=='notes')return;const box=$('teamRecordsList');if(!box)return;box.querySelectorAll('[data-team-record-id]').forEach(card=>{const record=(teamRecords.notes||[]).find(item=>String(item.id)===String(card.dataset.teamRecordId));if(!record)return;const author=teamMembers.find(m=>m.uid===record.createdBy)||{uid:record.createdBy,displayName:record.createdByName||'Team member',photoURL:record.createdByPhotoURL||''};const names=(record.sharedTeamNames||[record.teamName||activeTeam?.name||'Team']).filter(Boolean).join(', ');const main=card.querySelector('.team-record-main');if(main)main.innerHTML=`<span class="team-record-type">Planning note · Shared with team</span><strong>${teamEsc(record.title||'Untitled')}</strong><div class="team-record-byline">${avatarMarkup(author)}<span>By ${teamEsc(author.displayName||author.email||'team member')}</span><span>· ${teamEsc(names)}</span></div><button type="button" class="btn" data-team-open-note="${teamEsc(record.id)}" style="margin-top:10px;display:inline-flex;align-items:center;gap:6px">${getLucideSvg('file-text',13)} Open in Notes</button>`})}
+ const baseTeamRecordRendererFinal=renderTeamRecords;renderTeamRecords=function(){baseTeamRecordRendererFinal.apply(this,arguments);renderTeamNoteLinksOnly()};
+ document.addEventListener('click',e=>{const open=e.target.closest('[data-team-open-note]');if(!open)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const id=open.dataset.teamOpenNote;setPage('notes');renderNotes();setTimeout(()=>openItemPreview('note',id),0)},true);
  if(typeof renderCalendar==='function')renderCalendar();if(typeof renderProjectManager==='function')renderProjectManager();if(typeof renderNotes==='function')renderNotes();
  window.updateSharedProjectTaskStatus=updateSharedProjectTaskStatus;
 })();
