@@ -4084,31 +4084,295 @@ html[data-theme="dark"][data-accent] .note-comment-item {
 }
 
 /* 3. Author Chip in Note Card Meta */
-.note-author-chip {
+/* Refined Bottom-Right Facepile & Layout */
+.note-card-footer-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin-top: 6px !important;
+}
+.note-card-facepile {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+.note-facepile-avatar {
+  display: inline-flex !important;
+  position: relative !important;
+  cursor: pointer !important;
+}
+.note-facepile-avatar .chronos-avatar {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 9px !important;
+  border: 2px solid var(--note-tint, var(--surface)) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  transition: transform .15s ease, z-index .15s ease !important;
+}
+.note-facepile-avatar:not(:first-child) {
+  margin-left: -7px !important;
+}
+.note-facepile-avatar:hover {
+  z-index: 5 !important;
+}
+.note-facepile-avatar:hover .chronos-avatar {
+  transform: scale(1.18) !important;
+}
+.note-facepile-overflow {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: var(--surface2) !important;
+  border: 2px solid var(--note-tint, var(--surface)) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  color: var(--muted) !important;
+  margin-left: -7px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  flex-shrink: 0 !important;
+}
+.comment-snippet-avatar {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+.comment-snippet-avatar .chronos-avatar {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 8px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+}
+
+/* Modal Comments with Profile Photos & Reply Threads */
+.note-comment-avatar-wrap {
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+}
+.note-comment-avatar-wrap .chronos-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 11px !important;
+  border-radius: 50% !important;
+}
+.note-comment-reply-btn {
+  background: none !important;
+  border: none !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  color: var(--accent) !important;
+  cursor: pointer !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  transition: background 0.15s ease !important;
+}
+.note-comment-reply-btn:hover {
+  background: var(--accent-soft) !important;
+}
+.note-comment-reply-ref {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
+  font-size: 10.5px !important;
+  color: var(--muted) !important;
+  margin-bottom: 4px !important;
+  background: color-mix(in srgb, var(--accent) 8%, transparent) !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  width: fit-content !important;
+}
+.note-comment-reply-ref strong {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+}
+.note-comment-reply-banner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 5px 10px !important;
+  border-radius: 8px !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  font-size: 11.5px !important;
+  margin-bottom: 6px !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent) !important;
+}
+.note-comment-reply-banner strong {
+  font-weight: 750 !important;
+}
+.note-comment-reply-banner button {
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: var(--accent) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  padding: 0 4px !important;
+}
+.note-modal-like-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all .15s ease !important;
+}
+.note-modal-like-pill:hover {
+  border-color: #f43f5e !important;
+  color: #f43f5e !important;
+}
+.note-modal-like-pill.is-liked {
+  border-color: rgba(244, 63, 94, 0.4) !important;
+  background: rgba(244, 63, 94, 0.1) !important;
+  color: #e11d48 !important;
+}
+.note-modal-like-pill.is-liked svg {
+  fill: #e11d48 !important;
+  stroke: #e11d48 !important;
+}
+.note-modal-view-likes-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
   font-size: 11.5px !important;
   font-weight: 650 !important;
+  color: var(--accent) !important;
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line)) !important;
+  cursor: pointer !important;
+}
+.note-modal-view-likes-btn:hover {
+  background: var(--accent-soft) !important;
+}
+
+/* Note Likes Modal */
+#noteLikesModalBackdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483640 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 16px !important;
+  background: rgba(10, 18, 30, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+#noteLikesModalBackdrop.hidden {
+  display: none !important;
+}
+.note-likes-modal {
+  width: min(420px, calc(100vw - 32px)) !important;
+  max-height: min(80vh, 560px) !important;
+  background: var(--surface, #ffffff) !important;
+  color: var(--text, #0f172a) !important;
+  border: 1px solid var(--line, rgba(0,0,0,0.08)) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 25px 60px -12px rgba(0,0,0,.35) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  animation: previewModalPopIn .24s cubic-bezier(.16,1,.3,1) both !important;
+}
+html[data-theme="dark"] .note-likes-modal {
+  background: #0f172a !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.note-likes-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: color-mix(in srgb, var(--surface) 95%, var(--accent-soft)) !important;
+}
+.note-likes-head-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
   color: var(--text) !important;
-  max-width: 140px !important;
+}
+.note-likes-head-icon {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(244, 63, 94, 0.14) !important;
+  color: #f43f5e !important;
+}
+.note-likes-list {
+  padding: 12px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  max-height: 380px !important;
+}
+.note-likes-user-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  background: var(--surface2) !important;
+  border: 1px solid var(--line) !important;
+  transition: background 0.15s ease !important;
+}
+.note-likes-user-row:hover {
+  background: color-mix(in srgb, var(--surface2) 80%, var(--accent-soft)) !important;
+}
+.note-likes-user-meta {
+  flex: 1 !important;
   min-width: 0 !important;
 }
-.note-author-chip .chronos-avatar.xs {
-  width: 18px !important;
-  height: 18px !important;
-  font-size: 8.5px !important;
-  flex-shrink: 0 !important;
-}
-.note-author-name {
+.note-likes-user-meta strong {
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
-.note-meta-dot {
+.note-likes-user-meta small {
+  display: block !important;
+  font-size: 11px !important;
   color: var(--muted) !important;
-  opacity: 0.6 !important;
-  font-size: 10px !important;
+  margin-top: 1px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.note-likes-liked-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 3px 8px !important;
+  border-radius: 999px !important;
+  background: rgba(244, 63, 94, 0.12) !important;
+  color: #e11d48 !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+}
+.note-likes-liked-badge svg {
+  fill: #e11d48 !important;
+}
+.note-likes-foot {
+  padding: 12px 20px !important;
+  border-top: 1px solid var(--line) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  background: var(--surface) !important;
 }
 
 /* 4. In-Card Discussion Snippet (1 to 3 Lines) */
@@ -6773,6 +7037,13 @@ html[data-theme="dark"] .note-card .md-card-preview {
   </section>
 </div>
 
+<!-- Note Likes List Modal Backdrop -->
+<div class="modal-backdrop hidden" id="noteLikesModalBackdrop" role="presentation">
+  <section class="modal note-likes-modal" id="noteLikesModal" role="dialog" aria-modal="true" aria-labelledby="noteLikesTitle">
+    <!-- Populated by showNoteLikesModal(noteId) -->
+  </section>
+</div>
+
 <!-- Global Floating Voice Recording Dynamic Island Dock -->
 <div id="globalVoiceRecorderDock" class="global-voice-dock hidden" role="region" aria-label="Voice recording dock" title="Drag to move widget anywhere">
   <!-- Drag Handle -->
@@ -7946,11 +8217,22 @@ function toggleNoteLike(noteId, buttonEl){
   n.updated = Date.now();
   persist();
 
-  if(buttonEl){
-    buttonEl.classList.toggle('is-liked', willLike);
-    const countSpan = buttonEl.querySelector('.like-count');
+  // Synchronize all like button elements on screen (card grid & modals)
+  document.querySelectorAll('[data-note-like="' + noteId + '"], [data-modal-note-like="' + noteId + '"]').forEach(btn => {
+    btn.classList.toggle('is-liked', willLike);
+    const countSpan = btn.querySelector('.like-count, .modal-like-count');
     if(countSpan) countSpan.textContent = n.likes;
-    buttonEl.title = willLike ? 'Unlike note' : 'Like note';
+    btn.title = willLike ? 'Unlike note' : 'Like note';
+  });
+
+  // If item preview is currently open for this note, refresh it in place
+  const modal = document.getElementById('itemPreviewModal');
+  const backdrop = document.getElementById('itemPreviewBackdrop');
+  if(modal && backdrop && !backdrop.classList.contains('hidden')){
+    const modalNoteInput = modal.querySelector('[data-preview-comment-input="' + noteId + '"]');
+    if(modalNoteInput && typeof refreshItemPreviewInPlace === 'function'){
+      refreshItemPreviewInPlace();
+    }
   }
 
   if(typeof playInterfaceSound === 'function') playInterfaceSound();
@@ -7960,6 +8242,81 @@ function toggleNoteLike(noteId, buttonEl){
   }
 }
 window.toggleNoteLike = toggleNoteLike;
+
+function showNoteLikesModal(noteId){
+  const n = findNoteById(noteId);
+  if(!n) return;
+  const likedUids = Array.isArray(n.likedBy) ? n.likedBy : [];
+  const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
+
+  const listHtml = likedUids.length ? likedUids.map(uid => {
+    let userObj = { uid: uid, displayName: 'Workspace Collaborator', photoURL: '', role: 'Collaborator', email: '' };
+    if(uid === currentUid && typeof firebaseUser !== 'undefined' && firebaseUser){
+      userObj.displayName = firebaseUser.displayName || 'You';
+      userObj.photoURL = firebaseUser.photoURL || '';
+      userObj.email = firebaseUser.email || '';
+      userObj.role = 'You';
+    } else if(typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)){
+      const mem = teamMembers.find(m => m.uid === uid || m.email === uid || m.displayName === uid);
+      if(mem){
+        userObj = { ...mem, displayName: mem.displayName || mem.name || mem.email || 'Team Member' };
+      }
+    }
+    return [
+      '<div class="note-likes-user-row">',
+      '  <div class="note-likes-user-avatar">',
+      '    ' + avatarMarkup(userObj, 'sm'),
+      '  </div>',
+      '  <div class="note-likes-user-meta">',
+      '    <strong>' + esc(userObj.displayName) + '</strong>',
+      '    <small>' + esc(userObj.role || userObj.email || 'Collaborator') + '</small>',
+      '  </div>',
+      '  <div class="note-likes-liked-badge">',
+      '    ' + getLucideSvg('heart', 12) + ' Liked',
+      '  </div>',
+      '</div>'
+    ].join('\n');
+  }).join('') : '<div style="padding:28px 16px;text-align:center;color:var(--muted);font-size:13px">No likes yet. Be the first to like this note!</div>';
+
+  const modalHtml = [
+    '<div class="note-likes-head">',
+    '  <div class="note-likes-head-title">',
+    '    <div class="note-likes-head-icon">' + getLucideSvg('heart', 16) + '</div>',
+    '    <div>',
+    '      <div style="font-size:14.5px;font-weight:750">People who liked this Note</div>',
+    '      <div style="font-size:11px;color:var(--muted);font-weight:500">' + likedUids.length + ' ' + (likedUids.length === 1 ? 'person' : 'people') + '</div>',
+    '    </div>',
+    '  </div>',
+    '  <button type="button" class="btn-icon" data-close-note-likes title="Close" style="border:none;background:none;cursor:pointer;color:var(--muted);padding:4px">' + getLucideSvg('x', 18) + '</button>',
+    '</div>',
+    '<div class="note-likes-list">',
+    '  ' + listHtml,
+    '</div>',
+    '<div class="note-likes-foot">',
+    '  <button type="button" class="btn" data-close-note-likes>Close</button>',
+    '</div>'
+  ].join('\n');
+
+  let backdrop = document.getElementById('noteLikesModalBackdrop');
+  if(!backdrop){
+    backdrop = document.createElement('div');
+    backdrop.id = 'noteLikesModalBackdrop';
+    backdrop.className = 'modal-backdrop';
+    backdrop.setAttribute('role', 'presentation');
+    backdrop.innerHTML = '<section class="modal note-likes-modal" id="noteLikesModal" role="dialog" aria-modal="true" aria-labelledby="noteLikesTitle"></section>';
+    document.body.appendChild(backdrop);
+  }
+  const modalEl = backdrop.querySelector('#noteLikesModal');
+  if(modalEl) modalEl.innerHTML = modalHtml;
+  backdrop.classList.remove('hidden');
+}
+window.showNoteLikesModal = showNoteLikesModal;
+
+function closeNoteLikesModal(){
+  const backdrop = document.getElementById('noteLikesModalBackdrop');
+  if(backdrop) backdrop.classList.add('hidden');
+}
+window.closeNoteLikesModal = closeNoteLikesModal;
 
 function renderNotes(){
   const searchInput=$('noteSearch');
@@ -8066,7 +8423,7 @@ function renderNotes(){
   const card = n => {
     const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
     const member = (typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)) ? teamMembers.find(m => m.uid === n.authorUid || m.email === n.authorName) : null;
-    const authorObj = member || { displayName: n.authorName || (n.authorUid === currentUid ? (firebaseUser?.displayName || 'You') : 'Collaborator'), photoURL: n.authorPhoto || (n.authorUid === currentUid ? firebaseUser?.photoURL : '') || '' };
+    const authorObj = member || { displayName: n.authorName || (n.authorUid === currentUid ? (firebaseUser?.displayName || 'You') : 'Collaborator'), photoURL: n.authorPhoto || (n.authorUid === currentUid ? firebaseUser?.photoURL : '') || '', uid: n.authorUid || currentUid };
     const authorName = n.authorName || authorObj.displayName || 'Collaborator';
     const formattedDate = new Date(n.updated || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
@@ -8079,15 +8436,25 @@ function renderNotes(){
     const commentsList = Array.isArray(n.comments) ? n.comments : [];
     const commentsCount = commentsList.length;
 
-    // 1 to 3 lines recent comment preview snippet
+    // 1 to 3 lines recent comment preview snippet with Commenter Profile Avatar
     let commentSnippetHtml = '';
     if(commentsCount > 0){
       const latestComment = commentsList[commentsList.length - 1];
+      const commenterMem = (typeof teamMembers !== 'undefined' && Array.isArray(teamMembers))
+        ? teamMembers.find(m => (m.uid && m.uid === latestComment.authorUid) || (m.displayName && m.displayName === latestComment.authorName) || (m.email && m.email === latestComment.authorName))
+        : null;
+      const commenterObj = commenterMem || {
+        uid: latestComment.authorUid || '',
+        displayName: latestComment.authorName || 'Collaborator',
+        photoURL: latestComment.authorPhoto || ''
+      };
       commentSnippetHtml = `
         <div class="note-card-comment-snippet" data-preview-note="${esc(n.id)}" title="Click to view full discussion (${commentsCount} comment${commentsCount === 1 ? '' : 's'})">
-          <span class="comment-snippet-icon">${getLucideSvg('message-square', 12)}</span>
+          <div class="comment-snippet-avatar" title="Comment by ${esc(commenterObj.displayName)}">
+            ${avatarMarkup(commenterObj, 'xs')}
+          </div>
           <div class="comment-snippet-body">
-            <strong class="comment-snippet-author">${esc(latestComment.authorName || 'Collaborator')}:</strong>
+            <strong class="comment-snippet-author">${esc(commenterObj.displayName)}:</strong>
             <span class="comment-snippet-text">${esc(latestComment.text || '')}</span>
           </div>
           ${commentsCount > 1 ? `<span class="comment-snippet-badge">+${commentsCount - 1}</span>` : ''}
@@ -8095,15 +8462,48 @@ function renderNotes(){
       `;
     }
 
+    // Overlapping Facepile Aggregation for bottom-right: Author + Co-editors + Commenters
+    const contributorMap = new Map();
+    const authorKey = authorObj.uid || authorObj.displayName || 'author';
+    contributorMap.set(authorKey, { ...authorObj, role: 'Author' });
+
+    if(Array.isArray(n.allowedEditorUids) && typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)){
+      n.allowedEditorUids.forEach(uid => {
+        if(uid !== '*' && !contributorMap.has(uid)){
+          const mem = teamMembers.find(m => m.uid === uid);
+          if(mem) contributorMap.set(uid, { ...mem, role: 'Editor' });
+        }
+      });
+    }
+
+    if(Array.isArray(n.comments)){
+      n.comments.forEach(c => {
+        const cKey = c.authorUid || c.authorName;
+        if(cKey && !contributorMap.has(cKey)){
+          const mem = (typeof teamMembers !== 'undefined' && Array.isArray(teamMembers))
+            ? teamMembers.find(m => (m.uid && m.uid === c.authorUid) || (m.displayName && m.displayName === c.authorName) || (m.email && m.email === c.authorName))
+            : null;
+          const cObj = mem || { uid: c.authorUid || '', displayName: c.authorName || 'Collaborator', photoURL: c.authorPhoto || '' };
+          contributorMap.set(cKey, { ...cObj, role: 'Commenter' });
+        }
+      });
+    }
+
+    const allContributors = Array.from(contributorMap.values());
+    const maxVisibleAvatars = 3;
+    const visibleContributors = allContributors.slice(0, maxVisibleAvatars);
+    const overflowCount = allContributors.length - maxVisibleAvatars;
+
+    const facepileAvatarsHtml = visibleContributors.map(u => {
+      return `<span class="note-facepile-avatar" title="${esc(u.displayName)}${u.role ? ' (' + u.role + ')' : ''}">${avatarMarkup(u, 'xs')}</span>`;
+    }).join('') + (overflowCount > 0 ? `<span class="note-facepile-overflow" title="${overflowCount} more collaborator${overflowCount === 1 ? '' : 's'}">+${overflowCount}</span>` : '');
+
+    const collaboratorsTitle = allContributors.map(u => `${u.displayName}${u.role ? ' (' + u.role + ')' : ''}`).join(', ');
+
     return `
     <article class="note-card" data-note-id="${esc(n.id)}" data-preview-note="${esc(n.id)}" data-color="${esc(n.color||'default')}" data-trashed="${!!n.trashed}" style="cursor:pointer">
       <div class="note-card-top">
         <div class="note-meta">
-          <div class="note-author-chip" title="Created by ${esc(authorName)}">
-            ${avatarMarkup(authorObj, 'xs')}
-            <span class="note-author-name">${esc(authorName)}</span>
-          </div>
-          <span class="note-meta-dot">•</span>
           <span class="note-date">${formattedDate}</span>
           ${n.pinned ? `<span class="pin" title="Pinned note">${getLucideSvg('pin', 12)} Pinned</span>` : ''}
           ${n.archived ? `<span class="note-chip">${getLucideSvg('archive', 11)} Archived</span>` : ''}
@@ -8127,17 +8527,22 @@ function renderNotes(){
       <div class="note-card-footer">
         ${n.tag ? `<div class="note-card-tags">${formatCardTags(n.tag)}</div>` : ''}
         ${n.collection ? `<div class="note-collection">${getLucideSvg('folder', 12)} ${esc(n.collection)}</div>` : ''}
-        <div class="note-extra">
-          <button type="button" class="note-pill-btn note-like-btn ${isLiked ? 'is-liked' : ''}" data-note-like="${esc(n.id)}" title="${isLiked ? 'Unlike note' : 'Like note'}">
-            ${getLucideSvg('heart', 12)}
-            <span class="like-count">${likesCount}</span>
-          </button>
-          <button type="button" class="note-pill-btn note-comment-btn ${commentsCount > 0 ? 'has-comments' : ''}" data-preview-note="${esc(n.id)}" title="${commentsCount} comment${commentsCount === 1 ? '' : 's'} — click to open discussion">
-            ${getLucideSvg('message-square', 12)}
-            <span>${commentsCount}</span>
-          </button>
-          ${inNoteImages > 0 ? `<span class="note-chip note-img-stat-chip" title="${inNoteImages} image${inNoteImages === 1 ? '' : 's'} in note">${getLucideSvg('image', 12)} ${inNoteImages}</span>` : ''}
-          ${(n.recordingNames || []).length ? `<span class="note-chip" title="${(n.recordingNames || []).length} audio recording${(n.recordingNames || []).length === 1 ? '' : 's'}">${getLucideSvg('mic', 12)} ${(n.recordingNames || []).length}</span>` : ''}
+        <div class="note-card-footer-row">
+          <div class="note-extra">
+            <button type="button" class="note-pill-btn note-like-btn ${isLiked ? 'is-liked' : ''}" data-note-like="${esc(n.id)}" title="${isLiked ? 'Unlike note' : 'Like note'}">
+              ${getLucideSvg('heart', 12)}
+              <span class="like-count">${likesCount}</span>
+            </button>
+            <button type="button" class="note-pill-btn note-comment-btn ${commentsCount > 0 ? 'has-comments' : ''}" data-preview-note="${esc(n.id)}" title="${commentsCount} comment${commentsCount === 1 ? '' : 's'} — click to open discussion">
+              ${getLucideSvg('message-square', 12)}
+              <span>${commentsCount}</span>
+            </button>
+            ${inNoteImages > 0 ? `<span class="note-chip note-img-stat-chip" title="${inNoteImages} image${inNoteImages === 1 ? '' : 's'} in note">${getLucideSvg('image', 12)} ${inNoteImages}</span>` : ''}
+            ${(n.recordingNames || []).length ? `<span class="note-chip" title="${(n.recordingNames || []).length} audio recording${(n.recordingNames || []).length === 1 ? '' : 's'}">${getLucideSvg('mic', 12)} ${(n.recordingNames || []).length}</span>` : ''}
+          </div>
+          <div class="note-card-facepile" title="${esc(collaboratorsTitle)}">
+            ${facepileAvatarsHtml}
+          </div>
         </div>
       </div>
     </article>`;
@@ -12926,25 +13331,46 @@ function renderNotePreviewHTML(id){
     `;
   }
 
-  // Comments Section
+  // Likes & Modal Like Stats
+  const likesCount = Array.isArray(n.likedBy) ? n.likedBy.length : (Number(n.likes) || 0);
+  const isLiked = Array.isArray(n.likedBy) ? n.likedBy.includes(currentUid) : false;
+
+  // Comments Section with Profile Photos & Reply Threads
   const comments = Array.isArray(n.comments) ? n.comments : [];
   let commentsListHtml = '';
   if(comments.length > 0){
     commentsListHtml = comments.map(c => {
-      const initials = (c.authorName || 'U').split(/[\s@._-]+/).filter(Boolean).slice(0, 2).map(x => x[0]).join('').toUpperCase() || 'U';
+      const commenterMem = (typeof teamMembers !== 'undefined' && Array.isArray(teamMembers))
+        ? teamMembers.find(m => (m.uid && m.uid === c.authorUid) || (m.displayName && m.displayName === c.authorName) || (m.email && m.email === c.authorName))
+        : null;
+      const commenterObj = commenterMem || {
+        uid: c.authorUid || '',
+        displayName: c.authorName || 'Collaborator',
+        photoURL: c.authorPhoto || (c.authorUid === currentUid ? firebaseUser?.photoURL : '') || ''
+      };
       const timeStr = typeof formatTimeAgo === 'function' ? formatTimeAgo(c.createdAt) : (c.createdAt ? new Date(c.createdAt).toLocaleDateString() : 'recent');
       const canDelete = (c.authorUid === currentUid) || (authorUid === currentUid) || currentUid === 'local';
+
+      let replyRefHtml = '';
+      if(c.replyToAuthor){
+        replyRefHtml = `<div class="note-comment-reply-ref">${getLucideSvg('corner-down-right', 11)} <span>Replying to <strong>@${esc(c.replyToAuthor)}</strong></span></div>`;
+      }
+
       return `
         <div class="note-comment-item" data-comment-id="${esc(c.id)}">
-          <div class="note-comment-avatar">${esc(initials)}</div>
+          <div class="note-comment-avatar-wrap" title="${esc(commenterObj.displayName)}">
+            ${avatarMarkup(commenterObj, 'sm')}
+          </div>
           <div class="note-comment-content">
             <div class="note-comment-head">
-              <strong>${esc(c.authorName || 'Collaborator')}</strong>
+              <strong>${esc(commenterObj.displayName)}</strong>
               <div style="display:flex;align-items:center;gap:6px">
                 <span class="note-comment-time">${esc(timeStr)}</span>
+                <button type="button" class="note-comment-reply-btn" data-reply-comment-id="${esc(c.id)}" data-reply-author="${esc(commenterObj.displayName)}" data-note-id="${esc(n.id)}" title="Reply to ${esc(commenterObj.displayName)}">${getLucideSvg('corner-down-right', 11)} Reply</button>
                 ${canDelete ? `<button type="button" class="note-comment-del-btn" data-preview-del-comment="${esc(c.id)}" data-note-id="${esc(n.id)}" title="Delete comment">${getLucideSvg('trash-2', 12)}</button>` : ''}
               </div>
             </div>
+            ${replyRefHtml}
             <div class="note-comment-text">${esc(c.text)}</div>
           </div>
         </div>
@@ -12968,6 +13394,7 @@ function renderNotePreviewHTML(id){
         ${commentsListHtml}
       </div>
       <div class="note-comment-box" style="margin-top:8px">
+        <div id="noteCommentReplyBannerContainer"></div>
         <div class="note-comment-input-wrap">
           <textarea class="note-comment-input preview-note-comment-input" rows="2" placeholder="Write a comment or feedback… (Press Enter to post, Shift+Enter for newline)" data-preview-comment-input="${esc(n.id)}" maxlength="1000"></textarea>
           <button type="button" class="btn primary note-comment-send-btn" data-preview-comment-submit="${esc(n.id)}" title="Post comment">
@@ -12995,6 +13422,17 @@ function renderNotePreviewHTML(id){
       <div class="preview-meta-chips" style="margin-top:-2px">
         ${collabChipsHtml}
         <span class="preview-chip" style="font-size:11px">${getLucideSvg('clock', 11)} Updated ${esc(dateStr)}</span>
+        <button type="button" class="preview-chip clickable note-modal-like-pill ${isLiked ? 'is-liked' : ''}" data-modal-note-like="${esc(n.id)}" title="${isLiked ? 'Unlike note' : 'Like note'}">
+          ${getLucideSvg('heart', 12)}
+          <span class="modal-like-count">${likesCount}</span>
+          <span>${likesCount === 1 ? 'Like' : 'Likes'}</span>
+        </button>
+        ${likesCount > 0 ? `
+          <button type="button" class="preview-chip clickable note-modal-view-likes-btn" data-show-note-likes="${esc(n.id)}" title="View people who liked this note">
+            ${getLucideSvg('users', 11)}
+            <span>Liked by ${likesCount}</span>
+          </button>
+        ` : ''}
       </div>
 
       <div class="preview-desc-box md-card-preview" style="max-height:240px;overflow-y:auto">
@@ -13146,11 +13584,22 @@ function submitPreviewNoteComment(noteId){
   if(!Array.isArray(n.comments)) n.comments = [];
   const currentUid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
   const currentName = (typeof firebaseUser !== 'undefined' && (firebaseUser?.displayName || firebaseUser?.email)) ? (firebaseUser.displayName || firebaseUser.email) : 'You';
-  
+  const currentPhoto = (typeof firebaseUser !== 'undefined' && firebaseUser?.photoURL) ? firebaseUser.photoURL : '';
+
+  let replyToId = input.dataset.replyToId || null;
+  let replyToAuthor = input.dataset.replyToAuthor || null;
+  if(!replyToAuthor){
+    const match = text.match(/^@([a-zA-Z0-9_\s.-]+?)(?::|\s)/);
+    if(match) replyToAuthor = match[1].trim();
+  }
+
   const newComment = {
     id: 'cm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
     authorUid: currentUid,
     authorName: currentName,
+    authorPhoto: currentPhoto,
+    replyToId: replyToId,
+    replyToAuthor: replyToAuthor,
     text: text,
     createdAt: Date.now()
   };
@@ -13469,6 +13918,87 @@ document.addEventListener('click', async e => {
     return;
   }
 
+  // 9e. Reply to Comment on Note from Preview
+  const replyCommentBtn = e.target.closest('[data-reply-comment-id]');
+  if(replyCommentBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    const cId = replyCommentBtn.dataset.replyCommentId;
+    const author = replyCommentBtn.dataset.replyAuthor || 'Collaborator';
+    const nId = replyCommentBtn.dataset.noteId;
+    const input = document.querySelector(`.preview-note-comment-input[data-preview-comment-input="${nId}"]`);
+    const bannerBox = document.getElementById('noteCommentReplyBannerContainer');
+    if(input){
+      input.dataset.replyToId = cId;
+      input.dataset.replyToAuthor = author;
+      if(!input.value.startsWith(`@${author} `)){
+        input.value = `@${author} ` + input.value.replace(/^@[^\s]+\s*/, '');
+      }
+      if(bannerBox){
+        bannerBox.innerHTML = `
+          <div class="note-comment-reply-banner">
+            <span>${getLucideSvg('corner-down-right', 12)} Replying to <strong>@${esc(author)}</strong></span>
+            <button type="button" data-cancel-reply title="Cancel reply">✕</button>
+          </div>
+        `;
+      }
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+    return;
+  }
+
+  // 9f. Cancel Reply to Comment
+  const cancelReplyBtn = e.target.closest('[data-cancel-reply]');
+  if(cancelReplyBtn){
+    e.preventDefault();
+    const modal = document.getElementById('itemPreviewModal');
+    if(modal){
+      const input = modal.querySelector('.preview-note-comment-input');
+      const bannerBox = document.getElementById('noteCommentReplyBannerContainer');
+      if(input){
+        delete input.dataset.replyToId;
+        delete input.dataset.replyToAuthor;
+        input.value = input.value.replace(/^@[^\s]+\s*/, '');
+      }
+      if(bannerBox) bannerBox.innerHTML = '';
+    }
+    return;
+  }
+
+  // 9g. Like Note from Modal Pill
+  const modalLikeBtn = e.target.closest('[data-modal-note-like]');
+  if(modalLikeBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    const nId = modalLikeBtn.dataset.modalNoteLike;
+    if(nId && typeof toggleNoteLike === 'function'){
+      toggleNoteLike(nId, modalLikeBtn);
+      if(typeof renderNotes === 'function') renderNotes();
+    }
+    return;
+  }
+
+  // 9h. Show People Who Liked Note Modal
+  const showLikesBtn = e.target.closest('[data-show-note-likes]');
+  if(showLikesBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    const nId = showLikesBtn.dataset.showNoteLikes;
+    if(nId && typeof showNoteLikesModal === 'function'){
+      showNoteLikesModal(nId);
+    }
+    return;
+  }
+
+  // 9i. Close Note Likes Modal
+  if(e.target.matches('#noteLikesModalBackdrop') || e.target.closest('[data-close-note-likes]')){
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof closeNoteLikesModal === 'function') closeNoteLikesModal();
+    return;
+  }
+
   // 10. Open Project Preview from tag / chip
   const projPreview = e.target.closest('[data-preview-project]');
   if(projPreview && !projPreview.dataset.previewOpenProject){
@@ -13599,6 +14129,11 @@ document.addEventListener('submit', e => {
 // Dismiss Item Preview on Escape Key & Enter key submission for Note Preview comments
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
+    const likesBackdrop = document.getElementById('noteLikesModalBackdrop');
+    if(likesBackdrop && !likesBackdrop.classList.contains('hidden')){
+      closeNoteLikesModal();
+      return;
+    }
     const backdrop = document.getElementById('itemPreviewBackdrop');
     if(backdrop && !backdrop.classList.contains('hidden')){
       closeItemPreview();
