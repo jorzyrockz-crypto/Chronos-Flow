@@ -4898,7 +4898,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
       <aside class="side-card"><div class="side-head"><div class="date-label">SELECTED DAY</div><h3 id="selectedTitle">Wednesday, 28</h3><p id="selectedSubtitle">Your day, at a glance.</p></div><div class="agenda-list" id="selectedAgenda"></div><div class="selected-tasks"><div class="selected-tasks-head"><strong>Tasks for this day</strong><button type="button" class="text-btn" id="addTaskForSelected" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add task</button></div><div id="selectedTasksList"></div></div><div class="side-footer"><button class="btn primary" id="addSelected" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add to this day</button></div></aside>
     </div>
   </section>
-  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button type="button" class="btn btn-showcase-sample-btn" onclick="window.openShowcaseProject()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:6px 14px;background:var(--surface2,rgba(255,255,255,0.06));border:1px solid var(--line,rgba(255,255,255,0.14));color:var(--text);margin-right:8px;" title="Open Complete Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Sample Project</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
+  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
 <div class="project-quick-filter-chips" id="projectQuickFilterChips" role="group" aria-label="Quick project filters">
   <button type="button" class="proj-filter-chip active" data-proj-filter="active">Active Projects</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="all">All Projects</button>
@@ -18994,7 +18994,7 @@ function projectStatusLabel(v){return ({active:'Active',planning:'Planning',on_h
 function projectTone(p){if(p?.color)return p.color;return p?.status==='completed'?'#2aa889':p?.status==='planning'?'#8367d8':p?.status==='on_hold'?'#d18a35':p?.priority==='urgent'?'#d45b86':'#4388df'}
 function renderProjectManager(){const root=$('projectViewContent');if(!root)return;const todayKey=iso(today);$('pmActive').textContent=chronosProjects.filter(p=>!['completed','archived'].includes(p.status)).length;$('pmOpen').textContent=tasks.filter(t=>!t.done&&t.status!=='done').length+((teamAssignedTasks||[]).filter(t=>!t.done&&t.status!=='done').length);$('pmOverdue').textContent=tasks.filter(t=>!t.done&&t.due&&t.due<todayKey).length;$('pmDone').textContent=tasks.filter(t=>t.done||t.status==='done').length;const search=($('projectSearch')?.value||'').trim().toLowerCase(),filter=$('projectStatusFilter')?.value||'active';let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const rawLinked=projectTaskList(p),done=rawLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
     const allLinked=rawLinked.filter(t=>!t.isDeliverableSubmission);
-    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill btn-showcase-demo" onclick="window.openShowcaseProject()" title="Switch to Complete Showcase Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Demo Project</button><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee"><option value="">Unassigned</option></select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
+    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee"><option value="">Unassigned</option></select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
 if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null;const all=p?projectTaskList(p):tasks.filter(t=>t.projectId);const stages=[['open','To do'],['in_progress','In progress'],['review','In review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>`<article class="project-task">${projectEsc(t.title)}<small>${projectEsc(t.due?'Due '+t.due:'No deadline')}</small><select data-project-task-status="${projectEsc(t.id)}" aria-label="Change status for ${projectEsc(t.title)}"><option value="open" ${(!t.status||t.status==='open')&&!t.done?'selected':''}>To do</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${t.status==='review'?'selected':''}>In review</option><option value="done" ${t.done||t.status==='done'?'selected':''}>Done</option></select></article>`).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Board includes personal tasks linked to projects. Team tasks remain managed in the Team workspace.</p>`;return}
 if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><strong>${projectEsc(p.name)}</strong><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
 root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
@@ -19342,7 +19342,7 @@ renderProjectManager=function(){
  let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});
  const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);
  if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
-    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill btn-showcase-demo" onclick="window.openShowcaseProject()" title="Switch to Complete Showcase Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Demo Project</button><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><div class="project-task-divider"><div><strong>Project tasks</strong><span>Edit assignments and status without leaving the project.</span></div></div><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee">${projectTaskAssigneeOptions(p)}</select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t,p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
+    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><div class="project-task-divider"><div><strong>Project tasks</strong><span>Edit assignments and status without leaving the project.</span></div></div><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee">${projectTaskAssigneeOptions(p)}</select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t,p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
  if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null,all=p?projectTaskList(p):tasks.filter(t=>t.projectId),stages=[['open','To do'],['in_progress','In progress'],['review','In progress review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>projectBoardTaskMarkup(t,p||{})).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Select Edit on any task to update its details and assignment.</p>`;return}
  if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><div class="project-timeline-name">${projectAvatar(projectPeopleFor(p)[0]||{name:p.owner||'No owner'},'xs')}<strong>${projectEsc(p.name)}</strong></div><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
  root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
@@ -25970,286 +25970,7 @@ html[data-theme=dark] .batch-menu button:hover{
    ========================================================= */
 const CHRONOS_SHOWCASE_PROJECT_ID = 'proj_stem_showcase_2026';
 
-function getShowcaseMockProjectData() {
-  return {
-    id: CHRONOS_SHOWCASE_PROJECT_ID,
-    name: 'STEM & Digital Learning Initiative',
-    description: 'Cross-departmental rollout of interactive digital science modules, hybrid laboratory experiments, and collaborative student portfolios across secondary STEM departments.',
-    color: '#10b981',
-    tone: '#10b981',
-    status: 'active',
-    priority: 'high',
-    startDate: '2026-11-01',
-    dueDate: '2026-11-28',
-    owner: 'Floyran Gumban',
-    ownerUid: 'user_floyran_gumban',
-    members: ['Sarah Chen', 'Marcus Vance', 'Elena Rostova', 'David Kalu'],
-    memberUids: ['u_sarah', 'u_marcus', 'u_elena', 'u_david'],
-    isMock: true,
-    teamShared: false,
-    createdAt: Date.now() - 5 * 86400000,
-    updatedAt: Date.now()
-  };
-}
 
-function getShowcaseMockTasksData() {
-  const cohort = [
-    { name: 'Floyran Gumban', email: 'floyran.gumban@deped.gov.ph', role: 'Project Lead', status: 'hardcopy', time: 'on_time', ta: 'Exemplary alignment with Q4 science standards.', author: 'Superintendent', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Floyran&backgroundColor=ffd5dc' },
-    { name: 'Sarah Chen', email: 'sarah.chen@deped.gov.ph', role: 'Physics Head', status: 'submitted', time: 'on_time', ta: 'Approved with laboratory safety notes.', author: 'Floyran Gumban', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=SarahChen&backgroundColor=b6e3f4' },
-    { name: 'Marcus Vance', email: 'marcus.vance@deped.gov.ph', role: 'Robotics Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MarcusVance&backgroundColor=c0aede' },
-    { name: 'Elena Rostova', email: 'elena.rostova@deped.gov.ph', role: 'Chemistry Faculty', status: 'hardcopy', time: 'on_time', ta: 'Chemical disposal rubric verified.', author: 'Safety Inspector', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ElenaRostova&backgroundColor=d1d4f9' },
-    { name: 'David Kalu', email: 'david.kalu@deped.gov.ph', role: 'Biology Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=DavidKalu&backgroundColor=ffdfbf' },
-    { name: 'Maria Santos', email: 'maria.santos@deped.gov.ph', role: 'Master Teacher II', status: 'hardcopy', time: 'on_time', ta: 'Validated portfolio documentation.', author: 'Principal', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MariaSantos&backgroundColor=ffd5dc' },
-    { name: 'Juan Dela Cruz', email: 'juan.delacruz@deped.gov.ph', role: 'Curriculum Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=JuanDelaCruz&backgroundColor=b6e3f4' },
-    { name: 'Grace Hopper', email: 'grace.hopper@deped.gov.ph', role: 'Computer Science Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=GraceHopper&backgroundColor=c0aede' },
-    { name: 'Alan Turing', email: 'alan.turing@deped.gov.ph', role: 'STEM Math Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AlanTuring&backgroundColor=d1d4f9' },
-    { name: 'Katherine Johnson', email: 'katherine.j@deped.gov.ph', role: 'Calculus Instructor', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=KatherineJohnson&backgroundColor=ffd5dc' },
-    { name: 'Ada Lovelace', email: 'ada.lovelace@deped.gov.ph', role: 'Algorithmics Specialist', status: 'submitted', time: 'late', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AdaLovelace&backgroundColor=ffdfbf' },
-    { name: 'Linus Torvalds', email: 'linus.t@deped.gov.ph', role: 'IT Systems Coordinator', status: 'submitted', time: 'late', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=LinusTorvalds&backgroundColor=b6e3f4' },
-    { name: 'Rosalind Franklin', email: 'rosalind.f@deped.gov.ph', role: 'Biochemistry Faculty', status: 'hardcopy', time: 'on_time', ta: 'DNA extraction protocols attached.', author: 'Floyran Gumban', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=RosalindFranklin&backgroundColor=c0aede' },
-    { name: 'Nikola Tesla', email: 'nikola.tesla@deped.gov.ph', role: 'Applied Physics Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=NikolaTesla&backgroundColor=d1d4f9' },
-    { name: 'Marie Curie', email: 'marie.curie@deped.gov.ph', role: 'Senior Radiation Chemist', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MarieCurie&backgroundColor=ffd5dc' },
-    { name: 'Carl Sagan', email: 'carl.sagan@deped.gov.ph', role: 'Earth & Space Science', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=CarlSagan&backgroundColor=ffdfbf' },
-    { name: 'Richard Feynman', email: 'richard.f@deped.gov.ph', role: 'Theoretical Physics', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=RichardFeynman&backgroundColor=b6e3f4' },
-    { name: 'Chien-Shiung Wu', email: 'cs.wu@deped.gov.ph', role: 'Experimental Lab Specialist', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ChienShiungWu&backgroundColor=c0aede' },
-    { name: 'Jane Goodall', email: 'jane.goodall@deped.gov.ph', role: 'Environmental Science', status: 'overdue', time: 'overdue', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=JaneGoodall&backgroundColor=d1d4f9' },
-    { name: 'Alexander Fleming', email: 'alexander.f@deped.gov.ph', role: 'Microbiology Head', status: 'overdue', time: 'overdue', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AlexanderFleming&backgroundColor=ffdfbf' }
-  ];
-
-  window._showcaseCohortDirectory = cohort.map((c, idx) => ({
-    uid: 'u_cohort_' + (idx + 1),
-    name: c.name,
-    email: c.email,
-    role: c.role,
-    photoURL: c.photo
-  }));
-
-  const tasksList = cohort.map((c, idx) => ({
-    id: 'task_mock_stem_cohort_' + (idx + 1).toString().padStart(2, '0'),
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Finalize STEM curriculum rubric & lab safety protocols',
-    deliverableGroup: 'deliv_grp_rubric_2026',
-    deliverableTitle: 'Finalize STEM curriculum rubric & lab safety protocols',
-    due: '2026-11-06',
-    dueTime: '17:00',
-    details: 'Submit signed department curriculum matrix, laboratory safety protocols, and student competency rubrics.',
-    assigneeName: c.name,
-    assigneeEmail: c.email,
-    assigneeUid: 'u_cohort_' + (idx + 1),
-    assigneePhotoURL: c.photo,
-    role: c.role,
-    phase: 'Phase 1: Planning',
-    isDeliverable: true,
-    isDeliverableSubmission: true,
-    priority: idx % 3 === 0 ? 'high' : 'medium',
-    status: (c.status === 'submitted' || c.status === 'hardcopy') ? 'done' : (c.status === 'overdue' ? 'open' : 'in_progress'),
-    done: (c.status === 'submitted' || c.status === 'hardcopy'),
-    submissionStatus: c.status,
-    submissionMode: c.status === 'hardcopy' ? 'hardcopy' : 'link',
-    submissionUrl: c.status === 'submitted' ? 'https://drive.google.com/deped/stem/' + c.name.toLowerCase().replace(/\s+/g, '_') : null,
-    submittedAt: (c.status === 'submitted' || c.status === 'hardcopy') ? (Date.now() - (idx + 1) * 3600000) : null,
-    receivedAt: c.status === 'hardcopy' ? (Date.now() - idx * 7200000) : null,
-    receivedBy: c.status === 'hardcopy' ? 'Office Administrator' : null,
-    taCategory: c.ta ? 'Quality Assurance' : null,
-    taRemarks: c.ta || null,
-    taStatus: c.ta ? 'approved' : null,
-    taAuthor: c.author || null,
-    taTimestamp: c.ta ? Date.now() - 1800000 : null
-  }));
-
-  // Add the master deliverable milestone task (shows in task list & calendar)
-  tasksList.unshift({
-    id: 'task_mock_stem_01',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Finalize STEM curriculum rubric & lab safety protocols',
-    deliverableGroup: 'deliv_grp_rubric_2026',
-    deliverableTitle: 'Finalize STEM curriculum rubric & lab safety protocols',
-    due: '2026-11-06',
-    dueTime: '17:00',
-    details: 'Department-wide submission requirement for 20 STEM faculty members across physics, chemistry, biology, mathematics, and robotics.',
-    assigneeName: 'DepEd Faculty & Specialists Cohort',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Floyran&backgroundColor=ffd5dc',
-    phase: 'Phase 1: Planning',
-    isDeliverable: true,
-    isDeliverableMilestone: true,
-    isDeliverableSubmission: false,
-    priority: 'high',
-    status: 'in_progress',
-    done: false,
-    subtasks: [
-      { title: 'Publish curriculum template & lab checklist to all departments', done: true },
-      { title: 'Collect submissions & verify compliance across 20 personnel', done: false },
-      { title: 'Supervisory technical assistance coaching for pending items', done: false }
-    ]
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_02',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Inventory audit of digital sensors & lab workstations',
-    assigneeName: 'Sarah Chen',
-    assigneeUid: 'u_sarah',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=SarahChen&backgroundColor=b6e3f4',
-    status: 'done',
-    done: true,
-    due: '2026-11-09',
-    phase: 'Phase 1: Planning',
-    priority: 'medium'
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_04',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Conduct faculty training workshop on student digital portfolios',
-    assigneeName: 'Elena Rostova',
-    assigneeUid: 'u_elena',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ElenaRostova&backgroundColor=d1d4f9',
-    status: 'open',
-    done: false,
-    due: '2026-11-20',
-    phase: 'Phase 2: Implementation',
-    priority: 'medium'
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_05',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Mid-term STEM lab workstation calibration & safety check',
-    assigneeName: 'David Kalu',
-    assigneeUid: 'u_david',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=DavidKalu&backgroundColor=ffdfbf',
-    status: 'open',
-    done: false,
-    due: '2026-11-25',
-    phase: 'Phase 2: Implementation',
-    priority: 'low'
-  });
-
-  // Also include the other project tasks
-  tasksList.push({
-    id: 'task_mock_stem_03',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Deploy interactive simulation software to lab computers',
-    assigneeName: 'Marcus Vance',
-    assigneeUid: 'u_marcus',
-    status: 'in_progress',
-    done: false,
-    due: '2026-11-15',
-    phase: 'Phase 2: Implementation',
-    isDeliverable: true,
-    priority: 'high',
-    subtasks: [
-      { title: 'Install master image on science lab clients', done: true },
-      { title: 'Network stress test with 30 concurrent users', done: false }
-    ]
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_06',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Submit Q4 STEM Innovation executive transmittal & summary',
-    assigneeName: 'Floyran Gumban',
-    assigneeUid: 'user_floyran_gumban',
-    status: 'open',
-    done: false,
-    due: '2026-11-28',
-    phase: 'Phase 3: Evaluation',
-    isDeliverable: true,
-    priority: 'high',
-    subtasks: [
-      { title: 'Compile quantitative metrics & chart progress', done: false },
-      { title: 'Submit signed transmittal to curriculum director', done: false }
-    ]
-  });
-
-  return tasksList;
-}
-
-function ensureShowcaseMockProject(force = false) {
-  try {
-    if (!force && localStorage.getItem('chronos90.showcaseProjectDismissed') === '1') return;
-    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
-    if (!force && (tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID] || tombs['tasks|task_mock_stem_01'])) return;
-
-    if (typeof chronosProjects === 'undefined') return;
-    let proj = chronosProjects.find(p => String(p.id) === CHRONOS_SHOWCASE_PROJECT_ID);
-    const mockProjData = getShowcaseMockProjectData();
-
-    if (!proj || force) {
-      if (!force && tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID]) {
-        // Dismissed or tombstoned
-      } else {
-        if (proj) {
-          Object.assign(proj, mockProjData);
-        } else {
-          chronosProjects.unshift(mockProjData);
-        }
-        try {
-          localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects));
-        } catch(e){}
-      }
-    }
-
-    if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
-      const mockTasks = getShowcaseMockTasksData();
-      let changed = false;
-      mockTasks.forEach(mt => {
-        if (!force && tombs['tasks|' + mt.id]) return;
-        const existingIdx = tasks.findIndex(t => String(t.id) === String(mt.id));
-        if (existingIdx === -1) {
-          tasks.push(mt);
-          changed = true;
-        } else if (force || !tasks[existingIdx].assigneePhotoURL || !tasks[existingIdx].isDeliverableSubmission) {
-          Object.assign(tasks[existingIdx], mt);
-          changed = true;
-        }
-      });
-      if (changed) {
-        try {
-          localStorage.setItem('chronos40.tasks', JSON.stringify(tasks));
-        } catch(e){}
-        if (typeof persist === 'function') persist();
-      }
-    }
-
-    // If active project is empty or user is on overview, refresh manager
-    if (typeof renderProjectManager === 'function') {
-      renderProjectManager();
-    }
-  } catch(err) {
-    console.warn('Could not seed showcase mock project:', err);
-  }
-}
-
-// Auto-seed showcase project on startup ONLY if clean and never dismissed
-setTimeout(() => {
-  if (localStorage.getItem('chronos90.showcaseProjectDismissed') === '1') return;
-  const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
-  if (tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID] || tombs['tasks|task_mock_stem_01']) return;
-  if ((typeof chronosProjects !== 'undefined' && chronosProjects.length > 0) || (typeof tasks !== 'undefined' && tasks.length > 0)) {
-    if (!chronosProjects.some(p => String(p.id) === CHRONOS_SHOWCASE_PROJECT_ID)) return;
-  }
-  ensureShowcaseMockProject(false);
-}, 200);
-
-// Global helper so user or dev can trigger / open demo
-window.openShowcaseProject = function() {
-  try {
-    localStorage.removeItem('chronos90.showcaseProjectDismissed');
-    const g = JSON.parse(localStorage.getItem('chronos60.localTombstones') || '{}');
-    delete g['projects|' + CHRONOS_SHOWCASE_PROJECT_ID];
-    delete g['tasks|task_mock_stem_01'];
-    for (let i = 1; i <= 20; i++) delete g['tasks|task_mock_stem_cohort_' + i.toString().padStart(2, '0')];
-    for (let i = 1; i <= 6; i++) delete g['tasks|task_mock_stem_0' + i];
-    localStorage.setItem('chronos60.localTombstones', JSON.stringify(g));
-  } catch(e){}
-  ensureShowcaseMockProject(true);
-  if (typeof openProjectWorkspaceModal === 'function') {
-    openProjectWorkspaceModal(CHRONOS_SHOWCASE_PROJECT_ID);
-  }
-};
-
-  
   // =========================================================
   // COMPACT DELIVERABLES ROSTER TOOLBAR & INTERACTION ENGINE
   // =========================================================
