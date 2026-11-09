@@ -7075,6 +7075,53 @@ html[data-theme="dark"][data-accent] .note-comment-item {
   </div>
 </div>
 
+<!-- Floating Multi-Task Batch Action Dock -->
+<div id="taskBatchActionDock" class="task-batch-dock hidden" role="toolbar" aria-label="Batch task actions">
+  <div class="batch-count-badge">
+    <span id="batchCountNum">0</span> selected
+  </div>
+  <div class="batch-actions-btns">
+    <button type="button" class="btn text-btn batch-act-btn" id="batchSelectAllBtn" title="Select or deselect all visible tasks">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span id="batchSelectAllLabel">Select All</span>
+    </button>
+
+    <button type="button" class="btn text-btn batch-act-btn" id="batchCompleteBtn" title="Mark selected complete">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+      <span>Complete</span>
+    </button>
+    
+    <div class="batch-dropdown-wrap" style="position:relative;">
+      <button type="button" class="btn text-btn batch-act-btn" id="batchRescheduleToggleBtn" title="Reschedule selected tasks">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+        <span>Reschedule ▾</span>
+      </button>
+      <div id="batchRescheduleMenu" class="batch-menu hidden">
+        <button type="button" data-batch-resched="today">Today</button>
+        <button type="button" data-batch-resched="tomorrow">Tomorrow</button>
+        <button type="button" data-batch-resched="next_week">Next Monday</button>
+        <button type="button" data-batch-resched="clear">Clear Due Date</button>
+      </div>
+    </div>
+
+    <div class="batch-dropdown-wrap" style="position:relative;">
+      <button type="button" class="btn text-btn batch-act-btn" id="batchAssignProjectToggleBtn" title="Move selected to a project">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+        <span>Project ▾</span>
+      </button>
+      <div id="batchProjectMenu" class="batch-menu hidden">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <button type="button" class="btn text-btn batch-act-btn danger" id="batchDeleteBtn" title="Delete selected tasks">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+      <span>Delete</span>
+    </button>
+    <button type="button" class="btn text-btn batch-act-btn" id="batchClearBtn" title="Cancel selection" style="padding:5px 9px;">✕</button>
+  </div>
+</div>
+
 <style id="chronosNotesStudioCleanup">
 /* Lucide Icons & Note Studio Polish */
 .lucide-icon{display:inline-block;vertical-align:middle;flex-shrink:0;pointer-events:none}
@@ -11587,48 +11634,7 @@ $('exportNoteHtmlBtn')?.addEventListener('click', () => {
   const title = $('noteTitle')?.value?.trim() || 'Untitled note';
   const wy = $('noteWysiwygEditor');
   const bodyHtml = (noteEditorMode === 'wysiwyg' && wy) ? wy.innerHTML : renderMarkdown($('noteBody')?.value || '');
-  const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6;color:#1e293b}h1{border-bottom:1px solid #e2e8f0;padding-bottom:8px}blockquote{border-left:3px solid #3b82f6;margin:1em 0;padding-left:1em;color:#64748b}table{border-collapse:collapse;width:100%;margin:1em 0}th,td{border:1px solid #cbd5e1;padding:8px 12px;text-align:left}th{background:#f8fafc}</style></head><body><h1>${esc(title)}</h1>${bodyHtml}<!-- Floating Multi-Task Batch Action Dock -->
-<div id="taskBatchActionDock" class="task-batch-dock hidden" role="toolbar" aria-label="Batch task actions">
-  <div class="batch-count-badge">
-    <span id="batchCountNum">0</span> selected
-  </div>
-  <div class="batch-actions-btns">
-    <button type="button" class="btn text-btn batch-act-btn" id="batchCompleteBtn" title="Mark selected complete">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-      <span>Complete</span>
-    </button>
-    
-    <div class="batch-dropdown-wrap" style="position:relative;">
-      <button type="button" class="btn text-btn batch-act-btn" id="batchRescheduleToggleBtn" title="Reschedule selected tasks">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-        <span>Reschedule ▾</span>
-      </button>
-      <div id="batchRescheduleMenu" class="batch-menu hidden">
-        <button type="button" data-batch-resched="today">Today</button>
-        <button type="button" data-batch-resched="tomorrow">Tomorrow</button>
-        <button type="button" data-batch-resched="next_week">Next Monday</button>
-        <button type="button" data-batch-resched="clear">Clear Due Date</button>
-      </div>
-    </div>
-
-    <div class="batch-dropdown-wrap" style="position:relative;">
-      <button type="button" class="btn text-btn batch-act-btn" id="batchAssignProjectToggleBtn" title="Move selected to a project">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
-        <span>Project ▾</span>
-      </button>
-      <div id="batchProjectMenu" class="batch-menu hidden">
-        <!-- Populated dynamically -->
-      </div>
-    </div>
-
-    <button type="button" class="btn text-btn batch-act-btn danger" id="batchDeleteBtn" title="Delete selected tasks">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-      <span>Delete</span>
-    </button>
-    <button type="button" class="btn text-btn batch-act-btn" id="batchClearBtn" title="Cancel selection" style="padding:5px 9px;">✕</button>
-  </div>
-</div>
-</body></html>`;
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6;color:#1e293b}h1{border-bottom:1px solid #e2e8f0;padding-bottom:8px}blockquote{border-left:3px solid #3b82f6;margin:1em 0;padding-left:1em;color:#64748b}table{border-collapse:collapse;width:100%;margin:1em 0}th,td{border:1px solid #cbd5e1;padding:8px 12px;text-align:left}th{background:#f8fafc}</style></head><body><h1>${esc(title)}</h1>${bodyHtml}</body></html>`;
   downloadFile((title.replace(/[^a-z0-9-_]+/gi, '-').replace(/^-|-$/g, '') || 'chronos-note') + '.html', fullHtml, 'text/html;charset=utf-8');
   notify('HTML document exported.');
 });
@@ -15344,6 +15350,12 @@ function renderDashboard(){
 function taskRow(t){return `<div class="task-row ${t.done?'completed':''}"><input class="task-check" type="checkbox" data-task-toggle="${esc(t.id)}" ${t.done?'checked':''} aria-label="Complete ${esc(t.title)}"><div class="task-row-main" data-edit-task="${esc(t.id)}"><strong>${esc(t.title)}</strong><p>${t.due?`Due ${esc(t.due)}`:'No due date'} · ${esc(t.details||'')}</p></div><span class="priority ${esc(t.priority||'medium')}">${esc(t.priority||'medium')}</span></div>`}
 function renderTasks(){
  if(!$('tasksList'))return;
+ const winX=window.pageXOffset||document.documentElement.scrollLeft||document.body.scrollLeft||0;
+ const winY=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
+ const listEl=$('tasksList');
+ const listY=listEl?listEl.scrollTop:0;
+ const wsBody=$('projectTaskWorkspaceBody');
+ const wsY=wsBody?wsBody.scrollTop:0;
  const todayKey=iso(today);
  const matchesFilter=(done,due,isTeam=false)=>{if(taskFilter==='team')return isTeam;if(taskFilter==='done')return done;if(taskFilter==='open')return !done;if(taskFilter==='today')return !done&&due===todayKey;if(taskFilter==='upcoming')return !done&&due&&due>todayKey;if(taskFilter==='overdue')return !done&&due&&due<todayKey;return true};
  const personal=(taskFilter==='team'?[]:tasks.filter(t=>matchesFilter(!!t.done,t.due||'',false)));
@@ -15374,6 +15386,18 @@ function renderTasks(){
  $('tasksList').querySelectorAll('[data-team-assigned-edit]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const [teamId,id]=btn.dataset.teamAssignedEdit.split('|');openTeamTaskEditor(teamId,id)}));
  $('tasksList').querySelectorAll('[data-team-assigned-delete]').forEach(btn=>btn.addEventListener('click',async e=>{e.stopPropagation();const [teamId,id]=btn.dataset.teamAssignedDelete.split('|');deleteTeamAssignedTask(teamId,id)}));
  renderDashboardTasksOnly();
+ const restoreTaskScroll=()=>{
+  window.scrollTo({left:winX,top:winY,behavior:'instant'});
+  if(listEl&&listY)listEl.scrollTop=listY;
+  if(wsBody&&wsY)wsBody.scrollTop=wsY;
+ };
+ restoreTaskScroll();
+ if(typeof requestAnimationFrame==='function'){
+  requestAnimationFrame(()=>{
+   restoreTaskScroll();
+   setTimeout(restoreTaskScroll,40);
+  });
+ }
 }
 function renderDashboardTasksOnly(){if(!$('dashboardTasks'))return;const open=tasks.filter(t=>!t.done).sort((a,b)=>({high:0,medium:1,low:2}[a.priority]??1)-({high:0,medium:1,low:2}[b.priority]??1)).slice(0,4);$('dashboardTasks').innerHTML=open.length?open.map(taskRow).join(''):'<div class="empty">No open tasks. You have room to focus.</div>';if($('statTasks')){$('statTasks').textContent=tasks.filter(t=>!t.done).length;$('statTaskHint').textContent=tasks.filter(t=>!t.done&&t.priority==='high').length+' high priority'}}
 function openTeamTaskEditor(teamId,id){
@@ -19846,6 +19870,31 @@ html[data-theme=dark] .batch-menu{
 html[data-theme=dark] .batch-menu button:hover{
   background:rgba(255,255,255,0.08);
 }
+.task-card.is-batch-selected{
+  border-color:var(--accent)!important;
+  background:color-mix(in srgb,var(--accent) 12%,var(--surface))!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)!important;
+}
+.task-batch-checkbox{
+  width:18px;
+  height:18px;
+  accent-color:var(--accent);
+  cursor:pointer;
+  margin-top:2px;
+  flex:0 0 auto;
+}
+@media(max-width:768px){
+  .task-batch-dock{
+    bottom:14px;
+    padding:8px 12px;
+    gap:6px;
+    max-width:calc(100vw - 20px);
+    overflow-x:auto;
+  }
+  .batch-act-btn span{
+    font-size:11px;
+  }
+}
 
 /* 5. Project Milestones & Phase Progress Roadmap */
 .project-milestones-bar{
@@ -20356,6 +20405,9 @@ html[data-theme=dark] .batch-menu button:hover{
   function renderProjectDeliverablesSection(project) {
     const detail = $('projectDetail');
     if (!detail || !project) return;
+    const mount = $('projectWorkspaceModalMount');
+    const savedMountY = mount ? mount.scrollTop : 0;
+    const winY = window.pageYOffset || document.documentElement.scrollTop || 0;
 
     // Check if segmented bar exists, if not create it
     let segmentedBar = detail.querySelector('.project-ws-segmented-bar');
@@ -20717,6 +20769,18 @@ html[data-theme=dark] .batch-menu button:hover{
         }).join('')}
       </div>
     `;
+
+    const restoreDelivScroll = () => {
+      if (mount && savedMountY) mount.scrollTop = savedMountY;
+      if (winY) window.scrollTo({ top: winY, behavior: 'instant' });
+    };
+    restoreDelivScroll();
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        restoreDelivScroll();
+        setTimeout(restoreDelivScroll, 40);
+      });
+    }
   }
 
   // Cross-Project Deliverables Dashboard (when no project selected)
@@ -21718,15 +21782,45 @@ html[data-theme=dark] .batch-menu button:hover{
     }
   }
 
-  // Hook syncProjectWorkspaceModal into renderProjectManager (preserving scroll)
+  // Hook syncProjectWorkspaceModal into renderProjectManager (preserving all scrolls)
   const prevRPMForModal = window.renderProjectManager;
   window.renderProjectManager = function() {
+    const winX = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
+    const winY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     const mount = $('projectWorkspaceModalMount');
-    const savedScroll = mount ? mount.scrollTop : 0;
+    const savedMountY = mount ? mount.scrollTop : 0;
+    const savedMountX = mount ? mount.scrollLeft : 0;
+    const tasksPage = $('tasksPage');
+    const tasksPageY = tasksPage ? tasksPage.scrollTop : 0;
+    const tasksList = $('tasksList');
+    const tasksListY = tasksList ? tasksList.scrollTop : 0;
+    const wsBody = $('projectTaskWorkspaceBody');
+    const wsBodyY = wsBody ? wsBody.scrollTop : 0;
+
+    if (document.activeElement && ['INPUT', 'SELECT', 'BUTTON'].includes(document.activeElement.tagName)) {
+      try { document.activeElement.blur(); } catch(e){}
+    }
+
     if (typeof prevRPMForModal === 'function') prevRPMForModal.apply(this, arguments);
     syncProjectWorkspaceModal();
-    if (mount && savedScroll) {
-      mount.scrollTop = savedScroll;
+
+    const restoreScroll = () => {
+      window.scrollTo({ left: winX, top: winY, behavior: 'instant' });
+      if (mount && savedMountY) {
+        mount.scrollTop = savedMountY;
+        mount.scrollLeft = savedMountX;
+      }
+      if (tasksPage && tasksPageY) tasksPage.scrollTop = tasksPageY;
+      if (tasksList && tasksListY) tasksList.scrollTop = tasksListY;
+      if (wsBody && wsBodyY) wsBody.scrollTop = wsBodyY;
+    };
+
+    restoreScroll();
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        restoreScroll();
+        setTimeout(restoreScroll, 40);
+      });
     }
   };
 
@@ -22173,6 +22267,24 @@ html[data-theme=dark] .batch-menu button:hover{
     if (countEl) countEl.textContent = count;
     dock.classList.toggle('hidden', count === 0);
 
+    // Sync card visual selection and checkboxes
+    document.querySelectorAll('#tasksList .task-card').forEach(card => {
+      const cb = card.querySelector('.task-batch-checkbox');
+      if (cb) {
+        const isSel = selectedBatchTaskIds.has(String(cb.dataset.batchTask));
+        cb.checked = isSel;
+        card.classList.toggle('is-batch-selected', isSel);
+      }
+    });
+
+    // Update Select All / Deselect All label
+    const allVisibleChecks = [...document.querySelectorAll('#tasksList .task-batch-checkbox')];
+    const allChecked = allVisibleChecks.length > 0 && allVisibleChecks.every(cb => cb.checked);
+    const selectAllLabel = $('batchSelectAllLabel');
+    if (selectAllLabel) {
+      selectAllLabel.textContent = allChecked ? 'Deselect All' : 'Select All';
+    }
+
     // Populate projects menu
     const projMenu = $('batchProjectMenu');
     if (projMenu) {
@@ -22184,8 +22296,8 @@ html[data-theme=dark] .batch-menu button:hover{
     }
   }
 
-  // Multi-select toggle
-  document.addEventListener('click', e => {
+  // Multi-select toggle & Batch Action handlers
+  document.addEventListener('click', async e => {
     // Multi-select toggle button
     if (e.target.closest('#taskMultiSelectToggleBtn')) {
       taskMultiSelectMode = !taskMultiSelectMode;
@@ -22199,6 +22311,23 @@ html[data-theme=dark] .batch-menu button:hover{
       return;
     }
 
+    // Select All / Deselect All button
+    if (e.target.closest('#batchSelectAllBtn')) {
+      e.preventDefault();
+      const allVisibleChecks = [...document.querySelectorAll('#tasksList .task-batch-checkbox')];
+      const allChecked = allVisibleChecks.length > 0 && allVisibleChecks.every(cb => cb.checked);
+      allVisibleChecks.forEach(cb => {
+        const tId = String(cb.dataset.batchTask);
+        if (allChecked) {
+          selectedBatchTaskIds.delete(tId);
+        } else {
+          selectedBatchTaskIds.add(tId);
+        }
+      });
+      updateBatchDockUI();
+      return;
+    }
+
     // Individual Task Batch Checkbox
     if (e.target.classList.contains('task-batch-checkbox')) {
       const tId = e.target.dataset.batchTask;
@@ -22208,18 +22337,39 @@ html[data-theme=dark] .batch-menu button:hover{
       return;
     }
 
+    // In Multi-select mode: Clicking on task card toggles selection
+    if (taskMultiSelectMode) {
+      const card = e.target.closest('#tasksList .task-card');
+      if (card && !e.target.closest('button, select, input, a, .task-subtasks-wrapper')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const cb = card.querySelector('.task-batch-checkbox');
+        if (cb) {
+          const tId = String(cb.dataset.batchTask);
+          if (selectedBatchTaskIds.has(tId)) selectedBatchTaskIds.delete(tId);
+          else selectedBatchTaskIds.add(tId);
+          updateBatchDockUI();
+        }
+        return;
+      }
+    }
+
     // Batch Complete
     if (e.target.closest('#batchCompleteBtn')) {
       e.preventDefault();
+      const count = selectedBatchTaskIds.size;
       selectedBatchTaskIds.forEach(id => {
         const t = (tasks || []).find(x => String(x.id) === String(id));
-        if (t) { t.done = true; t.status = 'done'; }
+        if (t) { t.done = true; t.status = 'done'; t.updated = Date.now(); }
       });
       if (typeof persist === 'function') persist();
-      notify(`${selectedBatchTaskIds.size} tasks marked complete.`);
+      if (typeof playAppSound === 'function') playAppSound('action');
+      notify(`✓ ${count} ${count === 1 ? 'task' : 'tasks'} marked complete.`);
       selectedBatchTaskIds.clear();
       updateBatchDockUI();
       if (typeof renderTasks === 'function') renderTasks();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      if (typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
       return;
     }
 
@@ -22256,16 +22406,19 @@ html[data-theme=dark] .batch-menu button:hover{
         newDue = iso(mon);
       }
 
+      const count = selectedBatchTaskIds.size;
       selectedBatchTaskIds.forEach(id => {
         const t = (tasks || []).find(x => String(x.id) === String(id));
-        if (t) t.due = newDue;
+        if (t) { t.due = newDue; t.updated = Date.now(); }
       });
       if (typeof persist === 'function') persist();
-      notify(`${selectedBatchTaskIds.size} tasks rescheduled.`);
+      notify(`📅 ${count} ${count === 1 ? 'task' : 'tasks'} rescheduled.`);
       $('batchRescheduleMenu')?.classList.add('hidden');
       selectedBatchTaskIds.clear();
       updateBatchDockUI();
       if (typeof renderTasks === 'function') renderTasks();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      if (typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
       return;
     }
 
@@ -22274,12 +22427,13 @@ html[data-theme=dark] .batch-menu button:hover{
     if (moveProjBtn) {
       e.preventDefault();
       const targetProjId = moveProjBtn.dataset.batchProj === 'clear' ? '' : moveProjBtn.dataset.batchProj;
+      const count = selectedBatchTaskIds.size;
       selectedBatchTaskIds.forEach(id => {
         const t = (tasks || []).find(x => String(x.id) === String(id));
-        if (t) t.projectId = targetProjId;
+        if (t) { t.projectId = targetProjId; t.updated = Date.now(); }
       });
       if (typeof persist === 'function') persist();
-      notify(`${selectedBatchTaskIds.size} tasks moved to project.`);
+      notify(`📁 ${count} ${count === 1 ? 'task' : 'tasks'} moved to project.`);
       $('batchProjectMenu')?.classList.add('hidden');
       selectedBatchTaskIds.clear();
       updateBatchDockUI();
@@ -22291,14 +22445,23 @@ html[data-theme=dark] .batch-menu button:hover{
     // Execute Batch Delete
     if (e.target.closest('#batchDeleteBtn')) {
       e.preventDefault();
-      if (!confirm(`Delete ${selectedBatchTaskIds.size} selected tasks?`)) return;
-      tasks = (tasks || []).filter(t => !selectedBatchTaskIds.has(String(t.id)));
+      const count = selectedBatchTaskIds.size;
+      if (!count) return;
+      const ok = typeof confirmCustomInApp === 'function'
+        ? await confirmCustomInApp(`Permanently delete ${count} selected ${count === 1 ? 'task' : 'tasks'} from your workspace? This cannot be undone.`, { title: 'Batch Delete Tasks', confirmText: `Delete ${count} Tasks`, danger: true })
+        : confirm(`Delete ${count} selected tasks?`);
+      if (!ok) return;
+      const idsToDelete = new Set(selectedBatchTaskIds);
+      tasks = (tasks || []).filter(t => !idsToDelete.has(String(t.id)));
       if (typeof persist === 'function') persist();
-      notify(`Selected tasks deleted.`);
+      if (typeof playAppSound === 'function') playAppSound('delete');
+      notify(`🗑️ ${count} ${count === 1 ? 'task' : 'tasks'} deleted.`);
       selectedBatchTaskIds.clear();
       updateBatchDockUI();
       if (typeof renderTasks === 'function') renderTasks();
       if (typeof renderProjectManager === 'function') renderProjectManager();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      if (typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
       return;
     }
 
@@ -22307,7 +22470,6 @@ html[data-theme=dark] .batch-menu button:hover{
       e.preventDefault();
       selectedBatchTaskIds.clear();
       updateBatchDockUI();
-      document.querySelectorAll('.task-batch-checkbox').forEach(cb => cb.checked = false);
       return;
     }
 
@@ -22883,12 +23045,115 @@ window.openShowcaseProject = function() {
   // =========================================================
   // GLOBAL PROJECT TASK INTERACTION ENGINE (STATUS, CHECKBOX, EDIT)
   // =========================================================
-  // 1. Task Status Dropdown Change (Ensures Status ALWAYS Updates Everywhere)
+  // In-place UI synchronizer for project tasks (prevents DOM destruction & scroll jump)
+  function syncProjectTaskUIInPlace(taskId, t, sourceEl) {
+    if (!t) return;
+    const isDone = !!t.done || t.status === 'done';
+    const statusVal = t.status || (isDone ? 'done' : 'open');
+
+    // 1. Update all project task rows in DOM
+    document.querySelectorAll(`[data-project-task-card="${taskId}"]`).forEach(card => {
+      card.classList.toggle('is-complete', isDone);
+      card.classList.toggle('status-done', statusVal === 'done');
+      card.classList.toggle('status-open', statusVal === 'open');
+      card.classList.toggle('status-in_progress', statusVal === 'in_progress');
+      card.classList.toggle('status-review', statusVal === 'review');
+
+      const titleEl = card.querySelector('.compact-task-title');
+      if (titleEl) titleEl.classList.toggle('line-through', isDone);
+
+      const chk = card.querySelector('[data-project-task-check]');
+      if (chk && chk !== sourceEl) chk.checked = isDone;
+
+      const wrap = card.querySelector('.compact-task-check-wrap');
+      if (wrap) wrap.title = isDone ? 'Mark task as open' : 'Mark task complete';
+
+      const sel = card.querySelector('[data-project-task-status]');
+      if (sel) {
+        if (sel !== sourceEl) sel.value = statusVal;
+        sel.className = `compact-status-select status-${statusVal}`;
+      }
+    });
+
+    // 2. Update any task card in the tasks list / board / dashboard
+    document.querySelectorAll(`[data-task-toggle="${taskId}"]`).forEach(inp => {
+      if (inp !== sourceEl) inp.checked = isDone;
+      const card = inp.closest('.task-card, .task-row, .selected-task-row');
+      if (card) {
+        card.classList.toggle('completed', isDone);
+        card.classList.toggle('done', isDone);
+      }
+    });
+
+    // 3. Update project overall progress indicators in-place
+    const currentPid = selectedProjectId || t.projectId;
+    const p = (typeof chronosProjects !== 'undefined' ? chronosProjects : []).find(x => String(x.id) === String(currentPid));
+    if (p) {
+      const rawLinked = typeof projectTaskList === 'function' ? projectTaskList(p) : [];
+      const allLinked = rawLinked.filter(x => !x.isDeliverableSubmission);
+      const doneCount = allLinked.filter(x => x.done || x.status === 'done').length;
+      const progress = typeof projectProgress === 'function' ? projectProgress(p) : (allLinked.length ? Math.round((doneCount / allLinked.length) * 100) : 0);
+
+      // Hero progress stats
+      const pctEl = document.querySelector('.hero-progress-pct');
+      if (pctEl) pctEl.textContent = `${progress}%`;
+      const barEl = document.querySelector('.hero-progress-bar');
+      if (barEl) barEl.style.width = `${progress}%`;
+      const subEl = document.querySelector('.hero-progress-sub');
+      if (subEl) subEl.textContent = `${doneCount} of ${allLinked.length} linked tasks complete`;
+
+      // Grid card for project in projects page
+      document.querySelectorAll(`[data-project-open="${p.id}"]`).forEach(gridCard => {
+        const gBar = gridCard.querySelector('.project-progress span');
+        if (gBar) gBar.style.width = `${progress}%`;
+        const gPct = gridCard.querySelector('.project-progress-row strong');
+        if (gPct) gPct.textContent = `${progress}%`;
+        const gSub = gridCard.querySelector('.project-progress-sub');
+        if (gSub) gSub.textContent = `${doneCount} of ${allLinked.length} complete`;
+      });
+
+      // Milestone phase chips
+      const phases = ['Phase 1: Planning', 'Phase 2: Implementation', 'Phase 3: Evaluation'];
+      rawLinked.forEach(x => { if (x.phase && !phases.includes(x.phase)) phases.push(x.phase); });
+      phases.forEach(ph => {
+        const phTasks = rawLinked.filter(x => (x.phase || phases[0]) === ph);
+        const phDone = phTasks.filter(x => x.done || x.status === 'done').length;
+        const phPct = phTasks.length ? Math.round((phDone / phTasks.length) * 100) : 0;
+        const chipRing = document.querySelector(`.project-milestones-bar [data-project-phase="${ph}"] .milestone-pct-ring`);
+        if (chipRing) chipRing.textContent = `${phPct}%`;
+      });
+      const allChipRing = document.querySelector('.project-milestones-bar [data-project-phase="all"] .milestone-pct-ring');
+      if (allChipRing) allChipRing.textContent = String(rawLinked.length);
+    }
+
+    // 4. Update manager top counters
+    const todayKey = typeof iso === 'function' ? iso(new Date()) : new Date().toISOString().slice(0, 10);
+    const allTaskList = typeof tasks !== 'undefined' ? tasks : [];
+    const allTeamTasks = typeof teamAssignedTasks !== 'undefined' ? teamAssignedTasks : [];
+    const openCount = allTaskList.filter(x => !x.done && x.status !== 'done').length + allTeamTasks.filter(x => !x.done && x.status !== 'done').length;
+    const doneCountTotal = allTaskList.filter(x => x.done || x.status === 'done').length;
+    const overdueCount = allTaskList.filter(x => !x.done && x.due && x.due < todayKey).length;
+
+    const pmOpen = document.getElementById('pmOpen');
+    if (pmOpen) pmOpen.textContent = String(openCount);
+    const pmDone = document.getElementById('pmDone');
+    if (pmDone) pmDone.textContent = String(doneCountTotal);
+    const pmOverdue = document.getElementById('pmOverdue');
+    if (pmOverdue) pmOverdue.textContent = String(overdueCount);
+
+    const taskOpenSummary = document.getElementById('taskOpenSummary');
+    if (taskOpenSummary) taskOpenSummary.textContent = String(openCount);
+    const taskDoneSummary = document.getElementById('taskDoneSummary');
+    if (taskDoneSummary) taskDoneSummary.textContent = String(doneCountTotal);
+  }
+
+  // 1. Task Status Dropdown Change (In-place status update without scroll jump)
   document.addEventListener('change', e => {
     const sel = e.target.closest('[data-project-task-status]');
     if (!sel) return;
     const taskId = sel.dataset.projectTaskStatus;
-    const t = (tasks || []).find(x => String(x.id) === String(taskId));
+    const t = (tasks || []).find(x => String(x.id) === String(taskId)) ||
+              ((typeof teamAssignedTasks !== 'undefined' ? teamAssignedTasks : []).find(x => String(x.id) === String(taskId)));
     if (t) {
       const newStatus = sel.value;
       t.status = newStatus;
@@ -22898,23 +23163,26 @@ window.openShowcaseProject = function() {
         localStorage.setItem('chronos40.tasks', JSON.stringify(tasks));
       } catch(err){}
       if (typeof persist === 'function') persist();
-      if (typeof renderTasks === 'function') renderTasks();
-      const p = (chronosProjects || []).find(x => String(x.id) === String(selectedProjectId));
-      if (p) {
-        if (typeof renderProjectManager === 'function') renderProjectManager();
-        if (typeof renderProjectDeliverablesSection === 'function') renderProjectDeliverablesSection(p);
-        if (typeof renderProjectMilestonesRoadmap === 'function') renderProjectMilestonesRoadmap(p);
+
+      syncProjectTaskUIInPlace(taskId, t, sel);
+
+      if (t.done) {
+        if (typeof playAppSound === 'function') playAppSound('success');
+        else if (typeof playInterfaceSound === 'function') playInterfaceSound();
+      } else {
+        if (typeof playInterfaceSound === 'function') playInterfaceSound();
       }
       if (typeof notify === 'function') notify('Task status updated to ' + newStatus.replace('_', ' ') + '.');
     }
   }, true);
 
-  // 2. 1-Tap Done Checkbox Toggle
+  // 2. 1-Tap Done Checkbox Toggle (In-place checkbox toggle without scroll jump)
   document.addEventListener('change', e => {
     const chk = e.target.closest('[data-project-task-check]');
     if (!chk) return;
     const taskId = chk.dataset.projectTaskCheck;
-    const t = (tasks || []).find(x => String(x.id) === String(taskId));
+    const t = (tasks || []).find(x => String(x.id) === String(taskId)) ||
+              ((typeof teamAssignedTasks !== 'undefined' ? teamAssignedTasks : []).find(x => String(x.id) === String(taskId)));
     if (t) {
       t.done = chk.checked;
       t.status = chk.checked ? 'done' : 'open';
@@ -22923,12 +23191,14 @@ window.openShowcaseProject = function() {
         localStorage.setItem('chronos40.tasks', JSON.stringify(tasks));
       } catch(err){}
       if (typeof persist === 'function') persist();
-      if (typeof renderTasks === 'function') renderTasks();
-      const p = (chronosProjects || []).find(x => String(x.id) === String(selectedProjectId));
-      if (p) {
-        if (typeof renderProjectManager === 'function') renderProjectManager();
-        if (typeof renderProjectDeliverablesSection === 'function') renderProjectDeliverablesSection(p);
-        if (typeof renderProjectMilestonesRoadmap === 'function') renderProjectMilestonesRoadmap(p);
+
+      syncProjectTaskUIInPlace(taskId, t, chk);
+
+      if (t.done) {
+        if (typeof playAppSound === 'function') playAppSound('success');
+        else if (typeof playInterfaceSound === 'function') playInterfaceSound();
+      } else {
+        if (typeof playInterfaceSound === 'function') playInterfaceSound();
       }
       if (typeof notify === 'function') notify(t.done ? 'Task marked complete.' : 'Task reopened.');
     }
