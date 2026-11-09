@@ -1,0 +1,166 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function memberPath(teamId, uid) { return /databases/$(database)/documents/teams/$(teamId)/members/$(uid); }
+    function teamPath(teamId) { return /databases/$(database)/documents/teams/$(teamId); }
+    function isMember(teamId) { return signedIn() && exists(memberPath(teamId, request.auth.uid)); }
+    function role(teamId) { return isMember(teamId) ? get(memberPath(teamId, request.auth.uid)).data.role : ''; }
+    function isAdmin(teamId) { return role(teamId) in ['owner', 'admin']; }
+    function isOwner(teamId) { return signedIn() && get(teamPath(teamId)).data.ownerUid == request.auth.uid; }
+    function invitePath(teamId, code) { return /databases/$(database)/documents/teams/$(teamId)/invitations/$(code); }
+    function validRecordKind(kind) { return kind in ['events', 'tasks', 'notes']; }
+    function projectPath(teamId, projectId) { return /databases/$(database)/documents/teams/$(teamId)/projects/$(projectId); }
+    function isProjectManager(teamId, projectId) {
+      return isAdmin(teamId)
+        || (exists(projectPath(teamId, projectId))
+          && get(projectPath(teamId, projectId)).data.ownerUid == request.auth.uid);
+    }
+    function validEmailRestriction(data) { return !('invitedEmail' in data) || data.invitedEmail == null || data.invitedEmail is string; }
+
+    match /users/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+      match /{document=**} { allow read, write: if signedIn() && request.auth.uid == userId; }
+    }
+
+    match /teamInviteCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.teamId is string && isAdmin(request.resource.data.teamId);
+      allow update: if signedIn() && resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.teamId == resource.data.teamId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'usedBy', 'usedAt']);
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+    }
+
+    match /teams/{teamId} {
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid && request.resource.data.createdBy == request.auth.uid;
+      allow get, list: if isMember(teamId);
+      allow update: if isAdmin(teamId) && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if isOwner(teamId);
+
+      match /members/{memberUid} {
+        allow read: if isMember(teamId);
+        allow create: if signedIn() && request.auth.uid == memberUid && request.resource.data.uid == request.auth.uid
+          && ((getAfter(teamPath(teamId)).data.ownerUid == request.auth.uid && request.resource.data.role == 'owner')
+            || (request.resource.data.role == 'member' && request.resource.data.joinedAt is number
+              && request.resource.data.email is string && request.auth.token.email is string
+              && request.auth.token.email_verified == true && request.resource.data.email == request.auth.token.email
+              && request.resource.data.invitationCode is string
+              && getAfter(invitePath(teamId, request.resource.data.invitationCode)).data.status == 'accepted'
+              && getAfter(invitePath(teamId, request.resource.data.invitationCode)).data.acceptedBy == request.auth.uid));
+        allow update: if (isOwner(teamId)
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'displayName', 'photoURL', 'lastSeenAt'])
+            && (memberUid != get(teamPath(teamId)).data.ownerUid || request.resource.data.role == 'owner'))
+          || (isAdmin(teamId) && memberUid != get(teamPath(teamId)).data.ownerUid
+            && resource.data.role != 'admin'
+            && request.resource.data.role == resource.data.role
+            && request.resource.data.uid == resource.data.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt']))
+          || (signedIn() && request.auth.uid == memberUid
+            && request.resource.data.role == resource.data.role && request.resource.data.uid == resource.data.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt']));
+        allow delete: if (isOwner(teamId) && memberUid != get(teamPath(teamId)).data.ownerUid)
+          || (isAdmin(teamId) && resource.data.role == 'member' && memberUid != get(teamPath(teamId)).data.ownerUid);
+      }
+
+      match /invitations/{code} {
+        allow read: if signedIn() && (isAdmin(teamId) || (resource.data.status == 'pending'
+          && resource.data.expiresAt is timestamp && resource.data.expiresAt > request.time
+          && (!('invitedEmail' in resource.data) || resource.data.invitedEmail == null
+            || (request.auth.token.email is string && resource.data.invitedEmail == request.auth.token.email))));
+        allow create: if isAdmin(teamId) && request.resource.data.teamId == teamId && request.resource.data.code == code
+          && request.resource.data.createdBy == request.auth.uid && request.resource.data.status == 'pending'
+          && request.resource.data.expiresAt is timestamp && request.resource.data.expiresAt > request.time
+          && validEmailRestriction(request.resource.data);
+        allow update: if (isAdmin(teamId)
+            && request.resource.data.teamId == resource.data.teamId
+            && request.resource.data.code == resource.data.code
+            && request.resource.data.createdBy == resource.data.createdBy
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'expiresAt', 'invitedEmail']))
+          || (signedIn() && resource.data.status == 'pending'
+            && resource.data.expiresAt is timestamp && resource.data.expiresAt > request.time
+            && (!('invitedEmail' in resource.data) || resource.data.invitedEmail == null
+              || (request.auth.token.email is string && resource.data.invitedEmail == request.auth.token.email))
+            && request.resource.data.status == 'accepted' && request.resource.data.acceptedBy == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedBy', 'acceptedAt']));
+        allow delete: if isAdmin(teamId);
+      }
+
+      // Recipient-specific in-app notifications. Query clients must filter recipientUid to auth.uid.
+      match /notifications/{notificationId} {
+        allow get, list: if isMember(teamId) && resource.data.recipientUid == request.auth.uid;
+        allow create: if isMember(teamId)
+          && request.resource.data.teamId == teamId
+          && request.resource.data.recipientUid is string
+          && exists(memberPath(teamId, request.resource.data.recipientUid))
+          && request.resource.data.actorUid == request.auth.uid
+          && request.resource.data.id == notificationId
+          && request.resource.data.type in ['events', 'tasks', 'notes', 'member', 'admin']
+          && request.resource.data.targetId is string;
+        allow update: if isMember(teamId)
+          && resource.data.recipientUid == request.auth.uid
+          && request.resource.data.recipientUid == resource.data.recipientUid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']);
+        allow delete: if isMember(teamId)
+          && (resource.data.recipientUid == request.auth.uid || isOwner(teamId));
+      }
+
+      match /activity/{activityId} {
+        allow read: if isAdmin(teamId);
+        allow create: if isAdmin(teamId) && request.resource.data.actorUid == request.auth.uid;
+        allow update: if false;
+        allow delete: if isOwner(teamId);
+      }
+
+      // Projects are shared with team members, but only the project owner or a
+      // team administrator can create, edit, or archive them.
+      match /projects/{projectId} {
+        allow read: if isMember(teamId);
+        allow create: if isMember(teamId)
+          && request.resource.data.id == projectId
+          && request.resource.data.teamId == teamId
+          && request.resource.data.createdBy == request.auth.uid
+          && (isAdmin(teamId) || request.resource.data.ownerUid == request.auth.uid);
+        allow update: if isProjectManager(teamId, projectId)
+          && request.resource.data.id == resource.data.id
+          && request.resource.data.teamId == teamId;
+        allow delete: if isProjectManager(teamId, projectId);
+      }
+
+      match /{kind}/{recordId} {
+        allow read: if isMember(teamId) && validRecordKind(kind);
+        allow create: if isMember(teamId) && validRecordKind(kind)
+          && request.resource.data.createdBy == request.auth.uid && request.resource.data.id == recordId
+          && (!('assigneeUids' in request.resource.data) || request.resource.data.assigneeUids is list);
+        allow update: if isMember(teamId) && validRecordKind(kind)
+          && (isAdmin(teamId) || resource.data.createdBy == request.auth.uid
+            || (kind == 'tasks'
+              && ((('assigneeUid' in resource.data) && resource.data.assigneeUid == request.auth.uid)
+                || (('assigneeUids' in resource.data) && request.auth.uid in resource.data.assigneeUids))
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'done', 'updatedAt', 'updatedBy', 'updatedByName'])
+              && request.resource.data.updatedBy == request.auth.uid)
+            || (kind == 'tasks'
+              && ('sourceType' in resource.data)
+              && resource.data.sourceType == 'project'
+              && ('projectId' in resource.data)
+              && isProjectManager(teamId, resource.data.projectId)));
+        allow delete: if isMember(teamId) && validRecordKind(kind)
+          && (
+            isAdmin(teamId)
+            || resource.data.createdBy == request.auth.uid
+            || (
+              kind == 'tasks'
+              && ('sourceType' in resource.data)
+              && resource.data.sourceType == 'project'
+              && ('projectId' in resource.data)
+              && isProjectManager(teamId, resource.data.projectId)
+            )
+          );
+      }
+    }
+  }
+}
