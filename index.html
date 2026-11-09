@@ -2612,34 +2612,66 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 </style>
 
 <style id="chronosTeamReimaginedStyles">
-.team-page-reimagined{gap:15px}
-.team-page-reimagined.team-page-unified{display:flex;flex-direction:column;gap:14px;max-width:1240px;margin:0 auto;width:100%}
+.team-page-reimagined{gap:18px}
+.team-page-reimagined.team-page-unified{display:flex;flex-direction:column;gap:18px;max-width:1240px;margin:0 auto;width:100%}
 .team-status-reimagined{border-radius:13px;background:var(--surface);padding:12px 16px;box-shadow:0 2px 10px rgba(38,55,78,.035);border:1px solid var(--line);font-size:12px;color:var(--muted)}
 
-/* Unified Workspace Canvas */
-.team-canvas-unified{padding:26px 30px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 24px -4px rgba(0,0,0,0.06);min-height:560px;display:flex;flex-direction:column}
+/* Team Spaces Section & Header (Notes-Style Showcase) */
+.team-spaces-section{display:flex;flex-direction:column;gap:12px}
+.team-spaces-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:0 2px}
+.team-spaces-kicker{font-size:9.5px;font-weight:800;letter-spacing:1.4px;color:var(--accent);text-transform:uppercase}
+.team-spaces-heading{margin:3px 0 0;font-size:clamp(22px,2.4vw,28px);font-weight:800;letter-spacing:-.03em;color:var(--text);line-height:1.2}
+.team-spaces-sub{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.team-spaces-quick-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Team Spaces Grid (Notes-style separate cards) */
+.team-spaces-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:16px;align-items:stretch}
+
+/* Individual Team Space Card */
+.team-space-card{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:175px;border-radius:20px;background:var(--surface);border:1px solid var(--line);overflow:hidden;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.03);transition:transform .2s cubic-bezier(.16,1,.3,1),box-shadow .2s cubic-bezier(.16,1,.3,1),border-color .2s;text-align:left}
+.team-space-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px -6px rgba(0,0,0,.09);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.team-space-card.active-team-space-card{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),0 8px 24px -4px color-mix(in srgb,var(--accent) 25%,transparent)}
+.team-space-color-strip{width:100%;height:4px;flex:0 0 4px}
+.team-space-card-inner{padding:16px 18px 14px;display:flex;flex-direction:column;flex:1}
+.team-space-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.team-space-emoji{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:0 0 44px;box-shadow:0 3px 10px rgba(0,0,0,.04)}
+.team-space-card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.team-space-role-chip{font-size:10px;font-weight:750;padding:3px 8px;border-radius:8px;text-transform:capitalize;letter-spacing:.02em}
+.team-space-status-pill{font-size:10px;font-weight:750;padding:3px 8px;border-radius:8px;background:var(--surface2);color:var(--muted);border:1px solid var(--line);transition:all .15s ease}
+.team-space-status-pill.is-active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.team-space-card-body{flex:1;margin-bottom:14px}
+.team-space-title{margin:0;font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--text);line-height:1.3}
+.team-space-desc{margin:5px 0 0;font-size:11.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.team-space-card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;border-top:1px solid var(--line)}
+.team-space-facepile{display:flex;align-items:center;margin-left:2px}
+.team-space-facepile .avatar,.team-space-facepile .avatar-sm,.team-space-facepile .avatar-xs{margin-left:-6px;border:2px solid var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.team-space-facepile .avatar:first-child,.team-space-facepile .avatar-sm:first-child,.team-space-facepile .avatar-xs:first-child{margin-left:0}
+.team-space-stat{font-size:11px;font-weight:600;color:var(--muted)}
+
+/* Dashed Add / Join Card */
+.team-space-card-add{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:175px;border:2px dashed color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:20px;background:color-mix(in srgb,var(--surface2) 40%,transparent);padding:20px 16px;cursor:pointer;transition:all .2s cubic-bezier(.16,1,.3,1)}
+.team-space-card-add:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent-soft) 30%,var(--surface));transform:translateY(-3px);box-shadow:0 8px 24px -6px rgba(0,0,0,.06)}
+.team-space-add-icon{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--muted);display:grid;place-items:center;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,.04);transition:all .15s ease}
+.team-space-card-add:hover .team-space-add-icon{border-color:var(--accent);color:var(--accent);transform:scale(1.08)}
+.team-space-add-title{font-size:14px;font-weight:750;color:var(--text);margin-bottom:2px}
+.team-space-add-sub{font-size:11px;color:var(--muted);margin-bottom:12px;max-width:200px}
+.team-space-add-actions{display:flex;gap:8px;align-items:center}
+.team-space-add-actions .btn{padding:5px 12px;font-size:11px;font-weight:650;border-radius:10px}
+
+/* Active Workspace Canvas (Selected Team Tools) */
+.team-canvas-unified{padding:26px 30px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 24px -4px rgba(0,0,0,.06);min-height:560px;display:flex;flex-direction:column}
 .team-unified-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .team-unified-brand-cluster{display:flex;align-items:center;gap:16px;min-width:0;flex:1 1 auto}
-.team-unified-brand-cluster .team-team-mark{display:grid;place-items:center;width:48px;height:48px;flex:0 0 auto;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-size:24px;box-shadow:0 4px 14px rgba(0,0,0,0.05);transition:transform .2s cubic-bezier(.16,1,.3,1)}
+.team-unified-brand-cluster .team-team-mark{display:grid;place-items:center;width:48px;height:48px;flex:0 0 auto;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-size:24px;box-shadow:0 4px 14px rgba(0,0,0,.05);transition:transform .2s cubic-bezier(.16,1,.3,1)}
 .team-unified-brand-cluster .team-team-mark:hover{transform:scale(1.04)}
 .team-unified-meta{min-width:0;flex:1 1 auto}
 .team-unified-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .team-unified-name{margin:0;font-size:clamp(20px,2.4vw,26px);font-weight:800;letter-spacing:-.03em;color:var(--text);line-height:1.2}
-
-/* Team Selector Pill */
-.team-selector-pill{position:relative;display:inline-flex;align-items:center;vertical-align:middle}
-.team-selector-select{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2}
-.team-selector-trigger{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;background:var(--surface2);border:1px solid var(--line);border-radius:20px;font-size:11px;font-weight:650;color:var(--muted);pointer-events:none;transition:all .15s ease}
-.team-selector-pill:hover .team-selector-trigger,.team-selector-select:focus ~ .team-selector-trigger{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--text);background:var(--surface);box-shadow:0 2px 8px rgba(0,0,0,0.05)}
-
-/* Chips & Badges */
 .team-count-chip{display:inline-flex;align-items:center;padding:3px 10px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 24%,transparent);color:var(--accent);border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.01em}
 .team-unified-desc{margin:5px 0 0;font-size:12px;color:var(--muted);line-height:1.45;max-width:680px}
-
-/* Unified Action Suite */
 .team-unified-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
 .team-action-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;padding:8px 14px;border-radius:12px;cursor:pointer;border:1px solid var(--line);background:var(--surface2);color:var(--text);transition:all .15s ease}
-.team-action-btn:hover{background:var(--surface);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));transform:translateY(-1px);box-shadow:0 3px 9px rgba(0,0,0,0.06)}
+.team-action-btn:hover{background:var(--surface);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));transform:translateY(-1px);box-shadow:0 3px 9px rgba(0,0,0,.06)}
 .team-action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 30%,transparent)}
 .team-action-btn.primary:hover{background:color-mix(in srgb,var(--accent) 90%,#000);border-color:color-mix(in srgb,var(--accent) 90%,#000)}
 .team-action-btn.icon-btn{padding:8px 11px}
@@ -2654,7 +2686,7 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .team-members-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
 .team-members-grid-unified{display:grid !important;grid-template-columns:repeat(auto-fill,minmax(300px,1fr)) !important;gap:12px !important}
 .team-members-grid-unified .team-member{min-height:74px;padding:12px 14px;background:var(--surface2);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:12px;transition:border-color .15s,box-shadow .15s}
-.team-members-grid-unified .team-member:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 4px 12px rgba(0,0,0,0.04)}
+.team-members-grid-unified .team-member:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 4px 12px rgba(0,0,0,.04)}
 .team-members-grid-unified .team-member-main strong{font-size:13px;display:block}
 .team-members-grid-unified .team-member-main small{font-size:11px;color:var(--muted);display:block;margin-top:2px}
 .team-members-grid-unified .team-role{font-size:10px;font-weight:700;padding:4px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent)}
@@ -2668,11 +2700,14 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .team-record:hover{border-color:color-mix(in srgb,var(--accent) 25%,var(--line))}
 .team-empty{border:1px dashed var(--line);border-radius:13px;padding:32px 16px;background:var(--surface2);text-align:center;color:var(--muted);font-size:13px}
 
-/* Dark mode and accent adjustments */
-html[data-theme="dark"] .team-canvas-unified{box-shadow:0 4px 30px rgba(0,0,0,0.25)}
-html[data-theme="dark"] .team-selector-trigger{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
-html[data-theme="dark"] .team-action-btn{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
-html[data-theme="dark"] .team-action-btn:hover{background:rgba(255,255,255,0.08)}
+/* Dark mode adjustments */
+html[data-theme="dark"] .team-space-card{box-shadow:0 4px 18px rgba(0,0,0,.25)}
+html[data-theme="dark"] .team-space-facepile .avatar,
+html[data-theme="dark"] .team-space-facepile .avatar-sm,
+html[data-theme="dark"] .team-space-facepile .avatar-xs{border-color:var(--surface)}
+html[data-theme="dark"] .team-canvas-unified{box-shadow:0 4px 30px rgba(0,0,0,.25)}
+html[data-theme="dark"] .team-action-btn{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+html[data-theme="dark"] .team-action-btn:hover{background:rgba(255,255,255,.08)}
 html[data-theme="dark"] .team-action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 
 @media(max-width:860px){
@@ -2683,629 +2718,12 @@ html[data-theme="dark"] .team-action-btn.primary{background:var(--accent);border
   .team-tabs-unified button{flex:0 0 auto;min-width:76px}
 }
 @media(max-width:540px){
+  .team-spaces-grid{grid-template-columns:1fr}
   .team-members-grid-unified{grid-template-columns:1fr !important}
   .team-action-btn{padding:7px 11px;font-size:11px}
   .team-unified-name{font-size:19px}
   .team-canvas-unified{padding:16px 14px}
 }
-<style id="chronosProjectsDarkModeStyles">
-
-/* =========================================================
-   CHRONOS FLOW 5.2 — DELIVERABLE MILESTONE CARD & FACEPILE
-   ========================================================= */
-.journey-card.deliverable-milestone-card {
-  position: relative;
-  background: var(--surface, #ffffff);
-  border: 1px solid var(--line, rgba(0, 0, 0, 0.08));
-  border-left: 4px solid var(--card-accent, #3b82f6);
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: transform .18s ease, box-shadow .18s ease;
-  margin-bottom: 8px;
-  z-index: 2;
-}
-html[data-theme=dark] .journey-card.deliverable-milestone-card {
-  background: var(--surface, #191e29);
-  border-color: var(--line, rgba(255, 255, 255, 0.08));
-  border-left-color: var(--card-accent, #3b82f6);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-.journey-card.deliverable-milestone-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09);
-}
-.deliverable-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.deliverable-card-badges {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.journey-deliv-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 750;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: var(--accent-soft, rgba(59, 130, 246, 0.12));
-  color: var(--accent, #2563eb);
-}
-.journey-deliv-ratio-pill {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--surface-2, rgba(0, 0, 0, 0.05));
-  color: var(--text, #1e293b);
-}
-html[data-theme=dark] .journey-deliv-ratio-pill {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f1f5f9;
-}
-.journey-deliv-ratio-pill.is-100 {
-  background: rgba(16, 185, 129, 0.15);
-  color: #059669;
-}
-.deliverable-stat-chips-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin: 2px 0;
-}
-.deliv-stat-chip {
-  font-size: 10.5px;
-  font-weight: 650;
-  padding: 2px 7px;
-  border-radius: 6px;
-}
-.deliv-stat-chip.chip-submitted {
-  background: rgba(16, 185, 129, 0.12);
-  color: #059669;
-}
-.deliv-stat-chip.chip-paper {
-  background: rgba(59, 130, 246, 0.12);
-  color: #2563eb;
-}
-.deliv-stat-chip.chip-pending {
-  background: rgba(245, 158, 11, 0.12);
-  color: #d97706;
-}
-.deliv-stat-chip.chip-overdue {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
-}
-.deliv-stat-chip.chip-ta {
-  background: rgba(168, 85, 247, 0.12);
-  color: #9333ea;
-}
-.deliverable-milestone-progress-bar {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-2, rgba(0, 0, 0, 0.06));
-  overflow: hidden;
-  margin: 2px 0;
-}
-html[data-theme=dark] .deliverable-milestone-progress-bar {
-  background: rgba(255, 255, 255, 0.08);
-}
-.deliverable-milestone-progress-bar .fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
-  transition: width .3s ease;
-}
-.deliverable-milestone-roster-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 6px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line, rgba(0, 0, 0, 0.06));
-  flex-wrap: wrap;
-}
-html[data-theme=dark] .deliverable-milestone-roster-row {
-  border-top-color: rgba(255, 255, 255, 0.06);
-}
-/* Overlapping Profile Pics Facepile Stack */
-.deliverable-facepile-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.deliverable-avatar-stack {
-  display: inline-flex;
-  align-items: center;
-}
-.deliverable-face-avatar {
-  position: relative;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-left: -8px;
-  border: 2.5px solid var(--surface, #ffffff);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  overflow: visible;
-  transition: transform .18s ease, z-index .18s ease;
-  cursor: pointer;
-  background: #f1f5f9;
-}
-html[data-theme=dark] .deliverable-face-avatar {
-  border-color: var(--surface, #191e29);
-  background: #2b3345;
-}
-.deliverable-avatar-stack .deliverable-face-avatar:first-child {
-  margin-left: 0;
-}
-.deliverable-face-avatar:hover {
-  transform: translateY(-3px) scale(1.2);
-  z-index: 10 !important;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
-}
-.deliverable-face-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-.deliverable-face-avatar .avatar-initial-fallback {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 800;
-  color: #fff;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
-}
-.avatar-status-dot {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1.5px solid var(--surface, #ffffff);
-}
-html[data-theme=dark] .avatar-status-dot {
-  border-color: var(--surface, #191e29);
-}
-.avatar-status-dot.status-done { background: #10b981; }
-.avatar-status-dot.status-hardcopy { background: #3b82f6; }
-.avatar-status-dot.status-pending { background: #f59e0b; }
-.avatar-status-dot.status-overdue { background: #ef4444; }
-
-.deliverable-avatar-more {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  margin-left: -8px;
-  border: 2.5px solid var(--surface, #ffffff);
-  background: var(--surface-2, #e2e8f0);
-  color: var(--text, #334155);
-  font-size: 10px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-html[data-theme=dark] .deliverable-avatar-more {
-  border-color: var(--surface, #191e29);
-  background: #334155;
-  color: #f1f5f9;
-}
-.deliverable-facepile-summary-label {
-  font-size: 11.5px;
-  color: var(--muted, #64748b);
-}
-.btn-open-roster-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--line, rgba(0, 0, 0, 0.1));
-  background: var(--accent-soft, rgba(59, 130, 246, 0.08));
-  color: var(--accent, #2563eb);
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .15s ease;
-}
-.btn-open-roster-cta:hover {
-  background: var(--accent, #2563eb);
-  color: #ffffff;
-  border-color: var(--accent, #2563eb);
-}
-
-
-/* =========================================================
-   CHRONOS 5.7 PROJECTS PAGE & WORKSPACE DARK MODE STYLES
-   ========================================================= */
-html[data-theme=dark] #tasksPage .page-heading h2{color:var(--text)}
-html[data-theme=dark] #tasksPage .eyebrow{color:var(--muted)}
-html[data-theme=dark] #tasksPage .subheading{color:var(--muted)}
-
-/* Project Command Shell */
-html[data-theme=dark] #tasksPage .project-command,
-html[data-theme=dark] #projectCommand{
-  background:var(--surface);
-  border:1px solid var(--line);
-  box-shadow:0 12px 36px rgba(0,0,0,0.35);
-}
-
-/* Metric Cards */
-html[data-theme=dark] #tasksPage .project-metrics article{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 4px 14px rgba(0,0,0,0.22);
-}
-html[data-theme=dark] #tasksPage .project-metrics span{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-metrics strong{color:var(--text)!important}
-
-/* Project View Tabs & Filter Toolbar */
-html[data-theme=dark] #tasksPage .project-view-tabs{
-  background:var(--surface2);
-  border:1px solid var(--line);
-}
-html[data-theme=dark] #tasksPage .project-view-tabs button{
-  color:var(--muted);
-  transition:all .15s ease;
-}
-html[data-theme=dark] #tasksPage .project-view-tabs button:hover{
-  color:var(--text);
-  background:rgba(255,255,255,0.06);
-}
-html[data-theme=dark] #tasksPage .project-view-tabs button.active{
-  background:var(--accent)!important;
-  color:#ffffff!important;
-  box-shadow:0 2px 10px rgba(0,0,0,0.3);
-}
-
-html[data-theme=dark] #tasksPage .project-tools input,
-html[data-theme=dark] #tasksPage .project-tools select,
-html[data-theme=dark] #projectSearch,
-html[data-theme=dark] #projectStatusFilter{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-html[data-theme=dark] #tasksPage .project-tools input:focus,
-html[data-theme=dark] #tasksPage .project-tools select:focus,
-html[data-theme=dark] #projectSearch:focus,
-html[data-theme=dark] #projectStatusFilter:focus{
-  border-color:var(--accent)!important;
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)!important;
-}
-html[data-theme=dark] #tasksPage .project-tools select option,
-html[data-theme=dark] #projectStatusFilter option{
-  background:var(--surface);
-  color:var(--text);
-}
-
-/* Project Overview Grid Cards */
-html[data-theme=dark] #tasksPage .project-card{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 6px 20px rgba(0,0,0,0.22);
-}
-html[data-theme=dark] #tasksPage .project-card:hover{
-  border-color:var(--accent)!important;
-  transform:translateY(-3px);
-  box-shadow:0 14px 34px rgba(0,0,0,0.45), 0 0 20px color-mix(in srgb,var(--accent) 25%,transparent)!important;
-}
-html[data-theme=dark] #tasksPage .project-card h3{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .project-card p{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-card-foot{
-  color:var(--muted)!important;
-  border-top:1px solid var(--line);
-  padding-top:10px;
-}
-
-/* Status Pills */
-html[data-theme=dark] #tasksPage .project-pill,
-html[data-theme=dark] .project-pill{
-  background:rgba(59,130,246,0.18)!important;
-  color:#93c5fd!important;
-  border:1px solid rgba(59,130,246,0.3)!important;
-}
-
-/* Progress Bars */
-html[data-theme=dark] #tasksPage .project-progress,
-html[data-theme=dark] .project-progress{
-  background:rgba(255,255,255,0.08)!important;
-}
-html[data-theme=dark] #tasksPage .project-progress span,
-html[data-theme=dark] .project-progress span{
-  background:linear-gradient(90deg,var(--accent),#38bdf8)!important;
-}
-
-/* Project Detail View */
-html[data-theme=dark] #tasksPage .project-detail{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 8px 26px rgba(0,0,0,0.3);
-}
-html[data-theme=dark] #tasksPage .project-detail h3{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .project-detail p{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-detail-actions button,
-html[data-theme=dark] #tasksPage .project-small-btn{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-detail-actions button:hover,
-html[data-theme=dark] #tasksPage .project-small-btn:hover{
-  background:var(--accent-soft)!important;
-  border-color:var(--accent)!important;
-}
-html[data-theme=dark] #tasksPage .project-detail-meta{color:var(--muted)!important}
-
-/* Board View */
-html[data-theme=dark] #tasksPage .project-board{gap:12px}
-html[data-theme=dark] #tasksPage .project-lane{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 4px 16px rgba(0,0,0,0.2);
-}
-html[data-theme=dark] #tasksPage .project-lane h4{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .project-lane h4 span{
-  background:var(--line);
-  color:var(--text);
-  border-radius:999px;
-  padding:2px 8px;
-}
-html[data-theme=dark] #tasksPage .project-lane .project-task{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
-  transition:border-color .15s ease,transform .15s ease;
-}
-html[data-theme=dark] #tasksPage .project-lane .project-task:hover{
-  border-color:var(--accent)!important;
-  transform:translateY(-2px);
-}
-html[data-theme=dark] #tasksPage .project-lane .project-task small{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-lane select{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-html[data-theme=dark] #tasksPage .project-lane select option{
-  background:var(--surface);
-  color:var(--text);
-}
-
-/* Timeline View */
-html[data-theme=dark] #tasksPage .project-timeline-row{border-bottom-color:var(--line)!important}
-html[data-theme=dark] #tasksPage .project-timeline-row strong{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .project-timeline-row small{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-timeline-track{background:rgba(255,255,255,0.08)!important}
-html[data-theme=dark] #tasksPage .project-timeline-track span{background:linear-gradient(90deg,var(--accent),#38bdf8)!important}
-
-/* Inline Project Tasks */
-html[data-theme=dark] #tasksPage .project-inline-tasks{border-top-color:var(--line)!important}
-html[data-theme=dark] #tasksPage .project-task-create input,
-html[data-theme=dark] #tasksPage .project-task-create select{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-html[data-theme=dark] #tasksPage .project-task-create select option{
-  background:var(--surface);
-  color:var(--text);
-}
-html[data-theme=dark] #tasksPage .project-linked-task{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-linked-task small{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-linked-task select{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-html[data-theme=dark] #tasksPage .project-readonly-note{
-  background:rgba(59,130,246,0.12)!important;
-  border:1px solid rgba(59,130,246,0.25)!important;
-  color:#93c5fd!important;
-}
-
-/* Person Picker Dropdowns in Dark Mode */
-html[data-theme=dark] #tasksPage .project-person-options,
-html[data-theme=dark] #projectModalRepair .project-person-options{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 16px 40px rgba(0,0,0,0.65)!important;
-}
-html[data-theme=dark] #tasksPage .project-person-option,
-html[data-theme=dark] #projectModalRepair .project-person-option{
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-person-option:hover,
-html[data-theme=dark] #projectModalRepair .project-person-option:hover{
-  background:var(--surface2)!important;
-  border-color:var(--line)!important;
-}
-html[data-theme=dark] #tasksPage .project-person-option[aria-selected=true],
-html[data-theme=dark] #tasksPage .project-person-option[aria-pressed=true],
-html[data-theme=dark] #projectModalRepair .project-person-option[aria-selected=true]{
-  background:var(--accent-soft)!important;
-  border-color:var(--accent)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-person-copy strong,
-html[data-theme=dark] #projectModalRepair .project-person-copy strong{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .project-person-copy small,
-html[data-theme=dark] #projectModalRepair .project-person-copy small{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .project-avatar,
-html[data-theme=dark] #projectModalRepair .project-avatar{
-  background:var(--accent-soft)!important;
-  color:var(--accent)!important;
-  border:1px solid var(--line)!important;
-}
-html[data-theme=dark] #tasksPage .project-person-check,
-html[data-theme=dark] #projectModalRepair .project-person-check{border-color:var(--line)!important}
-
-html[data-theme=dark] #tasksPage .project-person-selected,
-html[data-theme=dark] #tasksPage .project-selected-chips,
-html[data-theme=dark] #projectModalRepair .project-person-selected,
-html[data-theme=dark] #projectModalRepair .project-selected-chips{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-selected-chip,
-html[data-theme=dark] #projectModalRepair .project-selected-chip{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-empty-chip,
-html[data-theme=dark] #projectModalRepair .project-empty-chip{color:var(--muted)!important}
-
-/* Project Creation / Edit Modal Dialog */
-html[data-theme=dark] #projectModalRepair.chronos-repair-backdrop{
-  background:rgba(0,0,0,0.75)!important;
-  backdrop-filter:blur(8px);
-}
-html[data-theme=dark] #projectModalRepair .chronos-repair-dialog{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  box-shadow:0 24px 60px rgba(0,0,0,0.65)!important;
-}
-html[data-theme=dark] #projectModalRepair .chronos-repair-head{
-  background:var(--surface2)!important;
-  border-bottom:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #projectModalRepair .chronos-repair-head h3{color:var(--text)!important}
-html[data-theme=dark] #projectModalRepair .chronos-repair-close{
-  color:var(--muted)!important;
-  background:transparent!important;
-}
-html[data-theme=dark] #projectModalRepair .chronos-repair-close:hover{
-  color:var(--text)!important;
-  background:rgba(255,255,255,0.08)!important;
-}
-html[data-theme=dark] #projectModalRepair .project-create{
-  background:transparent!important;
-  border:0!important;
-}
-html[data-theme=dark] #projectModalRepair .project-create-grid>label{color:var(--text)!important}
-html[data-theme=dark] #projectModalRepair .project-create-grid input:not([type=checkbox]):not([type=radio]),
-html[data-theme=dark] #projectModalRepair .project-create-grid select:not(.project-value-store),
-html[data-theme=dark] #projectModalRepair .project-create-grid textarea{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-html[data-theme=dark] #projectModalRepair .project-create-grid select option{
-  background:var(--surface);
-  color:var(--text);
-}
-html[data-theme=dark] #projectModalRepair .project-form-actions{
-  background:var(--surface2)!important;
-  border-top:1px solid var(--line)!important;
-}
-html[data-theme=dark] #projectModalRepair .project-form-actions .btn:not(.primary){
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-
-/* Task Workspace Below Projects */
-html[data-theme=dark] #tasksPage .project-task-divider{
-  border-top:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] #tasksPage .project-task-divider span{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .task-quick-add{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 4px 20px rgba(0,0,0,0.25)!important;
-}
-html[data-theme=dark] #tasksPage .task-quick-add input{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-html[data-theme=dark] #tasksPage .tasks-toolbar .task-filters{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-}
-html[data-theme=dark] #tasksPage .tasks-toolbar .task-filters button{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .tasks-toolbar .task-filters button:hover{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .tasks-toolbar .task-filters button.active{
-  background:var(--accent)!important;
-  color:#ffffff!important;
-}
-html[data-theme=dark] #tasksPage .task-summary-strip .task-summary-item{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 4px 14px rgba(0,0,0,0.2)!important;
-}
-html[data-theme=dark] #tasksPage .task-summary-strip .task-summary-item strong{color:var(--text)!important}
-html[data-theme=dark] #tasksPage .task-summary-strip .task-summary-item small{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .task-card{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  box-shadow:0 4px 16px rgba(0,0,0,0.2)!important;
-}
-html[data-theme=dark] #tasksPage .task-card:hover{
-  border-color:var(--accent)!important;
-  box-shadow:0 8px 24px rgba(0,0,0,0.35)!important;
-}
-html[data-theme=dark] #tasksPage .task-card .task-due{color:var(--muted)!important}
-html[data-theme=dark] #tasksPage .task-page-footnote{color:var(--muted)!important}
-
-html[data-theme=dark] .assigned-project-notes{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-}
-html[data-theme=dark] .assigned-project-note{
-  background:var(--surface2)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-}
-html[data-theme=dark] .assigned-project-note-actions select{
-  background:var(--surface)!important;
-  border:1px solid var(--line)!important;
-  color:var(--text)!important;
-  color-scheme:dark;
-}
-
-</style>
 <style id="chronosCloudPastelThemeStyles">
 /* =========================================================
    CHRONOS EDGE-TO-EDGE TOPBAR & RESPONSIVE APP SHELL
@@ -5040,30 +4458,41 @@ html[data-theme="dark"][data-accent] .note-comment-item {
         <div class="notes-grid" id="notesGrid"></div>
       </section>
     </section>
-    <section id="teamPage" class="hidden team-page team-page-reimagined team-page-unified">
+      <section id="teamPage" class="hidden team-page team-page-reimagined team-page-unified">
     <div class="team-status team-status-reimagined" id="teamStatus" role="status" aria-live="polite">Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.</div>
 
-    <!-- Unified Workspace Card (4-in-1 Consolidation) -->
-    <section class="team-card team-focus-card team-canvas-unified">
-      <!-- Elevated Workspace Header -->
+    <!-- Section 1: Team Spaces Showcase (Notes-Style Cards Grid) -->
+    <section class="team-spaces-section">
+      <div class="team-spaces-head">
+        <div>
+          <span class="team-spaces-kicker">COLLABORATION WORKSPACES</span>
+          <h2 class="team-spaces-heading">Team Spaces</h2>
+          <p class="team-spaces-sub">Select any space below to switch active workspace and view team projects.</p>
+        </div>
+        <div class="team-spaces-quick-actions">
+          <button class="btn primary team-action-btn" id="teamHeroCreateBtn" type="button" title="Create a new team workspace">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="plus" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+            <span>New team</span>
+          </button>
+          <button class="btn team-action-btn" id="teamHeroJoinBtn" type="button" title="Join team with invitation code">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="user-plus" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+            <span>Join with code</span>
+          </button>
+        </div>
+      </div>
+      <!-- Notes-style Grid populated dynamically by renderTeamWorkspace() -->
+      <div class="team-spaces-grid" id="teamSpacesGrid"></div>
+    </section>
+
+    <!-- Section 2: Active Team Workspace Canvas -->
+    <section class="team-card team-focus-card team-canvas-unified" id="teamActiveWorkspace">
+      <!-- Active Workspace Header -->
       <div class="team-unified-head">
         <div class="team-unified-brand-cluster">
           <span class="team-team-mark" aria-hidden="true">✦</span>
           <div class="team-unified-meta">
             <div class="team-unified-title-row">
               <h2 id="teamCurrentName" class="team-unified-name">Select a team</h2>
-              
-              <!-- Interactive Team Selector Pill -->
-              <div class="team-selector-pill" title="Switch collaboration workspace">
-                <select id="teamSelect" class="team-selector-select" aria-label="Switch team workspace">
-                  <option value="">Select a team</option>
-                </select>
-                <span class="team-selector-trigger">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-                  <span>Switch team</span>
-                </span>
-              </div>
-
               <span id="teamCurrentRole" class="team-role hidden"></span>
               <span id="teamMembersCountBadge" class="team-count-chip">0 members</span>
             </div>
@@ -5071,19 +4500,11 @@ html[data-theme="dark"][data-accent] .note-comment-item {
           </div>
         </div>
 
-        <!-- Action Toolbar -->
+        <!-- Action Toolbar for active workspace -->
         <div class="team-unified-actions">
           <button class="btn primary team-action-btn" id="teamHeroShareBtn" type="button" title="Invite members / copy share link">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="share-2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
             <span>Invite</span>
-          </button>
-          <button class="btn team-action-btn" id="teamHeroCreateBtn" type="button" title="Create a new team workspace">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="plus" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
-            <span>New team</span>
-          </button>
-          <button class="btn team-action-btn" id="teamHeroJoinBtn" type="button" title="Join team with invitation code">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="user-plus" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
-            <span>Join</span>
           </button>
           <button type="button" id="teamSettingsBtn" class="team-settings-btn team-action-btn" aria-label="Open team membership and settings" title="Team settings, branding, and members">
             <svg viewBox="0 0 24 24" aria-hidden="true" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="m19.4 15 .1.1 1.1.9-1.5 2.6-1.4-.6a7.8 7.8 0 0 1-1.7 1l-.2 1.5h-3l-.3-1.5a7.8 7.8 0 0 1-1.7-1l-1.4.6-1.5-2.6 1.2-.9a7.4 7.4 0 0 1 0-2l-1.2-.9 1.5-2.6 1.4.6a7.8 7.8 0 0 1 1.7-1l.3-1.5h3l.2 1.5a7.8 7.8 0 0 1 1.7 1l1.4-.6 1.5 2.6-1.1.9a7.4 7.4 0 0 1 0 2Z" transform="translate(-1 -1) scale(1.08)"></path></svg>
@@ -5112,7 +4533,7 @@ html[data-theme="dark"][data-accent] .note-comment-item {
             <p style="margin:2px 0 0;font-size:11px;color:var(--muted)">Members collaborating in this team workspace</p>
           </div>
           <button type="button" class="btn" id="teamPeopleInviteShortcut" style="display:inline-flex;align-items:center;gap:5px">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="user-plus" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
             <span>Invite colleague</span>
           </button>
         </div>
@@ -5129,6 +4550,7 @@ html[data-theme="dark"][data-accent] .note-comment-item {
 
     <!-- Hidden compatibility bridge for legacy form event listeners -->
     <div id="teamLegacyFormsUtility" style="display:none !important;" aria-hidden="true">
+      <select id="teamSelect"><option value="">Select a team</option></select>
       <div id="teamSummary"></div>
       <div class="team-action-tabs">
         <button type="button" class="team-action-tab active" data-team-action="invite">Invite</button>
@@ -16581,7 +16003,22 @@ function renderTeamWorkspace(){
      teamMark.style.removeProperty('color');
    }
  }
- $('teamSummary').innerHTML=chronosTeams.map(t=>`<button type="button" class="team-member" data-team-select="${teamEsc(t.id)}" style="text-align:left;cursor:pointer"><span class="team-member-main"><strong>${teamEsc(t.name)}</strong><small>${teamEsc(t.role||'member')} · ${teamEsc(t.members?.length||0)} members</small><span class="team-people-strip">${(t.members||[]).slice(0,5).map(m=>avatarMarkup(m,'sm')).join('')}</span></span><span class="team-role">${t.id===activeTeamId?'Selected':'Open'}</span></button>`).join('')||'<div class="team-empty">No teams yet.</div>';
+ const spacesGrid = $('teamSpacesGrid');
+  if (spacesGrid) {
+    const cardsHtml = chronosTeams.map(t => {
+      const isSelected = t.id === activeTeamId;
+      const teamColor = t.color || '#10b981';
+      const teamEmoji = t.emoji || '✦';
+      const teamRole = t.role || (t.ownerUid === firebaseUser?.uid ? 'owner' : 'member');
+      const mCount = t.members?.length || 0;
+      const facepiles = (t.members || []).slice(0, 5).map(m => avatarMarkup(m, 'xs')).join('');
+      return `<article class="team-space-card ${isSelected ? 'active-team-space-card' : ''}" data-team-select="${teamEsc(t.id)}" role="button" tabindex="0" aria-label="Select ${teamEsc(t.name)} workspace"><div class="team-space-color-strip" style="background:${teamEsc(teamColor)}"></div><div class="team-space-card-inner"><div class="team-space-card-top"><div class="team-space-emoji" style="color:${teamEsc(teamColor)}; background:color-mix(in srgb, ${teamEsc(teamColor)} 14%, transparent)">${teamEsc(teamEmoji)}</div><div class="team-space-card-badges"><span class="team-space-role-chip" style="color:${teamEsc(teamColor)}; background:color-mix(in srgb, ${teamEsc(teamColor)} 12%, transparent)">${teamEsc(teamRole)}</span><span class="team-space-status-pill ${isSelected ? 'is-active' : ''}">${isSelected ? 'Active' : 'Open'}</span></div></div><div class="team-space-card-body"><h3 class="team-space-title">${teamEsc(t.name || 'Untitled Team')}</h3><p class="team-space-desc">${teamEsc(t.description || 'Shared collaboration workspace.')}</p></div><div class="team-space-card-footer"><div class="team-space-facepile">${facepiles}</div><span class="team-space-stat">${mCount} member${mCount === 1 ? '' : 's'}</span></div></div></article>`;
+    }).join('');
+    const addCardHtml = `<div class="team-space-card-add" id="teamSpacesCardAdd" role="button" tabindex="0" aria-label="Create or join team"><div class="team-space-add-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/></svg></div><strong class="team-space-add-title">Create or Join Team</strong><span class="team-space-add-sub">Start a new space or enter an invite code</span><div class="team-space-add-actions"><button type="button" class="btn" id="teamGridNewBtn"><span>+ New</span></button><button type="button" class="btn" id="teamGridJoinBtn"><span>Join</span></button></div></div>`;
+    spacesGrid.innerHTML = cardsHtml + addCardHtml;
+  }
+  const tSummary = $('teamSummary');
+  if (tSummary) tSummary.innerHTML=chronosTeams.map(t=>`<button type="button" class="team-member" data-team-select="${teamEsc(t.id)}" style="text-align:left;cursor:pointer"><span class="team-member-main"><strong>${teamEsc(t.name)}</strong><small>${teamEsc(t.role||'member')} · ${teamEsc(t.members?.length||0)} members</small><span class="team-people-strip">${(t.members||[]).slice(0,5).map(m=>avatarMarkup(m,'sm')).join('')}</span></span><span class="team-role">${t.id===activeTeamId?'Selected':'Open'}</span></button>`).join('')||'<div class="team-empty">No teams yet.</div>';
  document.querySelectorAll('[data-team-tab]').forEach(b=>b.classList.toggle('active',b.dataset.teamTab===teamTab));$('teamMembersPanel').classList.toggle('hidden',teamTab!=='members');$('teamRecordsPanel').classList.toggle('hidden',!['events','tasks','notes'].includes(teamTab));$('teamAdminPanel').classList.toggle('hidden',teamTab!=='manage');
 
  const memCount=(teamMembers||[]).length,openTasksCount=(teamRecords.tasks||[]).filter(t=>t.status!=='done'&&!t.done).length,eventsCount=(teamRecords.events||[]).length;
@@ -17229,7 +16666,24 @@ function renderTeamAdminPanel3(){
     </div>
   `;
 }
- document.addEventListener('click',async e=>{const roleBtn=e.target.closest('[data-team-role-action]');const removeBtn=e.target.closest('[data-team-remove]');if(!roleBtn&&!removeBtn)return;if(!firebaseUser||!firebaseDb||!activeTeamId)return;try{if(roleBtn){if(!isOwner3())throw Error('Only the team owner can change administrator roles.');const uid=roleBtn.dataset.teamRoleAction,next=roleBtn.dataset.roleNext;if(!['admin','member'].includes(next))throw Error('Invalid role.');if(uid===activeTeam.ownerUid)throw Error('The owner role cannot be changed here.');const okRole=await confirmCustomInApp(`Change this member's role to ${next}?`,{title:'Update Member Role',confirmText:'Change role',danger:false});if(!okRole)return;await teamRef3(activeTeamId).collection('members').doc(uid).update({role:next});teamMembers=teamMembers.map(m=>m.uid===uid?{...m,role:next}:m);teamStatus('Member role updated.');renderTeamWorkspace();await refreshTeamWorkspace();}else{const uid=removeBtn.dataset.teamRemove;const member=teamMembers.find(m=>m.uid===uid);if(!member||uid===activeTeam.ownerUid)throw Error('The team owner cannot be removed.');if(member.role==='admin'&&!isOwner3())throw Error('Only the owner can remove an administrator.');const okRemove=await confirmCustomInApp(`Remove ${member.displayName||member.email||'this member'} from ${activeTeam.name}? They will lose access to this team's protected records.`,{title:'Remove Team Member',confirmText:'Remove member',danger:true});if(!okRemove)return;await teamRef3(activeTeamId).collection('members').doc(uid).delete();await teamRef3(activeTeamId).collection('activity').doc('removed_'+uid+'_'+Date.now()).set({type:'member_removed',actorUid:firebaseUser.uid,actorName:firebaseUser.displayName||firebaseUser.email||'',targetUid:uid,targetName:member.displayName||member.email||'',createdAt:Date.now()});teamMembers=teamMembers.filter(m=>m.uid!==uid);teamStatus('Member removed from this team. Their personal data and other teams are unchanged.');renderTeamWorkspace();await refreshTeamWorkspace();}}
+ document.addEventListener('click', e => {
+    if (e.target.closest('#teamGridNewBtn')) {
+      e.preventDefault(); e.stopPropagation();
+      if (typeof openTeamCreateModal === 'function') openTeamCreateModal();
+      return;
+    }
+    if (e.target.closest('#teamGridJoinBtn')) {
+      e.preventDefault(); e.stopPropagation();
+      if (typeof openTeamJoinModal === 'function') openTeamJoinModal();
+      return;
+    }
+    if (e.target.closest('#teamSpacesCardAdd') && !e.target.closest('button')) {
+      e.preventDefault();
+      if (typeof openTeamCreateModal === 'function') openTeamCreateModal();
+      return;
+    }
+  });
+  document.addEventListener('click',async e=>{const roleBtn=e.target.closest('[data-team-role-action]');const removeBtn=e.target.closest('[data-team-remove]');if(!roleBtn&&!removeBtn)return;if(!firebaseUser||!firebaseDb||!activeTeamId)return;try{if(roleBtn){if(!isOwner3())throw Error('Only the team owner can change administrator roles.');const uid=roleBtn.dataset.teamRoleAction,next=roleBtn.dataset.roleNext;if(!['admin','member'].includes(next))throw Error('Invalid role.');if(uid===activeTeam.ownerUid)throw Error('The owner role cannot be changed here.');const okRole=await confirmCustomInApp(`Change this member's role to ${next}?`,{title:'Update Member Role',confirmText:'Change role',danger:false});if(!okRole)return;await teamRef3(activeTeamId).collection('members').doc(uid).update({role:next});teamMembers=teamMembers.map(m=>m.uid===uid?{...m,role:next}:m);teamStatus('Member role updated.');renderTeamWorkspace();await refreshTeamWorkspace();}else{const uid=removeBtn.dataset.teamRemove;const member=teamMembers.find(m=>m.uid===uid);if(!member||uid===activeTeam.ownerUid)throw Error('The team owner cannot be removed.');if(member.role==='admin'&&!isOwner3())throw Error('Only the owner can remove an administrator.');const okRemove=await confirmCustomInApp(`Remove ${member.displayName||member.email||'this member'} from ${activeTeam.name}? They will lose access to this team's protected records.`,{title:'Remove Team Member',confirmText:'Remove member',danger:true});if(!okRemove)return;await teamRef3(activeTeamId).collection('members').doc(uid).delete();await teamRef3(activeTeamId).collection('activity').doc('removed_'+uid+'_'+Date.now()).set({type:'member_removed',actorUid:firebaseUser.uid,actorName:firebaseUser.displayName||firebaseUser.email||'',targetUid:uid,targetName:member.displayName||member.email||'',createdAt:Date.now()});teamMembers=teamMembers.filter(m=>m.uid!==uid);teamStatus('Member removed from this team. Their personal data and other teams are unchanged.');renderTeamWorkspace();await refreshTeamWorkspace();}}
  catch(err){teamStatus(err.message||'Membership action failed. Check Firestore rules.',true)}});
  // Use the app's existing team-record publisher, then create recipient-specific notifications.
  const basePublishToTeams=publishToTeams;
