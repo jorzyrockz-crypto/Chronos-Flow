@@ -7979,11 +7979,7 @@ window.deleteCloudDocumentDirectly = deleteCloudDocumentDirectly;
 function purgeZombieShowcaseData(forcePurge = false){
   try {
     const SHOWCASE_ID = 'proj_stem_showcase_2026';
-    const isDismissed = localStorage.getItem('chronos90.showcaseProjectDismissed') === '1';
-    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
-    const hasTomb = !!(tombs['projects|' + SHOWCASE_ID] || tombs['tasks|task_mock_stem_01'] || tombs['tasks|task_mock_stem_cohort_01']);
-
-    if (!forcePurge && !isDismissed && !hasTomb) return;
+    // This project and its task IDs are retired permanently; always purge any leftovers.
 
     localStorage.setItem('chronos90.showcaseProjectDismissed', '1');
 
