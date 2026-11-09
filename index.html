@@ -16618,6 +16618,15 @@ function renderTeamWorkspace(){
  const sel=$('teamSelect');if(sel){const old=activeTeamId;sel.innerHTML='<option value="">Select a team</option>'+chronosTeams.map(t=>`<option value="${teamEsc(t.id)}">${teamEsc(t.name||'Untitled team')}</option>`).join('');sel.value=chronosTeams.some(t=>t.id===old)?old:''}
  const team=chronosTeams.find(t=>t.id===activeTeamId)||activeTeam;activeTeam=team||null;
  $('teamCurrentName').textContent=team?.name||'Select a team';$('teamCurrentDescription').textContent=team?(team.description||'Shared team workspace'):'Create a team or accept an invitation to collaborate.';$('teamCurrentRole').textContent=currentTeamRole()||team?.role||'';$('teamCurrentRole').classList.toggle('hidden',!team);
+ const teamMark = document.querySelector('.team-team-mark');
+ if (teamMark) {
+   teamMark.textContent = team?.emoji || '✦';
+   if (team?.color) {
+     teamMark.style.color = team.color;
+   } else {
+     teamMark.style.removeProperty('color');
+   }
+ }
  $('teamSummary').innerHTML=chronosTeams.map(t=>`<button type="button" class="team-member" data-team-select="${teamEsc(t.id)}" style="text-align:left;cursor:pointer"><span class="team-member-main"><strong>${teamEsc(t.name)}</strong><small>${teamEsc(t.role||'member')} · ${teamEsc(t.members?.length||0)} members</small><span class="team-people-strip">${(t.members||[]).slice(0,5).map(m=>avatarMarkup(m,'sm')).join('')}</span></span><span class="team-role">${t.id===activeTeamId?'Selected':'Open'}</span></button>`).join('')||'<div class="team-empty">No teams yet.</div>';
  document.querySelectorAll('[data-team-tab]').forEach(b=>b.classList.toggle('active',b.dataset.teamTab===teamTab));$('teamMembersPanel').classList.toggle('hidden',teamTab!=='members');$('teamRecordsPanel').classList.toggle('hidden',!['events','tasks','notes'].includes(teamTab));$('teamAdminPanel').classList.toggle('hidden',teamTab!=='manage');
 
@@ -16982,7 +16991,252 @@ $('notificationBell')?.addEventListener('click',openNotifications);$('notificati
  markAllNotificationsRead=async function(){const unread=teamActivityItems().filter(n=>n.unread);for(const n of unread){try{await teamRef3(n.teamId).collection('notifications').doc(n.id).update({readAt:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){console.warn('Could not mark notification read',n.id,e)}}renderNotificationList();notify('Notifications marked as read.')};
  // Member management controls are rendered only for authorized team managers.
  const baseRenderTeamWorkspace=renderTeamWorkspace;
- renderTeamWorkspace=function(){baseRenderTeamWorkspace.apply(this,arguments);const tab=$('teamManageTab');if(tab)tab.classList.toggle('hidden',!activeTeam||!firebaseUser);renderTeamAdminPanel3();const gear=$('teamSettingsBtn');if(gear){gear.disabled=false;gear.removeAttribute('disabled');gear.setAttribute('aria-disabled','false');gear.style.pointerEvents='auto';gear.setAttribute('aria-pressed',String(teamTab==='manage'));gear.title=activeTeam?'Open team membership management':'Sign in and select a team to manage membership'}};  function renderTeamAdminPanel3(){const panel=$('teamAdminPanel');if(!panel)return;if(!activeTeam||!firebaseUser){panel.classList.add('hidden');panel.innerHTML='';return}panel.classList.toggle('hidden',teamTab!=='manage');if(teamTab!=='manage')return;if(!isAdmin3()){panel.innerHTML=`<h4>Membership management</h4><div class="team-admin-note">This panel is visible to team members, but only the team owner or an authorized administrator can manage membership. Your detected role is <strong>${safeEsc(roleOf3(firebaseUser.uid)||'not loaded')}</strong>. If you are the owner, refresh the team or check that the team document's <code>ownerUid</code> matches your signed-in Google UID.</div>`;return}panel.innerHTML=`<h4>Membership management</h4><p>Manage who belongs to this team. Promote trusted colleagues, change roles, or remove a member. Personal data and memberships in other teams are not affected.</p><div class="team-admin-note">Owner: ${safeEsc(isOwner3()?'You':(teamMembers.find(m=>m.uid===activeTeam.ownerUid)?.displayName||'Team owner'))}. Only the owner can change administrator roles.</div><div class="team-pending-list">${teamMembers.map(m=>{const owner=m.uid===activeTeam.ownerUid||m.role==='owner',me=m.uid===firebaseUser.uid,canManage=!owner&&!me&&(isOwner3()||m.role!=='admin');let actions='';if(!owner&&!me){if(isOwner3())actions=`<button class="btn" type="button" data-team-role-action="${safeEsc(m.uid)}" data-role-next="${m.role==='admin'?'member':'admin'}">${m.role==='admin'?'Make member':'Make admin'}</button>`;if(canManage)actions+=`<button class="btn danger" type="button" data-team-remove="${safeEsc(m.uid)}">Remove</button>`}return `<div class="team-pending-row">${avatarMarkup(m,'sm')}<span class="team-member-main"><strong>${safeEsc(m.displayName||m.email||m.uid)}</strong><small>${safeEsc(m.email||m.uid)}</small></span><span class="team-role">${safeEsc(m.role||'member')}</span><div class="team-admin-actions">${actions}</div></div>`}).join('')||'<div class="team-empty">No members yet.</div>'}</div>`}
+ renderTeamWorkspace=function(){baseRenderTeamWorkspace.apply(this,arguments);const tab=$('teamManageTab');if(tab)tab.classList.toggle('hidden',!activeTeam||!firebaseUser);renderTeamAdminPanel3();const gear=$('teamSettingsBtn');if(gear){gear.disabled=false;gear.removeAttribute('disabled');gear.setAttribute('aria-disabled','false');gear.style.pointerEvents='auto';gear.setAttribute('aria-pressed',String(teamTab==='manage'));gear.title=activeTeam?'Open team membership management':'Sign in and select a team to manage membership'}};  function renderTeamAdminPanel3(){
+  const panel = $('teamAdminPanel');
+  if (!panel) return;
+  if (!activeTeam || !firebaseUser) {
+    panel.classList.add('hidden');
+    panel.innerHTML = '';
+    return;
+  }
+  panel.classList.toggle('hidden', teamTab !== 'manage');
+  if (teamTab !== 'manage') return;
+
+  const isOwner = typeof isOwner3 === 'function' && isOwner3();
+  const isAdmin = typeof isAdmin3 === 'function' && isAdmin3();
+  const canManage = isOwner || isAdmin;
+  
+  if (!window._teamModalActiveTab) window._teamModalActiveTab = 'customization';
+  const curTab = window._teamModalActiveTab;
+
+  const teamEmoji = activeTeam.emoji || '✦';
+  const teamColor = activeTeam.color || '#10b981';
+  const activeCode = activeTeam.activeInviteCode || '';
+
+  // Tab 1: Customization Content
+  const customizationHtml = `
+    <div class="team-modal-pane ${curTab === 'customization' ? 'active' : ''}" data-pane="customization">
+      <form id="teamCustomizationForm" class="team-custom-form">
+        <!-- Section 1: Workspace Identity -->
+        <div class="team-custom-card">
+          <div class="team-custom-card-head">
+            <h5>Workspace Identity</h5>
+            <p>Customize your team's display name, icon avatar, and mission statement.</p>
+          </div>
+          
+          <div class="team-custom-identity-layout">
+            <div class="team-emoji-picker-container">
+              <label class="team-custom-label">Team Icon</label>
+              <div class="team-emoji-preview-box" id="teamEmojiPreviewBox" style="color:${teamColor};border-color:${teamColor};background:color-mix(in srgb, ${teamColor} 12%, transparent);">${teamEmoji}</div>
+              <input type="hidden" id="teamCustomEmoji" value="${safeEsc(teamEmoji)}">
+              <div class="team-emoji-presets-grid">
+                ${['✦','🚀','💡','🔬','🏫','🎨','⚡','🎯','💼','🌟'].map(em => `
+                  <button type="button" class="team-emoji-preset-btn ${teamEmoji === em ? 'active' : ''}" data-preset-emoji="${em}">${em}</button>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="team-identity-fields">
+              <label class="team-custom-label">Team Name <span style="color:#ef4444">*</span></label>
+              <input type="text" id="teamCustomName" class="team-custom-input" value="${safeEsc(activeTeam.name || '')}" required maxlength="80" placeholder="e.g. Science & Engineering Team" ${!canManage ? 'disabled' : ''}>
+              
+              <label class="team-custom-label" style="margin-top:14px;">Purpose & Description</label>
+              <textarea id="teamCustomDesc" class="team-custom-textarea" rows="2" maxlength="240" placeholder="Describe the focus, goals, or guidelines for this workspace..." ${!canManage ? 'disabled' : ''}>${safeEsc(activeTeam.description || '')}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Workspace Theme Accent -->
+        <div class="team-custom-card">
+          <div class="team-custom-card-head">
+            <h5>Brand Theme Accent</h5>
+            <p>Choose an accent tone for badges, card marks, and team indicators.</p>
+          </div>
+          <div class="team-color-swatches-grid">
+            ${[
+              { hex: '#10b981', label: 'Emerald' },
+              { hex: '#3b82f6', label: 'Ocean' },
+              { hex: '#8b5cf6', label: 'Violet' },
+              { hex: '#f59e0b', label: 'Amber' },
+              { hex: '#f43f5e', label: 'Rose' },
+              { hex: '#475569', label: 'Slate' }
+            ].map(sw => `
+              <label class="team-color-swatch-item ${teamColor === sw.hex ? 'active' : ''}">
+                <input type="radio" name="teamCustomColorRadio" value="${sw.hex}" ${teamColor === sw.hex ? 'checked' : ''} ${!canManage ? 'disabled' : ''}>
+                <span class="team-color-swatch-circle" style="background:${sw.hex}"></span>
+                <span class="team-color-swatch-name">${sw.label}</span>
+              </label>
+            `).join('')}
+          </div>
+          <input type="hidden" id="teamCustomColor" value="${teamColor}">
+        </div>
+
+        <!-- Section 3: Collaboration & Invitation Hub -->
+        <div class="team-custom-card team-invite-hub-card">
+          <div class="team-custom-card-head">
+            <h5>Collaboration & Invitation Hub</h5>
+            <p>Share this code or invitation link with colleagues to grant instant member access.</p>
+          </div>
+          <div class="team-invite-hub-inner">
+            <div class="team-invite-code-pill">
+              <span class="invite-pill-label">ACTIVE INVITATION CODE</span>
+              <strong class="invite-pill-code" id="teamActiveInviteCodeDisplay">${activeCode || 'Click Generate Below'}</strong>
+            </div>
+            <div class="team-invite-buttons-row">
+              <button type="button" class="btn btn-action-pill" id="hubCopyCodeBtn" ${!activeCode ? 'disabled' : ''}>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy Code
+              </button>
+              <button type="button" class="btn btn-action-pill" id="hubCopyLinkBtn" ${!activeCode ? 'disabled' : ''}>
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Copy Link
+              </button>
+              ${canManage ? `
+                <button type="button" class="btn btn-action-pill" id="hubGenNewCodeBtn">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  ${activeCode ? 'New Code' : 'Generate Code'}
+                </button>
+              ` : ''}
+            </div>
+          </div>
+          <small class="team-invite-helper">Colleagues can enter this code in their Chronos Team tab or open the shared link to join directly.</small>
+        </div>
+
+        ${canManage ? `
+          <div class="team-custom-save-bar">
+            <button type="submit" class="btn primary btn-team-save-submit" id="btnSaveTeamCustom">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Customization
+            </button>
+            <span id="teamCustomSaveStatus" class="team-save-status"></span>
+          </div>
+        ` : `
+          <div class="team-readonly-note">
+            <span>Only team owners and administrators can modify workspace branding and settings.</span>
+          </div>
+        `}
+      </form>
+    </div>
+  `;
+
+  // Tab 2: Members Content
+  const membersHtml = `
+    <div class="team-modal-pane ${curTab === 'members' ? 'active' : ''}" data-pane="members">
+      <div class="team-members-top-strip">
+        <div>
+          <h5 style="margin:0;font-size:15px;font-weight:700;">Workspace Members</h5>
+          <p style="margin:3px 0 0;font-size:12px;color:var(--muted,#64748b);">${teamMembers.length} collaborator${teamMembers.length === 1 ? '' : 's'} in this team</p>
+        </div>
+        ${canManage ? `
+          <button type="button" class="btn btn-action-pill" id="teamModalQuickInvite">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            + Invite Colleague
+          </button>
+        ` : ''}
+      </div>
+
+      <div class="team-members-elevated-list">
+        ${teamMembers.map(m => {
+          const owner = m.uid === activeTeam.ownerUid || m.role === 'owner';
+          const me = m.uid === firebaseUser.uid;
+          const role = owner ? 'owner' : (m.role || 'member');
+          const roleLabel = owner ? 'Owner' : (role === 'admin' ? 'Admin' : 'Member');
+          const rolePillClass = owner ? 'role-pill-owner' : (role === 'admin' ? 'role-pill-admin' : 'role-pill-member');
+
+          let actions = '';
+          if (!owner && !me) {
+            if (isOwner) {
+              actions += `<button type="button" class="btn btn-action-pill" data-team-role-action="${safeEsc(m.uid)}" data-role-next="${role === 'admin' ? 'member' : 'admin'}">${role === 'admin' ? 'Demote to Member' : 'Promote to Admin'}</button>`;
+            }
+            if (isOwner || (isAdmin && role !== 'admin')) {
+              actions += `<button type="button" class="btn btn-action-pill btn-action-danger" data-team-remove="${safeEsc(m.uid)}" title="Remove member from team">Remove</button>`;
+            }
+          }
+
+          return `
+            <div class="team-member-card-elevated">
+              <div class="member-avatar-cell">${avatarMarkup(m, 'md')}</div>
+              <div class="member-info-cell">
+                <div class="member-name-line">
+                  <strong>${safeEsc(m.displayName || m.email || m.uid)}</strong>
+                  ${me ? '<span class="member-you-tag">You</span>' : ''}
+                  <span class="team-member-role-pill ${rolePillClass}">${roleLabel}</span>
+                </div>
+                <small class="member-email-line">${safeEsc(m.email || m.uid)}</small>
+              </div>
+              ${actions ? `<div class="member-actions-cell">${actions}</div>` : ''}
+            </div>
+          `;
+        }).join('') || '<div class="team-empty">No members loaded yet.</div>'}
+      </div>
+
+      <div class="team-roles-callout">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span><strong>Role Permissions:</strong> Owners have full workspace management and billing control. Administrators can publish shared records and manage members. Members collaborate on tasks, events, and planning notes.</span>
+      </div>
+    </div>
+  `;
+
+  // Tab 3: Danger Zone Content
+  const dangerHtml = `
+    <div class="team-modal-pane ${curTab === 'danger' ? 'active' : ''}" data-pane="danger">
+      <div class="team-danger-card">
+        <div class="team-danger-head">
+          <div class="danger-icon-circle">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ef4444" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <h5>Delete Team Workspace</h5>
+            <p>Permanently remove this team workspace and all shared records.</p>
+          </div>
+        </div>
+        <div class="team-danger-body">
+          <p>Deleting this team permanently removes all associated shared projects, linked tasks, shared events, planning notes, invitations, and membership data from Firestore. Personal tasks and memberships in other teams will not be affected.</p>
+          ${isOwner ? `
+            <div style="margin-top:16px;">
+              <button type="button" class="btn btn-action-pill btn-action-danger" data-team-delete="${safeEsc(activeTeam.id)}">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                Delete Team Permanently
+              </button>
+            </div>
+          ` : `
+            <div class="danger-non-owner-warning">
+              Only the team owner can permanently delete this team workspace. As a member, you can leave the workspace below.
+            </div>
+            <div style="margin-top:16px;">
+              <button type="button" class="btn btn-action-pill btn-action-danger" id="btnLeaveTeam" data-team-leave="${safeEsc(activeTeam.id)}">
+                Leave Team Workspace
+              </button>
+            </div>
+          `}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Assemble full panel markup
+  panel.innerHTML = `
+    <div class="team-modal-tabs-bar" role="tablist">
+      <button type="button" class="team-modal-tab-btn ${curTab === 'customization' ? 'active' : ''}" data-team-modal-tab="customization">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        <span>Customization</span>
+      </button>
+      <button type="button" class="team-modal-tab-btn ${curTab === 'members' ? 'active' : ''}" data-team-modal-tab="members">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Members (${teamMembers.length})</span>
+      </button>
+      <button type="button" class="team-modal-tab-btn ${curTab === 'danger' ? 'active' : ''}" data-team-modal-tab="danger">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Danger Zone</span>
+      </button>
+    </div>
+    <div class="team-modal-panes-body">
+      ${customizationHtml}
+      ${membersHtml}
+      ${dangerHtml}
+    </div>
+  `;
+}
  document.addEventListener('click',async e=>{const roleBtn=e.target.closest('[data-team-role-action]');const removeBtn=e.target.closest('[data-team-remove]');if(!roleBtn&&!removeBtn)return;if(!firebaseUser||!firebaseDb||!activeTeamId)return;try{if(roleBtn){if(!isOwner3())throw Error('Only the team owner can change administrator roles.');const uid=roleBtn.dataset.teamRoleAction,next=roleBtn.dataset.roleNext;if(!['admin','member'].includes(next))throw Error('Invalid role.');if(uid===activeTeam.ownerUid)throw Error('The owner role cannot be changed here.');const okRole=await confirmCustomInApp(`Change this member's role to ${next}?`,{title:'Update Member Role',confirmText:'Change role',danger:false});if(!okRole)return;await teamRef3(activeTeamId).collection('members').doc(uid).update({role:next});teamMembers=teamMembers.map(m=>m.uid===uid?{...m,role:next}:m);teamStatus('Member role updated.');renderTeamWorkspace();await refreshTeamWorkspace();}else{const uid=removeBtn.dataset.teamRemove;const member=teamMembers.find(m=>m.uid===uid);if(!member||uid===activeTeam.ownerUid)throw Error('The team owner cannot be removed.');if(member.role==='admin'&&!isOwner3())throw Error('Only the owner can remove an administrator.');const okRemove=await confirmCustomInApp(`Remove ${member.displayName||member.email||'this member'} from ${activeTeam.name}? They will lose access to this team's protected records.`,{title:'Remove Team Member',confirmText:'Remove member',danger:true});if(!okRemove)return;await teamRef3(activeTeamId).collection('members').doc(uid).delete();await teamRef3(activeTeamId).collection('activity').doc('removed_'+uid+'_'+Date.now()).set({type:'member_removed',actorUid:firebaseUser.uid,actorName:firebaseUser.displayName||firebaseUser.email||'',targetUid:uid,targetName:member.displayName||member.email||'',createdAt:Date.now()});teamMembers=teamMembers.filter(m=>m.uid!==uid);teamStatus('Member removed from this team. Their personal data and other teams are unchanged.');renderTeamWorkspace();await refreshTeamWorkspace();}}
  catch(err){teamStatus(err.message||'Membership action failed. Check Firestore rules.',true)}});
  // Use the app's existing team-record publisher, then create recipient-specific notifications.
@@ -17605,6 +17859,616 @@ renderProjectManager();
   z-index: 10150 !important;
 }
 .chronos-repair-backdrop[hidden]{display:none!important}.chronos-repair-dialog{width:min(760px,100%);max-height:min(88vh,900px);overflow:auto;background:var(--surface,#fff);color:var(--text,#172033);border:1px solid var(--line,#dce4ef);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.24);padding:22px}.chronos-repair-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.chronos-repair-head h3{margin:0;font-size:22px}.chronos-repair-close{width:42px;height:42px;border:1px solid var(--line,#dce4ef);border-radius:12px;background:var(--surface-2,#f8faff);color:inherit;font-size:24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.chronos-repair-dialog .project-create{display:block!important;margin:0;border:0;padding:0;background:transparent}.chronos-repair-dialog #teamAdminPanel{display:block!important}.chronos-repair-dialog #teamAdminPanel.hidden{display:block!important}.chronos-repair-dialog .team-admin-panel{max-height:none}.chronos-repair-dialog .project-create-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:560px){.chronos-repair-backdrop{padding:8px}.chronos-repair-dialog{padding:16px;border-radius:15px}.chronos-repair-dialog .project-create-grid{grid-template-columns:1fr}}
+
+/* Chronos 5.2 — Team Modal Redesign & Customization Suite */
+#teamModalRepair .chronos-repair-dialog {
+  width: min(840px, 95vw) !important;
+  max-height: min(90vh, 880px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 24px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  background: var(--surface, #ffffff) !important;
+  box-shadow: 0 24px 75px -12px rgba(0, 0, 0, 0.28) !important;
+}
+
+#teamModalRepair .team-modal-header {
+  flex: 0 0 auto !important;
+  padding: 20px 24px 16px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--line, #e2e8f0) !important;
+  background: linear-gradient(135deg, var(--surface, #fff), var(--surface-2, #f8fafc)) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.team-modal-header-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+.team-modal-avatar-badge {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 22px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  background: var(--surface-2, #f1f5f9) !important;
+  flex: 0 0 auto !important;
+  transition: all 0.2s ease !important;
+}
+
+.team-modal-subheading {
+  margin: 3px 0 0 !important;
+  font-size: 12px !important;
+  color: var(--muted, #64748b) !important;
+  line-height: 1.4 !important;
+}
+
+#teamModalRepair #teamPanelMount {
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+#teamModalRepair #teamAdminPanel {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Segmented Tab Bar */
+.team-modal-tabs-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px 24px !important;
+  border-bottom: 1px solid var(--line, #e2e8f0) !important;
+  background: var(--surface-2, #f8fafc) !important;
+  flex-shrink: 0 !important;
+}
+
+.team-modal-tab-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 7px 16px !important;
+  border-radius: 9999px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--muted, #64748b) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.team-modal-tab-btn:hover {
+  background: var(--surface, #ffffff) !important;
+  color: var(--text, #0f172a) !important;
+}
+
+.team-modal-tab-btn.active {
+  background: var(--surface, #ffffff) !important;
+  color: var(--text, #0f172a) !important;
+  border-color: var(--line, #cbd5e1) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+}
+
+.team-modal-panes-body {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+  padding: 24px !important;
+}
+
+.team-modal-pane {
+  display: none !important;
+}
+
+.team-modal-pane.active {
+  display: block !important;
+  animation: teamFadeIn 0.2s ease !important;
+}
+
+@keyframes teamFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Customization Cards */
+.team-custom-card {
+  border: 1px solid var(--line, #e2e8f0) !important;
+  border-radius: 16px !important;
+  background: var(--surface, #ffffff) !important;
+  padding: 18px 20px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+}
+
+.team-custom-card-head {
+  margin-bottom: 14px !important;
+}
+
+.team-custom-card-head h5 {
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--text, #0f172a) !important;
+  letter-spacing: -0.01em !important;
+}
+
+.team-custom-card-head p {
+  margin: 3px 0 0 !important;
+  font-size: 12px !important;
+  color: var(--muted, #64748b) !important;
+}
+
+.team-custom-label {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  color: var(--text, #1e293b) !important;
+  margin-bottom: 6px !important;
+}
+
+.team-custom-input,
+.team-custom-textarea {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--line, #d8e1ec) !important;
+  border-radius: 12px !important;
+  background: var(--surface, #ffffff) !important;
+  color: var(--text, #0f172a) !important;
+  padding: 10px 13px !important;
+  font: 500 13px/1.4 inherit !important;
+  outline: none !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.team-custom-input:focus,
+.team-custom-textarea:focus {
+  border-color: var(--accent, #10b981) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #10b981) 18%, transparent) !important;
+}
+
+.team-custom-identity-layout {
+  display: grid !important;
+  grid-template-columns: 140px 1fr !important;
+  gap: 20px !important;
+  align-items: start !important;
+}
+
+.team-emoji-picker-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.team-emoji-preview-box {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 16px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 28px !important;
+  border: 2px solid !important;
+  transition: all 0.2s ease !important;
+}
+
+.team-emoji-presets-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 4px !important;
+}
+
+.team-emoji-preset-btn {
+  width: 25px !important;
+  height: 25px !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  background: var(--surface-2, #f8fafc) !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+}
+
+.team-emoji-preset-btn:hover {
+  transform: scale(1.15) !important;
+  border-color: var(--accent, #10b981) !important;
+}
+
+.team-emoji-preset-btn.active {
+  border-color: var(--accent, #10b981) !important;
+  background: color-mix(in srgb, var(--accent, #10b981) 15%, transparent) !important;
+}
+
+/* Theme Accent Swatches */
+.team-color-swatches-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.team-color-swatch-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  border-radius: 12px !important;
+  background: var(--surface-2, #f8fafc) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.team-color-swatch-item input {
+  display: none !important;
+}
+
+.team-color-swatch-circle {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12) !important;
+}
+
+.team-color-swatch-name {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--text, #1e293b) !important;
+}
+
+.team-color-swatch-item.active {
+  border-color: var(--accent, #10b981) !important;
+  background: color-mix(in srgb, var(--accent, #10b981) 8%, var(--surface, #fff)) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #10b981) 25%, transparent) !important;
+}
+
+/* Invitation Hub */
+.team-invite-hub-inner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  background: var(--surface-2, #f8fafc) !important;
+  border: 1px dashed var(--line, #cbd5e1) !important;
+}
+
+.team-invite-code-pill {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.invite-pill-label {
+  font-size: 9px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.5px !important;
+  color: var(--muted, #64748b) !important;
+}
+
+.invite-pill-code {
+  font-family: monospace !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: var(--text, #0f172a) !important;
+}
+
+.team-invite-buttons-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.team-invite-helper {
+  display: block !important;
+  margin-top: 8px !important;
+  font-size: 11px !important;
+  color: var(--muted, #64748b) !important;
+}
+
+.team-custom-save-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 20px !important;
+}
+
+.btn-team-save-submit {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 9px 20px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  cursor: pointer !important;
+}
+
+.team-save-status {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #10b981 !important;
+}
+
+/* Members Tab Styling */
+.team-members-top-strip {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 16px !important;
+}
+
+.team-members-elevated-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-bottom: 16px !important;
+}
+
+.team-member-card-elevated {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 12px 16px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  border-radius: 16px !important;
+  background: var(--surface, #ffffff) !important;
+  transition: all 0.15s ease !important;
+}
+
+.team-member-card-elevated:hover {
+  border-color: var(--line, #cbd5e1) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+}
+
+.member-info-cell {
+  flex: 1 1 auto !important;
+  min-width: 140px !important;
+}
+
+.member-name-line {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.member-name-line strong {
+  font-size: 13px !important;
+  color: var(--text, #0f172a) !important;
+}
+
+.member-you-tag {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 1px 6px !important;
+  border-radius: 6px !important;
+  background: color-mix(in srgb, var(--accent, #10b981) 15%, transparent) !important;
+  color: var(--accent, #10b981) !important;
+}
+
+.team-member-role-pill {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  text-transform: capitalize !important;
+  letter-spacing: 0.3px !important;
+}
+
+.role-pill-owner {
+  background: rgba(139, 92, 246, 0.14) !important;
+  color: #7c3aed !important;
+  border: 1px solid rgba(139, 92, 246, 0.25) !important;
+}
+
+.role-pill-admin {
+  background: rgba(59, 130, 246, 0.14) !important;
+  color: #2563eb !important;
+  border: 1px solid rgba(59, 130, 246, 0.25) !important;
+}
+
+.role-pill-member {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #059669 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.member-email-line {
+  display: block !important;
+  margin-top: 2px !important;
+  font-size: 11px !important;
+  color: var(--muted, #64748b) !important;
+}
+
+.member-actions-cell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-left: auto !important;
+}
+
+.team-roles-callout {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  background: var(--surface-2, #f8fafc) !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  font-size: 11px !important;
+  color: var(--muted, #64748b) !important;
+  line-height: 1.45 !important;
+}
+
+.team-roles-callout svg {
+  flex-shrink: 0 !important;
+  margin-top: 2px !important;
+  color: var(--muted, #64748b) !important;
+}
+
+/* Danger Zone Styling */
+.team-danger-card {
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  border-radius: 16px !important;
+  background: rgba(239, 68, 68, 0.03) !important;
+  padding: 20px !important;
+}
+
+.team-danger-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 12px !important;
+}
+
+.danger-icon-circle {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.team-danger-head h5 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #dc2626 !important;
+}
+
+.team-danger-head p {
+  margin: 2px 0 0 !important;
+  font-size: 12px !important;
+  color: var(--muted, #64748b) !important;
+}
+
+.team-danger-body p {
+  margin: 0 !important;
+  font-size: 12px !important;
+  color: var(--text, #334155) !important;
+  line-height: 1.5 !important;
+}
+
+.danger-non-owner-warning {
+  margin-top: 10px !important;
+  font-size: 12px !important;
+  color: var(--muted, #64748b) !important;
+  font-style: italic !important;
+}
+
+/* Dark Theme Overrides */
+html[data-theme=dark] #teamModalRepair .chronos-repair-dialog {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+}
+
+html[data-theme=dark] #teamModalRepair .team-modal-header {
+  background: linear-gradient(135deg, #111827, #1f2937) !important;
+  border-color: #1f2937 !important;
+}
+
+html[data-theme=dark] .team-modal-avatar-badge {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+html[data-theme=dark] .team-modal-tabs-bar {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+html[data-theme=dark] .team-modal-tab-btn.active {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme=dark] .team-custom-card,
+html[data-theme=dark] .team-member-card-elevated {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme=dark] .team-custom-card-head h5,
+html[data-theme=dark] .member-name-line strong {
+  color: #f8fafc !important;
+}
+
+html[data-theme=dark] .team-custom-input,
+html[data-theme=dark] .team-custom-textarea {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme=dark] .team-color-swatch-item,
+html[data-theme=dark] .team-invite-hub-inner,
+html[data-theme=dark] .team-roles-callout {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme=dark] .invite-pill-code {
+  color: #f8fafc !important;
+}
+
+html[data-theme=dark] .team-color-swatch-name {
+  color: #f8fafc !important;
+}
+
+html[data-theme=dark] .team-danger-body p {
+  color: #cbd5e1 !important;
+}
+
+@media(max-width: 650px) {
+  .team-custom-identity-layout {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .team-emoji-picker-container {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+  }
+  #teamModalRepair .chronos-repair-dialog {
+    border-radius: 18px !important;
+    max-height: 94vh !important;
+  }
+  .team-modal-panes-body {
+    padding: 16px !important;
+  }
+}
+
 </style>
 <div class="chronos-repair-backdrop" id="projectModalRepair" hidden><section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="projectModalRepairTitle"><header class="chronos-repair-head">
       <div>
@@ -17615,7 +18479,7 @@ renderProjectManager();
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </header><div id="projectFormMount"></div></section></div>
-<div class="chronos-repair-backdrop" id="teamModalRepair" hidden><section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="teamModalRepairTitle"><header class="chronos-repair-head"><h3 id="teamModalRepairTitle">Manage team</h3><button class="chronos-repair-close" type="button" data-repair-close="team" aria-label="Close manage team"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></header><div id="teamPanelMount"></div></section></div>
+<div class="chronos-repair-backdrop" id="teamModalRepair" hidden><section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="teamModalRepairTitle"><header class="chronos-repair-head team-modal-header"><div class="team-modal-header-info"><div class="team-modal-avatar-badge" id="teamModalAvatarBadge">✦</div><div><h3 id="teamModalRepairTitle">Manage team</h3><p class="team-modal-subheading" id="teamModalSubheading">Workspace settings, branding, and team members.</p></div></div><button class="chronos-repair-close" type="button" data-repair-close="team" aria-label="Close manage team"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></header><div id="teamPanelMount"></div></section></div>
 <script id="chronosModalRepairScript">
 (function(){
  const $=id=>document.getElementById(id); let projectHome=null,teamHome=null;
@@ -17623,8 +18487,298 @@ renderProjectManager();
  function openProject(project){if(!projectForm||!projectModal)return; if(!projectHome)projectHome={parent:projectForm.parentNode,next:projectForm.nextSibling};$('projectFormMount').appendChild(projectForm);projectForm.classList.remove('hidden');$('projectModalRepairTitle').textContent=project?'Edit project':'New project';try{showProjectForm(project||null)}catch(e){console.error(e);projectForm.classList.remove('hidden')}projectModal.hidden=false;document.body.style.overflow='hidden';setTimeout(()=>$('projectNameInput')?.focus(),40)}
  function closeProject(){if(projectModal)projectModal.hidden=true;document.body.style.overflow='';if(projectForm){projectForm.classList.add('hidden');if(projectHome?.parent){projectHome.parent.insertBefore(projectForm,projectHome.next&&projectHome.next.parentNode===projectHome.parent?projectHome.next:null)}}}
  function openTeam(){if(!teamPanel||!teamModal)return;if(!firebaseUser){notify('Sign in with Google to manage your team.');return}if(!activeTeam){if(typeof refreshTeamWorkspace==='function'){Promise.resolve(refreshTeamWorkspace()).then(()=>openTeamPanel()).catch(()=>notify('Could not load team. Please select a team and try again.'));return}notify('Select a team first.');return}openTeamPanel()}
- function openTeamPanel(){try{if(!teamPanel||!teamModal||!$('teamPanelMount'))throw new Error('The membership panel could not be found.');teamTab='manage';renderTeamWorkspace();if(!teamHome)teamHome={parent:teamPanel.parentNode,next:teamPanel.nextSibling};$('teamPanelMount').appendChild(teamPanel);teamPanel.classList.remove('hidden');teamPanel.style.setProperty('display','block','important');teamPanel.setAttribute('aria-hidden','false');teamModal.hidden=false;document.body.style.overflow='hidden';const close=$('[data-repair-close="team"]');close?.focus();}catch(e){console.error('Manage Team modal failed',e);notify('Could not open Manage Team: '+(e.message||'Refresh and try again.'))}}
+ function openTeamPanel(){
+  try{
+    if(!teamPanel||!teamModal||!$('teamPanelMount'))throw new Error('The membership panel could not be found.');
+    teamTab='manage';
+    renderTeamWorkspace();
+    if(!teamHome)teamHome={parent:teamPanel.parentNode,next:teamPanel.nextSibling};
+    $('teamPanelMount').appendChild(teamPanel);
+    teamPanel.classList.remove('hidden');
+    teamPanel.style.setProperty('display','block','important');
+    teamPanel.setAttribute('aria-hidden','false');
+    
+    // Update modal header info:
+    const team = activeTeam || {};
+    const name = team.name || 'Manage team';
+    const emoji = team.emoji || '✦';
+    const color = team.color || '#10b981';
+    const isOwner = typeof isOwner3 === 'function' && isOwner3();
+    const isAdmin = typeof isAdmin3 === 'function' && isAdmin3();
+    const role = isOwner ? 'Owner' : (isAdmin ? 'Admin' : 'Member');
+    if ($('teamModalRepairTitle')) $('teamModalRepairTitle').textContent = name;
+    if ($('teamModalSubheading')) $('teamModalSubheading').textContent = 'Workspace Settings • Role: ' + role;
+    const badge = $('teamModalAvatarBadge');
+    if (badge) {
+      badge.textContent = emoji;
+      badge.style.borderColor = color;
+      badge.style.color = color;
+      badge.style.background = 'color-mix(in srgb, ' + color + ' 14%, transparent)';
+    }
+    
+    teamModal.hidden=false;
+    document.body.style.overflow='hidden';
+    const close=$('[data-repair-close="team"]');
+    close?.focus();
+  }catch(e){
+    console.error('Manage Team modal failed',e);
+    notify('Could not open Manage Team: '+(e.message||'Refresh and try again.'))
+  }
+}
  window.chronosOpenManageTeam=openTeam;
+
+  // --- CHRONOS 5.2 TEAM CUSTOMIZATION & MODAL HANDLERS ---
+  async function saveTeamCustomization(e) {
+    if (e) { e.preventDefault(); e.stopImmediatePropagation(); }
+    if (!activeTeam || !activeTeamId) return;
+    const isOwner = typeof isOwner3 === 'function' && isOwner3();
+    const isAdmin = typeof isAdmin3 === 'function' && isAdmin3();
+    if (!isOwner && !isAdmin) {
+      notify('Only a team owner or administrator can update team settings.');
+      return;
+    }
+    const name = ($('teamCustomName')?.value || '').trim();
+    if (!name) {
+      notify('Team name cannot be empty.');
+      return;
+    }
+    const description = ($('teamCustomDesc')?.value || '').trim();
+    const emoji = $('teamCustomEmoji')?.value || '✦';
+    const color = $('teamCustomColor')?.value || '#10b981';
+    
+    const statusEl = $('teamCustomSaveStatus');
+    if (statusEl) statusEl.textContent = 'Saving…';
+    
+    const now = Date.now();
+    const patch = {
+      name,
+      description,
+      emoji,
+      color,
+      updatedAt: now,
+      updatedBy: firebaseUser ? firebaseUser.uid : 'local'
+    };
+    
+    Object.assign(activeTeam, patch);
+    const tIdx = chronosTeams.findIndex(t => String(t.id) === String(activeTeamId));
+    if (tIdx >= 0) Object.assign(chronosTeams[tIdx], patch);
+    
+    if (navigator.onLine && typeof firebaseDb !== 'undefined' && firebaseDb) {
+      try {
+        await firebaseDb.collection('teams').doc(activeTeamId).update(patch);
+        if (firebaseUser) {
+          await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(activeTeamId).set({ name }, { merge: true });
+        }
+      } catch (err) {
+        console.warn('Could not update team doc in Firestore', err);
+      }
+    }
+    
+    if (typeof saveTeamCache === 'function') saveTeamCache();
+    
+    if ($('teamCurrentName')) $('teamCurrentName').textContent = name;
+    if ($('teamCurrentDescription')) $('teamCurrentDescription').textContent = description || 'Shared team workspace';
+    const mark = document.querySelector('.team-team-mark');
+    if (mark) {
+      mark.textContent = emoji;
+      mark.style.color = color;
+    }
+    if ($('teamModalRepairTitle')) $('teamModalRepairTitle').textContent = name;
+    const badge = $('teamModalAvatarBadge');
+    if (badge) {
+      badge.textContent = emoji;
+      badge.style.borderColor = color;
+      badge.style.color = color;
+      badge.style.background = 'color-mix(in srgb, ' + color + ' 14%, transparent)';
+    }
+    const sel = $('teamSelect');
+    if (sel) {
+      const opt = [...sel.options].find(o => String(o.value) === String(activeTeamId));
+      if (opt) opt.textContent = name;
+    }
+    
+    if (statusEl) {
+      statusEl.textContent = 'Saved!';
+      setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 2500);
+    }
+    notify('Team customization saved.');
+  }
+
+  document.addEventListener('click', async e => {
+    // 1. Tab switching
+    const tabBtn = e.target.closest('[data-team-modal-tab]');
+    if (tabBtn) {
+      e.preventDefault();
+      const tab = tabBtn.dataset.teamModalTab;
+      window._teamModalActiveTab = tab;
+      document.querySelectorAll('[data-team-modal-tab]').forEach(b => {
+        b.classList.toggle('active', b.dataset.teamModalTab === tab);
+      });
+      document.querySelectorAll('.team-modal-pane').forEach(p => {
+        p.classList.toggle('active', p.dataset.pane === tab);
+      });
+      return;
+    }
+
+    // 2. Emoji preset picking
+    const emojiBtn = e.target.closest('[data-preset-emoji]');
+    if (emojiBtn) {
+      e.preventDefault();
+      const em = emojiBtn.dataset.presetEmoji;
+      const inp = $('teamCustomEmoji');
+      if (inp) inp.value = em;
+      const preview = $('teamEmojiPreviewBox');
+      if (preview) preview.textContent = em;
+      document.querySelectorAll('[data-preset-emoji]').forEach(b => {
+        b.classList.toggle('active', b.dataset.presetEmoji === em);
+      });
+      return;
+    }
+
+    // 3. Theme color radio
+    const colorLabel = e.target.closest('.team-color-swatch-item');
+    if (colorLabel) {
+      const radio = colorLabel.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        const color = radio.value;
+        const inp = $('teamCustomColor');
+        if (inp) inp.value = color;
+        const preview = $('teamEmojiPreviewBox');
+        if (preview) {
+          preview.style.color = color;
+          preview.style.borderColor = color;
+          preview.style.background = 'color-mix(in srgb, ' + color + ' 12%, transparent)';
+        }
+        document.querySelectorAll('.team-color-swatch-item').forEach(b => {
+          b.classList.toggle('active', b === colorLabel);
+        });
+      }
+      return;
+    }
+
+    // 4. Copy invite code
+    if (e.target.closest('#hubCopyCodeBtn')) {
+      e.preventDefault();
+      const code = activeTeam?.activeInviteCode || $('teamActiveInviteCodeDisplay')?.textContent?.trim();
+      if (code && !code.includes('No code') && !code.includes('Click Generate')) {
+        try {
+          await navigator.clipboard.writeText(code);
+          notify('Invitation code copied: ' + code);
+        } catch {
+          await promptCustomInApp('Copy this invitation code:', code, { title: 'Invitation Code', copyOnly: true });
+        }
+      }
+      return;
+    }
+
+    // 5. Copy invite link
+    if (e.target.closest('#hubCopyLinkBtn')) {
+      e.preventDefault();
+      const code = activeTeam?.activeInviteCode || $('teamActiveInviteCodeDisplay')?.textContent?.trim();
+      if (code && !code.includes('No code') && !code.includes('Click Generate')) {
+        const hosted = ['http:', 'https:'].includes(location.protocol);
+        const link = hosted ? (() => {
+          const u = new URL(location.href);
+          u.searchParams.set('join', code);
+          u.hash = '';
+          return u.href;
+        })() : 'https://chronosflow.web.app/?join=' + code;
+        try {
+          await navigator.clipboard.writeText(link);
+          notify('Shareable invitation link copied.');
+        } catch {
+          await promptCustomInApp('Copy this shareable link:', link, { title: 'Invitation Link', copyOnly: true });
+        }
+      }
+      return;
+    }
+
+    // 6. Generate new code
+    if (e.target.closest('#hubGenNewCodeBtn')) {
+      e.preventDefault();
+      try {
+        if (!activeTeam || !activeTeamId) throw new Error('Select a team first.');
+        notify('Generating fresh invitation code…');
+        const code = teamCode();
+        const now = Date.now();
+        const expiresAt = firebase.firestore.Timestamp.fromDate(new Date(now + 14 * 24 * 60 * 60 * 1000));
+        const data = {
+          code,
+          teamId: activeTeamId,
+          teamName: activeTeam.name || '',
+          invitedEmail: null,
+          status: 'pending',
+          createdBy: firebaseUser ? firebaseUser.uid : 'local',
+          createdByName: firebaseUser ? (firebaseUser.displayName || firebaseUser.email || '') : 'Owner',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt
+        };
+        if (navigator.onLine && typeof firebaseDb !== 'undefined' && firebaseDb) {
+          await firebaseDb.collection('teams').doc(activeTeamId).collection('invitations').doc(code).set(data);
+          await firebaseDb.collection('teamInviteCodes').doc(code).set({
+            teamId: activeTeamId,
+            createdBy: firebaseUser ? firebaseUser.uid : 'local',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            expiresAt
+          });
+          await firebaseDb.collection('teams').doc(activeTeamId).update({ activeInviteCode: code });
+        }
+        activeTeam.activeInviteCode = code;
+        const disp = $('teamActiveInviteCodeDisplay');
+        if (disp) disp.textContent = code;
+        const cBtn = $('hubCopyCodeBtn'), lBtn = $('hubCopyLinkBtn');
+        if (cBtn) cBtn.removeAttribute('disabled');
+        if (lBtn) lBtn.removeAttribute('disabled');
+        notify('New invitation code generated: ' + code);
+      } catch (err) {
+        notify('Could not generate code: ' + (err.message || 'Check connection.'));
+      }
+      return;
+    }
+
+    // 7. Quick invite shortcut in Members tab
+    if (e.target.closest('#teamModalQuickInvite')) {
+      e.preventDefault();
+      window._teamModalActiveTab = 'customization';
+      document.querySelectorAll('[data-team-modal-tab]').forEach(b => {
+        b.classList.toggle('active', b.dataset.teamModalTab === 'customization');
+      });
+      document.querySelectorAll('.team-modal-pane').forEach(p => {
+        p.classList.toggle('active', p.dataset.pane === 'customization');
+      });
+      const hub = document.querySelector('.team-invite-hub-card');
+      if (hub) hub.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // 8. Leave team button
+    const leaveBtn = e.target.closest('[data-team-leave]');
+    if (leaveBtn) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (!firebaseUser || !firebaseDb || !activeTeamId) return;
+      const okLeave = await confirmCustomInApp('Leave team "' + (activeTeam.name || 'this team') + '"? You will lose access to its shared projects, tasks, and notes.', { title: 'Leave Team', confirmText: 'Leave team', danger: true });
+      if (!okLeave) return;
+      try {
+        await firebaseDb.collection('teams').doc(activeTeamId).collection('members').doc(firebaseUser.uid).delete();
+        await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(activeTeamId).delete();
+        if (typeof closeTeam === 'function') closeTeam();
+        await refreshTeamWorkspace();
+        notify('You left the team.');
+      } catch (err) {
+        notify('Could not leave team: ' + (err.message || 'Check your connection.'));
+      }
+      return;
+    }
+  });
+
+  document.addEventListener('submit', e => {
+    if (e.target.id === 'teamCustomizationForm') {
+      saveTeamCustomization(e);
+    }
+  });
+
  function closeTeam(){if(teamModal)teamModal.hidden=true;document.body.style.overflow='';if(teamPanel&&teamHome?.parent){teamPanel.style.removeProperty('display');teamHome.parent.insertBefore(teamPanel,teamHome.next&&teamHome.next.parentNode===teamHome.parent?teamHome.next:null);teamPanel.classList.add('hidden')}if(typeof renderTeamWorkspace==='function'&&activeTeam){teamTab='members';renderTeamWorkspace()}}
  document.addEventListener('click',e=>{if(e.target.closest('#projectNewBtn')){e.preventDefault();openProject(null);return}const edit=e.target.closest('[data-project-edit]');if(edit){e.preventDefault();const p=(chronosProjects||[]).find(x=>String(x.id)===String(edit.dataset.projectEdit));openProject(p||null);return}if(e.target.closest('#teamSettingsBtn')){e.preventDefault();e.stopPropagation();openTeam();return}const close=e.target.closest('[data-repair-close]');if(close){close.dataset.repairClose==='project'?closeProject():closeTeam();return}if(e.target===projectModal)closeProject();if(e.target===teamModal)closeTeam() },true);
  projectForm?.addEventListener('submit',e=>{if(projectModal&&!projectModal.hidden){setTimeout(()=>{if(projectForm.classList.contains('hidden'))closeProject()},0)}},true);
@@ -18520,7 +19674,10 @@ html[data-theme=dark] .btn-act-compact {
   notify('Project and its linked tasks were deleted.');
 }
  async function deleteTeamRecord(teamId){if(!firebaseUser||!firebaseDb)throw Error('Sign in before deleting a team.');const team=chronosTeams.find(item=>String(item.id)===String(teamId))||activeTeam;if(!team||String(team.ownerUid)!==String(firebaseUser.uid))throw Error('Only the team owner can delete the entire team.');if(!navigator.onLine)throw Error('Deleting a team requires an internet connection.');const teamRef=firebaseDb.collection('teams').doc(teamId);for(const kind of ['members','events','tasks','notes','projects','invitations','notifications','activity']){const snap=await teamRef.collection(kind).get();for(let i=0;i<snap.docs.length;i+=400){const batch=firebaseDb.batch();snap.docs.slice(i,i+400).forEach(doc=>batch.delete(doc.ref));await batch.commit()}}await teamRef.delete();stopTeamRealtimeSync();chronosTeams=chronosTeams.filter(item=>String(item.id)!==String(teamId));activeTeamId=chronosTeams[0]?.id||'';activeTeam=chronosTeams.find(item=>String(item.id)===String(activeTeamId))||null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamCalendarEvents=[];try{localStorage.setItem('chronos70.activeTeamId',activeTeamId)}catch{}saveTeamCache();renderTeamWorkspace();renderTasks();renderCalendar();notify('Team deleted.')}
- function renderTeamDeleteControl(){const panel=$('teamAdminPanel');if(!panel||teamTab!=='manage'||!activeTeam||!firebaseUser)return;const owner=String(activeTeam.ownerUid||'')===String(firebaseUser.uid)||currentTeamRole()==='owner';if(!owner||panel.querySelector('[data-team-delete]'))return;const box=document.createElement('div');box.className='team-delete-zone';box.innerHTML='<strong>Delete this team</strong><p>This permanently removes the team, its projects, tasks, events, notes, invitations, and membership records from the team workspace.</p><button type="button" class="btn danger" data-team-delete="'+projectEsc(activeTeam.id)+'">Delete team permanently</button>';panel.appendChild(box)}
+ function renderTeamDeleteControl(){
+  // Danger zone is seamlessly integrated into Tab 3 of renderTeamAdminPanel3()
+  return;
+}
  function decorateProjectAccess(){
   const project = (typeof projectFor === 'function' ? projectFor(selectedProjectId) : null) || (chronosProjects || []).find(x => String(x.id) === String(selectedProjectId)),
         detail = $('projectDetail');
