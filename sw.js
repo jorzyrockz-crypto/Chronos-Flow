@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chronos-flow-5.10-v84';
+const CACHE_NAME = 'chronos-flow-5.10-v85';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,6 +6,11 @@ const APP_SHELL = [
   './icons/chronos.svg',
   './icons/chronos-192.png',
   './icons/chronos-512.png',
+  './icons/apple-touch-icon.png',
+  './icons/flow-logo-dark.png',
+  './icons/flow-logo-light.png',
+  './icons/flow-logo-dark-sm.png',
+  './icons/flow-logo-light-sm.png',
   './icons/chronos-banner-opt.jpg'
 ];
 
