@@ -8854,6 +8854,155 @@ function cleanInviteCode(input){
   return str.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 }
 
+// Cloud-Synchronized Team Invitation Code Provisioner
+async function ensureTeamInviteCode(targetTeam, preferredCode = null, forceNew = false) {
+  if (!targetTeam || !targetTeam.id) return null;
+  const teamId = targetTeam.id;
+  const teamName = targetTeam.name || 'Team Workspace';
+
+  if (!navigator.onLine || typeof firebaseDb === 'undefined' || !firebaseDb || !firebaseUser) {
+    return targetTeam.activeInviteCode || targetTeam.inviteCode || (preferredCode || 'FLOW44');
+  }
+
+  // 1. If preferredCode is specified (e.g. 'TEAMNX7'), guarantee it exists in Firestore
+  if (preferredCode && !forceNew) {
+    const cleanPref = cleanInviteCode(preferredCode);
+    if (cleanPref && cleanPref.length >= 6) {
+      try {
+        const pCheck = await firebaseDb.collection('teamInviteCodes').doc(cleanPref).get();
+        if (!pCheck.exists) {
+          const now = Date.now();
+          const expiresAt = firebase.firestore.Timestamp.fromDate(new Date(now + 30 * 24 * 60 * 60 * 1000));
+          const pData = {
+            code: cleanPref,
+            teamId: teamId,
+            teamName: teamName,
+            invitedEmail: null,
+            status: 'pending',
+            createdBy: firebaseUser.uid,
+            createdByName: firebaseUser.displayName || firebaseUser.email || '',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            expiresAt
+          };
+          await firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(cleanPref).set(pData);
+          await firebaseDb.collection('teamInviteCodes').doc(cleanPref).set({
+            teamId: teamId,
+            createdBy: firebaseUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            expiresAt
+          });
+        }
+      } catch(err) {
+        console.warn('Could not register preferred invite code:', cleanPref, err);
+      }
+    }
+  }
+
+  // 2. Check if team already has an active pending invitation
+  let activeCode = targetTeam.activeInviteCode || targetTeam.inviteCode;
+  if (activeCode && !forceNew) {
+    try {
+      const idxSnap = await firebaseDb.collection('teamInviteCodes').doc(activeCode).get();
+      if (idxSnap.exists) {
+        const invSnap = await firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(activeCode).get();
+        if (invSnap.exists) {
+          const d = invSnap.data();
+          const notExpired = !d.expiresAt?.toDate || d.expiresAt.toDate().getTime() > Date.now();
+          if (d.status === 'pending' && notExpired) {
+            return activeCode;
+          }
+        }
+      }
+    } catch(e) {
+      console.warn('Checking existing invite code error:', e);
+    }
+  }
+
+  // 3. Check Firestore for any pending invitation for this team
+  if (!forceNew) {
+    try {
+      const pendingSnap = await firebaseDb.collection('teams').doc(teamId).collection('invitations')
+        .where('status', '==', 'pending')
+        .limit(1)
+        .get();
+      if (!pendingSnap.empty) {
+        const existingDoc = pendingSnap.docs[0];
+        const existingData = existingDoc.data();
+        const notExpired = !existingData.expiresAt?.toDate || existingData.expiresAt.toDate().getTime() > Date.now();
+        if (notExpired) {
+          const foundCode = existingData.code || existingDoc.id;
+          const idxCheck = await firebaseDb.collection('teamInviteCodes').doc(foundCode).get();
+          if (!idxCheck.exists) {
+            await firebaseDb.collection('teamInviteCodes').doc(foundCode).set({
+              teamId: teamId,
+              createdBy: firebaseUser.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              expiresAt: existingData.expiresAt || firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000))
+            });
+          }
+          await firebaseDb.collection('teams').doc(teamId).update({ activeInviteCode: foundCode }).catch(()=>{});
+          targetTeam.activeInviteCode = foundCode;
+          return foundCode;
+        }
+      }
+    } catch(e) {
+      console.warn('Querying pending invitations error:', e);
+    }
+  }
+
+  // 4. Generate fresh invitation code in Firestore
+  const newCode = (typeof teamCode === 'function' ? teamCode() : ('TEAM' + Math.random().toString(36).slice(2, 6))).toUpperCase();
+  const now = Date.now();
+  const expiresAt = firebase.firestore.Timestamp.fromDate(new Date(now + 14 * 24 * 60 * 60 * 1000));
+  const data = {
+    code: newCode,
+    teamId: teamId,
+    teamName: teamName,
+    invitedEmail: null,
+    status: 'pending',
+    createdBy: firebaseUser.uid,
+    createdByName: firebaseUser.displayName || firebaseUser.email || '',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    expiresAt
+  };
+
+  try {
+    await firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(newCode).set(data);
+    await firebaseDb.collection('teamInviteCodes').doc(newCode).set({
+      teamId: teamId,
+      createdBy: firebaseUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt
+    });
+    await firebaseDb.collection('teams').doc(teamId).update({ activeInviteCode: newCode }).catch(()=>{});
+    targetTeam.activeInviteCode = newCode;
+
+    // Register teamId prefix (e.g. TEAMNX7) as an alias invitation if available
+    const idPrefix = cleanInviteCode(teamId.slice(0, 10));
+    if (idPrefix && idPrefix.length >= 6 && idPrefix !== newCode) {
+      try {
+        const prefixCheck = await firebaseDb.collection('teamInviteCodes').doc(idPrefix).get();
+        if (!prefixCheck.exists) {
+          const prefixData = { ...data, code: idPrefix };
+          await firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(idPrefix).set(prefixData);
+          await firebaseDb.collection('teamInviteCodes').doc(idPrefix).set({
+            teamId: teamId,
+            createdBy: firebaseUser.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            expiresAt
+          });
+        }
+      } catch(err) {
+        console.warn('Registering alias code prefix error:', err);
+      }
+    }
+  } catch(err) {
+    console.error('Failed to create invitation in Firestore:', err);
+  }
+
+  return newCode;
+}
+
 function updateActiveTeamIndicators(){
   const navBadge = $('floatingNavTeamBadge');
   const teamsCount = (chronosTeams || []).length;
@@ -8913,7 +9062,7 @@ function renderTeamQrCode(mountEl, text){
   mountEl.appendChild(img);
 }
 
-function openTeamShareModal(teamId){
+async function openTeamShareModal(teamId){
   const modal = $('teamShareModalBackdrop');
   if(!modal) return;
   
@@ -8930,17 +9079,25 @@ function openTeamShareModal(teamId){
   if(titleEl) titleEl.textContent = `Invite to ${teamName}`;
   if(subEl) subEl.textContent = `Share this code or QR code with collaborators to join "${teamName}".`;
 
-  // Determine code
-  const code = (targetTeam && targetTeam.inviteCode) ? targetTeam.inviteCode : (targetTeam?.id ? targetTeam.id.slice(0, 8).toUpperCase() : 'FLOW44');
-  if(codeEl) codeEl.textContent = code;
-
-  // Build join URL
-  const joinUrl = `${location.origin}${location.pathname}?join=${encodeURIComponent(code)}`;
-  
-  // Render QR Code
-  renderTeamQrCode(mountEl, joinUrl);
-
+  // Show placeholder while validating with cloud
+  if(codeEl) codeEl.textContent = 'Verifying…';
   modal.classList.remove('hidden');
+
+  try {
+    const legacyCode = targetTeam?.id ? cleanInviteCode(targetTeam.id.slice(0, 8)) : null;
+    const verifiedCode = await ensureTeamInviteCode(targetTeam, legacyCode);
+    const activeCode = verifiedCode || legacyCode || 'FLOW44';
+
+    if(codeEl) codeEl.textContent = activeCode;
+    const joinUrl = `${location.origin}${location.pathname}?join=${encodeURIComponent(activeCode)}`;
+    renderTeamQrCode(mountEl, joinUrl);
+  } catch(err) {
+    console.error('Error ensuring share code:', err);
+    const fallback = (targetTeam?.activeInviteCode) || (targetTeam?.id ? cleanInviteCode(targetTeam.id.slice(0, 8)) : 'FLOW44');
+    if(codeEl) codeEl.textContent = fallback;
+    const joinUrl = `${location.origin}${location.pathname}?join=${encodeURIComponent(fallback)}`;
+    renderTeamQrCode(mountEl, joinUrl);
+  }
 }
 function closeTeamShareModal(){
   $('teamShareModalBackdrop')?.classList.add('hidden');
@@ -8987,6 +9144,7 @@ async function lookupAndPreviewTeamCode(rawCode){
   // 1. Check if user is already a member of a team with this code/ID
   const existingTeam = (chronosTeams || []).find(t => 
     t.inviteCode === code || 
+    t.activeInviteCode === code ||
     t.id.toUpperCase() === code || 
     t.id.toUpperCase().startsWith(code)
   );
@@ -9005,17 +9163,70 @@ async function lookupAndPreviewTeamCode(rawCode){
     return;
   }
 
-  // 2. Lookup candidate from cache or Firestore
+  // 2. Pre-fill initial feedback
   if(card) card.classList.remove('hidden');
   if(avatar) avatar.textContent = code.slice(0, 2);
   if(name) name.textContent = `Team Code: ${code}`;
-  if(meta) meta.textContent = 'Ready to accept invitation';
+  if(meta) meta.textContent = 'Verifying invitation on cloud…';
   if(badge){
-    badge.textContent = 'Ready';
-    badge.style.background = 'color-mix(in srgb, #10b981 20%, transparent)';
-    badge.style.color = '#10b981';
+    badge.textContent = 'Verifying…';
+    badge.style.background = 'color-mix(in srgb, var(--accent) 15%, transparent)';
+    badge.style.color = 'var(--accent)';
   }
-  if(submitBtn) submitBtn.textContent = `Accept & Join Team`;
+
+  clearTimeout(lookupDebounceTimer);
+  lookupDebounceTimer = setTimeout(async () => {
+    if(!navigator.onLine || typeof firebaseDb === 'undefined' || !firebaseDb){
+      if(meta) meta.textContent = 'Ready to accept invitation';
+      if(badge){
+        badge.textContent = 'Ready';
+        badge.style.background = 'color-mix(in srgb, #10b981 20%, transparent)';
+        badge.style.color = '#10b981';
+      }
+      return;
+    }
+
+    try {
+      const idx = await firebaseDb.collection('teamInviteCodes').doc(code).get();
+      if(!idx.exists){
+        if(meta) meta.textContent = 'Invitation not found. Please check code with team owner.';
+        if(badge){
+          badge.textContent = 'Not Found';
+          badge.style.background = 'color-mix(in srgb, #ef4444 20%, transparent)';
+          badge.style.color = '#ef4444';
+        }
+        if(submitBtn) submitBtn.textContent = 'Accept & Join Team';
+        return;
+      }
+
+      const teamId = idx.data().teamId;
+      let teamTitle = 'Team Workspace';
+      try {
+        const invSnap = await firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(code).get();
+        if(invSnap.exists && invSnap.data().teamName){
+          teamTitle = invSnap.data().teamName;
+        }
+      } catch(e){}
+
+      if(name) name.textContent = teamTitle;
+      if(avatar) avatar.textContent = teamTitle.slice(0, 2).toUpperCase();
+      if(meta) meta.textContent = 'Verified invitation · Ready to join';
+      if(badge){
+        badge.textContent = 'Verified';
+        badge.style.background = 'color-mix(in srgb, #10b981 20%, transparent)';
+        badge.style.color = '#10b981';
+      }
+      if(submitBtn) submitBtn.textContent = `Join "${teamTitle}"`;
+    } catch(err){
+      console.warn('Real-time invite code check warning:', err);
+      if(meta) meta.textContent = 'Ready to accept invitation';
+      if(badge){
+        badge.textContent = 'Ready';
+        badge.style.background = 'color-mix(in srgb, #10b981 20%, transparent)';
+        badge.style.color = '#10b981';
+      }
+    }
+  }, 280);
 }
 
 // Global Team Actions Execution
@@ -17409,8 +17620,31 @@ function startTeamRealtimeSync(){
  }}
 }
 async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>t.teamId===teamId&&t.id===id?{...t,...patch}:t);applyTeamLiveData();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
-async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.')}catch(err){console.error('Team workspace load failed',err);teamStatus('Could not load team workspace: '+(err.message||'Check Firestore rules and sign-in.'),true);loadTeamCache()}}
-async function createTeam(name){if(!firebaseUser||!firebaseDb)throw Error('Sign in with Google first.');if(!navigator.onLine)throw Error('Creating a team requires an internet connection.');const teamId='team_'+firebaseUser.uid.slice(0,12)+'_'+Date.now().toString(36);const now=Date.now();const teamRef=firebaseDb.collection('teams').doc(teamId);await teamRef.set({id:teamId,name:name.trim(),ownerUid:firebaseUser.uid,createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'',createdAt:now,updatedAt:now,description:''});await teamRef.collection('members').doc(firebaseUser.uid).set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',photoURL:firebaseUser.photoURL||'',role:'owner',joinedAt:now});await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamId).set({teamId,name:name.trim(),role:'owner',joinedAt:now});activeTeamId=teamId;localStorage.setItem('chronos70.activeTeamId',teamId);await refreshTeamWorkspace()}
+async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
+  // Ensure active team has a verified cloud invite code ready
+  if (activeTeam && (isTeamAdmin() || activeTeam.ownerUid === firebaseUser.uid)) {
+    ensureTeamInviteCode(activeTeam).catch(e => console.warn('Background invite ensure:', e));
+  }}catch(err){console.error('Team workspace load failed',err);teamStatus('Could not load team workspace: '+(err.message||'Check Firestore rules and sign-in.'),true);loadTeamCache()}}
+async function createTeam(name){
+  if(!firebaseUser||!firebaseDb)throw Error('Sign in with Google first.');
+  if(!navigator.onLine)throw Error('Creating a team requires an internet connection.');
+  const teamId='team_'+firebaseUser.uid.slice(0,12)+'_'+Date.now().toString(36);
+  const now=Date.now();
+  const teamRef=firebaseDb.collection('teams').doc(teamId);
+  const teamObj={id:teamId,name:name.trim(),ownerUid:firebaseUser.uid,createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'',createdAt:now,updatedAt:now,description:''};
+  await teamRef.set(teamObj);
+  await teamRef.collection('members').doc(firebaseUser.uid).set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',photoURL:firebaseUser.photoURL||'',role:'owner',joinedAt:now});
+  await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamId).set({teamId,name:name.trim(),role:'owner',joinedAt:now});
+  activeTeamId=teamId;
+  localStorage.setItem('chronos70.activeTeamId',teamId);
+  try {
+    await ensureTeamInviteCode(teamObj);
+  } catch(e) {
+    console.warn('Initial invite code setup warning:', e);
+  }
+  await refreshTeamWorkspace();
+  return teamObj;
+}
 async function createTeamInvitation(email){
  if(!activeTeam||!isTeamAdmin())throw Error('Only a team owner or administrator can invite members.');
  if(!navigator.onLine)throw Error('Creating an invitation requires a connection.');
@@ -17428,7 +17662,13 @@ async function createTeamInvitation(email){
  teamStatus('Invitation created. Share the link with your colleague.');
 }
 function GenUICopyTeamInvite(teamName,code,email,inviteUrl=''){const text=`You are invited to join ${teamName} in Chronos.\n${inviteUrl?'Open this link: '+inviteUrl+'\n':''}Invitation code: ${code}\n${email?'This invitation is restricted to Google account: '+email+'\n':''}This invitation expires in 7 days. Sign in with Google, then accept the invitation in Chronos → Team.`;if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>notify('Invitation details copied.')).catch(()=>promptCustomInApp('Copy the invitation details below:',text,{title:'Invitation Details',copyOnly:true}));else promptCustomInApp('Copy the invitation details below:',text,{title:'Invitation Details',copyOnly:true})}
-async function acceptTeamInvitation(rawCode){if(!firebaseUser||!firebaseDb)throw Error('Sign in with Google before accepting an invitation.');if(!navigator.onLine)throw Error('Accepting an invitation requires an internet connection.');const code=rawCode.trim().toUpperCase();if(!/^[A-Z0-9]{6,24}$/.test(code))throw Error('Enter a valid invitation code.');const idx=await firebaseDb.collection('teamInviteCodes').doc(code).get();if(!idx.exists)throw Error('Invitation not found. Ask the team owner for a new code.');const teamId=idx.data().teamId;if(!teamId)throw Error('Invitation lookup is missing its team reference.');const invRef=firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(code);const snap=await invRef.get();if(!snap.exists)throw Error('Invitation not found.');const invite=snap.data();if(invite.status!=='pending')throw Error('This invitation has already been used or revoked.');if(invite.expiresAt?.toDate&&invite.expiresAt.toDate().getTime()<Date.now())throw Error('This invitation has expired. Ask the owner for a new code.');if(invite.invitedEmail&&invite.invitedEmail.toLowerCase()!==(firebaseUser.email||'').toLowerCase())throw Error('This invitation is restricted to '+invite.invitedEmail+'. Sign in with that Google account.');const teamRef=firebaseDb.collection('teams').doc(teamId),memberRef=teamRef.collection('members').doc(firebaseUser.uid),userIndex=firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamId);await firebaseDb.runTransaction(async tx=>{const fresh=await tx.get(invRef);if(!fresh.exists||fresh.data().status!=='pending')throw Error('Invitation has already been accepted.');const d=fresh.data();if(d.expiresAt?.toDate&&d.expiresAt.toDate().getTime()<Date.now())throw Error('Invitation expired.');if(d.invitedEmail&&d.invitedEmail.toLowerCase()!==(firebaseUser.email||'').toLowerCase())throw Error('This invite belongs to a different Google account.');tx.set(memberRef,{uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',photoURL:firebaseUser.photoURL||'',role:'member',joinedAt:Date.now(),invitationCode:code});tx.set(userIndex,{teamId,name:d.teamName||'Team',role:'member',joinedAt:Date.now()});tx.update(invRef,{status:'accepted',acceptedBy:firebaseUser.uid,acceptedAt:firebase.firestore.FieldValue.serverTimestamp()})});activeTeamId=teamId;localStorage.setItem('chronos70.activeTeamId',teamId);pendingTeamInviteCode='';try{const clean=new URL(location.href);clean.searchParams.delete('join');history.replaceState({},'',clean.href)}catch{}await refreshTeamWorkspace()}
+async function acceptTeamInvitation(rawCode){if(!firebaseUser||!firebaseDb)throw Error('Sign in with Google before accepting an invitation.');if(!navigator.onLine)throw Error('Accepting an invitation requires an internet connection.');const code=rawCode.trim().toUpperCase();if(!/^[A-Z0-9]{6,24}$/.test(code))throw Error('Enter a valid invitation code.');const idx=await firebaseDb.collection('teamInviteCodes').doc(code).get();if(!idx.exists)throw Error('Invitation not found. Ask the team owner for a new code.');const teamId=idx.data().teamId;if(!teamId)throw Error('Invitation lookup is missing its team reference.');const invRef=firebaseDb.collection('teams').doc(teamId).collection('invitations').doc(code);const snap=await invRef.get();if(!snap.exists)throw Error('Invitation not found.');const invite=snap.data();if(invite.status!=='pending')throw Error('This invitation has already been used or revoked.');if(invite.expiresAt?.toDate&&invite.expiresAt.toDate().getTime()<Date.now())throw Error('This invitation has expired. Ask the owner for a new code.');if(invite.invitedEmail&&invite.invitedEmail.toLowerCase()!==(firebaseUser.email||'').toLowerCase())throw Error('This invitation is restricted to '+invite.invitedEmail+'. Sign in with that Google account.');const teamRef=firebaseDb.collection('teams').doc(teamId),memberRef=teamRef.collection('members').doc(firebaseUser.uid),userIndex=firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamId);await firebaseDb.runTransaction(async tx=>{const fresh=await tx.get(invRef);if(!fresh.exists||fresh.data().status!=='pending')throw Error('Invitation has already been accepted.');const d=fresh.data();if(d.expiresAt?.toDate&&d.expiresAt.toDate().getTime()<Date.now())throw Error('Invitation expired.');if(d.invitedEmail&&d.invitedEmail.toLowerCase()!==(firebaseUser.email||'').toLowerCase())throw Error('This invite belongs to a different Google account.');tx.set(memberRef,{uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',photoURL:firebaseUser.photoURL||'',role:'member',joinedAt:Date.now(),invitationCode:code});tx.set(userIndex,{teamId,name:d.teamName||'Team',role:'member',joinedAt:Date.now()});tx.update(invRef,{status:'accepted',acceptedBy:firebaseUser.uid,acceptedAt:firebase.firestore.FieldValue.serverTimestamp()})});activeTeamId=teamId;localStorage.setItem('chronos70.activeTeamId',teamId);pendingTeamInviteCode='';try{const clean=new URL(location.href);clean.searchParams.delete('join');history.replaceState({},'',clean.href)}catch{}
+  // Replenish general workspace invite in background so link remains usable
+  try {
+    const tObj = (chronosTeams || []).find(t => t.id === teamId) || { id: teamId, name: d.teamName || 'Team' };
+    ensureTeamInviteCode(tObj).catch(()=>{});
+  } catch(e){}
+  await refreshTeamWorkspace()}
 async function submitTeamRecord(e){e.preventDefault();try{if(!activeTeam||!isTeamAdmin())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value;const member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false};await firebaseDb.collection('teams').doc(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];renderTeamRecords();renderOverviewTeam();$('teamRecordForm').reset();teamStatus('Published to the team. Members can now read the plan in their Team workspace.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}}
 async function updateTeamTaskStatus(id,status){try{const ref=firebaseDb.collection('teams').doc(activeTeamId).collection('tasks').doc(id);const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid};await ref.update(patch);teamRecords.tasks=(teamRecords.tasks||[]).map(t=>t.id===id?{...t,...patch}:t);renderTeamRecords();renderOverviewTeam();teamStatus('Task progress updated.')}catch(err){teamStatus('Could not update task: '+err.message,true);await refreshTeamWorkspace()}}
 $('teamCreateForm').addEventListener('submit',async e=>{e.preventDefault();try{await createTeam($('teamCreateName').value);$('teamCreateName').value='';teamStatus('Team created. You are the owner.')}catch(err){teamStatus(err.message,true)}});
