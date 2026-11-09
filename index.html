@@ -2682,8 +2682,9 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 
 <style id="chronosTeamReimaginedStyles">
 .team-page-reimagined{gap:18px}
-.team-page-reimagined.team-page-unified{display:flex;flex-direction:column;gap:18px;max-width:1240px;margin:0 auto;width:100%}
-.team-status-reimagined{border-radius:13px;background:var(--surface);padding:12px 16px;box-shadow:0 2px 10px rgba(38,55,78,.035);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+.team-page-reimagined.team-page-unified{display:flex;flex-direction:column;gap:18px;max-width:1240px;margin:0 auto;width:100%;padding-bottom:calc(110px + env(safe-area-inset-bottom, 20px)) !important}
+.team-status-reimagined{border-radius:13px;background:var(--surface);padding:10px 16px;box-shadow:0 2px 10px rgba(38,55,78,.035);border:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:9px}
+.team-status-reimagined::before{content:'';width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;display:inline-block;flex-shrink:0}
 
 /* Team Spaces Section & Header (Notes-Style Showcase) */
 .team-spaces-section{display:flex;flex-direction:column;gap:12px}
@@ -2694,7 +2695,16 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .team-spaces-quick-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
 /* Team Spaces Grid (Notes-style separate cards) */
-.team-spaces-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:16px;align-items:stretch}
+.team-spaces-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-items:stretch}
+
+@media (min-width: 680px) and (max-width: 1040px){
+  .team-spaces-grid{grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
+  .team-space-card{min-height:148px;border-radius:18px}
+  .team-space-card-inner{padding:14px 15px 12px}
+  .team-space-card-top{margin-bottom:8px}
+  .team-space-card-body{margin-bottom:10px}
+  .team-space-card-add{min-height:148px;border-radius:18px;padding:16px 14px}
+}
 
 /* Individual Team Space Card */
 .team-space-card{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:175px;border-radius:20px;background:var(--surface);border:1px solid var(--line);overflow:hidden;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.03);transition:transform .2s cubic-bezier(.16,1,.3,1),box-shadow .2s cubic-bezier(.16,1,.3,1),border-color .2s;text-align:left}
@@ -2728,7 +2738,7 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .team-space-add-actions .btn{padding:5px 12px;font-size:11px;font-weight:650;border-radius:10px}
 
 /* Active Workspace Canvas (Selected Team Tools) */
-.team-canvas-unified{padding:26px 30px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 24px -4px rgba(0,0,0,.06);min-height:560px;display:flex;flex-direction:column}
+.team-canvas-unified{padding:24px 28px 32px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 24px -4px rgba(0,0,0,.06);min-height:480px;display:flex;flex-direction:column;margin-bottom:28px}
 .team-unified-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .team-unified-brand-cluster{display:flex;align-items:center;gap:16px;min-width:0;flex:1 1 auto}
 .team-unified-brand-cluster .team-team-mark{display:grid;place-items:center;width:48px;height:48px;flex:0 0 auto;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-size:24px;box-shadow:0 4px 14px rgba(0,0,0,.05);transition:transform .2s cubic-bezier(.16,1,.3,1)}
@@ -2753,12 +2763,13 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 
 /* Full-width Panels & Responsive Directory Grid */
 .team-members-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
-.team-members-grid-unified{display:grid !important;grid-template-columns:repeat(auto-fill,minmax(300px,1fr)) !important;gap:12px !important}
-.team-members-grid-unified .team-member{min-height:74px;padding:12px 14px;background:var(--surface2);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:12px;transition:border-color .15s,box-shadow .15s}
+.team-members-grid-unified{display:grid !important;grid-template-columns:repeat(auto-fit,minmax(310px,1fr)) !important;gap:12px !important;margin-bottom:20px}
+.team-members-grid-unified .team-member{min-height:74px;padding:12px 16px;background:var(--surface2);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:12px;transition:border-color .15s,box-shadow .15s}
 .team-members-grid-unified .team-member:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 4px 12px rgba(0,0,0,.04)}
-.team-members-grid-unified .team-member-main strong{font-size:13px;display:block}
-.team-members-grid-unified .team-member-main small{font-size:11px;color:var(--muted);display:block;margin-top:2px}
-.team-members-grid-unified .team-role{font-size:10px;font-weight:700;padding:4px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent)}
+.team-members-grid-unified .team-member-main{min-width:0;flex:1}
+.team-members-grid-unified .team-member-main strong{font-size:13.5px;display:block;letter-spacing:-.01em}
+.team-members-grid-unified .team-member-main small{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+.team-members-grid-unified .team-role{font-size:10px;font-weight:700;padding:4px 8px;border-radius:8px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
 
 .team-admin-panel{margin:0 0 14px;border-radius:14px;background:var(--surface2)}
 .team-composer-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
@@ -2779,9 +2790,9 @@ html[data-theme="dark"] .team-action-btn{background:rgba(255,255,255,.04);border
 html[data-theme="dark"] .team-action-btn:hover{background:rgba(255,255,255,.08)}
 html[data-theme="dark"] .team-action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 
-@media(max-width:860px){
-  .team-canvas-unified{padding:20px 18px;border-radius:20px}
-  .team-unified-head{flex-direction:column;align-items:flex-start;gap:16px}
+@media(max-width:680px){
+  .team-canvas-unified{padding:20px 16px;border-radius:20px}
+  .team-unified-head{flex-direction:column;align-items:flex-start;gap:14px}
   .team-unified-actions{width:100%;justify-content:flex-start;gap:6px}
   .team-tabs-unified{overflow-x:auto}
   .team-tabs-unified button{flex:0 0 auto;min-width:76px}
@@ -2793,6 +2804,7 @@ html[data-theme="dark"] .team-action-btn.primary{background:var(--accent);border
   .team-unified-name{font-size:19px}
   .team-canvas-unified{padding:16px 14px}
 }
+</style>
 <style id="chronosCloudPastelThemeStyles">
 /* =========================================================
    CHRONOS EDGE-TO-EDGE TOPBAR & RESPONSIVE APP SHELL
@@ -4898,7 +4910,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
       <aside class="side-card"><div class="side-head"><div class="date-label">SELECTED DAY</div><h3 id="selectedTitle">Wednesday, 28</h3><p id="selectedSubtitle">Your day, at a glance.</p></div><div class="agenda-list" id="selectedAgenda"></div><div class="selected-tasks"><div class="selected-tasks-head"><strong>Tasks for this day</strong><button type="button" class="text-btn" id="addTaskForSelected" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add task</button></div><div id="selectedTasksList"></div></div><div class="side-footer"><button class="btn primary" id="addSelected" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add to this day</button></div></aside>
     </div>
   </section>
-  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
+  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button type="button" class="btn btn-showcase-sample-btn" onclick="window.openShowcaseProject()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:6px 14px;background:var(--surface2,rgba(255,255,255,0.06));border:1px solid var(--line,rgba(255,255,255,0.14));color:var(--text);margin-right:8px;" title="Open Complete Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Sample Project</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
 <div class="project-quick-filter-chips" id="projectQuickFilterChips" role="group" aria-label="Quick project filters">
   <button type="button" class="proj-filter-chip active" data-proj-filter="active">Active Projects</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="all">All Projects</button>
@@ -5302,11 +5314,11 @@ html[data-theme="dark"] .note-card .md-card-preview {
 
       <!-- Navigation Tabs -->
       <div class="team-tabs team-tabs-unified" role="tablist" aria-label="Team workspace sections">
-        <button type="button" data-team-tab="members" class="active">People</button>
+        <button type="button" data-team-tab="members" class="active">Members</button>
         <button type="button" data-team-tab="events">Events</button>
         <button type="button" data-team-tab="tasks">Tasks</button>
         <button type="button" data-team-tab="notes">Notes</button>
-        <button type="button" data-team-tab="manage" id="teamManageTab" class="hidden">Manage members</button>
+        <button type="button" data-team-tab="manage" id="teamManageTab" class="hidden">Admin & Settings</button>
       </div>
 
       <!-- Main Panels -->
@@ -7793,7 +7805,7 @@ function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStor
     }
   }catch(e){}
 }
-function ensureSchoolCalendarActivities(){const marker='chronos90.calendarImageImport.schoolYear2026_2027.v3';try{if(localStorage.getItem(marker)==='1')return;const byId=new Map(events.map(e=>[String(e.id),e]));let changed=false;for(const activity of schoolCalendarActivities){const existing=byId.get(activity.id);if(existing){if(existing.reminderMinutes!==1440){existing.reminderMinutes=1440;changed=true}if(!existing.importSource){existing.importSource=activity.importSource;changed=true}}else{events.push(activity);changed=true}}if(changed)persist();localStorage.setItem(marker,'1')}catch(err){console.warn('Could not import 2026–2027 school activities',err)}}
+function ensureSchoolCalendarActivities(){const marker='chronos90.calendarImageImport.schoolYear2026_2027.v3';try{if(localStorage.getItem(marker)==='1')return;const tombs=(typeof localTombstones==='function')?localTombstones():{};const byId=new Map(events.map(e=>[String(e.id),e]));let changed=false;for(const activity of schoolCalendarActivities){if(tombs['events|'+activity.id]||tombs['events_'+activity.id]||tombs[activity.id])continue;const existing=byId.get(activity.id);if(existing){if(existing.reminderMinutes!==1440){existing.reminderMinutes=1440;changed=true}if(!existing.importSource){existing.importSource=activity.importSource;changed=true}}else{events.push(activity);changed=true}}if(changed)persist();localStorage.setItem(marker,'1')}catch(err){console.warn('Could not import 2026–2027 school activities',err)}}
 function removeLegacySampleActivities(){const legacyIds=new Set(['e1','e2','e3','e4','e5','e6','e7','e8']);const before=events.length;events=events.filter(event=>!legacyIds.has(String(event.id)));if(events.length!==before)persist()}
 function saveSettings(){try{localStorage.setItem('chronos50.settings',JSON.stringify(settings));localStorage.setItem('chronos20.theme',document.documentElement.dataset.theme||'dark');localStorage.setItem('chronos60.settingsUpdatedAt',String(Date.now()));scheduleFirebaseSync()}catch{notify('Could not save preferences in this browser.')} }
 function applySettings(showToast=true){const systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=settings.mode==='system'?(systemDark?'dark':'light'):settings.mode;document.documentElement.dataset.accent=settings.accent||'cloud_pastel';document.documentElement.dataset.density=settings.density||'comfortable';document.documentElement.dataset.motion=(settings.motion==='on'?'full':settings.motion)||'full';const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=document.documentElement.dataset.theme==='dark'?'#10131b':'#f5f7fb';if(showToast){saveSettings();render();notify('Preferences saved.')}}
@@ -7979,7 +7991,12 @@ window.deleteCloudDocumentDirectly = deleteCloudDocumentDirectly;
 function purgeZombieShowcaseData(forcePurge = false){
   try {
     const SHOWCASE_ID = 'proj_stem_showcase_2026';
-    // This project and its task IDs are retired permanently; always purge any leftovers.
+    const isDismissed = localStorage.getItem('chronos90.showcaseProjectDismissed') === '1';
+    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
+    const hasTomb = !!(tombs['projects|' + SHOWCASE_ID] || tombs['tasks|task_mock_stem_01'] || tombs['tasks|task_mock_stem_cohort_01']);
+    const hasAnyMockTomb = hasTomb || Object.keys(tombs).some(k => k.includes('task_mock_stem_') || k.includes(SHOWCASE_ID));
+
+    if (!forcePurge && !isDismissed && !hasAnyMockTomb) return;
 
     localStorage.setItem('chronos90.showcaseProjectDismissed', '1');
 
@@ -16913,7 +16930,8 @@ function renderTasks(){
  const wsY=wsBody?wsBody.scrollTop:0;
  const todayKey=iso(today);
  const matchesFilter=(done,due,isTeam=false)=>{if(taskFilter==='team')return isTeam;if(taskFilter==='done')return done;if(taskFilter==='open')return !done;if(taskFilter==='today')return !done&&due===todayKey;if(taskFilter==='upcoming')return !done&&due&&due>todayKey;if(taskFilter==='overdue')return !done&&due&&due<todayKey;return true};
- const personal=(taskFilter==='team'?[]:tasks.filter(t=>!t.isDeliverableSubmission&&matchesFilter(!!t.done,t.due||'',false)));
+ const isShowcaseDismissed=localStorage.getItem('chronos90.showcaseProjectDismissed')==='1';
+ const personal=(taskFilter==='team'?[]:tasks.filter(t=>!t.isDeliverableSubmission&&!t.deliverableGroup&&!String(t.id).startsWith('task_mock_stem_cohort_')&&!(isShowcaseDismissed&&String(t.id).startsWith('task_mock_stem_'))&&matchesFilter(!!t.done,t.due||'',false)));
  // Canonicalize team assignments by team + Firestore record ID to avoid duplicates
  // when live listeners and optimistic local updates both contribute the same record.
  const seenTeamTasks=new Set();
@@ -18990,7 +19008,7 @@ function projectStatusLabel(v){return ({active:'Active',planning:'Planning',on_h
 function projectTone(p){if(p?.color)return p.color;return p?.status==='completed'?'#2aa889':p?.status==='planning'?'#8367d8':p?.status==='on_hold'?'#d18a35':p?.priority==='urgent'?'#d45b86':'#4388df'}
 function renderProjectManager(){const root=$('projectViewContent');if(!root)return;const todayKey=iso(today);$('pmActive').textContent=chronosProjects.filter(p=>!['completed','archived'].includes(p.status)).length;$('pmOpen').textContent=tasks.filter(t=>!t.done&&t.status!=='done').length+((teamAssignedTasks||[]).filter(t=>!t.done&&t.status!=='done').length);$('pmOverdue').textContent=tasks.filter(t=>!t.done&&t.due&&t.due<todayKey).length;$('pmDone').textContent=tasks.filter(t=>t.done||t.status==='done').length;const search=($('projectSearch')?.value||'').trim().toLowerCase(),filter=$('projectStatusFilter')?.value||'active';let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const rawLinked=projectTaskList(p),done=rawLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
     const allLinked=rawLinked.filter(t=>!t.isDeliverableSubmission);
-    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee"><option value="">Unassigned</option></select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
+    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill btn-showcase-demo" onclick="window.openShowcaseProject()" title="Switch to Complete Showcase Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Demo Project</button><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee"><option value="">Unassigned</option></select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
 if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null;const all=p?projectTaskList(p):tasks.filter(t=>t.projectId);const stages=[['open','To do'],['in_progress','In progress'],['review','In review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>`<article class="project-task">${projectEsc(t.title)}<small>${projectEsc(t.due?'Due '+t.due:'No deadline')}</small><select data-project-task-status="${projectEsc(t.id)}" aria-label="Change status for ${projectEsc(t.title)}"><option value="open" ${(!t.status||t.status==='open')&&!t.done?'selected':''}>To do</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${t.status==='review'?'selected':''}>In review</option><option value="done" ${t.done||t.status==='done'?'selected':''}>Done</option></select></article>`).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Board includes personal tasks linked to projects. Team tasks remain managed in the Team workspace.</p>`;return}
 if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><strong>${projectEsc(p.name)}</strong><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
 root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
@@ -19338,7 +19356,7 @@ renderProjectManager=function(){
  let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});
  const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);
  if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
-    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><div class="project-task-divider"><div><strong>Project tasks</strong><span>Edit assignments and status without leaving the project.</span></div></div><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee">${projectTaskAssigneeOptions(p)}</select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t,p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
+    const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`<div class="project-detail-actions-bar"><div class="actions-left-group"><button type="button" class="btn btn-action-pill btn-action-danger" data-project-delete="${projectEsc(p.id)}" title="Delete project and linked tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete Project</button></div><div class="actions-right-group"><button type="button" class="btn btn-action-pill btn-showcase-demo" onclick="window.openShowcaseProject()" title="Switch to Complete Showcase Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Demo Project</button><button type="button" class="btn btn-action-pill" data-project-duplicate="${projectEsc(p.id)}" title="Duplicate project and tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Duplicate</button><button type="button" class="btn btn-action-pill" data-project-edit="${projectEsc(p.id)}" title="Edit project details"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button><button type="button" class="btn btn-action-pill" data-project-tasks="${projectEsc(p.id)}" title="Open in full task board"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Board</button><button type="button" class="btn btn-action-pill" data-project-archive="${projectEsc(p.id)}" title="${p.status==='archived'?'Restore project':'Archive project'}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>${p.status==='archived'?'Restore':'Archive'}</button></div></div>${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><div class="project-task-divider"><div><strong>Project tasks</strong><span>Edit assignments and status without leaving the project.</span></div></div><form id="projectTaskCreateForm" class="project-task-create"><label>Task title<input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?"></label><label>Assigned person<select id="projectTaskAssignee">${projectTaskAssigneeOptions(p)}</select></label><label>Start date<input id="projectTaskStart" type="date"></label><label>Due date<input id="projectTaskDue" type="date"></label><button class="btn primary btn-task-submit" type="submit" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Add</button></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t,p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
  if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null,all=p?projectTaskList(p):tasks.filter(t=>t.projectId),stages=[['open','To do'],['in_progress','In progress'],['review','In progress review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>projectBoardTaskMarkup(t,p||{})).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Select Edit on any task to update its details and assignment.</p>`;return}
  if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><div class="project-timeline-name">${projectAvatar(projectPeopleFor(p)[0]||{name:p.owner||'No owner'},'xs')}<strong>${projectEsc(p.name)}</strong></div><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
  root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
@@ -21481,7 +21499,7 @@ html[data-theme=dark] .btn-act-compact {
  $('teamRecordEditBackdrop')?.addEventListener('click',e=>{if(e.target===$('teamRecordEditBackdrop'))$('teamRecordEditBackdrop').classList.add('hidden')});
  $('teamRecordEditForm')?.addEventListener('submit',saveTeamRecordEdit);
 
- async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType==='project'||!activeTeam||!firebaseUser||!firebaseDb)throw Error('This shared record cannot be deleted here.');if(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))throw Error('Only the record creator or a team administrator can delete this shared item.');if(!navigator.onLine)throw Error('Deleting shared records requires an internet connection.');await firebaseDb.collection('teams').doc(activeTeam.id).collection(type).doc(String(record.id)).delete();teamRecords[type]=(teamRecords[type]||[]).filter(item=>String(item.id)!==String(record.id));if(teamLiveData[activeTeam.id]?.[type])teamLiveData[activeTeam.id][type]=teamLiveData[activeTeam.id][type].filter(item=>String(item.id)!==String(record.id));if(type==='tasks')teamAssignedTasks=(teamAssignedTasks||[]).filter(item=>String(item.id)!==String(record.id));renderTeamRecords();renderTasks();renderCalendar();renderSharedItemsInMainScreens();saveTeamCache();notify('Shared '+type.slice(0,-1)+' deleted.')}
+ async function deleteSharedTeamRecord(record,type){if(!record||record.sourceType==='project'||!activeTeam||!firebaseUser||!firebaseDb)throw Error('This shared record cannot be deleted here.');if(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))throw Error('Only the record creator or a team administrator can delete this shared item.');if(!navigator.onLine)throw Error('Deleting shared records requires an internet connection.');if(typeof recordLocalTombstone==='function') recordLocalTombstone(type, record.id);if(typeof deleteCloudDocumentDirectly==='function') await deleteCloudDocumentDirectly(type, record.id, activeTeam.id);else await firebaseDb.collection('teams').doc(activeTeam.id).collection(type).doc(String(record.id)).delete();teamRecords[type]=(teamRecords[type]||[]).filter(item=>String(item.id)!==String(record.id));if(teamLiveData[activeTeam.id]?.[type])teamLiveData[activeTeam.id][type]=teamLiveData[activeTeam.id][type].filter(item=>String(item.id)!==String(record.id));if(type==='tasks')teamAssignedTasks=(teamAssignedTasks||[]).filter(item=>String(item.id)!==String(record.id));renderTeamRecords();renderTasks();renderCalendar();renderSharedItemsInMainScreens();saveTeamCache();notify('Shared '+type.slice(0,-1)+' deleted.')}
  function decorateTeamRecordActions(){const box=$('teamRecordsList');if(!box||!activeTeam||!firebaseUser)return;const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';box.querySelectorAll('[data-team-record-id]').forEach(card=>{const record=(teamRecords[type]||[]).find(item=>String(item.id)===String(card.dataset.teamRecordId));if(!record||record.sourceType==='project'||(!isTeamAdmin()&&String(record.createdBy)!==String(firebaseUser.uid))||card.querySelector('.team-record-actions'))return;const actions=document.createElement('div');actions.className='team-record-actions';actions.innerHTML=`<button type="button" class="btn team-record-edit" data-team-record-edit="${projectEsc(record.id)}" data-team-record-type="${projectEsc(type)}">Edit</button><button type="button" class="btn danger team-record-delete" data-team-record-delete="${projectEsc(record.id)}">Delete</button>`;card.querySelector('.team-record-main')?.appendChild(actions)})}
  const baseTeamRenderRecordsWithActions=renderTeamRecords;renderTeamRecords=function(){baseTeamRenderRecordsWithActions.apply(this,arguments);decorateTeamRecordActions()};
  document.addEventListener('click',async e=>{const editBtn=e.target.closest('[data-team-record-edit]');if(editBtn){e.preventDefault();e.stopImmediatePropagation();const type=editBtn.dataset.teamRecordType||(teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes'),record=(teamRecords[type]||[]).find(item=>String(item.id)===String(editBtn.dataset.teamRecordEdit));if(record)openTeamRecordEditModal(record,type);return}const button=e.target.closest('[data-team-record-delete]');if(!button)return;e.preventDefault();e.stopImmediatePropagation();const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',record=(teamRecords[type]||[]).find(item=>String(item.id)===String(button.dataset.teamRecordDelete));if(!record)return;const ok=await confirmCustomInApp(`Delete shared ${type.slice(0,-1)} "${record.title||'Untitled'}"? This cannot be undone.`,{title:'Delete Shared Item',confirmText:'Delete item',danger:true});if(!ok)return;try{await deleteSharedTeamRecord(record,type)}catch(err){notify('Could not delete shared item: '+(err.message||'Check your connection.'))}},true);
@@ -24600,18 +24618,12 @@ html[data-theme=dark] .batch-menu button:hover{
       if (!ok) return;
 
       const toDelete = (tasks || []).filter(t => (t.deliverableGroup === groupKey || t.deliverableTitle === groupKey || t.title === groupKey) && (!project || String(t.projectId) === String(project.id)));
+      toDelete.forEach(t => {
+        if (typeof recordLocalTombstone === 'function') recordLocalTombstone('tasks', t.id);
+        if (typeof deleteCloudDocumentDirectly === 'function') deleteCloudDocumentDirectly('tasks', t.id, t.teamId || activeTeamId);
+      });
       tasks = (tasks || []).filter(t => !toDelete.includes(t));
       if (typeof persist === 'function') persist();
-
-      // Cloud delete if active
-      if (typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb && navigator.onLine) {
-        for (const t of toDelete) {
-          const teamId = t.teamId || activeTeamId;
-          if (teamId) {
-            try { await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(t.id)).delete(); } catch(e){}
-          }
-        }
-      }
       renderProjectManager();
       if (typeof notify === 'function') notify('Requirement removed.');
       return;
@@ -24632,15 +24644,10 @@ html[data-theme=dark] .batch-menu button:hover{
         confirm(`Remove ${personName} from requirement "${reqTitle}"?`);
       if (!ok) return;
 
+      if (typeof recordLocalTombstone === 'function') recordLocalTombstone('tasks', taskId);
+      if (typeof deleteCloudDocumentDirectly === 'function') deleteCloudDocumentDirectly('tasks', taskId, task.teamId || activeTeamId);
       tasks = (tasks || []).filter(t => String(t.id) !== String(taskId));
       if (typeof persist === 'function') persist();
-
-      if (typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb && navigator.onLine) {
-        const teamId = task.teamId || activeTeamId;
-        if (teamId) {
-          try { await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(taskId)).delete(); } catch(e){}
-        }
-      }
       renderProjectManager();
       if (typeof notify === 'function') notify(`Removed ${personName} from requirement.`);
       return;
@@ -24696,6 +24703,10 @@ html[data-theme=dark] .batch-menu button:hover{
       // 2. Remove unselected members
       const removedTasks = existing.filter(t => !selectedUids.includes(String(t.assigneeUid)));
       if (removedTasks.length) {
+        removedTasks.forEach(t => {
+          if (typeof recordLocalTombstone === 'function') recordLocalTombstone('tasks', t.id);
+          if (typeof deleteCloudDocumentDirectly === 'function') deleteCloudDocumentDirectly('tasks', t.id, t.teamId || activeTeamId);
+        });
         const removedIds = new Set(removedTasks.map(t => String(t.id)));
         tasks = tasks.filter(t => !removedIds.has(String(t.id)));
       }
@@ -25966,7 +25977,277 @@ html[data-theme=dark] .batch-menu button:hover{
    ========================================================= */
 const CHRONOS_SHOWCASE_PROJECT_ID = 'proj_stem_showcase_2026';
 
+function getShowcaseMockProjectData() {
+  return {
+    id: CHRONOS_SHOWCASE_PROJECT_ID,
+    name: 'STEM & Digital Learning Initiative',
+    description: 'Cross-departmental rollout of interactive digital science modules, hybrid laboratory experiments, and collaborative student portfolios across secondary STEM departments.',
+    color: '#10b981',
+    tone: '#10b981',
+    status: 'active',
+    priority: 'high',
+    startDate: '2026-11-01',
+    dueDate: '2026-11-28',
+    owner: 'Floyran Gumban',
+    ownerUid: 'user_floyran_gumban',
+    members: ['Sarah Chen', 'Marcus Vance', 'Elena Rostova', 'David Kalu'],
+    memberUids: ['u_sarah', 'u_marcus', 'u_elena', 'u_david'],
+    isMock: true,
+    teamShared: false,
+    createdAt: Date.now() - 5 * 86400000,
+    updatedAt: Date.now()
+  };
+}
 
+function getShowcaseMockTasksData() {
+  const cohort = [
+    { name: 'Floyran Gumban', email: 'floyran.gumban@deped.gov.ph', role: 'Project Lead', status: 'hardcopy', time: 'on_time', ta: 'Exemplary alignment with Q4 science standards.', author: 'Superintendent', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Floyran&backgroundColor=ffd5dc' },
+    { name: 'Sarah Chen', email: 'sarah.chen@deped.gov.ph', role: 'Physics Head', status: 'submitted', time: 'on_time', ta: 'Approved with laboratory safety notes.', author: 'Floyran Gumban', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=SarahChen&backgroundColor=b6e3f4' },
+    { name: 'Marcus Vance', email: 'marcus.vance@deped.gov.ph', role: 'Robotics Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MarcusVance&backgroundColor=c0aede' },
+    { name: 'Elena Rostova', email: 'elena.rostova@deped.gov.ph', role: 'Chemistry Faculty', status: 'hardcopy', time: 'on_time', ta: 'Chemical disposal rubric verified.', author: 'Safety Inspector', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ElenaRostova&backgroundColor=d1d4f9' },
+    { name: 'David Kalu', email: 'david.kalu@deped.gov.ph', role: 'Biology Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=DavidKalu&backgroundColor=ffdfbf' },
+    { name: 'Maria Santos', email: 'maria.santos@deped.gov.ph', role: 'Master Teacher II', status: 'hardcopy', time: 'on_time', ta: 'Validated portfolio documentation.', author: 'Principal', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MariaSantos&backgroundColor=ffd5dc' },
+    { name: 'Juan Dela Cruz', email: 'juan.delacruz@deped.gov.ph', role: 'Curriculum Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=JuanDelaCruz&backgroundColor=b6e3f4' },
+    { name: 'Grace Hopper', email: 'grace.hopper@deped.gov.ph', role: 'Computer Science Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=GraceHopper&backgroundColor=c0aede' },
+    { name: 'Alan Turing', email: 'alan.turing@deped.gov.ph', role: 'STEM Math Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AlanTuring&backgroundColor=d1d4f9' },
+    { name: 'Katherine Johnson', email: 'katherine.j@deped.gov.ph', role: 'Calculus Instructor', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=KatherineJohnson&backgroundColor=ffd5dc' },
+    { name: 'Ada Lovelace', email: 'ada.lovelace@deped.gov.ph', role: 'Algorithmics Specialist', status: 'submitted', time: 'late', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AdaLovelace&backgroundColor=ffdfbf' },
+    { name: 'Linus Torvalds', email: 'linus.t@deped.gov.ph', role: 'IT Systems Coordinator', status: 'submitted', time: 'late', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=LinusTorvalds&backgroundColor=b6e3f4' },
+    { name: 'Rosalind Franklin', email: 'rosalind.f@deped.gov.ph', role: 'Biochemistry Faculty', status: 'hardcopy', time: 'on_time', ta: 'DNA extraction protocols attached.', author: 'Floyran Gumban', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=RosalindFranklin&backgroundColor=c0aede' },
+    { name: 'Nikola Tesla', email: 'nikola.tesla@deped.gov.ph', role: 'Applied Physics Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=NikolaTesla&backgroundColor=d1d4f9' },
+    { name: 'Marie Curie', email: 'marie.curie@deped.gov.ph', role: 'Senior Radiation Chemist', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MarieCurie&backgroundColor=ffd5dc' },
+    { name: 'Carl Sagan', email: 'carl.sagan@deped.gov.ph', role: 'Earth & Space Science', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=CarlSagan&backgroundColor=ffdfbf' },
+    { name: 'Richard Feynman', email: 'richard.f@deped.gov.ph', role: 'Theoretical Physics', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=RichardFeynman&backgroundColor=b6e3f4' },
+    { name: 'Chien-Shiung Wu', email: 'cs.wu@deped.gov.ph', role: 'Experimental Lab Specialist', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ChienShiungWu&backgroundColor=c0aede' },
+    { name: 'Jane Goodall', email: 'jane.goodall@deped.gov.ph', role: 'Environmental Science', status: 'overdue', time: 'overdue', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=JaneGoodall&backgroundColor=d1d4f9' },
+    { name: 'Alexander Fleming', email: 'alexander.f@deped.gov.ph', role: 'Microbiology Head', status: 'overdue', time: 'overdue', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AlexanderFleming&backgroundColor=ffdfbf' }
+  ];
+
+  window._showcaseCohortDirectory = cohort.map((c, idx) => ({
+    uid: 'u_cohort_' + (idx + 1),
+    name: c.name,
+    email: c.email,
+    role: c.role,
+    photoURL: c.photo
+  }));
+
+  const tasksList = cohort.map((c, idx) => ({
+    id: 'task_mock_stem_cohort_' + (idx + 1).toString().padStart(2, '0'),
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Finalize STEM curriculum rubric & lab safety protocols',
+    deliverableGroup: 'deliv_grp_rubric_2026',
+    deliverableTitle: 'Finalize STEM curriculum rubric & lab safety protocols',
+    due: '2026-11-06',
+    dueTime: '17:00',
+    details: 'Submit signed department curriculum matrix, laboratory safety protocols, and student competency rubrics.',
+    assigneeName: c.name,
+    assigneeEmail: c.email,
+    assigneeUid: 'u_cohort_' + (idx + 1),
+    assigneePhotoURL: c.photo,
+    role: c.role,
+    phase: 'Phase 1: Planning',
+    isDeliverable: true,
+    isDeliverableSubmission: true,
+    priority: idx % 3 === 0 ? 'high' : 'medium',
+    status: (c.status === 'submitted' || c.status === 'hardcopy') ? 'done' : (c.status === 'overdue' ? 'open' : 'in_progress'),
+    done: (c.status === 'submitted' || c.status === 'hardcopy'),
+    submissionStatus: c.status,
+    submissionMode: c.status === 'hardcopy' ? 'hardcopy' : 'link',
+    submissionUrl: c.status === 'submitted' ? 'https://drive.google.com/deped/stem/' + c.name.toLowerCase().replace(/\s+/g, '_') : null,
+    submittedAt: (c.status === 'submitted' || c.status === 'hardcopy') ? (Date.now() - (idx + 1) * 3600000) : null,
+    receivedAt: c.status === 'hardcopy' ? (Date.now() - idx * 7200000) : null,
+    receivedBy: c.status === 'hardcopy' ? 'Office Administrator' : null,
+    taCategory: c.ta ? 'Quality Assurance' : null,
+    taRemarks: c.ta || null,
+    taStatus: c.ta ? 'approved' : null,
+    taAuthor: c.author || null,
+    taTimestamp: c.ta ? Date.now() - 1800000 : null
+  }));
+
+  // Add the master deliverable milestone task (shows in task list & calendar)
+  tasksList.unshift({
+    id: 'task_mock_stem_01',
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Finalize STEM curriculum rubric & lab safety protocols',
+    deliverableGroup: 'deliv_grp_rubric_2026',
+    deliverableTitle: 'Finalize STEM curriculum rubric & lab safety protocols',
+    due: '2026-11-06',
+    dueTime: '17:00',
+    details: 'Department-wide submission requirement for 20 STEM faculty members across physics, chemistry, biology, mathematics, and robotics.',
+    assigneeName: 'DepEd Faculty & Specialists Cohort',
+    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Floyran&backgroundColor=ffd5dc',
+    phase: 'Phase 1: Planning',
+    isDeliverable: true,
+    isDeliverableMilestone: true,
+    isDeliverableSubmission: false,
+    priority: 'high',
+    status: 'in_progress',
+    done: false,
+    subtasks: [
+      { title: 'Publish curriculum template & lab checklist to all departments', done: true },
+      { title: 'Collect submissions & verify compliance across 20 personnel', done: false },
+      { title: 'Supervisory technical assistance coaching for pending items', done: false }
+    ]
+  });
+
+  tasksList.push({
+    id: 'task_mock_stem_02',
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Inventory audit of digital sensors & lab workstations',
+    assigneeName: 'Sarah Chen',
+    assigneeUid: 'u_sarah',
+    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=SarahChen&backgroundColor=b6e3f4',
+    status: 'done',
+    done: true,
+    due: '2026-11-09',
+    phase: 'Phase 1: Planning',
+    priority: 'medium'
+  });
+
+  tasksList.push({
+    id: 'task_mock_stem_04',
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Conduct faculty training workshop on student digital portfolios',
+    assigneeName: 'Elena Rostova',
+    assigneeUid: 'u_elena',
+    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ElenaRostova&backgroundColor=d1d4f9',
+    status: 'open',
+    done: false,
+    due: '2026-11-20',
+    phase: 'Phase 2: Implementation',
+    priority: 'medium'
+  });
+
+  tasksList.push({
+    id: 'task_mock_stem_05',
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Mid-term STEM lab workstation calibration & safety check',
+    assigneeName: 'David Kalu',
+    assigneeUid: 'u_david',
+    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=DavidKalu&backgroundColor=ffdfbf',
+    status: 'open',
+    done: false,
+    due: '2026-11-25',
+    phase: 'Phase 2: Implementation',
+    priority: 'low'
+  });
+
+  // Also include the other project tasks
+  tasksList.push({
+    id: 'task_mock_stem_03',
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Deploy interactive simulation software to lab computers',
+    assigneeName: 'Marcus Vance',
+    assigneeUid: 'u_marcus',
+    status: 'in_progress',
+    done: false,
+    due: '2026-11-15',
+    phase: 'Phase 2: Implementation',
+    isDeliverable: true,
+    priority: 'high',
+    subtasks: [
+      { title: 'Install master image on science lab clients', done: true },
+      { title: 'Network stress test with 30 concurrent users', done: false }
+    ]
+  });
+
+  tasksList.push({
+    id: 'task_mock_stem_06',
+    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
+    title: 'Submit Q4 STEM Innovation executive transmittal & summary',
+    assigneeName: 'Floyran Gumban',
+    assigneeUid: 'user_floyran_gumban',
+    status: 'open',
+    done: false,
+    due: '2026-11-28',
+    phase: 'Phase 3: Evaluation',
+    isDeliverable: true,
+    priority: 'high',
+    subtasks: [
+      { title: 'Compile quantitative metrics & chart progress', done: false },
+      { title: 'Submit signed transmittal to curriculum director', done: false }
+    ]
+  });
+
+  return tasksList;
+}
+
+function ensureShowcaseMockProject(force = false) {
+  try {
+    if (!force && localStorage.getItem('chronos90.showcaseProjectDismissed') === '1') return;
+    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
+    if (!force && (tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID] || tombs['tasks|task_mock_stem_01'])) return;
+
+    if (typeof chronosProjects === 'undefined') return;
+    let proj = chronosProjects.find(p => String(p.id) === CHRONOS_SHOWCASE_PROJECT_ID);
+    const mockProjData = getShowcaseMockProjectData();
+
+    if (!proj || force) {
+      if (!force && tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID]) {
+        // Dismissed or tombstoned
+      } else {
+        if (proj) {
+          Object.assign(proj, mockProjData);
+        } else {
+          chronosProjects.unshift(mockProjData);
+        }
+        try {
+          localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects));
+        } catch(e){}
+      }
+    }
+
+    if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
+      const mockTasks = getShowcaseMockTasksData();
+      let changed = false;
+      mockTasks.forEach(mt => {
+        if (!force && tombs['tasks|' + mt.id]) return;
+        const existingIdx = tasks.findIndex(t => String(t.id) === String(mt.id));
+        if (existingIdx === -1) {
+          tasks.push(mt);
+          changed = true;
+        } else if (force || !tasks[existingIdx].assigneePhotoURL || !tasks[existingIdx].isDeliverableSubmission) {
+          Object.assign(tasks[existingIdx], mt);
+          changed = true;
+        }
+      });
+      if (changed) {
+        try {
+          localStorage.setItem('chronos40.tasks', JSON.stringify(tasks));
+        } catch(e){}
+        if (typeof persist === 'function') persist();
+      }
+    }
+
+    // If active project is empty or user is on overview, refresh manager
+    if (typeof renderProjectManager === 'function') {
+      renderProjectManager();
+    }
+  } catch(err) {
+    console.warn('Could not seed showcase mock project:', err);
+  }
+}
+
+// Showcase demo project is strictly on-demand via Demo Project button / window.openShowcaseProject()
+
+// Global helper so user or dev can trigger / open demo
+window.openShowcaseProject = function() {
+  try {
+    localStorage.removeItem('chronos90.showcaseProjectDismissed');
+    const g = JSON.parse(localStorage.getItem('chronos60.localTombstones') || '{}');
+    delete g['projects|' + CHRONOS_SHOWCASE_PROJECT_ID];
+    delete g['tasks|task_mock_stem_01'];
+    for (let i = 1; i <= 20; i++) delete g['tasks|task_mock_stem_cohort_' + i.toString().padStart(2, '0')];
+    for (let i = 1; i <= 6; i++) delete g['tasks|task_mock_stem_0' + i];
+    localStorage.setItem('chronos60.localTombstones', JSON.stringify(g));
+  } catch(e){}
+  ensureShowcaseMockProject(true);
+  if (typeof openProjectWorkspaceModal === 'function') {
+    openProjectWorkspaceModal(CHRONOS_SHOWCASE_PROJECT_ID);
+  }
+};
+
+  
   // =========================================================
   // COMPACT DELIVERABLES ROSTER TOOLBAR & INTERACTION ENGINE
   // =========================================================
@@ -26320,58 +26601,6 @@ const CHRONOS_SHOWCASE_PROJECT_ID = 'proj_stem_showcase_2026';
 
 })();
 
-</script>
-
-<style id="chronosNotificationUpgradeStyles">
-  .notification-panel{width:min(480px,100%);background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 96%,var(--accent) 4%),var(--surface) 34%);}
-  .notification-head{padding:24px 22px 18px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent-soft) 72%,transparent),transparent 68%);}
-  .notification-head h3{font-size:26px;letter-spacing:-.8px}.notification-head p{margin-top:5px;max-width:300px;line-height:1.45}
-  .notification-overview{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--surface2) 68%,transparent)}
-  .notification-overview-copy{display:grid;gap:2px}.notification-overview-copy span{font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:800}.notification-overview-copy strong{font-size:12px}
-  .notification-unread-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:10px;font-weight:800;white-space:nowrap}.notification-unread-chip.is-clear{background:var(--surface);color:var(--muted);border:1px solid var(--line)}.notification-unread-chip i{width:6px;height:6px;border-radius:50%;background:currentColor}
-  .notification-toolbar{padding:11px 20px;background:var(--surface)}.notification-toolbar .text-btn{font-size:11px;font-weight:800}.notification-toolbar .text-btn:disabled{opacity:.45;cursor:not-allowed}
-  .chronos-notification-filters{padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface);gap:6px}.chronos-notification-filters button{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;min-height:34px;font-size:10px}.chronos-notification-filters button.active{box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 16%,transparent)}.notice-filter-count{min-width:17px;padding:2px 5px;border-radius:999px;background:var(--surface2);font-size:9px;line-height:1;text-align:center;color:var(--muted)}.chronos-notification-filters button.active .notice-filter-count{background:var(--accent);color:#fff}
-  .notification-list{padding:12px 14px 20px;gap:0;overflow:auto}.notification-day-label{display:flex;align-items:center;gap:9px;padding:10px 4px 7px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}.notification-day-label::after{content:"";height:1px;flex:1;background:var(--line)}
-  .notification-item{position:relative;width:100%;margin:0 0 7px;padding:13px 13px 13px 12px;border:1px solid var(--line);border-radius:15px;background:color-mix(in srgb,var(--surface) 88%,var(--surface2) 12%);box-shadow:0 3px 12px #0000000a;transition:transform .16s,background .16s,border-color .16s,box-shadow .16s}.notification-item:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 7px 18px #00000012}.notification-item.unread{background:linear-gradient(135deg,color-mix(in srgb,var(--accent-soft) 78%,var(--surface)),var(--surface));border-color:color-mix(in srgb,var(--accent) 28%,var(--line));box-shadow:inset 3px 0 0 var(--accent),0 5px 16px color-mix(in srgb,var(--accent) 8%,transparent)}.notification-item.read{opacity:.78}.notification-item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.notification-leading{position:relative;display:grid;place-items:start;flex:0 0 32px}.notification-leading .chronos-avatar{width:32px;height:32px}.notification-leading .notification-dot{position:absolute;right:-2px;top:-2px;width:9px;height:9px;margin:0;border:2px solid var(--surface);background:var(--accent)}.notification-item.read .notification-leading .notification-dot{background:var(--line)}.notification-copy{padding-right:18px}.notification-copy strong{font-size:12px;line-height:1.35}.notification-copy p{font-size:11px;line-height:1.45;margin:5px 0;color:var(--muted)}.notification-type{display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;font-size:9px;letter-spacing:.65px}.notification-type::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}.notification-item small{font-size:10px}.notification-open-hint{position:absolute;right:12px;top:14px;color:var(--muted);font-size:14px;line-height:1}.notification-empty-state{display:grid;justify-items:center;text-align:center;padding:48px 22px 42px;color:var(--muted)}.notification-empty-icon{display:grid;place-items:center;width:48px;height:48px;margin-bottom:12px;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-size:22px}.notification-empty-state strong{color:var(--text);font-size:14px}.notification-empty-state p{max-width:245px;margin:6px 0 16px;font-size:11px;line-height:1.5}.notification-empty-state .btn{font-size:11px}.notification-foot{padding:13px 18px;background:var(--surface)}
-  @media(max-width:600px){.notification-head{padding:20px 16px 15px}.notification-overview{padding:11px 16px}.notification-toolbar{padding:10px 16px}.chronos-notification-filters{padding-left:14px;padding-right:14px}.notification-list{padding-left:10px;padding-right:10px}.notification-foot{padding:12px 14px}}
-  @media(prefers-reduced-motion:reduce){.notification-item{transition:none}}
-</style>
-<script id="chronosNotificationUpgradeLogic">
-(()=>{
-  const byId=id=>document.getElementById(id);
-  const readKey=()=>`chronos80.notificationRead.${typeof firebaseUser!=='undefined'&&firebaseUser?.uid?firebaseUser.uid:'local'}`;
-  const readSet=()=>{try{return new Set(JSON.parse(localStorage.getItem(readKey())||'[]'))}catch{return new Set()}};
-  const typeOf=n=>{const t=String(n?.targetType||n?.type||'notes').toLowerCase();if(t.includes('invitation'))return 'invitations';if(t.includes('task'))return 'tasks';if(t.includes('calendar')||t.includes('event'))return 'events';return 'notes'};
-  const typeLabel=t=>({tasks:'Tasks',events:'Calendar',notes:'Notes',invitations:'Invitations'})[t]||'Updates';
-  const relativeTime=stamp=>{const time=Number(stamp||0),diff=Math.max(0,Date.now()-time);if(!time)return 'Recent';if(diff<60000)return 'Just now';if(diff<3600000)return `${Math.floor(diff/60000)}m ago`;if(diff<86400000)return `${Math.floor(diff/3600000)}h ago`;if(diff<604800000)return `${Math.floor(diff/86400000)}d ago`;return new Date(time).toLocaleDateString(undefined,{month:'short',day:'numeric',year:new Date(time).getFullYear()===new Date().getFullYear()?undefined:'numeric'})};
-  const dayLabel=stamp=>{const d=new Date(Number(stamp||Date.now())),now=new Date();const day=new Date(d.getFullYear(),d.getMonth(),d.getDate()),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),delta=Math.round((today-day)/86400000);return delta===0?'Today':delta===1?'Yesterday':'Earlier'};
-  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let filter=window.chronosNotificationFilter||'all';
-  const ensureFilterButtons=()=>{const root=byId('notificationFilters');if(!root)return;[['notes','Notes'],['events','Calendar']].forEach(([value,label])=>{if(!root.querySelector(`[data-notice-filter="${value}"]`)){const b=document.createElement('button');b.type='button';b.dataset.noticeFilter=value;b.setAttribute('aria-pressed','false');b.textContent=label;root.appendChild(b)}})};
-  const items=()=>{const base=typeof teamActivityItems==='function'?teamActivityItems():[],local=readSet();return base.map(n=>local.has(n.key)?{...n,unread:false}:n)};
-  const updateOverview=(all,unread)=>{const panel=byId('notificationPanel'),header=panel?.querySelector('.notification-head');if(!panel||!header)return;let overview=byId('notificationOverview');if(!overview){overview=document.createElement('div');overview.id='notificationOverview';overview.className='notification-overview';header.insertAdjacentElement('afterend',overview)}const total=all.length;overview.innerHTML=`<div class="notification-overview-copy"><span>Workspace inbox</span><strong>${total?`${total} update${total===1?'':'s'}`:'No updates yet'}</strong></div><span class="notification-unread-chip ${unread?'':'is-clear'}"><i></i>${unread?`${unread} unread`:'All caught up'}</span>`};
-  const updateCounts=all=>{const root=byId('notificationFilters');if(!root)return;const counts={all:all.length,unread:all.filter(n=>n.unread).length,tasks:all.filter(n=>typeOf(n)==='tasks').length,notes:all.filter(n=>typeOf(n)==='notes').length,events:all.filter(n=>typeOf(n)==='events').length,invitations:all.filter(n=>typeOf(n)==='invitations').length};root.querySelectorAll('[data-notice-filter]').forEach(b=>{const old=b.querySelector('.notice-filter-count');if(old)old.remove();const count=document.createElement('span');count.className='notice-filter-count';count.textContent=counts[b.dataset.noticeFilter]??0;b.appendChild(count);b.classList.toggle('active',b.dataset.noticeFilter===filter);b.setAttribute('aria-pressed',String(b.dataset.noticeFilter===filter))})};
-  const emptyMessage=()=>filter==='unread'?['You’re all caught up','There are no unread team updates right now.']:filter==='tasks'?['No task updates','Assignments and task progress will appear here.']:filter==='invitations'?['No invitations','New team invitations will appear here.']:filter==='notes'?['No shared notes','Notes shared with your teams will appear here.']:filter==='events'?['No calendar updates','Shared team events will appear here.']:['Your inbox is quiet','New assignments, shared notes, invitations, and team events will appear here.'];
-  function render(){
-    ensureFilterButtons();
-    const all=items(),unread=all.filter(n=>n.unread).length;updateOverview(all,unread);updateCounts(all);
-    const shown=all.filter(n=>filter==='all'||(filter==='unread'&&n.unread)||typeOf(n)===filter).slice(0,80),box=byId('notificationList');if(!box)return;
-    if(!shown.length){const [title,copy]=emptyMessage();box.innerHTML=`<div class="notification-empty-state"><div class="notification-empty-icon">✓</div><strong>${title}</strong><p>${copy}</p>${filter==='all'&&all.length===0?'<button type="button" class="btn" data-goto="team">Open team workspace</button>':''}</div>`;return}
-    let group='';
-    box.innerHTML=shown.map(n=>{const current=dayLabel(n.time),separator=current!==group?(group=current,`<div class="notification-day-label">${current}</div>`):'';const type=typeOf(n),label=typeLabel(type),actor=n.actorName||n.actor||'A teammate',avatar=typeof avatarMarkup==='function'?avatarMarkup({uid:n.actorUid,displayName:actor,photoURL:n.actorPhotoURL},'sm'):`<span class="account-avatar">${esc(actor.charAt(0).toUpperCase())}</span>`;return `${separator}<button type="button" class="notification-item ${n.unread?'unread':'read'}" data-notification-key="${esc(n.key||'')}" data-notification-type="${esc(type)}" data-notification-id="${esc(n.id||'')}" data-notification-target-id="${esc(n.targetId||'')}" data-notification-team="${esc(n.teamId||'')}" aria-label="${n.unread?'Unread. ':''}${esc(n.title||'Team update')}. Open ${label.toLowerCase()} item"><span class="notification-leading">${avatar}<span class="notification-dot" aria-hidden="true"></span></span><span class="notification-copy"><span class="notification-type">${label} · ${esc(n.teamName||'Team')}</span><strong>${esc(n.title||'Team update')}</strong><p>${esc(n.message||n.detail||'A team update needs your attention.')}</p><small title="${esc(n.time?new Date(n.time).toLocaleString():'Recent')}">${esc(relativeTime(n.time))}${actor?` · by ${esc(actor)}`:''}</small></span><span class="notification-open-hint" aria-hidden="true">›</span></button>`}).join('');
-    const badge=byId('notificationBadge');if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',unread===0)}const summary=byId('notificationSummary');if(summary)summary.textContent=unread?`${unread} unread notification${unread===1?'':'s'}`:'You are all caught up.';const mark=byId('markNotificationsRead');if(mark)mark.disabled=unread===0;
-  }
-  const originalItems=window.teamActivityItems;
-  if(typeof originalItems==='function'){window.teamActivityItems=()=>{const local=readSet();return originalItems().map(n=>local.has(n.key)?{...n,unread:false}:n)}}
-  const originalMark=window.markNotificationRead;
-  window.markNotificationRead=async key=>{const set=readSet();set.add(key);try{localStorage.setItem(readKey(),JSON.stringify([...set]))}catch{}if(typeof originalMark==='function')await originalMark(key);render()};
-  const originalMarkAll=window.markAllNotificationsRead;
-  window.markAllNotificationsRead=async()=>{const all=items(),set=readSet();all.forEach(n=>set.add(n.key));try{localStorage.setItem(readKey(),JSON.stringify([...set]))}catch{}if(typeof originalMarkAll==='function')await originalMarkAll();render();if(typeof notify==='function')notify('All notifications marked as read.')};
-  byId('markNotificationsRead')?.addEventListener('click',()=>{const set=readSet();items().forEach(n=>set.add(n.key));try{localStorage.setItem(readKey(),JSON.stringify([...set]))}catch{}setTimeout(render,0)},true);
-  const root=byId('notificationFilters');root?.addEventListener('click',e=>{const b=e.target.closest('[data-notice-filter]');if(!b)return;filter=b.dataset.noticeFilter;window.chronosNotificationFilter=filter;render()});
-  const originalRender=window.renderNotificationList;window.renderNotificationList=()=>{try{render()}catch(error){console.warn('Notification upgrade render failed',error);if(typeof originalRender==='function')originalRender()}};
-  ensureFilterButtons();render();
-})();
 </script>
 
 </body>
