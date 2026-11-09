@@ -23,7 +23,15 @@ service cloud.firestore {
       return /databases/$(database)/documents/teams/$(teamId)/tombstones/$(recordId);
     }
     function isTeamTombstoned(teamId, recordId) {
-      return exists(teamTombstonePath(teamId, recordId));
+      return exists(teamTombstonePath(teamId, recordId))
+        || exists(teamTombstonePath(teamId, 'tasks_' + recordId))
+        || exists(teamTombstonePath(teamId, 'events_' + recordId))
+        || exists(teamTombstonePath(teamId, 'notes_' + recordId))
+        || exists(teamTombstonePath(teamId, 'projects_' + recordId))
+        || exists(teamTombstonePath(teamId, 'tasks|' + recordId))
+        || exists(teamTombstonePath(teamId, 'events|' + recordId))
+        || exists(teamTombstonePath(teamId, 'notes|' + recordId))
+        || exists(teamTombstonePath(teamId, 'projects|' + recordId));
     }
 
     // User Tombstone Anti-Resurrection Helpers
@@ -32,8 +40,8 @@ service cloud.firestore {
     }
     function isUserTombstoned(userId, type, recordId) {
       return exists(userTombstonePath(userId, type + '_' + recordId))
-        || exists(userTombstonePath(userId, type + '|' + recordId))
-        || exists(userTombstonePath(userId, recordId));
+        || exists(userTombstonePath(userId, recordId))
+        || exists(userTombstonePath(userId, type + '|' + recordId));
     }
 
     // Personal user data: full control by owner with anti-resurrection guards
@@ -83,9 +91,7 @@ service cloud.firestore {
       // Shared Team Tombstones: prevents deleted team records from resurrecting across all members
       match /tombstones/{tombstoneId} {
         allow read: if isMember(teamId);
-        allow create: if isMember(teamId)
-          && request.resource.data.deletedBy == request.auth.uid;
-        allow update: if isMember(teamId)
+        allow create, update: if isMember(teamId)
           && request.resource.data.deletedBy == request.auth.uid;
         allow delete: if isAdmin(teamId);
       }

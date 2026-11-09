@@ -7776,7 +7776,23 @@ const sampleNotes=[
 const DEFAULT_FIREBASE_CONFIG={apiKey:'AIzaSyDVurj0n57qBiSBwuCjaDpi5CSQs-3I3f0',authDomain:'paperuss-2.firebaseapp.com',projectId:'paperuss-2',messagingSenderId:'158402331948',appId:'1:158402331948:web:a3abb73a2c84b14e78d889',measurementId:'G-1ZC6WLYCPG'};
 let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig={...DEFAULT_FIREBASE_CONFIG};let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
 const defaultSettings={homePage:'dashboard',mode:'dark',accent:'cloud_pastel',density:'comfortable',motion:'full',notifications:true,browserNotifications:false,leadTime:10,quietHours:true,quietStart:'22:00',quietEnd:'07:00',sounds:true,interfaceSounds:true,volume:50,soundProfile:'gentle',weekStart:'monday',timeFormat:'24',duration:60,flowStickyBarEnabled:true,projectWorkspaceSize:'card',projectDefaultTab:'tasks',projectCutoffTime:'17:00',projectGracePeriod:0,projectSupervisorTitle:'Master Teacher / Department Head',projectSchoolDivision:'Department of Education',projectSchoolName:'Main Academic Office',projectApprovingAuthority:'School Head / Principal'};let settings={...defaultSettings},notifiedReminders=new Set(),reminderTimer=null;
-function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStorage.getItem('chronos20.notes');events=e?JSON.parse(e):sampleEvents;notes=n?JSON.parse(n):sampleNotes;if(!Array.isArray(events)||!Array.isArray(notes))throw Error('bad data');notes=notes.map(x=>({collection:'',trashed:false,archived:false,tags:[],...x}))}catch(err){events=sampleEvents;notes=sampleNotes;notify('Sample data loaded. Local storage was unavailable.')}try{const t=localStorage.getItem('chronos20.theme');if(t)document.documentElement.dataset.theme=t;try{if(document.documentElement.dataset.skin==='ipados-tablet')delete document.documentElement.dataset.skin;localStorage.removeItem('chronos.tabletSkin')}catch{}const savedSettings=JSON.parse(localStorage.getItem('chronos50.settings')||'null');localSettingsPresent=!!savedSettings;settings={...defaultSettings,...(savedSettings&&typeof savedSettings==='object'?savedSettings:{})};applySettings(false);const raw=localStorage.getItem('chronos40.tasks');tasks=raw?JSON.parse(raw):[];if(!Array.isArray(tasks))tasks=[];firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG}}catch{tasks=[];firebaseConfig={}}}
+function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStorage.getItem('chronos20.notes');events=e?JSON.parse(e):sampleEvents;notes=n?JSON.parse(n):sampleNotes;if(!Array.isArray(events)||!Array.isArray(notes))throw Error('bad data');notes=notes.map(x=>({collection:'',trashed:false,archived:false,tags:[],...x}))}catch(err){events=sampleEvents;notes=sampleNotes;notify('Sample data loaded. Local storage was unavailable.')}try{const t=localStorage.getItem('chronos20.theme');if(t)document.documentElement.dataset.theme=t;try{if(document.documentElement.dataset.skin==='ipados-tablet')delete document.documentElement.dataset.skin;localStorage.removeItem('chronos.tabletSkin')}catch{}const savedSettings=JSON.parse(localStorage.getItem('chronos50.settings')||'null');localSettingsPresent=!!savedSettings;settings={...defaultSettings,...(savedSettings&&typeof savedSettings==='object'?savedSettings:{})};applySettings(false);const raw=localStorage.getItem('chronos40.tasks');tasks=raw?JSON.parse(raw):[];if(!Array.isArray(tasks))tasks=[];firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG}}catch{tasks=[];firebaseConfig={}}
+  // Anti-Resurrection Guard: Purge tombstoned records on startup
+  try{
+    const tombs=(typeof localTombstones==='function')?localTombstones():{};
+    if(typeof withoutTombstones==='function'){
+      events=withoutTombstones(events,'events',tombs);
+      notes=withoutTombstones(notes,'notes',tombs);
+      tasks=withoutTombstones(tasks,'tasks',tombs);
+      if(typeof chronosProjects!=='undefined'&&Array.isArray(chronosProjects)){
+        chronosProjects=withoutTombstones(chronosProjects,'projects',tombs);
+      }
+    }
+    if(typeof purgeZombieShowcaseData==='function'){
+      purgeZombieShowcaseData();
+    }
+  }catch(e){}
+}
 function ensureSchoolCalendarActivities(){const marker='chronos90.calendarImageImport.schoolYear2026_2027.v3';try{if(localStorage.getItem(marker)==='1')return;const byId=new Map(events.map(e=>[String(e.id),e]));let changed=false;for(const activity of schoolCalendarActivities){const existing=byId.get(activity.id);if(existing){if(existing.reminderMinutes!==1440){existing.reminderMinutes=1440;changed=true}if(!existing.importSource){existing.importSource=activity.importSource;changed=true}}else{events.push(activity);changed=true}}if(changed)persist();localStorage.setItem(marker,'1')}catch(err){console.warn('Could not import 2026–2027 school activities',err)}}
 function removeLegacySampleActivities(){const legacyIds=new Set(['e1','e2','e3','e4','e5','e6','e7','e8']);const before=events.length;events=events.filter(event=>!legacyIds.has(String(event.id)));if(events.length!==before)persist()}
 function saveSettings(){try{localStorage.setItem('chronos50.settings',JSON.stringify(settings));localStorage.setItem('chronos20.theme',document.documentElement.dataset.theme||'dark');localStorage.setItem('chronos60.settingsUpdatedAt',String(Date.now()));scheduleFirebaseSync()}catch{notify('Could not save preferences in this browser.')} }
@@ -7882,6 +7898,26 @@ window.promptCustomInApp=promptCustomInApp;
 window.alert=function(msg){notifyCustomInApp('Notice',String(msg||''))};
 function deliverReminder(title,body,key){notify(body);notifyCustomInApp(title,body);playAppSound('reminder')}
 function checkReminders(){if(!settings.notifications)return;const now=new Date(),defaultLead=Number(settings.leadTime)||0;for(const ev of events){if(!ev.date||ev.reminderMinutes===null||(!ev.allDay&&!ev.start))continue;const lead=ev.reminderMinutes===undefined?defaultLead:Number(ev.reminderMinutes),dt=ev.allDay?new Date(`${ev.date}T09:00:00`):new Date(`${ev.date}T${ev.start}:00`),diff=dt.getTime()-now.getTime(),key='event:'+ev.id+':'+ev.date;if(diff<0||diff>Math.max(lead,1)*60000||notifiedReminders.has(key))continue;if(inQuietHours(now))continue;notifiedReminders.add(key);const message=ev.allDay?`${ev.title} is scheduled for ${fmt(parseDate(ev.date),{weekday:'long',month:'short',day:'numeric'})}.`:ev.title+(diff<=60000?' is starting now':` starts in ${Math.max(1,Math.round(diff/60000))} min.`);deliverReminder('Chronos event reminder',message,key)}for(const task of tasks){if(task.done||!task.due||!task.reminder||task.reminder==='none')continue;const dueAt=taskReminderDate(task);if(!dueAt)continue;const key=`task:${task.id}:${task.due}:${task.dueTime||'09:00'}:${task.reminder}`;if(task.reminderFiredKey===key)continue;const diff=dueAt.getTime()-now.getTime();if(diff>0||inQuietHours(now))continue;task.reminderFiredKey=key;task.reminderLastFiredAt=Date.now();persist();const taskActualDue=new Date(`${task.due}T${task.dueTime||'09:00'}:00`),label=taskActualDue.getTime()<now.getTime()?'overdue':task.reminder==='dayBefore'?'due tomorrow':task.reminder==='hourBefore'?'due in about one hour':'due today';deliverReminder('Chronos task reminder',`${task.title} is ${label}. Due ${task.due}${task.dueTime?' at '+task.dueTime:''}.`,key)}}
+/* =========================================================
+   CHRONOS FLOW 5.2 — UNIVERSAL TOMBSTONES & ANTI-RESURRECTION
+   ========================================================= */
+function localTombstones(){
+  const uid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
+  try {
+    const u = JSON.parse(localStorage.getItem('chronos60.firebaseTombstones.' + uid) || '{}');
+    const g = JSON.parse(localStorage.getItem('chronos60.localTombstones') || '{}');
+    return { ...g, ...u };
+  } catch(e){ return {}; }
+}
+window.localTombstones = localTombstones;
+window.getLocalTombstones = localTombstones;
+
+function withoutTombstones(items, type, tombs){
+  tombs = tombs || localTombstones();
+  return (items || []).filter(x => x && x.id != null && !tombs[type + '|' + String(x.id)]);
+}
+window.withoutTombstones = withoutTombstones;
+
 function recordLocalTombstone(type, id){
   if(!id) return;
   const k = type + '|' + String(id);
@@ -7899,6 +7935,8 @@ function recordLocalTombstone(type, id){
     localStorage.setItem(uKey, JSON.stringify(u));
   } catch(e){}
 }
+window.recordLocalTombstone = recordLocalTombstone;
+
 async function deleteCloudDocumentDirectly(type, id, teamId = null){
   if(!id) return;
   recordLocalTombstone(type, id);
@@ -7910,27 +7948,124 @@ async function deleteCloudDocumentDirectly(type, id, teamId = null){
   try {
     if(teamId && typeof firebaseDb !== 'undefined' && firebaseDb){
       await firebaseDb.collection('teams').doc(teamId).collection(kind).doc(String(id)).delete().catch(()=>{});
-      await firebaseDb.collection('teams').doc(teamId).collection('tombstones').doc(String(id)).set({
+      const tData = {
         id: String(id),
         type: kind,
         deletedAt: now,
         deletedBy: (typeof firebaseUser !== 'undefined' && firebaseUser) ? firebaseUser.uid : 'local'
-      }, { merge: true }).catch(()=>{});
+      };
+      await firebaseDb.collection('teams').doc(teamId).collection('tombstones').doc(String(id)).set(tData, { merge: true }).catch(()=>{});
+      await firebaseDb.collection('teams').doc(teamId).collection('tombstones').doc(kind + '_' + cleanId).set(tData, { merge: true }).catch(()=>{});
     }
   } catch(err){ console.warn('Team cloud deletion failed for ' + id, err); }
 
   try {
     if(typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb){
       await firebaseDb.collection('users').doc(firebaseUser.uid).collection(kind).doc(cleanId).delete().catch(()=>{});
-      await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones').doc(kind + '_' + cleanId).set({
+      const uData = {
         id: String(id),
         type: kind,
         deletedAt: now,
         tombstoneKey: kind + '|' + String(id)
-      }, { merge: true }).catch(()=>{});
+      };
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones').doc(kind + '_' + cleanId).set(uData, { merge: true }).catch(()=>{});
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones').doc(cleanId).set(uData, { merge: true }).catch(()=>{});
     }
   } catch(err){ console.warn('User cloud deletion failed for ' + id, err); }
 }
+window.deleteCloudDocumentDirectly = deleteCloudDocumentDirectly;
+
+// Eradicate zombie showcase mock tasks & project if dismissed or tombstoned
+function purgeZombieShowcaseData(forcePurge = false){
+  try {
+    const SHOWCASE_ID = 'proj_stem_showcase_2026';
+    const isDismissed = localStorage.getItem('chronos90.showcaseProjectDismissed') === '1';
+    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
+    const hasTomb = !!(tombs['projects|' + SHOWCASE_ID] || tombs['tasks|task_mock_stem_01'] || tombs['tasks|task_mock_stem_cohort_01']);
+
+    if (!forcePurge && !isDismissed && !hasTomb) return;
+
+    localStorage.setItem('chronos90.showcaseProjectDismissed', '1');
+
+    const mockTaskIds = new Set();
+    (tasks || []).forEach(t => {
+      const id = String(t.id || '');
+      if (id.startsWith('task_mock_stem_') || t.projectId === SHOWCASE_ID || t.deliverableGroup === 'deliv_grp_rubric_2026') {
+        mockTaskIds.add(id);
+      }
+    });
+    for (let i = 1; i <= 20; i++) {
+      mockTaskIds.add('task_mock_stem_cohort_' + i.toString().padStart(2, '0'));
+    }
+    for (let i = 1; i <= 6; i++) {
+      mockTaskIds.add('task_mock_stem_0' + i);
+    }
+
+    // Record local tombstones
+    mockTaskIds.forEach(id => {
+      recordLocalTombstone('tasks', id);
+    });
+    recordLocalTombstone('projects', SHOWCASE_ID);
+
+    // Strip from memory
+    const beforeTasksLen = (tasks || []).length;
+    tasks = (tasks || []).filter(t => !mockTaskIds.has(String(t.id)) && t.projectId !== SHOWCASE_ID && t.deliverableGroup !== 'deliv_grp_rubric_2026');
+
+    if (typeof chronosProjects !== 'undefined' && Array.isArray(chronosProjects)) {
+      chronosProjects = chronosProjects.filter(p => String(p.id) !== SHOWCASE_ID);
+      try { localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects)); } catch(e){}
+    }
+
+    if (tasks.length !== beforeTasksLen) {
+      try { localStorage.setItem('chronos40.tasks', JSON.stringify(tasks)); } catch(e){}
+    }
+
+    // Purge directly from Firestore if signed in
+    if (navigator.onLine && typeof firebaseDb !== 'undefined' && firebaseDb && typeof firebaseUser !== 'undefined' && firebaseUser) {
+      (async () => {
+        try {
+          const userDoc = firebaseDb.collection('users').doc(firebaseUser.uid);
+          userDoc.collection('projects').doc(SHOWCASE_ID).delete().catch(()=>{});
+          userDoc.collection('tombstones').doc('projects_' + SHOWCASE_ID).set({
+            id: SHOWCASE_ID,
+            type: 'projects',
+            deletedAt: Date.now(),
+            tombstoneKey: 'projects|' + SHOWCASE_ID
+          }, { merge: true }).catch(()=>{});
+          userDoc.collection('tombstones').doc(SHOWCASE_ID).set({
+            id: SHOWCASE_ID,
+            type: 'projects',
+            deletedAt: Date.now(),
+            tombstoneKey: 'projects|' + SHOWCASE_ID
+          }, { merge: true }).catch(()=>{});
+
+          const taskIdsArr = Array.from(mockTaskIds);
+          for (let i = 0; i < taskIdsArr.length; i += 200) {
+            const batch = firebaseDb.batch();
+            taskIdsArr.slice(i, i + 200).forEach(taskId => {
+              const cleanId = taskId.replace(/[.#$\[\]/]/g, '_');
+              batch.delete(userDoc.collection('tasks').doc(cleanId));
+              const tData = {
+                id: taskId,
+                type: 'tasks',
+                deletedAt: Date.now(),
+                tombstoneKey: 'tasks|' + taskId
+              };
+              batch.set(userDoc.collection('tombstones').doc('tasks_' + cleanId), tData, { merge: true });
+              batch.set(userDoc.collection('tombstones').doc(cleanId), tData, { merge: true });
+            });
+            await batch.commit();
+          }
+        } catch(cloudErr) {
+          console.warn('Could not purge cloud showcase records:', cloudErr);
+        }
+      })();
+    }
+  } catch(err) {
+    console.warn('purgeZombieShowcaseData error:', err);
+  }
+}
+window.purgeZombieShowcaseData = purgeZombieShowcaseData;
 function trackDeletedRecords(){
   if(typeof firebaseApplyingRemote !== 'undefined' && firebaseApplyingRemote) return;
   let localTombs = {};
@@ -9644,7 +9779,7 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
   renderOverviewTeam();
   if(typeof renderNotes === 'function') renderNotes();
 }
-async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date)}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
+async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const tombs=(typeof localTombstones==='function')?localTombstones():{};const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!tombs['events|'+String(e.id)]&&!tombs['events|'+String(e.sourceId||'')]);}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
 const EVENT_COVER_PRESETS = {
   'preset:strategy': {
     name: 'Strategy Sync',
@@ -16782,7 +16917,7 @@ function renderTasks(){
  const wsY=wsBody?wsBody.scrollTop:0;
  const todayKey=iso(today);
  const matchesFilter=(done,due,isTeam=false)=>{if(taskFilter==='team')return isTeam;if(taskFilter==='done')return done;if(taskFilter==='open')return !done;if(taskFilter==='today')return !done&&due===todayKey;if(taskFilter==='upcoming')return !done&&due&&due>todayKey;if(taskFilter==='overdue')return !done&&due&&due<todayKey;return true};
- const personal=(taskFilter==='team'?[]:tasks.filter(t=>matchesFilter(!!t.done,t.due||'',false)));
+ const personal=(taskFilter==='team'?[]:tasks.filter(t=>!t.isDeliverableSubmission&&matchesFilter(!!t.done,t.due||'',false)));
  // Canonicalize team assignments by team + Firestore record ID to avoid duplicates
  // when live listeners and optimistic local updates both contribute the same record.
  const seenTeamTasks=new Set();
@@ -16886,7 +17021,7 @@ function triggerDayCompletionCelebration(dateKey){
 function toggleTask(id,done){const t=tasks.find(x=>x.id===id);if(!t)return;const wasDone=!!t.done;t.done=done;t.updated=Date.now();if(done&&!wasDone&&t.recurrence&&t.recurrence!=='none'&&t.due){let nextDue=nextTaskDue(t.due,t.recurrence),todayKey=iso(new Date());let guard=0;while(nextDue&&nextDue<=todayKey&&guard++<500)nextDue=nextTaskDue(nextDue,t.recurrence);const root=t.recurrenceParentId||t.id;if(nextDue&&!tasks.some(x=>(x.recurrenceParentId||x.id)===root&&x.due===nextDue)){tasks.push({...t,id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,due:nextDue,done:false,reminderFiredKey:'',subtasks:(t.subtasks||[]).map(st=>({...st,id:`st${Date.now()}${Math.random().toString(36).slice(2,5)}`,done:false})),recurrenceParentId:root,updated:Date.now()})}}persist();renderTasks();renderDashboard();renderSelectedTasks();if(done){const card=[...document.querySelectorAll('.task-card')].find(el=>el.querySelector('[data-task-toggle]')?.dataset.taskToggle===id);if(card)card.classList.add('just-completed');playAppSound('success');if(t.due){const dayTasks=tasks.filter(x=>x.due===t.due);if(dayTasks.length>0&&dayTasks.every(x=>x.done)){triggerDayCompletionCelebration(t.due);}}}else playInterfaceSound();}
 $('taskForm').addEventListener('submit',async e=>{e.preventDefault();const title=$('taskTitle').value.trim(),due=$('taskDue').value,dueTime=$('taskDueTime').value,reminder=$('taskReminder').value;if(!title)return;if(reminder==='hourBefore'&&due&&!dueTime){notify('Add a due time to use the 1-hour-before reminder.');$('taskDueTime').focus();return}if(reminder!=='none'&&!due){notify('Choose a due date to schedule a task reminder.');$('taskDue').focus();return}const id=$('taskId').value||`t${Date.now()}`,i=tasks.findIndex(t=>t.id===id),old=tasks[i],subLines=$('taskSubtasks').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),oldSubs=old?.subtasks||[],subtasks=subLines.map(title=>({...oldSubs.find(x=>x.title===title),id:oldSubs.find(x=>x.title===title)?.id||`st${Date.now()}${Math.random().toString(36).slice(2,6)}`,title,done:!!oldSubs.find(x=>x.title===title)?.done})),reminderChanged=!old||old.reminder!==reminder||old.due!==due||old.dueTime!==dueTime,t={...old,id,title,due,dueTime,priority:$('taskPriority').value,details:$('taskDetails').value.trim(),recurrence:$('taskRecurrence').value,reminder,reminderFiredKey:reminderChanged?'':(old?.reminderFiredKey||''),linkedNoteId:$('taskLinkedNote').value,subtasks,done:old?.done||false,teamAssignments:selectedMulti('taskAssignees').map(v=>{const [teamId,uid]=v.split('|');return {teamId,uid}}),sharedTeamIds:[],createdBy:old?.createdBy||(firebaseUser?firebaseUser.uid:'local'),createdByName:old?.createdByName||(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:old?.createdByPhotoURL||(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()};t.sharedTeamIds=[...new Set([...selectedMulti('taskShareTeams'),...(t.teamAssignments||[]).map(a=>a.teamId)])];if(i>=0)tasks[i]=t;else tasks.push(t);persist();try{await publishToTeams('tasks',t,t.sharedTeamIds,t.teamAssignments)}catch(err){notify('Task saved locally, but team sharing failed: '+err.message)}closeTask();renderTasks();renderDashboard();renderSelectedTasks();notify(i>=0?'Task updated.':'Task added.');checkReminders();});
 $('taskQuickAddBtn')?.addEventListener('click',()=>{const title=$('taskQuickTitle').value.trim();if(!title){$('taskQuickTitle').focus();return}tasks.push({id:`t${Date.now()}`,title,due:$('taskQuickDue').value,priority:'medium',details:'',dueTime:'',done:false,recurrence:'none',reminder:'none',reminderFiredKey:'',subtasks:[],...(selectedProjectId?{projectId:selectedProjectId}:{}),createdBy:(firebaseUser?firebaseUser.uid:'local'),createdByName:(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()});$('taskQuickTitle').value='';persist();renderTasks();renderDashboard();notify('Task added.')});$('taskQuickTitle')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('taskQuickAddBtn').click()}});
-$('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);tasks=tasks.filter(t=>String(t.id)!==String(id));persist();closeTask();renderTasks();renderDashboard();notify('Task deleted.')}});
+$('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);if(Array.isArray(targetTask?.sharedTeamIds)){targetTask.sharedTeamIds.forEach(tid=>deleteCloudDocumentDirectly('tasks',id,tid));}if(String(id).startsWith('task_mock_stem_')||targetTask?.projectId==='proj_stem_showcase_2026'||targetTask?.deliverableGroup==='deliv_grp_rubric_2026'){try{localStorage.setItem('chronos90.showcaseProjectDismissed','1');}catch(e){}const related=(tasks||[]).filter(t=>String(t.id).startsWith('task_mock_stem_')||t.projectId==='proj_stem_showcase_2026'||t.deliverableGroup==='deliv_grp_rubric_2026');related.forEach(rt=>{recordLocalTombstone('tasks',rt.id);deleteCloudDocumentDirectly('tasks',rt.id,rt.teamId);});recordLocalTombstone('projects','proj_stem_showcase_2026');deleteCloudDocumentDirectly('projects','proj_stem_showcase_2026');tasks=tasks.filter(t=>!String(t.id).startsWith('task_mock_stem_')&&t.projectId!=='proj_stem_showcase_2026'&&t.deliverableGroup!=='deliv_grp_rubric_2026');if(typeof chronosProjects!=='undefined'&&Array.isArray(chronosProjects)){chronosProjects=chronosProjects.filter(p=>String(p.id)!=='proj_stem_showcase_2026');try{localStorage.setItem('chronos90.projects',JSON.stringify(chronosProjects));}catch(e){}}}else{tasks=tasks.filter(t=>String(t.id)!==String(id));}persist();closeTask();renderTasks();renderDashboard();if(typeof renderCalendar==='function')renderCalendar();if(typeof renderOverviewHorizon==='function')renderOverviewHorizon();if(typeof renderProjectManager==='function')renderProjectManager();notify('Task deleted.')}});
 document.addEventListener('change',e=>{if(e.target.matches('[data-task-toggle]'))toggleTask(e.target.dataset.taskToggle,e.target.checked)});
 document.addEventListener('click',e=>{const sched=e.target.closest('[data-schedule-task]');if(sched){e.stopPropagation();const t=tasks.find(x=>x.id===sched.dataset.scheduleTask);if(t){openEvent(null,t.due||iso(selected));$('eventTitle').value=t.title;$('eventDescription').value=t.details||'';$('eventLinkedNote').value=t.linkedNoteId||'';notify('Review event details, then save to schedule this task.')}return}const noteLink=e.target.closest('[data-edit-note], [data-preview-note]');if(noteLink&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){e.stopPropagation();const nId=noteLink.dataset.previewNote||noteLink.dataset.editNote||noteLink.dataset.noteId;if(noteLink.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}const t=e.target.closest('[data-edit-task]');if(t){if(t.dataset.forceEdit||e.target.closest('.journey-card-menu-btn')){openTask(t.dataset.editTask)}else{openItemPreview('task',t.dataset.editTask)}return}const g=e.target.closest('[data-goto]');if(g)setPage(g.dataset.goto)});
 document.querySelectorAll('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{taskFilter=b.dataset.taskFilter;document.querySelectorAll('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks()}));
@@ -18083,19 +18218,25 @@ function downloadLocalPreSyncBackup(){const payload={app:'Chronos',backupVersion
 function itemTime(x){const vals=[x?.updated,x?.updatedAt,x?.modifiedAt,x?.createdAt].map(v=>Number(v||0)).filter(v=>Number.isFinite(v)&&v>0);const d=Date.parse(x?.updated_at||'');if(Number.isFinite(d)&&d>0)vals.push(d);return vals.length?Math.max(...vals):0}
 function mergeById(localItems,cloudItems){const map=new Map();for(const x of cloudItems||[])if(x&&x.id!=null)map.set(String(x.id),x);for(const x of localItems||[]){if(!x||x.id==null)continue;const id=String(x.id),old=map.get(id);if(!old||itemTime(x)>=itemTime(old))map.set(id,x)}return [...map.values()]}
 async function firestoreReadCollection(name){const snap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection(name).get();return snap.docs.map(d=>({...d.data(),id:d.data()._chronosId||d.id}))}
-async function firestoreWriteCollection(name,items){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection(name);for(let i=0;i<items.length;i+=400){const batch=firebaseDb.batch();for(const item of items.slice(i,i+400)){if(!item||item.id==null)continue;const id=String(item.id).replace(/[.#$\[\]/]/g,'_');batch.set(col.doc(id),{...item,_chronosId:String(item.id),_syncUpdatedAt:itemTime(item)||Date.now()},{merge:true})}await batch.commit()}}
-function localTombstones(){
-  const uid = (typeof firebaseUser !== 'undefined' && firebaseUser?.uid) ? firebaseUser.uid : 'local';
-  try {
-    const u = JSON.parse(localStorage.getItem('chronos60.firebaseTombstones.' + uid) || '{}');
-    const g = JSON.parse(localStorage.getItem('chronos60.localTombstones') || '{}');
-    return { ...g, ...u };
-  } catch(e){ return {}; }
+async function firestoreWriteCollection(name,items){
+  const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
+  const cleanItems = (items || []).filter(item => item && item.id != null && !tombs[name + '|' + String(item.id)]);
+  const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection(name);
+  for(let i=0;i<cleanItems.length;i+=400){
+    const batch=firebaseDb.batch();
+    for(const item of cleanItems.slice(i,i+400)){
+      const id=String(item.id).replace(/[.#$\[\]/]/g,'_');
+      batch.set(col.doc(id),{...item,_chronosId:String(item.id),_syncUpdatedAt:itemTime(item)||Date.now()},{merge:true});
+    }
+    await batch.commit();
+  }
 }
 async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks, cloudProjects = []){
   if(!firebaseUser || !firebaseDb || !navigator.onLine) return;
   const colBase = firebaseDb.collection('users').doc(firebaseUser.uid);
   const toDelete = [];
+  const isShowcaseDismissed = localStorage.getItem('chronos90.showcaseProjectDismissed') === '1' || !!(tombs && (tombs['projects|proj_stem_showcase_2026'] || tombs['tasks|task_mock_stem_01']));
+
   for(const e of cloudEvents || []){
     const id = String(e.id);
     if(tombs['events|' + id]) toDelete.push(colBase.collection('events').doc(id.replace(/[.#$\[\]/]/g, '_')));
@@ -18106,11 +18247,17 @@ async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks, 
   }
   for(const t of cloudTasks || []){
     const id = String(t.id);
-    if(tombs['tasks|' + id]) toDelete.push(colBase.collection('tasks').doc(id.replace(/[.#$\[\]/]/g, '_')));
+    const isMock = id.startsWith('task_mock_stem_') || t.projectId === 'proj_stem_showcase_2026' || t.deliverableGroup === 'deliv_grp_rubric_2026';
+    if(tombs['tasks|' + id] || (isShowcaseDismissed && isMock)) {
+      toDelete.push(colBase.collection('tasks').doc(id.replace(/[.#$\[\]/]/g, '_')));
+    }
   }
   for(const p of cloudProjects || []){
     const id = String(p.id);
-    if(tombs['projects|' + id]) toDelete.push(colBase.collection('projects').doc(id.replace(/[.#$\[\]/]/g, '_')));
+    const isMock = id === 'proj_stem_showcase_2026' || p.isMock;
+    if(tombs['projects|' + id] || (isShowcaseDismissed && isMock)) {
+      toDelete.push(colBase.collection('projects').doc(id.replace(/[.#$\[\]/]/g, '_')));
+    }
   }
   for(let i = 0; i < toDelete.length; i += 400){
     try {
@@ -18121,8 +18268,28 @@ async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks, 
   }
 }
 function mergeTombstones(localMap,cloudItems){const out={...(localMap||{})};for(const t of cloudItems||[]){if(!t?.type||t.id==null)continue;const k=t.type+'|'+String(t.id);if(!out[k]||Number(t.deletedAt||0)>Number(out[k].deletedAt||0))out[k]={type:t.type,id:String(t.id),deletedAt:Number(t.deletedAt)||Date.now()}}return out}
-function withoutTombstones(items,type,tombs){return (items||[]).filter(x=>x&&x.id!=null&&!tombs[type+'|'+String(x.id)])}
-async function writeTombstones(tombs){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');const entries=Object.entries(tombs||{});for(let i=0;i<entries.length;i+=400){const batch=firebaseDb.batch();for(const [key,t] of entries.slice(i,i+400)){const docId=String(key).replace(/[.#$\[\]/]/g,'_');batch.set(col.doc(docId),{...t,id:String(t.id),tombstoneKey:key},{merge:true})}await batch.commit()}}
+async function writeTombstones(tombs){
+  if(!firebaseUser || !firebaseDb) return;
+  const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');
+  const entries=Object.entries(tombs||{});
+  for(let i=0;i<entries.length;i+=200){
+    const batch=firebaseDb.batch();
+    for(const [key,t] of entries.slice(i,i+200)){
+      if(!t||t.id==null)continue;
+      const cleanId=String(t.id).replace(/[.#$\[\]/]/g,'_');
+      const typeStr=String(t.type||'').replace(/[.#$\[\]/]/g,'_');
+      const kindDocId=typeStr ? (typeStr + '_' + cleanId) : cleanId;
+      const tPayload = {...t, id:String(t.id), type:t.type, tombstoneKey:key, deletedAt:t.deletedAt||Date.now()};
+      batch.set(col.doc(kindDocId), tPayload, {merge:true});
+      batch.set(col.doc(cleanId), tPayload, {merge:true});
+      const rawDocId=String(key).replace(/[.#$\[\]/]/g,'_');
+      if(rawDocId!==kindDocId && rawDocId!==cleanId){
+        batch.set(col.doc(rawDocId), tPayload, {merge:true});
+      }
+    }
+    await batch.commit().catch(e=>console.warn('Write tombstones batch error',e));
+  }
+}
 async function firebaseMergeSync(){if(firebaseSyncBusy)return;firebaseSyncBusy=true;const btn=$('firebaseSyncNow');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{if(!firebaseConfig.apiKey)throw Error('Save your Firebase Web App configuration first.');if(!firebaseAuth||!firebaseUser)throw Error('Sign in with Google before syncing.');if(!navigator.onLine)throw Error('You are offline. Your local changes remain saved and can sync when you are online.');const firstMigration=localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid;if(firstMigration){updateSyncStatus('Creating local backup…');downloadLocalPreSyncBackup();const ok=await confirmCustomInApp('A local JSON backup has been downloaded and saved in this browser. Merge local and cloud records by ID and update time? Existing records are not wholesale replaced.',{title:'Merge Cloud Workspace',confirmText:'Merge & sync'});if(!ok)return;}const userRef=firebaseDb.collection('users').doc(firebaseUser.uid);await userRef.set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});updateSyncStatus('Reading cloud data…');const [cloudEvents,cloudNotes,cloudTasks,cloudSettings,cloudTombstones,cloudProjects]=await Promise.all([
   firestoreReadCollection('events'),
   firestoreReadCollection('notes'),
@@ -21148,19 +21315,46 @@ html[data-theme=dark] .btn-act-compact {
   if(!task||!project||!canManageProject(project))throw Error('Only the project owner or a team administrator can delete this task.');
   if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id);
   if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('tasks', task.id, project.teamId);
-  tasks=tasks.filter(item=>String(item.id)!==String(task.id));
+  if(Array.isArray(task?.sharedTeamIds)){
+    task.sharedTeamIds.forEach(tid => deleteCloudDocumentDirectly('tasks', task.id, tid));
+  }
+  if(String(task.id).startsWith('task_mock_stem_') || String(task.projectId) === 'proj_stem_showcase_2026' || task.deliverableGroup === 'deliv_grp_rubric_2026'){
+    try{ localStorage.setItem('chronos90.showcaseProjectDismissed', '1'); }catch(e){}
+    const related = (tasks||[]).filter(t => String(t.id).startsWith('task_mock_stem_') || t.projectId === 'proj_stem_showcase_2026' || t.deliverableGroup === 'deliv_grp_rubric_2026');
+    related.forEach(rt => {
+      recordLocalTombstone('tasks', rt.id);
+      deleteCloudDocumentDirectly('tasks', rt.id, rt.teamId);
+    });
+    recordLocalTombstone('projects', 'proj_stem_showcase_2026');
+    deleteCloudDocumentDirectly('projects', 'proj_stem_showcase_2026');
+    tasks = tasks.filter(t => !String(t.id).startsWith('task_mock_stem_') && t.projectId !== 'proj_stem_showcase_2026' && t.deliverableGroup !== 'deliv_grp_rubric_2026');
+    if(typeof chronosProjects !== 'undefined' && Array.isArray(chronosProjects)){
+      chronosProjects = chronosProjects.filter(p => String(p.id) !== 'proj_stem_showcase_2026');
+      try{ localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects)); }catch(e){}
+    }
+  } else {
+    tasks=tasks.filter(item=>String(item.id)!==String(task.id));
+  }
   persist();
   closeTask();
   renderTasks();
   renderProjectManager();
   renderAssignedProjectNotes();
+  if(typeof renderCalendar === 'function') renderCalendar();
+  if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
   notify('Project task deleted.');
 }
  async function deleteProjectRecord(project){
   if(!project||!canManageProject(project))throw Error('Only the project owner or a team administrator can delete this project.');
   if(typeof recordLocalTombstone==='function') recordLocalTombstone('projects', project.id);
-  const linkedTasks = (tasks||[]).filter(task=>String(task.projectId)===String(project.id));
-  linkedTasks.forEach(task => { if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id); });
+  if(String(project.id) === 'proj_stem_showcase_2026' || project.isMock){
+    try{ localStorage.setItem('chronos90.showcaseProjectDismissed', '1'); }catch(e){}
+  }
+  const linkedTasks = (tasks||[]).filter(task=>String(task.projectId)===String(project.id) || (String(project.id)==='proj_stem_showcase_2026' && String(task.id).startsWith('task_mock_stem_')));
+  linkedTasks.forEach(task => { 
+    if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', task.id);
+    if(typeof deleteCloudDocumentDirectly==='function') deleteCloudDocumentDirectly('tasks', task.id, project.teamId);
+  });
   if(navigator.onLine&&typeof firebaseDb!=='undefined'&&firebaseDb){
     if(typeof firebaseUser!=='undefined'&&firebaseUser){
       try{
@@ -21186,7 +21380,7 @@ html[data-theme=dark] .btn-act-compact {
     }
   }
   chronosProjects=chronosProjects.filter(item=>String(item.id)!==String(project.id));
-  tasks=tasks.filter(task=>String(task.projectId)!==String(project.id));
+  tasks=tasks.filter(task=>String(task.projectId)!==String(project.id) && !(String(project.id)==='proj_stem_showcase_2026' && String(task.id).startsWith('task_mock_stem_')));
   saveChronosProjects();
   persist();
   if(String(selectedProjectId)===String(project.id))selectedProjectId='';
@@ -21195,6 +21389,8 @@ html[data-theme=dark] .btn-act-compact {
   renderTasks();
   renderProjectManager();
   renderAssignedProjectNotes();
+  if(typeof renderCalendar === 'function') renderCalendar();
+  if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
   notify('Project and its linked tasks were deleted.');
 }
  async function deleteTeamRecord(teamId){if(!firebaseUser||!firebaseDb)throw Error('Sign in before deleting a team.');const team=chronosTeams.find(item=>String(item.id)===String(teamId))||activeTeam;if(!team||String(team.ownerUid)!==String(firebaseUser.uid))throw Error('Only the team owner can delete the entire team.');if(!navigator.onLine)throw Error('Deleting a team requires an internet connection.');const teamRef=firebaseDb.collection('teams').doc(teamId);for(const kind of ['members','events','tasks','notes','projects','invitations','notifications','activity']){const snap=await teamRef.collection(kind).get();for(let i=0;i<snap.docs.length;i+=400){const batch=firebaseDb.batch();snap.docs.slice(i,i+400).forEach(doc=>batch.delete(doc.ref));await batch.commit()}}await teamRef.delete();stopTeamRealtimeSync();chronosTeams=chronosTeams.filter(item=>String(item.id)!==String(teamId));activeTeamId=chronosTeams[0]?.id||'';activeTeam=chronosTeams.find(item=>String(item.id)===String(activeTeamId))||null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamCalendarEvents=[];try{localStorage.setItem('chronos70.activeTeamId',activeTeamId)}catch{}saveTeamCache();renderTeamWorkspace();renderTasks();renderCalendar();notify('Team deleted.')}
@@ -25971,25 +26167,34 @@ function getShowcaseMockTasksData() {
 
 function ensureShowcaseMockProject(force = false) {
   try {
+    if (!force && localStorage.getItem('chronos90.showcaseProjectDismissed') === '1') return;
+    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
+    if (!force && (tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID] || tombs['tasks|task_mock_stem_01'])) return;
+
     if (typeof chronosProjects === 'undefined') return;
     let proj = chronosProjects.find(p => String(p.id) === CHRONOS_SHOWCASE_PROJECT_ID);
     const mockProjData = getShowcaseMockProjectData();
 
     if (!proj || force) {
-      if (proj) {
-        Object.assign(proj, mockProjData);
+      if (!force && tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID]) {
+        // Dismissed or tombstoned
       } else {
-        chronosProjects.unshift(mockProjData);
+        if (proj) {
+          Object.assign(proj, mockProjData);
+        } else {
+          chronosProjects.unshift(mockProjData);
+        }
+        try {
+          localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects));
+        } catch(e){}
       }
-      try {
-        localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects));
-      } catch(e){}
     }
 
     if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
       const mockTasks = getShowcaseMockTasksData();
       let changed = false;
       mockTasks.forEach(mt => {
+        if (!force && tombs['tasks|' + mt.id]) return;
         const existingIdx = tasks.findIndex(t => String(t.id) === String(mt.id));
         if (existingIdx === -1) {
           tasks.push(mt);
@@ -26016,13 +26221,28 @@ function ensureShowcaseMockProject(force = false) {
   }
 }
 
-// Auto-seed showcase project on startup
+// Auto-seed showcase project on startup ONLY if clean and never dismissed
 setTimeout(() => {
-  ensureShowcaseMockProject();
+  if (localStorage.getItem('chronos90.showcaseProjectDismissed') === '1') return;
+  const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
+  if (tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID] || tombs['tasks|task_mock_stem_01']) return;
+  if ((typeof chronosProjects !== 'undefined' && chronosProjects.length > 0) || (typeof tasks !== 'undefined' && tasks.length > 0)) {
+    if (!chronosProjects.some(p => String(p.id) === CHRONOS_SHOWCASE_PROJECT_ID)) return;
+  }
+  ensureShowcaseMockProject(false);
 }, 200);
 
 // Global helper so user or dev can trigger / open demo
 window.openShowcaseProject = function() {
+  try {
+    localStorage.removeItem('chronos90.showcaseProjectDismissed');
+    const g = JSON.parse(localStorage.getItem('chronos60.localTombstones') || '{}');
+    delete g['projects|' + CHRONOS_SHOWCASE_PROJECT_ID];
+    delete g['tasks|task_mock_stem_01'];
+    for (let i = 1; i <= 20; i++) delete g['tasks|task_mock_stem_cohort_' + i.toString().padStart(2, '0')];
+    for (let i = 1; i <= 6; i++) delete g['tasks|task_mock_stem_0' + i];
+    localStorage.setItem('chronos60.localTombstones', JSON.stringify(g));
+  } catch(e){}
   ensureShowcaseMockProject(true);
   if (typeof openProjectWorkspaceModal === 'function') {
     openProjectWorkspaceModal(CHRONOS_SHOWCASE_PROJECT_ID);
