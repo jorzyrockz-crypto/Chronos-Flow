@@ -16972,6 +16972,8 @@ $('notificationBell')?.addEventListener('click',openNotifications);$('notificati
  const roleOf3=(uid)=>teamMembers.find(m=>m.uid===uid)?.role||chronosTeams.find(t=>t.id===activeTeamId)?.role||'';
  const isOwner3=()=>!!firebaseUser&&(activeTeam?.ownerUid===firebaseUser.uid||roleOf3(firebaseUser.uid)==='owner');
  const isAdmin3=()=>isOwner3()||['admin','owner'].includes(roleOf3(firebaseUser?.uid));
+ window.isOwner3=isOwner3;
+ window.isAdmin3=isAdmin3;
  const time3=(v)=>{if(!v)return Date.now();if(typeof v==='number')return v;if(v.toMillis)return v.toMillis();if(v.toDate)return v.toDate().getTime();return Date.parse(v)||Date.now()};
  async function createTeamNotice3(teamId,recipientUid,type,title,message,targetType,targetId,recordId){
    if(!firebaseDb||!firebaseUser||!teamId||!recipientUid||recipientUid===firebaseUser.uid)return;
@@ -17008,7 +17010,42 @@ $('notificationBell')?.addEventListener('click',openNotifications);$('notificati
  markAllNotificationsRead=async function(){const unread=teamActivityItems().filter(n=>n.unread);for(const n of unread){try{await teamRef3(n.teamId).collection('notifications').doc(n.id).update({readAt:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){console.warn('Could not mark notification read',n.id,e)}}renderNotificationList();notify('Notifications marked as read.')};
  // Member management controls are rendered only for authorized team managers.
  const baseRenderTeamWorkspace=renderTeamWorkspace;
- renderTeamWorkspace=function(){baseRenderTeamWorkspace.apply(this,arguments);const tab=$('teamManageTab');if(tab)tab.classList.toggle('hidden',!activeTeam||!firebaseUser);renderTeamAdminPanel3();const gear=$('teamSettingsBtn');if(gear){gear.disabled=false;gear.removeAttribute('disabled');gear.setAttribute('aria-disabled','false');gear.style.pointerEvents='auto';gear.setAttribute('aria-pressed',String(teamTab==='manage'));gear.title=activeTeam?'Open team membership management':'Sign in and select a team to manage membership'}};  function renderTeamAdminPanel3(){
+ renderTeamWorkspace=function(){baseRenderTeamWorkspace.apply(this,arguments);const tab=$('teamManageTab');if(tab)tab.classList.toggle('hidden',!activeTeam||!firebaseUser);renderTeamAdminPanel3();const gear=$('teamSettingsBtn');if(gear){gear.disabled=false;gear.removeAttribute('disabled');gear.setAttribute('aria-disabled','false');gear.style.pointerEvents='auto';gear.setAttribute('aria-pressed',String(teamTab==='manage'));gear.title=activeTeam?'Open team membership management':'Sign in and select a team to manage membership'}};  
+function isCurrentTeamOwner() {
+  if (typeof window.isOwner3 === 'function' && window.isOwner3()) return true;
+  if (typeof isOwner3 === 'function' && isOwner3()) return true;
+  if (typeof activeTeam !== 'undefined' && activeTeam) {
+    if (firebaseUser && activeTeam.ownerUid && String(activeTeam.ownerUid) === String(firebaseUser.uid)) return true;
+    if (activeTeam.role === 'owner') return true;
+  }
+  if (typeof currentTeamRole === 'function' && currentTeamRole() === 'owner') return true;
+  if (typeof firebaseUser !== 'undefined' && firebaseUser) {
+    const mem = (typeof teamMembers !== 'undefined' && teamMembers || []).find(m => m.uid === firebaseUser.uid);
+    if (mem && (mem.role === 'owner' || mem.uid === activeTeam?.ownerUid)) return true;
+    const t = (typeof chronosTeams !== 'undefined' && chronosTeams || []).find(x => String(x.id) === String(activeTeamId));
+    if (t && (t.role === 'owner' || (t.ownerUid && String(t.ownerUid) === String(firebaseUser.uid)))) return true;
+  }
+  return false;
+}
+
+function isCurrentTeamAdmin() {
+  if (isCurrentTeamOwner()) return true;
+  if (typeof window.isAdmin3 === 'function' && window.isAdmin3()) return true;
+  if (typeof isAdmin3 === 'function' && isAdmin3()) return true;
+  if (typeof isTeamAdmin === 'function' && isTeamAdmin()) return true;
+  if (typeof currentTeamRole === 'function' && ['owner', 'admin'].includes(currentTeamRole())) return true;
+  if (typeof firebaseUser !== 'undefined' && firebaseUser) {
+    const mem = (typeof teamMembers !== 'undefined' && teamMembers || []).find(m => m.uid === firebaseUser.uid);
+    if (mem && ['owner', 'admin'].includes(mem.role)) return true;
+    const t = (typeof chronosTeams !== 'undefined' && chronosTeams || []).find(x => String(x.id) === String(activeTeamId));
+    if (t && ['owner', 'admin'].includes(t.role)) return true;
+  }
+  return false;
+}
+window.isCurrentTeamOwner = isCurrentTeamOwner;
+window.isCurrentTeamAdmin = isCurrentTeamAdmin;
+
+function renderTeamAdminPanel3(){
   const panel = $('teamAdminPanel');
   if (!panel) return;
   if (!activeTeam || !firebaseUser) {
@@ -17019,8 +17056,8 @@ $('notificationBell')?.addEventListener('click',openNotifications);$('notificati
   panel.classList.toggle('hidden', teamTab !== 'manage');
   if (teamTab !== 'manage') return;
 
-  const isOwner = typeof isOwner3 === 'function' && isOwner3();
-  const isAdmin = typeof isAdmin3 === 'function' && isAdmin3();
+  const isOwner = (typeof isCurrentTeamOwner === 'function' ? isCurrentTeamOwner() : false) || (activeTeam && firebaseUser && String(activeTeam.ownerUid || '') === String(firebaseUser.uid));
+  const isAdmin = isOwner || (typeof isCurrentTeamAdmin === 'function' ? isCurrentTeamAdmin() : false);
   const canManage = isOwner || isAdmin;
   
   if (!window._teamModalActiveTab) window._teamModalActiveTab = 'customization';
@@ -18655,8 +18692,8 @@ html[data-theme=dark] .about-emblem-wrap img {
     const name = team.name || 'Manage team';
     const emoji = team.emoji || '✦';
     const color = team.color || '#10b981';
-    const isOwner = typeof isOwner3 === 'function' && isOwner3();
-    const isAdmin = typeof isAdmin3 === 'function' && isAdmin3();
+    const isOwner = (typeof isCurrentTeamOwner === 'function' ? isCurrentTeamOwner() : false) || (activeTeam && firebaseUser && String(activeTeam.ownerUid || '') === String(firebaseUser.uid));
+    const isAdmin = isOwner || (typeof isCurrentTeamAdmin === 'function' ? isCurrentTeamAdmin() : false);
     const role = isOwner ? 'Owner' : (isAdmin ? 'Admin' : 'Member');
     if ($('teamModalRepairTitle')) $('teamModalRepairTitle').textContent = name;
     if ($('teamModalSubheading')) $('teamModalSubheading').textContent = 'Workspace Settings • Role: ' + role;
@@ -18683,8 +18720,8 @@ html[data-theme=dark] .about-emblem-wrap img {
   async function saveTeamCustomization(e) {
     if (e) { e.preventDefault(); e.stopImmediatePropagation(); }
     if (!activeTeam || !activeTeamId) return;
-    const isOwner = typeof isOwner3 === 'function' && isOwner3();
-    const isAdmin = typeof isAdmin3 === 'function' && isAdmin3();
+    const isOwner = (typeof isCurrentTeamOwner === 'function' ? isCurrentTeamOwner() : false) || (activeTeam && firebaseUser && String(activeTeam.ownerUid || '') === String(firebaseUser.uid));
+    const isAdmin = isOwner || (typeof isCurrentTeamAdmin === 'function' ? isCurrentTeamAdmin() : false);
     if (!isOwner && !isAdmin) {
       notify('Only a team owner or administrator can update team settings.');
       return;
