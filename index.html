@@ -7893,17 +7893,31 @@ async function deleteCloudDocumentDirectly(type, id, teamId = null){
   if(!id) return;
   recordLocalTombstone(type, id);
   if(!navigator.onLine) return;
+  const kind = (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
+  const cleanId = String(id).replace(/[.#$\[\]/]/g, '_');
+  const now = Date.now();
+
   try {
     if(teamId && typeof firebaseDb !== 'undefined' && firebaseDb){
-      const kind = (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
-      await firebaseDb.collection('teams').doc(teamId).collection(kind).doc(String(id)).delete();
+      await firebaseDb.collection('teams').doc(teamId).collection(kind).doc(String(id)).delete().catch(()=>{});
+      await firebaseDb.collection('teams').doc(teamId).collection('tombstones').doc(String(id)).set({
+        id: String(id),
+        type: kind,
+        deletedAt: now,
+        deletedBy: (typeof firebaseUser !== 'undefined' && firebaseUser) ? firebaseUser.uid : 'local'
+      }, { merge: true }).catch(()=>{});
     }
   } catch(err){ console.warn('Team cloud deletion failed for ' + id, err); }
+
   try {
     if(typeof firebaseUser !== 'undefined' && firebaseUser && typeof firebaseDb !== 'undefined' && firebaseDb){
-      const colName = (type === 'task' || type === 'tasks') ? 'tasks' : (type === 'event' || type === 'events') ? 'events' : (type === 'note' || type === 'notes') ? 'notes' : 'projects';
-      const docId = String(id).replace(/[.#$\[\]/]/g, '_');
-      await firebaseDb.collection('users').doc(firebaseUser.uid).collection(colName).doc(docId).delete();
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection(kind).doc(cleanId).delete().catch(()=>{});
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones').doc(kind + '_' + cleanId).set({
+        id: String(id),
+        type: kind,
+        deletedAt: now,
+        tombstoneKey: kind + '|' + String(id)
+      }, { merge: true }).catch(()=>{});
     }
   } catch(err){ console.warn('User cloud deletion failed for ' + id, err); }
 }
@@ -11737,8 +11751,10 @@ document.addEventListener('click',async e=>{
       if(n.trashed){
         const ok=await confirmCustomInApp('Permanently delete this note and its media? This cannot be undone.',{title:'Permanently Delete Note',confirmText:'Delete permanently',danger:true});
         if(ok){
+          recordLocalTombstone('notes', id);
+          deleteCloudDocumentDirectly('notes', id);
           try{const media=await getNoteMedia(id);for(const m of media)await deleteMedia(m.key)}catch{}
-          notes=notes.filter(x=>x.id!==id);
+          notes=notes.filter(x=>String(x.id)!==String(id));
           persist();renderNotes();notify('Note permanently deleted.');
         }
       }else{
@@ -17733,7 +17749,7 @@ function localTombstones(){
     return { ...g, ...u };
   } catch(e){ return {}; }
 }
-async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks){
+async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks, cloudProjects = []){
   if(!firebaseUser || !firebaseDb || !navigator.onLine) return;
   const colBase = firebaseDb.collection('users').doc(firebaseUser.uid);
   const toDelete = [];
@@ -17749,6 +17765,10 @@ async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks){
     const id = String(t.id);
     if(tombs['tasks|' + id]) toDelete.push(colBase.collection('tasks').doc(id.replace(/[.#$\[\]/]/g, '_')));
   }
+  for(const p of cloudProjects || []){
+    const id = String(p.id);
+    if(tombs['projects|' + id]) toDelete.push(colBase.collection('projects').doc(id.replace(/[.#$\[\]/]/g, '_')));
+  }
   for(let i = 0; i < toDelete.length; i += 400){
     try {
       const batch = firebaseDb.batch();
@@ -17760,11 +17780,83 @@ async function purgeCloudZombieDocs(tombs, cloudEvents, cloudNotes, cloudTasks){
 function mergeTombstones(localMap,cloudItems){const out={...(localMap||{})};for(const t of cloudItems||[]){if(!t?.type||t.id==null)continue;const k=t.type+'|'+String(t.id);if(!out[k]||Number(t.deletedAt||0)>Number(out[k].deletedAt||0))out[k]={type:t.type,id:String(t.id),deletedAt:Number(t.deletedAt)||Date.now()}}return out}
 function withoutTombstones(items,type,tombs){return (items||[]).filter(x=>x&&x.id!=null&&!tombs[type+'|'+String(x.id)])}
 async function writeTombstones(tombs){const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection('tombstones');const entries=Object.entries(tombs||{});for(let i=0;i<entries.length;i+=400){const batch=firebaseDb.batch();for(const [key,t] of entries.slice(i,i+400)){const docId=String(key).replace(/[.#$\[\]/]/g,'_');batch.set(col.doc(docId),{...t,id:String(t.id),tombstoneKey:key},{merge:true})}await batch.commit()}}
-async function firebaseMergeSync(){if(firebaseSyncBusy)return;firebaseSyncBusy=true;const btn=$('firebaseSyncNow');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{if(!firebaseConfig.apiKey)throw Error('Save your Firebase Web App configuration first.');if(!firebaseAuth||!firebaseUser)throw Error('Sign in with Google before syncing.');if(!navigator.onLine)throw Error('You are offline. Your local changes remain saved and can sync when you are online.');const firstMigration=localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid;if(firstMigration){updateSyncStatus('Creating local backup…');downloadLocalPreSyncBackup();const ok=await confirmCustomInApp('A local JSON backup has been downloaded and saved in this browser. Merge local and cloud records by ID and update time? Existing records are not wholesale replaced.',{title:'Merge Cloud Workspace',confirmText:'Merge & sync'});if(!ok)return;}const userRef=firebaseDb.collection('users').doc(firebaseUser.uid);await userRef.set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});updateSyncStatus('Reading cloud data…');const [cloudEvents,cloudNotes,cloudTasks,cloudSettings,cloudTombstones]=await Promise.all([firestoreReadCollection('events'),firestoreReadCollection('notes'),firestoreReadCollection('tasks'),firestoreReadCollection('settings'),firestoreReadCollection('tombstones')]);const tombs=mergeTombstones(localTombstones(),cloudTombstones);localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(tombs));try{localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}))}catch(e){}await purgeCloudZombieDocs(tombs,cloudEvents,cloudNotes,cloudTasks);const mergedEvents=mergeById(withoutTombstones(events,'events',tombs),withoutTombstones(cloudEvents,'events',tombs)),mergedNotes=mergeById(withoutTombstones(notes,'notes',tombs),withoutTombstones(cloudNotes,'notes',tombs)),mergedTasks=mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(cloudTasks,'tasks',tombs));let mergedSettings={...settings};const remoteSettings=cloudSettings.find(x=>x.id==='preferences'||x._chronosId==='preferences');if(remoteSettings&&itemTime(remoteSettings)>0){const remoteValue=remoteSettings.value||remoteSettings.settings;const localStamp=Number(localStorage.getItem('chronos60.settingsUpdatedAt')||0);if(remoteValue&&typeof remoteValue==='object'&&(!localSettingsPresent||itemTime(remoteSettings)>localStamp))mergedSettings={...mergedSettings,...remoteValue}}
+async function firebaseMergeSync(){if(firebaseSyncBusy)return;firebaseSyncBusy=true;const btn=$('firebaseSyncNow');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{if(!firebaseConfig.apiKey)throw Error('Save your Firebase Web App configuration first.');if(!firebaseAuth||!firebaseUser)throw Error('Sign in with Google before syncing.');if(!navigator.onLine)throw Error('You are offline. Your local changes remain saved and can sync when you are online.');const firstMigration=localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid;if(firstMigration){updateSyncStatus('Creating local backup…');downloadLocalPreSyncBackup();const ok=await confirmCustomInApp('A local JSON backup has been downloaded and saved in this browser. Merge local and cloud records by ID and update time? Existing records are not wholesale replaced.',{title:'Merge Cloud Workspace',confirmText:'Merge & sync'});if(!ok)return;}const userRef=firebaseDb.collection('users').doc(firebaseUser.uid);await userRef.set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});updateSyncStatus('Reading cloud data…');const [cloudEvents,cloudNotes,cloudTasks,cloudSettings,cloudTombstones,cloudProjects]=await Promise.all([
+  firestoreReadCollection('events'),
+  firestoreReadCollection('notes'),
+  firestoreReadCollection('tasks'),
+  firestoreReadCollection('settings'),
+  firestoreReadCollection('tombstones'),
+  firestoreReadCollection('projects').catch(()=>[])
+]);
+const tombs=mergeTombstones(localTombstones(),cloudTombstones);
+localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(tombs));
+try{localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}))}catch(e){}
+await purgeCloudZombieDocs(tombs,cloudEvents,cloudNotes,cloudTasks,cloudProjects);
+const mergedEvents=withoutTombstones(mergeById(withoutTombstones(events,'events',tombs),withoutTombstones(cloudEvents,'events',tombs)),'events',tombs);
+const mergedNotes=withoutTombstones(mergeById(withoutTombstones(notes,'notes',tombs),withoutTombstones(cloudNotes,'notes',tombs)),'notes',tombs);
+const mergedTasks=withoutTombstones(mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(cloudTasks,'tasks',tombs)),'tasks',tombs);
+if(typeof chronosProjects !== 'undefined'){
+  chronosProjects=withoutTombstones(mergeById(withoutTombstones(chronosProjects,'projects',tombs),withoutTombstones(cloudProjects,'projects',tombs)),'projects',tombs);
+  saveChronosProjects();
+}
+let mergedSettings={...settings};const remoteSettings=cloudSettings.find(x=>x.id==='preferences'||x._chronosId==='preferences');if(remoteSettings&&itemTime(remoteSettings)>0){const remoteValue=remoteSettings.value||remoteSettings.settings;const localStamp=Number(localStorage.getItem('chronos60.settingsUpdatedAt')||0);if(remoteValue&&typeof remoteValue==='object'&&(!localSettingsPresent||itemTime(remoteSettings)>localStamp))mergedSettings={...mergedSettings,...remoteValue}}
 // Local-first merge: preserve all unique records and prefer the record with the newer timestamp for matching IDs.
-events=mergedEvents;notes=mergedNotes;tasks=mergedTasks;settings=mergedSettings;applySettings(false);saveSettings();persist();updateSyncStatus('Uploading merged records…');await Promise.all([firestoreWriteCollection('events',events),firestoreWriteCollection('notes',notes),firestoreWriteCollection('tasks',tasks),writeTombstones(tombs)]);await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});updateSyncStatus('Media remains local · finishing sync…');await userRef.set({lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);render();settingsFormFill();notify(`Sync complete: ${events.length} events, ${tasks.length} tasks, ${notes.length} notes.`);updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));}catch(err){console.error(err);notify('Firebase sync failed: '+(err.message||'Unknown error'));updateSyncStatus('Sync needs attention')}finally{firebaseSyncBusy=false;if(btn){btn.disabled=false;btn.textContent='Merge & sync data'}}}
+events=mergedEvents;notes=mergedNotes;tasks=mergedTasks;settings=mergedSettings;applySettings(false);saveSettings();persist();updateSyncStatus('Uploading merged records…');await Promise.all([
+  firestoreWriteCollection('events',events),
+  firestoreWriteCollection('notes',notes),
+  firestoreWriteCollection('tasks',tasks),
+  firestoreWriteCollection('projects',(typeof chronosProjects !== 'undefined' ? chronosProjects : [])),
+  writeTombstones(tombs)
+]);await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});updateSyncStatus('Media remains local · finishing sync…');await userRef.set({lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);render();settingsFormFill();notify(`Sync complete: ${events.length} events, ${tasks.length} tasks, ${notes.length} notes.`);updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));}catch(err){console.error(err);notify('Firebase sync failed: '+(err.message||'Unknown error'));updateSyncStatus('Sync needs attention')}finally{firebaseSyncBusy=false;if(btn){btn.disabled=false;btn.textContent='Merge & sync data'}}}
 $('firebaseSyncNow').addEventListener('click',firebaseMergeSync);
-async function firebaseBackgroundSync(){if(firebaseSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;firebaseSyncBusy=true;firebaseApplyingRemote=true;try{const [ce,cn,ct,cs,cloudTombstones]=await Promise.all([firestoreReadCollection('events'),firestoreReadCollection('notes'),firestoreReadCollection('tasks'),firestoreReadCollection('settings'),firestoreReadCollection('tombstones')]);const tombs=mergeTombstones(localTombstones(),cloudTombstones);localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(tombs));try{localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}))}catch(e){}await purgeCloudZombieDocs(tombs,ce,cn,ct);events=mergeById(withoutTombstones(events,'events',tombs),withoutTombstones(ce,'events',tombs));notes=mergeById(withoutTombstones(notes,'notes',tombs),withoutTombstones(cn,'notes',tombs));tasks=mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(ct,'tasks',tombs));const pref=cs.find(x=>x.id==='preferences');if(pref?.value&&typeof pref.value==='object'&&itemTime(pref)>Number(localStorage.getItem('chronos60.settingsUpdatedAt')||0))settings={...settings,...pref.value};persist();saveSettings();await Promise.all([firestoreWriteCollection('events',events),firestoreWriteCollection('notes',notes),firestoreWriteCollection('tasks',tasks),writeTombstones(tombs)]);await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});render();updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));}catch(err){console.warn('Background Firebase sync failed',err);updateSyncStatus('Offline changes saved · sync pending')}finally{firebaseApplyingRemote=false;firebaseSyncBusy=false}}
+async function firebaseBackgroundSync(){
+  if(firebaseSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;
+  firebaseSyncBusy=true;
+  firebaseApplyingRemote=true;
+  try{
+    const [ce,cn,ct,cs,cloudTombstones,cp]=await Promise.all([
+      firestoreReadCollection('events'),
+      firestoreReadCollection('notes'),
+      firestoreReadCollection('tasks'),
+      firestoreReadCollection('settings'),
+      firestoreReadCollection('tombstones'),
+      firestoreReadCollection('projects').catch(()=>[])
+    ]);
+    const tombs=mergeTombstones(localTombstones(),cloudTombstones);
+    localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(tombs));
+    try{
+      localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}));
+    }catch(e){}
+    await purgeCloudZombieDocs(tombs,ce,cn,ct,cp);
+    events=withoutTombstones(mergeById(withoutTombstones(events,'events',tombs),withoutTombstones(ce,'events',tombs)),'events',tombs);
+    notes=withoutTombstones(mergeById(withoutTombstones(notes,'notes',tombs),withoutTombstones(cn,'notes',tombs)),'notes',tombs);
+    tasks=withoutTombstones(mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(ct,'tasks',tombs)),'tasks',tombs);
+    if(typeof chronosProjects !== 'undefined'){
+      chronosProjects=withoutTombstones(mergeById(withoutTombstones(chronosProjects,'projects',tombs),withoutTombstones(cp,'projects',tombs)),'projects',tombs);
+      saveChronosProjects();
+    }
+    const pref=cs.find(x=>x.id==='preferences');
+    if(pref?.value&&typeof pref.value==='object'&&itemTime(pref)>Number(localStorage.getItem('chronos60.settingsUpdatedAt')||0))settings={...settings,...pref.value};
+    persist();
+    saveSettings();
+    await Promise.all([
+      firestoreWriteCollection('events',events),
+      firestoreWriteCollection('notes',notes),
+      firestoreWriteCollection('tasks',tasks),
+      firestoreWriteCollection('projects',(typeof chronosProjects !== 'undefined' ? chronosProjects : [])),
+      writeTombstones(tombs)
+    ]);
+    await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});
+    render();
+    updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+  }catch(err){
+    console.warn('Background Firebase sync failed',err);
+    updateSyncStatus('Offline changes saved · sync pending');
+  }finally{
+    firebaseApplyingRemote=false;
+    firebaseSyncBusy=false;
+  }
+}
 function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),5000)}
 window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace()}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine)refreshTeamWorkspace()});
 // Restore saved config without blocking standalone startup. Firebase SDK is loaded only

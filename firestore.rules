@@ -18,11 +18,49 @@ service cloud.firestore {
     }
     function validEmailRestriction(data) { return !('invitedEmail' in data) || data.invitedEmail == null || data.invitedEmail is string; }
 
-    match /users/{userId} {
-      allow read, write: if signedIn() && request.auth.uid == userId;
-      match /{document=**} { allow read, write: if signedIn() && request.auth.uid == userId; }
+    // Team Tombstone Anti-Resurrection Helpers
+    function teamTombstonePath(teamId, recordId) {
+      return /databases/$(database)/documents/teams/$(teamId)/tombstones/$(recordId);
+    }
+    function isTeamTombstoned(teamId, recordId) {
+      return exists(teamTombstonePath(teamId, recordId));
     }
 
+    // User Tombstone Anti-Resurrection Helpers
+    function userTombstonePath(userId, tombId) {
+      return /databases/$(database)/documents/users/$(userId)/tombstones/$(tombId);
+    }
+    function isUserTombstoned(userId, type, recordId) {
+      return exists(userTombstonePath(userId, type + '_' + recordId))
+        || exists(userTombstonePath(userId, recordId));
+    }
+
+    // Personal user data: full control by owner with anti-resurrection guards
+    match /users/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow write: if signedIn() && request.auth.uid == userId;
+
+      match /tombstones/{tombstoneId} {
+        allow read, write: if signedIn() && request.auth.uid == userId;
+      }
+
+      match /settings/{docId} {
+        allow read, write: if signedIn() && request.auth.uid == userId;
+      }
+
+      match /teamMemberships/{teamId} {
+        allow read, write: if signedIn() && request.auth.uid == userId;
+      }
+
+      match /{kind}/{recordId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow delete: if signedIn() && request.auth.uid == userId;
+        allow create, update: if signedIn() && request.auth.uid == userId
+          && !isUserTombstoned(userId, kind, recordId);
+      }
+    }
+
+    // Public index for team invitation code lookups
     match /teamInviteCodes/{code} {
       allow get: if signedIn();
       allow list: if false;
@@ -40,6 +78,14 @@ service cloud.firestore {
       allow get, list: if isMember(teamId);
       allow update: if isAdmin(teamId) && request.resource.data.ownerUid == resource.data.ownerUid;
       allow delete: if isOwner(teamId);
+
+      // Shared Team Tombstones: prevents deleted team records from resurrecting across all members
+      match /tombstones/{tombstoneId} {
+        allow read: if isMember(teamId);
+        allow create, update: if isMember(teamId)
+          && request.resource.data.deletedBy == request.auth.uid;
+        allow delete: if isAdmin(teamId);
+      }
 
       match /members/{memberUid} {
         allow read: if isMember(teamId);
@@ -90,7 +136,7 @@ service cloud.firestore {
         allow delete: if isAdmin(teamId);
       }
 
-      // Recipient-specific in-app notifications. Query clients must filter recipientUid to auth.uid.
+      // Recipient-specific in-app notifications
       match /notifications/{notificationId} {
         allow get, list: if isMember(teamId) && resource.data.recipientUid == request.auth.uid;
         allow create: if isMember(teamId)
@@ -116,27 +162,31 @@ service cloud.firestore {
         allow delete: if isOwner(teamId);
       }
 
-      // Projects are shared with team members, but only the project owner or a
-      // team administrator can create, edit, or archive them.
+      // Projects: shared with team members with Anti-Resurrection check
       match /projects/{projectId} {
         allow read: if isMember(teamId);
         allow create: if isMember(teamId)
+          && !isTeamTombstoned(teamId, projectId)
           && request.resource.data.id == projectId
           && request.resource.data.teamId == teamId
           && request.resource.data.createdBy == request.auth.uid
           && (isAdmin(teamId) || request.resource.data.ownerUid == request.auth.uid);
         allow update: if isProjectManager(teamId, projectId)
+          && !isTeamTombstoned(teamId, projectId)
           && request.resource.data.id == resource.data.id
           && request.resource.data.teamId == teamId;
         allow delete: if isProjectManager(teamId, projectId);
       }
 
+      // Team Events, Tasks, and Notes with Anti-Resurrection check
       match /{kind}/{recordId} {
         allow read: if isMember(teamId) && validRecordKind(kind);
         allow create: if isMember(teamId) && validRecordKind(kind)
+          && !isTeamTombstoned(teamId, recordId)
           && request.resource.data.createdBy == request.auth.uid && request.resource.data.id == recordId
           && (!('assigneeUids' in request.resource.data) || request.resource.data.assigneeUids is list);
         allow update: if isMember(teamId) && validRecordKind(kind)
+          && !isTeamTombstoned(teamId, recordId)
           && (isAdmin(teamId) || resource.data.createdBy == request.auth.uid
             || (kind == 'tasks'
               && ((('assigneeUid' in resource.data) && resource.data.assigneeUid == request.auth.uid)
