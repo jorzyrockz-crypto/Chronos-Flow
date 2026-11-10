@@ -2581,10 +2581,13 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .capture-new-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:9px;font-size:0.78rem;font-weight:600}
 
 /* Row 2: Unified Command, Filter & Navigation Bar */
-.notes-command-bar-v3{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:4px}
+.notes-command-bar-v3{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+
+/* Combined Filter & Minimized Search Row */
+.notes-combined-filter-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
 
 /* Segmented Status Switcher */
-.notes-segmented-control{display:inline-flex;align-items:center;background:var(--surface2);padding:3px;border-radius:999px;border:1px solid var(--line);gap:3px;flex-shrink:0;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.notes-segmented-control{display:inline-flex;align-items:center;background:var(--surface2);padding:3px;border-radius:999px;border:1px solid var(--line);gap:3px;flex:1 1 auto;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:none}
 .notes-segmented-control::-webkit-scrollbar{display:none}
 .segmented-tab{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:none;background:transparent;color:var(--muted);font-size:0.77rem;font-weight:650;cursor:pointer;transition:all .15s ease;white-space:nowrap}
 .segmented-tab:hover{color:var(--text);background:rgba(255,255,255,0.05)}
@@ -2594,35 +2597,37 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .segmented-tab.active .tab-badge{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
 .segmented-tab.active[data-note-filter="trash"] .tab-badge{background:rgba(239,68,68,0.2);color:#ef4444}
 
-/* Search Box */
-.notes-search-box-v3{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:0 14px;height:38px;min-height:38px;max-height:38px;box-sizing:border-box;flex:1 1 220px;min-width:180px;max-width:380px;transition:all .15s ease}
-.notes-search-box-v3:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft, rgba(16,185,129,0.15));background:var(--surface)}
-.notes-search-box-v3 input{border:none;background:none;outline:none;color:var(--text);font-size:0.82rem;width:100%;height:100%;padding:0;margin:0}
-.notes-search-icon{color:var(--muted);flex-shrink:0}
-.notes-search-clear{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;display:flex}
+/* Minimized & Expandable Search */
+.notes-search-minimized-wrap{position:relative;display:flex;align-items:center;flex-shrink:0}
+.notes-search-toggle-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);color:var(--muted);font-size:0.77rem;font-weight:650;cursor:pointer;transition:all .15s ease;white-space:nowrap}
+.notes-search-toggle-btn:hover{background:var(--surface);color:var(--accent);border-color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.notes-search-expand-box{display:flex;align-items:center;gap:8px;height:36px;width:230px;max-width:100%;padding:0 12px;border-radius:999px;background:var(--surface);border:1px solid var(--accent);box-shadow:0 0 0 2px var(--accent-soft, rgba(70,92,245,0.15));box-sizing:border-box;transition:all .18s cubic-bezier(0.16,1,0.3,1)}
+.notes-search-expand-box.hidden,.notes-search-toggle-btn.hidden{display:none !important}
+.notes-search-expand-box input{border:none;background:none;outline:none;color:var(--text);font-size:0.82rem;width:100%;height:100%;padding:0;margin:0}
+.notes-search-clear{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.notes-search-clear:hover{color:var(--text)}
 
 /* Right Tools Cluster */
-.notes-tools-cluster{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;margin-left:auto}
+.notes-tools-cluster{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
 .notes-select-pill-wrap{position:relative}
-.notes-select-pill{appearance:none;-webkit-appearance:none;padding:6px 26px 6px 12px;background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:0.76rem;cursor:pointer;font-weight:600;outline:none;max-width:145px;height:38px;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s ease}
+.notes-select-pill{appearance:none;-webkit-appearance:none;padding:6px 26px 6px 12px;background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:0.76rem;cursor:pointer;font-weight:600;outline:none;max-width:145px;height:36px;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s ease}
 .notes-select-pill:hover,.notes-select-pill:focus{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background-color:var(--surface)}
-.notes-sort-select{appearance:none;-webkit-appearance:none;padding:6px 26px 6px 12px;background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:0.76rem;font-weight:600;cursor:pointer;outline:none;height:38px;box-sizing:border-box;transition:all .15s ease}
+.notes-sort-select{appearance:none;-webkit-appearance:none;padding:6px 26px 6px 12px;background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:0.76rem;font-weight:600;cursor:pointer;outline:none;height:36px;box-sizing:border-box;transition:all .15s ease}
 .notes-sort-select:hover,.notes-sort-select:focus{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--text);background-color:var(--surface)}
-.notes-view-mode-toggle{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:2px;height:38px;box-sizing:border-box;align-items:center}
+.notes-view-mode-toggle{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:2px;height:36px;box-sizing:border-box;align-items:center}
 .notes-view-btn{background:none;border:none;color:var(--muted);padding:5px 8px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;height:100%}
 .notes-view-btn.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
 
 @media(max-width:1120px){
-  .notes-command-bar-v3{display:grid;grid-template-columns:1fr auto;gap:10px}
-  .notes-segmented-control{grid-column:1 / -1;width:100%}
-  .notes-search-box-v3{max-width:100%;height:38px;min-height:38px;max-height:38px;box-sizing:border-box}
-  .notes-tools-cluster{margin-left:0}
+  .notes-command-bar-v3{gap:10px}
 }
 @media(max-width:640px){
-  .notes-command-bar-v3{display:flex;flex-direction:column;align-items:stretch;gap:10px}
-  .notes-search-box-v3{width:100%;min-width:0;max-width:100%;height:38px !important;min-height:38px !important;max-height:38px !important;flex:0 0 38px !important;border-radius:12px !important;box-sizing:border-box !important}
-  .notes-tools-cluster{width:100%;justify-content:space-between}
-  .notes-select-pill,.notes-sort-select{flex:1;min-width:0;border-radius:12px;height:38px}
+  .notes-combined-filter-bar{gap:6px}
+  .notes-search-toggle-label{display:none}
+  .notes-search-toggle-btn{padding:0 10px;width:36px;justify-content:center}
+  .notes-search-expand-box{width:160px}
+  .notes-tools-cluster{justify-content:space-between}
+  .notes-select-pill,.notes-sort-select{flex:1;min-width:0}
 }
 </style>
 
@@ -3891,14 +3896,21 @@ html[data-theme="dark"][data-accent] .notes-studio-v2 .notes-segmented-control .
   background: rgba(0, 0, 0, 0.25) !important;
   color: inherit !important;
 }
-html[data-theme="dark"][data-accent] .notes-studio-v2 .notes-search-box-v3 {
+html[data-theme="dark"][data-accent] .notes-studio-v2 .notes-search-box-v3,
+html[data-theme="dark"][data-accent] .notes-studio-v2 .notes-search-toggle-btn {
   background: var(--surface2) !important;
   border: 1px solid var(--line) !important;
   color: var(--text) !important;
-  border-radius: 12px !important;
-  height: 38px !important;
-  min-height: 38px !important;
-  max-height: 38px !important;
+  border-radius: 999px !important;
+  height: 36px !important;
+  box-sizing: border-box !important;
+}
+html[data-theme="dark"][data-accent] .notes-studio-v2 .notes-search-expand-box {
+  background: var(--surface) !important;
+  border: 1px solid var(--accent) !important;
+  color: var(--text) !important;
+  border-radius: 999px !important;
+  height: 36px !important;
   box-sizing: border-box !important;
 }
 html[data-theme="dark"][data-accent] .notes-studio-v2 .notes-select-pill,
@@ -4210,35 +4222,30 @@ html[data-theme="dark"][data-accent] .note-comment-item {
   }
   .notes-command-bar-v3 {
     display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
+    flex-direction: column !important;
     gap: 10px !important;
   }
-  .notes-segmented-control {
+  .notes-combined-filter-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
     width: 100% !important;
-    flex: 1 1 100% !important;
+  }
+  .notes-segmented-control {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
     overflow-x: auto !important;
     scrollbar-width: none !important;
   }
-  .notes-search-box-v3 {
-    flex: 1 1 200px !important;
-    min-width: 180px !important;
-    max-width: 100% !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-    border-radius: 12px !important;
-    box-sizing: border-box !important;
-  }
   .notes-tools-cluster {
-    flex: 1 1 auto !important;
+    width: 100% !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
     gap: 8px !important;
     flex-wrap: wrap !important;
-    margin-left: auto !important;
+    margin-left: 0 !important;
   }
   .notes-select-pill,
   .notes-sort-select {
@@ -5304,47 +5311,56 @@ html[data-theme="dark"] .note-card .md-card-preview {
 
       <!-- ROW 2: Unified Command, Filter & Navigation Bar -->
       <div class="notes-command-bar-v3">
-        <!-- Segmented Status Switcher (Apple / Linear style) -->
-        <div class="notes-segmented-control" role="tablist" aria-label="Note status filter">
-          <button type="button" class="keep-filter segmented-tab active" data-note-filter="all" title="All active notes">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/></svg>
-            <span>All</span>
-            <span class="filter-count tab-badge" id="countFilterAll">0</span>
-          </button>
-          <button type="button" class="keep-filter segmented-tab" data-note-filter="team" title="Shared with your teams">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>Team</span>
-            <span class="filter-count tab-badge" id="teamNotesTabBadge">0</span>
-          </button>
-          <button type="button" class="keep-filter segmented-tab" data-note-filter="pinned" title="Pinned notes">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="pin"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
-            <span>Pinned</span>
-            <span class="filter-count tab-badge" id="countFilterPinned">0</span>
-          </button>
-          <button type="button" class="keep-filter segmented-tab" data-note-filter="tagged" title="Notes with tags">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="tag"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>
-            <span>Tags</span>
-            <span class="filter-count tab-badge" id="countFilterTagged">0</span>
-          </button>
-          <button type="button" class="keep-filter segmented-tab" data-note-filter="archived" title="Archived notes">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="archive"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/></svg>
-            <span>Archive</span>
-            <span class="filter-count tab-badge" id="countFilterArchived">0</span>
-          </button>
-          <button type="button" class="keep-filter segmented-tab" data-note-filter="trash" title="Trash bin">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="trash-2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
-            <span>Trash</span>
-            <span class="filter-count tab-badge" id="countFilterTrash">0</span>
-          </button>
-        </div>
+        <!-- Combined Filter Pills + Minimized Search Button -->
+        <div class="notes-combined-filter-bar">
+          <!-- Segmented Status Switcher (Apple / Linear style) -->
+          <div class="notes-segmented-control" role="tablist" aria-label="Note status filter">
+            <button type="button" class="keep-filter segmented-tab active" data-note-filter="all" title="All active notes">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/></svg>
+              <span>All</span>
+              <span class="filter-count tab-badge" id="countFilterAll">0</span>
+            </button>
+            <button type="button" class="keep-filter segmented-tab" data-note-filter="team" title="Shared with your teams">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span>Team</span>
+              <span class="filter-count tab-badge" id="teamNotesTabBadge">0</span>
+            </button>
+            <button type="button" class="keep-filter segmented-tab" data-note-filter="pinned" title="Pinned notes">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="pin"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+              <span>Pinned</span>
+              <span class="filter-count tab-badge" id="countFilterPinned">0</span>
+            </button>
+            <button type="button" class="keep-filter segmented-tab" data-note-filter="tagged" title="Notes with tags">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="tag"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>
+              <span>Tags</span>
+              <span class="filter-count tab-badge" id="countFilterTagged">0</span>
+            </button>
+            <button type="button" class="keep-filter segmented-tab" data-note-filter="archived" title="Archived notes">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="archive"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/></svg>
+              <span>Archive</span>
+              <span class="filter-count tab-badge" id="countFilterArchived">0</span>
+            </button>
+            <button type="button" class="keep-filter segmented-tab" data-note-filter="trash" title="Trash bin">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="trash-2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
+              <span>Trash</span>
+              <span class="filter-count tab-badge" id="countFilterTrash">0</span>
+            </button>
+          </div>
 
-        <!-- Integrated Search Bar -->
-        <div class="notes-search-box-v3">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon notes-search-icon" data-lucide="search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input id="noteSearch" type="search" placeholder="Search notes, checklists, tags, attachments…" aria-label="Search notes">
-          <button type="button" class="notes-search-clear hidden" id="noteSearchClear" aria-label="Clear search">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
+          <!-- Minimized & Expandable Search Button -->
+          <div class="notes-search-minimized-wrap" id="notesSearchExpandable">
+            <button type="button" class="notes-search-toggle-btn" id="notesSearchTrigger" title="Search notes" aria-label="Open search">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <span class="notes-search-toggle-label">Search</span>
+            </button>
+            <div class="notes-search-expand-box hidden" id="notesSearchExpandBox">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon notes-search-icon" data-lucide="search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="noteSearch" type="search" placeholder="Search notes, tags…" aria-label="Search notes">
+              <button type="button" class="notes-search-clear" id="noteSearchClear" aria-label="Close search">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Right Side: Collection Select + Tag Select + Sort + View Mode -->
@@ -9004,6 +9020,10 @@ window.getAllAccessibleNotes = getAllAccessibleNotes;
 function renderNotes(){
   const searchInput=$('noteSearch');
   const q=(searchInput?.value||'').toLowerCase().trim();
+  if (q) {
+    $('notesSearchExpandBox')?.classList.remove('hidden');
+    $('notesSearchTrigger')?.classList.add('hidden');
+  }
   $('noteSearchClear')?.classList.toggle('hidden',!q);
 
   const sortSelect=$('noteSortSelect');
@@ -11504,11 +11524,62 @@ $('noteSortSelect')?.addEventListener('change',e=>{
   localStorage.setItem('chronos_notes_sort',noteSortOrder);
   renderNotes();
 });
-$('noteSearchClear')?.addEventListener('click',()=>{
-  if($('noteSearch')){$('noteSearch').value='';$('noteSearch').focus();}
-  renderNotes();
+// Minimized & Expandable Search Controller
+function openNoteSearch() {
+  const trigger = $('notesSearchTrigger');
+  const box = $('notesSearchExpandBox');
+  const input = $('noteSearch');
+  if (trigger) trigger.classList.add('hidden');
+  if (box) box.classList.remove('hidden');
+  if (input) input.focus();
+}
+
+function closeNoteSearch() {
+  const trigger = $('notesSearchTrigger');
+  const box = $('notesSearchExpandBox');
+  const input = $('noteSearch');
+  if (input && input.value.trim() !== '') {
+    input.value = '';
+    renderNotes();
+  }
+  if (box) box.classList.add('hidden');
+  if (trigger) trigger.classList.remove('hidden');
+}
+
+$('notesSearchTrigger')?.addEventListener('click', openNoteSearch);
+
+$('noteSearchClear')?.addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  const input = $('noteSearch');
+  if (input && input.value.trim() !== '') {
+    input.value = '';
+    input.focus();
+    renderNotes();
+  } else {
+    closeNoteSearch();
+  }
 });
-$('noteSearch')?.addEventListener('input',renderNotes);
+
+$('noteSearch')?.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeNoteSearch();
+    $('notesSearchTrigger')?.focus();
+  }
+});
+
+document.addEventListener('click', e => {
+  const expandable = $('notesSearchExpandable');
+  const box = $('notesSearchExpandBox');
+  const input = $('noteSearch');
+  if (!box || box.classList.contains('hidden')) return;
+  if (expandable && !expandable.contains(e.target)) {
+    if (input && !input.value.trim()) {
+      closeNoteSearch();
+    }
+  }
+});
+
+$('noteSearch')?.addEventListener('input', renderNotes);
 
 // Formatting Toolbar & Insertion Helpers
 function insertAtCursor(text){
