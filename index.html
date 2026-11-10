@@ -1554,29 +1554,38 @@ html[data-theme="dark"] .flow-live-radar-bar {
 /* 2. Floating Activity Beacon */
 .flow-activity-beacon {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
-  z-index: 10000;
+  top: max(76px, calc(env(safe-area-inset-top, 0px) + 68px));
+  right: 24px;
+  bottom: auto;
+  z-index: 2147483640;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
   background: var(--surface, rgba(255, 255, 255, 0.95));
-  border: 1.5px solid rgba(139, 92, 246, 0.45);
+  border: 1.5px solid color-mix(in srgb, var(--accent, #8b5cf6) 45%, var(--line));
   border-radius: 9999px;
-  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.35), 0 0 24px rgba(139, 92, 246, 0.28);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(139, 92, 246, 0.2);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  animation: beaconEntrance .35s cubic-bezier(.16, 1, .3, 1) both;
+  animation: beaconEntranceTop .32s cubic-bezier(.16, 1, .3, 1) both;
   transition: transform .25s ease, opacity .25s ease;
+  pointer-events: auto !important;
+  cursor: pointer;
+  max-width: min(480px, calc(100vw - 32px));
+}
+html[data-theme="dark"] .flow-activity-beacon {
+  background: rgba(15, 23, 42, 0.94);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 20px rgba(139, 92, 246, 0.25);
 }
 .flow-activity-beacon.is-hidden {
   opacity: 0;
-  transform: translateY(16px) scale(0.95);
-  pointer-events: none;
+  transform: translateY(-16px) scale(0.96);
+  pointer-events: none !important;
 }
-@keyframes beaconEntrance {
-  0% { opacity: 0; transform: translateY(16px) scale(0.95); }
+@keyframes beaconEntranceTop {
+  0% { opacity: 0; transform: translateY(-16px) scale(0.96); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .flow-beacon-avatar {
@@ -1586,7 +1595,7 @@ html[data-theme="dark"] .flow-live-radar-bar {
   font-size: 12.5px;
   color: var(--text);
   line-height: 1.3;
-  max-width: 320px;
+  max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1595,18 +1604,19 @@ html[data-theme="dark"] .flow-live-radar-bar {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 9999px;
-  background: #8b5cf6;
+  background: var(--accent, #8b5cf6);
   color: #fff;
   border: none;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 750;
   cursor: pointer;
   transition: background .15s, transform .15s;
+  flex-shrink: 0;
 }
 .flow-beacon-jump-btn:hover {
-  background: #7c3aed;
+  background: color-mix(in srgb, var(--accent, #8b5cf6) 85%, #000);
   transform: scale(1.05);
 }
 .flow-beacon-close-btn {
@@ -1615,13 +1625,32 @@ html[data-theme="dark"] .flow-live-radar-bar {
   color: var(--muted);
   cursor: pointer;
   font-size: 14px;
-  padding: 2px 5px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
   line-height: 1;
   border-radius: 50%;
-  transition: color .15s;
+  transition: color .15s, background .15s;
+  flex-shrink: 0;
+  padding: 0;
 }
 .flow-beacon-close-btn:hover {
   color: var(--text);
+  background: var(--surface2, rgba(0,0,0,0.06));
+}
+@media (max-width: 600px) {
+  .flow-activity-beacon {
+    top: max(68px, calc(env(safe-area-inset-top, 0px) + 60px));
+    left: 14px;
+    right: 14px;
+    max-width: calc(100vw - 28px);
+    justify-content: space-between;
+    padding: 8px 14px;
+  }
+  .flow-beacon-text {
+    max-width: 170px;
+  }
 }
 
 /* 3. Card Visual Notification States & Stem Heartbeat */
@@ -16770,22 +16799,37 @@ window.showFlowActivityBeacon = function(data){
     <div class="flow-beacon-text">
       <strong>${authorName}</strong> ${actionText} <em>${titleText}</em> (${dateStr})
     </div>
-    <button type="button" class="flow-beacon-jump-btn" id="flowBeaconJumpBtn">
+    <button type="button" class="flow-beacon-jump-btn" id="flowBeaconJumpBtn" title="Jump to item in Calendar / Journey view">
       <span>Jump</span> ${getLucideSvg('arrow-right', 11)}
     </button>
-    <button type="button" class="flow-beacon-close-btn" id="flowBeaconCloseBtn" aria-label="Dismiss notification">✕</button>
+    <button type="button" class="flow-beacon-close-btn" id="flowBeaconCloseBtn" aria-label="Dismiss notification" title="Dismiss">✕</button>
   `;
 
   beacon.classList.remove('is-hidden');
 
-  document.getElementById('flowBeaconCloseBtn')?.addEventListener('click', () => {
-    beacon.classList.add('is-hidden');
-  });
+  // Dismiss button
+  const closeBtn = document.getElementById('flowBeaconCloseBtn');
+  if(closeBtn){
+    closeBtn.onclick = (e) => {
+      e.stopPropagation();
+      beacon.classList.add('is-hidden');
+    };
+  }
 
-  document.getElementById('flowBeaconJumpBtn')?.addEventListener('click', () => {
+  // Pill and Jump button click handlers
+  beacon.onclick = () => {
     beacon.classList.add('is-hidden');
     jumpToFlowItem(data.date, data.id, true);
-  });
+  };
+
+  const jumpBtn = document.getElementById('flowBeaconJumpBtn');
+  if(jumpBtn){
+    jumpBtn.onclick = (e) => {
+      e.stopPropagation();
+      beacon.classList.add('is-hidden');
+      jumpToFlowItem(data.date, data.id, true);
+    };
+  }
 
   if(window._flowBeaconTimer) clearTimeout(window._flowBeaconTimer);
   window._flowBeaconTimer = setTimeout(() => {
@@ -19565,12 +19609,31 @@ function applyTeamLiveData(){
  }
 
  // Dynamic Activity Beacon detection for Flow
+ const isMineAuthorOrUpdater = (item) => {
+   if(!firebaseUser || !item) return false;
+   const myUid = String(firebaseUser.uid || '');
+   const myName = String(firebaseUser.displayName || '').trim().toLowerCase();
+   const myEmail = String(firebaseUser.email || '').trim().toLowerCase();
+
+   const creatorUid = String(item.createdBy || item.authorUid || item.authorId || '');
+   const updaterUid = String(item.updatedBy || '');
+   const creatorName = String(item.createdByName || item.authorName || '').trim().toLowerCase();
+   const updaterName = String(item.updatedByName || '').trim().toLowerCase();
+   const creatorEmail = String(item.createdByEmail || item.authorEmail || '').trim().toLowerCase();
+
+   if(myUid && (creatorUid === myUid || updaterUid === myUid)) return true;
+   if(myName && (creatorName === myName || updaterName === myName)) return true;
+   if(myEmail && (creatorEmail === myEmail)) return true;
+   if(creatorName === 'you' || updaterName === 'you') return true;
+   return false;
+ };
+
  if(window._flowTeamSyncInitialized){
    const prevSeen = window._flowSeenItemTimestamps || new Map();
    let newestItem = null, newestType = 'item', newestTs = 0;
    for(const ev of allEvents){
      const ts = Number(ev.updatedAt || ev.createdAt || 0);
-     const isMine = firebaseUser && (String(ev.createdBy || '') === String(firebaseUser.uid));
+     const isMine = isMineAuthorOrUpdater(ev);
      if(!isMine && ts > (prevSeen.get(ev.id) || 0) && ts > newestTs){
        newestItem = ev; newestType = 'event'; newestTs = ts;
      }
@@ -19578,24 +19641,35 @@ function applyTeamLiveData(){
    }
    for(const t of (teamRecords.tasks || [])){
      const ts = Number(t.updatedAt || t.createdAt || 0);
-     const isMine = firebaseUser && (String(t.createdBy || '') === String(firebaseUser.uid));
+     const isMine = isMineAuthorOrUpdater(t);
      if(!isMine && ts > (prevSeen.get(t.id) || 0) && ts > newestTs){
        newestItem = t; newestType = 'task'; newestTs = ts;
      }
      prevSeen.set(t.id, ts);
+   }
+   for(const n of (teamRecords.notes || [])){
+     const ts = Number(n.updatedAt || n.createdAt || 0);
+     const isMine = isMineAuthorOrUpdater(n);
+     if(!isMine && ts > (prevSeen.get(n.id) || 0) && ts > newestTs){
+       newestItem = n; newestType = 'note'; newestTs = ts;
+     }
+     prevSeen.set(n.id, ts);
    }
    window._flowSeenItemTimestamps = prevSeen;
 
    if(newestItem && (Date.now() - newestTs < 300000)){
      window._flowRecentUpdates = window._flowRecentUpdates || new Map();
      window._flowRecentUpdates.set(String(newestItem.id), Date.now());
-     if(typeof showFlowActivityBeacon === 'function'){
+     window._flowShownBeaconKeys = window._flowShownBeaconKeys || new Set();
+     const beaconKey = `${newestType}_${newestItem.id}_${newestTs}`;
+     if(!window._flowShownBeaconKeys.has(beaconKey) && typeof showFlowActivityBeacon === 'function'){
+       window._flowShownBeaconKeys.add(beaconKey);
        showFlowActivityBeacon({
          id: newestItem.id,
          title: newestItem.title,
          date: newestItem.date || newestItem.due || iso(today),
-         authorName: newestItem.createdByName || 'Teammate',
-         authorPhoto: newestItem.createdByPhotoURL || '',
+         authorName: newestItem.createdByName || newestItem.authorName || 'Teammate',
+         authorPhoto: newestItem.createdByPhotoURL || newestItem.authorPhoto || '',
          type: newestType,
          action: 'added/updated'
        });
@@ -19605,6 +19679,7 @@ function applyTeamLiveData(){
    window._flowSeenItemTimestamps = new Map();
    for(const ev of allEvents) window._flowSeenItemTimestamps.set(ev.id, Number(ev.updatedAt || ev.createdAt || 0));
    for(const t of (teamRecords.tasks || [])) window._flowSeenItemTimestamps.set(t.id, Number(t.updatedAt || t.createdAt || 0));
+   for(const n of (teamRecords.notes || [])) window._flowSeenItemTimestamps.set(n.id, Number(n.updatedAt || n.createdAt || 0));
    window._flowTeamSyncInitialized = true;
  }
 
