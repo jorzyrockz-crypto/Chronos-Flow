@@ -1130,8 +1130,16 @@ html[data-theme="dark"] .item-preview-modal{background:#0f172a!important;border-
 
 /* --- CHRONOS FLOW: EVENT PREVIEW MODAL V2 (FOREST MINT SYSTEM) --- */
 .event-preview-modal-v2{display:flex;flex-direction:column;width:100%;max-height:inherit;overflow-y:auto;overscroll-behavior:contain}
-.event-preview-canopy{position:relative;min-height:112px;height:112px;padding:18px 20px;display:flex;align-items:flex-start;box-sizing:border-box}
-.event-preview-canopy-badge{display:inline-flex;align-items:center;gap:6px;border-radius:9999px;background:rgba(0,0,0,0.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.18);box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+.event-preview-canopy{position:relative;min-height:124px;height:124px;padding:18px 20px;display:flex;align-items:flex-start;box-sizing:border-box;overflow:hidden;transition:background .28s cubic-bezier(.16,1,.3,1)}
+.event-preview-canopy-badge{display:inline-flex;align-items:center;gap:6px;border-radius:9999px;background:rgba(0,0,0,0.38);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.22);box-shadow:0 2px 8px rgba(0,0,0,0.14);z-index:2;pointer-events:none}
+.event-canopy-art-wrap{position:absolute;right:0;top:0;bottom:0;width:58%;height:100%;pointer-events:none;display:flex;align-items:center;justify-content:flex-end;z-index:1;opacity:0.95}
+.event-canopy-art-wrap svg{width:100%;height:100%;object-fit:cover}
+
+/* --- GOOGLE-STYLE SMART BANNER FOR NEW/EDIT EVENT MODAL --- */
+.event-modal-smart-banner{position:relative;height:76px;min-height:76px;width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;box-sizing:border-box;overflow:hidden;background:linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%);transition:background .28s cubic-bezier(.16,1,.3,1);flex-shrink:0}
+.event-modal-banner-badge{display:inline-flex;align-items:center;gap:6px;border-radius:9999px;background:rgba(0,0,0,0.38);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#ffffff;border:1px solid rgba(255,255,255,0.22);z-index:2;pointer-events:none}
+.event-modal-banner-art{position:absolute;right:0;top:0;bottom:0;width:58%;height:100%;pointer-events:none;display:flex;align-items:center;justify-content:flex-end;z-index:1;opacity:0.95}
+.event-modal-banner-art svg{width:100%;height:100%;object-fit:cover}
 .event-preview-content{padding:18px 24px 24px;display:flex;flex-direction:column;gap:15px}
 .event-preview-topbar{display:flex;align-items:center;justify-content:space-between;padding-bottom:2px}
 .event-preview-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -6998,20 +7006,39 @@ html[data-theme="dark"] .note-card .md-card-preview {
   gap: 8px;
   align-items: center;
   padding: 4px 0;
+  flex-wrap: wrap;
 }
 .cover-preset-btn {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 .cover-preset-btn:hover { transform: scale(1.15); }
 .cover-preset-btn.active {
   transform: scale(1.22);
   border-color: #ffffff;
-  box-shadow: 0 0 0 2px var(--accent);
+  box-shadow: 0 0 0 2.5px var(--accent, #6366f1);
+}
+.cover-preset-btn[data-cover-preset="auto"] {
+  border-radius: 9999px;
+  width: auto;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 10px;
+  font-weight: 750;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1.5px solid var(--line);
 }
 
 /* Modal Actions */
@@ -7080,6 +7107,15 @@ html[data-theme="dark"] .note-card .md-card-preview {
     
     <!-- Dynamic Top Accent Stripe -->
     <div class="event-modal-accent-bar" id="eventModalAccentBar"></div>
+
+    <!-- Google-style Smart Dynamic Banner Canopy -->
+    <div class="event-modal-smart-banner" id="eventModalSmartBanner">
+      <div class="event-modal-banner-badge" id="eventModalBannerBadge">
+        <span id="eventModalBannerIcon"></span>
+        <span id="eventModalBannerText">AUTO THEME</span>
+      </div>
+      <div class="event-modal-banner-art" id="eventModalBannerArt"></div>
+    </div>
 
     <!-- Header -->
     <div class="event-modal-head">
@@ -7237,14 +7273,28 @@ html[data-theme="dark"] .note-card .md-card-preview {
             </select>
           </div>
           <div class="field full">
-            <label class="event-field-label">CARD COVER THEME</label>
+            <div class="field-label-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <label class="event-field-label" style="margin:0;">THEMATIC BANNER &amp; COVER THEME</label>
+              <span class="muted-label" style="font-size:10px;" id="eventCoverPresetLabel">Smart Auto-Detect</span>
+            </div>
             <div class="event-cover-presets-row" role="group" aria-label="Event cover gradient theme">
-              <button type="button" class="cover-preset-btn active" data-cover-preset="preset:strategy" title="Strategy Sync (Indigo)" style="background:linear-gradient(135deg, #1e1b4b, #6366f1)"></button>
-              <button type="button" class="cover-preset-btn" data-cover-preset="preset:focus" title="Deep Focus (Emerald)" style="background:linear-gradient(135deg, #022c22, #10b981)"></button>
-              <button type="button" class="cover-preset-btn" data-cover-preset="preset:wellness" title="Wellness &amp; Break (Teal)" style="background:linear-gradient(135deg, #064e3b, #2dd4bf)"></button>
-              <button type="button" class="cover-preset-btn" data-cover-preset="preset:sunset" title="Sunset Workshop (Amber)" style="background:linear-gradient(135deg, #431407, #fb923c)"></button>
-              <button type="button" class="cover-preset-btn" data-cover-preset="preset:keynote" title="Keynote &amp; Review (Purple)" style="background:linear-gradient(135deg, #2e1065, #c084fc)"></button>
-              <button type="button" class="cover-preset-btn" data-cover-preset="preset:celebrate" title="Milestone Celebration (Rose)" style="background:linear-gradient(135deg, #831843, #fb7185)"></button>
+              <button type="button" class="cover-preset-btn active" data-cover-preset="auto" title="Smart Auto-Detect (Google Flair)">
+                <span>AUTO</span>
+              </button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:birthday" title="Birthday &amp; Celebration" style="background:linear-gradient(135deg, #6d28d9, #f43f5e)">🎂</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:christmas" title="Christmas &amp; Holiday Season" style="background:linear-gradient(135deg, #065f46, #b91c1c)">🎄</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:newyear" title="New Year Celebration" style="background:linear-gradient(135deg, #1e1b4b, #ca8a04)">🎆</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:holiday_national" title="National Holiday" style="background:linear-gradient(135deg, #1e3a8a, #9f1239)">🇵🇭</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:travel" title="Travel &amp; Vacation" style="background:linear-gradient(135deg, #0284c7, #d97706)">✈️</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:coffee" title="Coffee &amp; Cafe" style="background:linear-gradient(135deg, #451a03, #b45309)">☕</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:dining" title="Dining &amp; Food" style="background:linear-gradient(135deg, #7c2d12, #ea580c)">🍽️</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:fitness" title="Fitness &amp; Workout" style="background:linear-gradient(135deg, #134e4a, #65a30d)">🏃</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:health" title="Health &amp; Medical" style="background:linear-gradient(135deg, #0369a1, #0d9488)">🩺</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:graduation" title="Graduation &amp; Moving Up" style="background:linear-gradient(135deg, #1e3a8a, #ca8a04)">🎓</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:exam_academic" title="Exam &amp; Assessment" style="background:linear-gradient(135deg, #312e81, #0284c7)">📝</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:school_event" title="School Event &amp; Brigada" style="background:linear-gradient(135deg, #0369a1, #16a34a)">🏫</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:workshop" title="Workshop &amp; INSET" style="background:linear-gradient(135deg, #9a3412, #6366f1)">🤝</button>
+              <button type="button" class="cover-preset-btn" data-cover-preset="flair:strategy" title="Strategy Sync" style="background:linear-gradient(135deg, #1e1b4b, #6366f1)">💼</button>
             </div>
           </div>
         </div>
@@ -10792,39 +10842,430 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
   if(typeof renderNotes === 'function') renderNotes();
 }
 async function refreshUnifiedTeamCalendar(){if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const tombs=(typeof localTombstones==='function')?localTombstones():{};const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();if(!teamLiveData[team.id]) teamLiveData[team.id]={events:[],tasks:[],notes:[]};teamLiveData[team.id].events=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team'}));return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!tombs['events|'+String(e.id)]&&!tombs['events|'+String(e.sourceId||'')]);}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();saveTeamCache();render()}
-const EVENT_COVER_PRESETS = {
-  'preset:strategy': {
-    name: 'Strategy Sync',
+const EVENT_FLAIR_DEFINITIONS = {
+  'flair:birthday': {
+    key: 'flair:birthday',
+    name: 'Birthday & Celebration',
+    badge: 'BIRTHDAY',
+    icon: 'cake',
+    emoji: '🎂',
+    gradient: 'linear-gradient(135deg, #4338ca 0%, #6d28d9 35%, #db2777 75%, #f43f5e 100%)',
+    accentColor: '#ec4899',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="cakeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="430" cy="60" r="55" fill="url(#cakeGlow)"/>
+      <path d="M330,42 C330,22 346,8 362,8 C378,8 394,22 394,42 C394,58 378,68 362,68 C346,68 330,58 330,42 Z" fill="rgba(255,255,255,0.22)"/>
+      <path d="M362,68 L360,74 L364,74 Z" fill="rgba(255,255,255,0.4)"/>
+      <path d="M362,74 Q355,90 365,115" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+      <path d="M365,34 C365,16 380,4 394,4 C408,4 422,16 422,34 C422,48 408,58 394,58 C380,58 365,48 365,34 Z" fill="rgba(255,255,255,0.32)"/>
+      <path d="M394,58 L392,64 L396,64 Z" fill="rgba(255,255,255,0.5)"/>
+      <path d="M394,64 Q402,80 395,115" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+      <rect x="415" y="72" width="68" height="36" rx="4" fill="rgba(255,255,255,0.85)"/>
+      <rect x="425" y="48" width="48" height="24" rx="3" fill="rgba(255,255,255,0.92)"/>
+      <path d="M415,78 Q421,83 427,78 Q433,83 439,78 Q445,83 451,78 Q457,83 463,78 Q469,83 475,78 Q481,83 483,78" stroke="#f43f5e" stroke-width="2.5" fill="none"/>
+      <rect x="447" y="34" width="4" height="14" rx="1" fill="#fbbf24"/>
+      <path d="M449,24 C447,28 446,31 449,34 C452,31 451,28 449,24 Z" fill="#fbbf24"/>
+      <circle cx="449,29" r="6" fill="#fef08a" opacity="0.6"/>
+      <circle cx="310" cy="25" r="3" fill="#fef08a"/>
+      <circle cx="340" cy="85" r="2.5" fill="#bae6fd"/>
+      <circle cx="410" cy="18" r="2" fill="#fed7aa"/>
+      <circle cx="488" cy="42" r="3" fill="#fef08a"/>
+      <path d="M320,50 L325,52 L320,54 L318,59 L316,54 L311,52 L316,50 L318,45 Z" fill="rgba(255,255,255,0.75)"/>
+      <path d="M475,18 L478,19 L475,20 L474,23 L473,20 L470,19 L473,18 L474,15 Z" fill="rgba(255,255,255,0.8)"/>
+      <path d="M295,70 Q305,65 315,75 T335,70" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" fill="none"/>
+    </svg>`
+  },
+
+  'flair:christmas': {
+    key: 'flair:christmas',
+    name: 'Christmas & Holiday Season',
+    badge: 'CHRISTMAS',
+    icon: 'sparkles',
+    emoji: '🎄',
+    gradient: 'linear-gradient(135deg, #064e3b 0%, #065f46 45%, #991b1b 85%, #b91c1c 100%)',
+    accentColor: '#10b981',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="440,16 458,40 450,40 464,66 454,66 470,96 410,96 426,66 416,66 430,40 422,40" fill="rgba(255,255,255,0.88)"/>
+      <rect x="436" y="96" width="8" height="14" fill="rgba(255,255,255,0.6)"/>
+      <path d="M440,8 L442,13 L447,13 L443,16 L445,21 L440,18 L435,21 L437,16 L433,13 L438,13 Z" fill="#fef08a"/>
+      <line x1="375" y1="0" x2="375" y2="35" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+      <circle cx="375" cy="46" r="11" fill="rgba(255,255,255,0.3)"/>
+      <circle cx="373" cy="43" r="3" fill="rgba(255,255,255,0.7)"/>
+      <line x1="340" y1="0" x2="340" y2="55" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+      <circle cx="340" cy="69" r="14" fill="rgba(255,255,255,0.22)"/>
+      <circle cx="337" cy="65" r="4" fill="rgba(255,255,255,0.6)"/>
+      <g stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round">
+        <line x1="310" y1="25" x2="310" y2="37"/><line x1="304" y1="31" x2="316" y2="31"/>
+        <line x1="306" y1="27" x2="314" y2="35"/><line x1="306" y1="35" x2="314" y2="27"/>
+      </g>
+      <circle cx="328" cy="88" r="2.5" fill="#fff" opacity="0.8"/>
+      <circle cx="360" cy="80" r="1.8" fill="#fff" opacity="0.7"/>
+      <circle cx="395" cy="22" r="2" fill="#fff" opacity="0.8"/>
+      <circle cx="482" cy="50" r="3" fill="#fef08a" opacity="0.85"/>
+      <circle cx="420" cy="82" r="2.5" fill="#f43f5e"/>
+      <circle cx="452" cy="55" r="2.5" fill="#38bdf8"/>
+    </svg>`
+  },
+
+  'flair:newyear': {
+    key: 'flair:newyear',
+    name: 'New Year Celebration',
+    badge: 'NEW YEAR',
+    icon: 'sparkles',
+    emoji: '🎆',
+    gradient: 'linear-gradient(135deg, #09090b 0%, #1e1b4b 40%, #713f12 85%, #ca8a04 100%)',
+    accentColor: '#eab308',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#fef08a" stroke-width="1.5" stroke-linecap="round" opacity="0.85">
+        <line x1="360" y1="40" x2="360" y2="22"/><line x1="360" y1="40" x2="360" y2="58"/>
+        <line x1="360" y1="40" x2="342" y2="40"/><line x1="360" y1="40" x2="378" y2="40"/>
+        <line x1="360" y1="40" x2="347" y2="27"/><line x1="360" y1="40" x2="373" y2="53"/>
+        <line x1="360" y1="40" x2="347" y2="53"/><line x1="360" y1="40" x2="373" y2="27"/>
+      </g>
+      <circle cx="360" cy="40" r="3" fill="#fff"/>
+      <path d="M430,45 L445,45 L441,75 L434,75 Z" fill="rgba(255,255,255,0.85)" transform="rotate(-15 437 60)"/>
+      <line x1="434" y1="75" x2="430" y2="105" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" transform="rotate(-15 437 60)"/>
+      <line x1="424" y1="105" x2="440" y2="105" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" transform="rotate(-15 437 60)"/>
+      <path d="M455,45 L470,45 L466,75 L459,75 Z" fill="rgba(255,255,255,0.85)" transform="rotate(15 462 60)"/>
+      <line x1="462" y1="75" x2="466" y2="105" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" transform="rotate(15 462 60)"/>
+      <line x1="456" y1="105" x2="472" y2="105" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" transform="rotate(15 462 60)"/>
+      <circle cx="445" cy="35" r="3" fill="#fef08a"/>
+      <circle cx="452" cy="26" r="2" fill="#fff"/>
+      <circle cx="458" cy="38" r="2.5" fill="#fef08a"/>
+    </svg>`
+  },
+
+  'flair:holiday_national': {
+    key: 'flair:holiday_national',
+    name: 'National Holiday',
+    badge: 'HOLIDAY',
+    icon: 'flag',
+    emoji: '🇵🇭',
+    gradient: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #881337 85%, #9f1239 100%)',
+    accentColor: '#38bdf8',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="420" cy="58" r="14" fill="#fbbf24"/>
+      <g stroke="#fbbf24" stroke-width="2" stroke-linecap="round">
+        <line x1="420" y1="36" x2="420" y2="28"/><line x1="420" y1="80" x2="420" y2="88"/>
+        <line x1="398" y1="58" x2="390" y2="58"/><line x1="442" y1="58" x2="450" y2="58"/>
+        <line x1="404" y1="42" x2="398" y2="36"/><line x1="436" y1="74" x2="442" y2="80"/>
+        <line x1="404" y1="74" x2="398" y2="80"/><line x1="436" y1="42" x2="442" y2="36"/>
+      </g>
+      <path d="M375,70 C375,40 400,24 420,24 C440,24 465,40 465,70" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="3 4" fill="none"/>
+      <polygon points="360,35 362,40 367,40 363,43 365,48 360,45 355,48 357,43 353,40 358,40" fill="#fef08a"/>
+      <polygon points="475,35 477,40 482,40 478,43 480,48 475,45 470,48 472,43 468,40 473,40" fill="#fef08a"/>
+      <polygon points="420,10 422,14 426,14 423,17 424,21 420,18 416,21 417,17 414,14 418,14" fill="#fef08a"/>
+    </svg>`
+  },
+
+  'flair:travel': {
+    key: 'flair:travel',
+    name: 'Travel & Vacation',
+    badge: 'TRAVEL',
+    icon: 'plane',
+    emoji: '✈️',
+    gradient: 'linear-gradient(135deg, #0369a1 0%, #0284c7 40%, #0ea5e9 70%, #d97706 100%)',
+    accentColor: '#38bdf8',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M270,105 Q350,95 410,50" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-dasharray="6 4" fill="none"/>
+      <g transform="translate(415, 30) rotate(-22) scale(1.1)">
+        <path d="M0,8 L24,0 L32,4 L16,10 L30,13 L33,9 L36,11 L31,16 L12,14 L0,22 L-2,19 L4,11 Z" fill="rgba(255,255,255,0.92)"/>
+      </g>
+      <path d="M340,115 C340,102 350,92 364,92 C368,92 372,93 375,95 C378,85 388,78 400,78 C414,78 425,88 426,102 C430,102 434,105 435,110 C436,112 436,113 436,115 Z" fill="rgba(255,255,255,0.25)"/>
+      <circle cx="455" cy="35" r="14" fill="#fef08a" opacity="0.3"/>
+    </svg>`
+  },
+
+  'flair:coffee': {
+    key: 'flair:coffee',
+    name: 'Coffee & Cafe',
+    badge: 'COFFEE BREAK',
+    icon: 'coffee',
+    emoji: '☕',
+    gradient: 'linear-gradient(135deg, #271406 0%, #451a03 45%, #78350f 80%, #b45309 100%)',
+    accentColor: '#f59e0b',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M400,60 L400,95 C400,102 406,108 414,108 L440,108 C448,108 454,102 454,95 L454,60 Z" fill="rgba(255,255,255,0.9)"/>
+      <path d="M454,68 C464,68 472,74 472,84 C472,94 464,100 454,100" stroke="rgba(255,255,255,0.9)" stroke-width="4" fill="none"/>
+      <ellipse cx="427" cy="111" rx="38" ry="4" fill="rgba(255,255,255,0.7)"/>
+      <path d="M415,50 C412,42 418,36 414,28" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M427,48 C424,38 430,32 426,22" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M439,50 C436,42 442,36 438,28" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <ellipse cx="360" cy="88" rx="8" ry="5" fill="rgba(255,255,255,0.35)" transform="rotate(-30 360 88)"/>
+      <ellipse cx="376" cy="98" rx="7" ry="4.5" fill="rgba(255,255,255,0.3)" transform="rotate(25 376 98)"/>
+    </svg>`
+  },
+
+  'flair:dining': {
+    key: 'flair:dining',
+    name: 'Dining & Meals',
+    badge: 'DINING',
+    icon: 'utensils',
+    emoji: '🍽️',
+    gradient: 'linear-gradient(135deg, #431407 0%, #7c2d12 45%, #c2410c 80%, #ea580c 100%)',
+    accentColor: '#f97316',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M380,88 C380,55 402,40 425,40 C448,40 470,55 470,88 Z" fill="rgba(255,255,255,0.85)"/>
+      <circle cx="425" cy="35" r="4.5" fill="rgba(255,255,255,0.95)"/>
+      <rect x="370" y="88" width="110" height="6" rx="3" fill="rgba(255,255,255,0.95)"/>
+      <path d="M340,48 L340,96 M335,48 L335,68 C335,74 345,74 345,68 L345,48" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M360,48 C365,55 365,72 360,78 L360,96" stroke="rgba(255,255,255,0.6)" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>`
+  },
+
+  'flair:fitness': {
+    key: 'flair:fitness',
+    name: 'Fitness & Workout',
+    badge: 'FITNESS',
+    icon: 'dumbbell',
+    emoji: '🏃',
+    gradient: 'linear-gradient(135deg, #042f2e 0%, #134e4a 40%, #0d9488 70%, #65a30d 100%)',
+    accentColor: '#10b981',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(405, 55) rotate(-28)">
+        <rect x="-35" y="-3" width="70" height="6" rx="2" fill="rgba(255,255,255,0.95)"/>
+        <rect x="-38" y="-18" width="7" height="36" rx="2" fill="rgba(255,255,255,0.85)"/>
+        <rect x="-44" y="-14" width="6" height="28" rx="2" fill="rgba(255,255,255,0.7)"/>
+        <rect x="31" y="-18" width="7" height="36" rx="2" fill="rgba(255,255,255,0.85)"/>
+        <rect x="38" y="-14" width="6" height="28" rx="2" fill="rgba(255,255,255,0.7)"/>
+      </g>
+      <path d="M280,75 L330,75 L340,55 L350,95 L360,65 L370,82 L380,75 L480,75" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>`
+  },
+
+  'flair:health': {
+    key: 'flair:health',
+    name: 'Health & Medical',
+    badge: 'HEALTHCARE',
+    icon: 'stethoscope',
+    emoji: '🩺',
+    gradient: 'linear-gradient(135deg, #082f49 0%, #0369a1 45%, #0891b2 75%, #0d9488 100%)',
+    accentColor: '#06b6d4',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M410,25 C410,55 435,70 450,70 C465,70 475,55 475,35" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M450,70 L450,88 C450,98 440,105 430,105 L420,105" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="415" cy="105" r="9" fill="rgba(255,255,255,0.9)"/>
+      <circle cx="415" cy="105" r="4" fill="#0284c7"/>
+      <g transform="translate(360, 45)">
+        <rect x="-5" y="-15" width="10" height="30" rx="2" fill="rgba(255,255,255,0.85)"/>
+        <rect x="-15" y="-5" width="30" height="10" rx="2" fill="rgba(255,255,255,0.85)"/>
+      </g>
+    </svg>`
+  },
+
+  'flair:graduation': {
+    key: 'flair:graduation',
+    name: 'Graduation & Commencement',
+    badge: 'GRADUATION',
+    icon: 'award',
+    emoji: '🎓',
+    gradient: 'linear-gradient(135deg, #172554 0%, #1e3a8a 45%, #1d4ed8 75%, #ca8a04 100%)',
+    accentColor: '#eab308',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="420,40 460,54 420,68 380,54" fill="rgba(255,255,255,0.92)"/>
+      <path d="M400,62 L400,80 C400,90 440,90 440,80 L440,62" fill="rgba(255,255,255,0.7)"/>
+      <circle cx="420" cy="54" r="3" fill="#fef08a"/>
+      <path d="M420,54 Q450,60 458,78" stroke="#fef08a" stroke-width="2.5" fill="none"/>
+      <rect x="455" y="78" width="6" height="10" rx="1" fill="#fef08a"/>
+      <rect x="330" y="80" width="45" height="14" rx="3" fill="rgba(255,255,255,0.85)" transform="rotate(-12 330 80)"/>
+      <rect x="348" y="77" width="6" height="16" fill="#f43f5e" transform="rotate(-12 348 77)"/>
+    </svg>`
+  },
+
+  'flair:exam_academic': {
+    key: 'flair:exam_academic',
+    name: 'Exam & Assessment',
+    badge: 'EXAM / ASSESSMENT',
+    icon: 'file-check',
+    emoji: '📝',
+    gradient: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 75%, #0284c7 100%)',
+    accentColor: '#38bdf8',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="400" y="24" width="64" height="84" rx="6" fill="rgba(255,255,255,0.88)"/>
+      <rect x="418" y="16" width="28" height="14" rx="3" fill="#4338ca"/>
+      <path d="M412,46 L416,50 L424,42" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <line x1="428" y1="46" x2="452" y2="46" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+      <path d="M412,64 L416,68 L424,60" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <line x1="428" y1="64" x2="452" y2="64" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+      <path d="M412,82 L416,86 L424,78" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <line x1="428" y1="82" x2="452" y2="82" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    </svg>`
+  },
+
+  'flair:school_event': {
+    key: 'flair:school_event',
+    name: 'School Event & Learning',
+    badge: 'SCHOOL EVENT',
+    icon: 'book-open',
+    emoji: '🏫',
+    gradient: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 40%, #15803d 80%, #16a34a 100%)',
+    accentColor: '#22c55e',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M420,85 C400,80 380,82 370,88 L370,50 C380,44 400,42 420,48 Z" fill="rgba(255,255,255,0.92)"/>
+      <path d="M420,85 C440,80 460,82 470,88 L470,50 C460,44 440,42 420,48 Z" fill="rgba(255,255,255,0.85)"/>
+      <line x1="420" y1="48" x2="420" y2="86" stroke="#0369a1" stroke-width="2"/>
+    </svg>`
+  },
+
+  'flair:workshop': {
+    key: 'flair:workshop',
+    name: 'Workshop & Inset',
+    badge: 'WORKSHOP',
+    icon: 'presentation',
+    emoji: '🤝',
+    gradient: 'linear-gradient(135deg, #431407 0%, #9a3412 40%, #7c3aed 80%, #6366f1 100%)',
+    accentColor: '#a855f7',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="390" y="22" width="75" height="54" rx="4" fill="rgba(255,255,255,0.88)"/>
+      <polyline points="405,62 420,48 435,55 450,38" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <line x1="400" y1="76" x2="390" y2="108" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="455" y1="76" x2="465" y2="108" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="427" y1="76" x2="427" y2="110" stroke="rgba(255,255,255,0.5)" stroke-width="2.5"/>
+    </svg>`
+  },
+
+  'flair:strategy': {
+    key: 'flair:strategy',
+    name: 'Strategy & Meeting',
+    badge: 'STRATEGY',
+    icon: 'briefcase',
+    emoji: '💼',
     gradient: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%)',
-    badge: 'Strategy'
-  },
-  'preset:focus': {
-    name: 'Deep Focus',
-    gradient: 'linear-gradient(135deg, #022c22 0%, #064e3b 40%, #059669 75%, #10b981 100%)',
-    badge: 'Focus'
-  },
-  'preset:wellness': {
-    name: 'Wellness & Break',
-    gradient: 'linear-gradient(135deg, #064e3b 0%, #0d9488 50%, #2dd4bf 100%)',
-    badge: 'Wellbeing'
-  },
-  'preset:sunset': {
-    name: 'Sunset Workshop',
-    gradient: 'linear-gradient(135deg, #431407 0%, #9a3412 40%, #ea580c 70%, #fb923c 100%)',
-    badge: 'Workshop'
-  },
-  'preset:keynote': {
-    name: 'Keynote & Review',
-    gradient: 'linear-gradient(135deg, #2e1065 0%, #581c87 40%, #7c3aed 70%, #c084fc 100%)',
-    badge: 'Keynote'
-  },
-  'preset:celebrate': {
-    name: 'Milestone Celebration',
-    gradient: 'linear-gradient(135deg, #831843 0%, #be185d 40%, #f43f5e 70%, #fb7185 100%)',
-    badge: 'Milestone'
+    accentColor: '#6366f1',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="440" cy="40" r="14" fill="rgba(255,255,255,0.88)"/>
+      <circle cx="390" cy="75" r="11" fill="rgba(255,255,255,0.75)"/>
+      <circle cx="460" cy="85" r="9" fill="rgba(255,255,255,0.65)"/>
+      <line x1="440" y1="40" x2="390" y2="75" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+      <line x1="440" y1="40" x2="460" y2="85" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+      <line x1="390" y1="75" x2="460" y2="85" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+    </svg>`
   }
 };
-let currentEventCoverPreset = 'preset:strategy';
+
+function resolveEventFlair(evOrPayload){
+  if(!evOrPayload) return EVENT_FLAIR_DEFINITIONS['flair:strategy'];
+  
+  const coverPreset = evOrPayload.coverPreset;
+  if(coverPreset && coverPreset !== 'auto' && EVENT_FLAIR_DEFINITIONS[coverPreset]){
+    return EVENT_FLAIR_DEFINITIONS[coverPreset];
+  }
+  if(coverPreset && typeof coverPreset === 'string' && coverPreset.startsWith('preset:')){
+    const mapped = coverPreset === 'preset:celebrate' ? 'flair:birthday' :
+                   coverPreset === 'preset:wellness' ? 'flair:school_event' :
+                   coverPreset === 'preset:focus' ? 'flair:fitness' :
+                   coverPreset === 'preset:sunset' ? 'flair:workshop' :
+                   coverPreset === 'preset:keynote' ? 'flair:graduation' : 'flair:strategy';
+    if(EVENT_FLAIR_DEFINITIONS[mapped]) return EVENT_FLAIR_DEFINITIONS[mapped];
+  }
+
+  const title = String(evOrPayload.title || '').trim();
+  const desc = String(evOrPayload.description || '').trim();
+  const text = (title + ' ' + desc).toLowerCase();
+  const cat = String(evOrPayload.category || '').toLowerCase();
+  const isHoliday = !!(evOrPayload.allDay && /holiday/i.test(text)) || /holiday/i.test(title);
+
+  // 1. Birthday / Anniversary
+  if(/\b(birthday|bday|debut|anniversary|turns \d+)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:birthday'];
+  }
+  // 2. Christmas / Xmas
+  if(/\b(christmas|xmas|noche buena|simbang gabi|holiday break|year-end break|yuletide)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:christmas'];
+  }
+  // 3. New Year
+  if(/\b(new year|media noche|eve countdown|new year’s|new years)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:newyear'];
+  }
+  // 4. National / Official Holidays
+  if(/\b(independence day|ninoy aquino|national heroes|all saints|all souls|bonifacio|immaculate conception|rizal day|chinese new year|regular holiday|non-working holiday|special holiday)\b/i.test(text) || isHoliday){
+    return EVENT_FLAIR_DEFINITIONS['flair:holiday_national'];
+  }
+  // 5. Travel & Flights
+  if(/\b(flight|airport|boarding|vacation|trip to|road trip|staycation|hotel|resort|cebu|boracay|palawan|tokyo|plane|terminal \d)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:travel'];
+  }
+  // 6. Coffee
+  if(/\b(coffee|starbucks|espresso|latte|cappuccino|cafe|fika|tea time|morning brew)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:coffee'];
+  }
+  // 7. Dining / Meals
+  if(/\b(dinner|lunch|breakfast|brunch|buffet|restaurant|bbq|dine out|cookout|banquet|salu-salo)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:dining'];
+  }
+  // 8. Fitness / Gym
+  if(/\b(workout|gym|run|jogging|marathon|fitness|yoga|pilates|crossfit|cycling|leg day|training session)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:fitness'];
+  }
+  // 9. Health / Medical
+  if(/\b(doctor|dentist|dental|clinic|hospital|checkup|physician|consultation|vaccine|blood test|pediatric)\b/i.test(text) || cat === 'health'){
+    return EVENT_FLAIR_DEFINITIONS['flair:health'];
+  }
+  // 10. Graduation
+  if(/\b(graduation|commencement|moving up|baccalaureate|convocation)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:graduation'];
+  }
+  // 11. Exam / Assessment
+  if(/\b(exam|examination|summative|assessment|test|quiz|nat|ncae|bosy|mosy|eosy|crla|rma|phil-iri)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:exam_academic'];
+  }
+  // 12. Workshop / Inset / Seminar
+  if(/\b(workshop|inset|seminar|conference|training|orientation|webinar|bootcamp|pta meeting|general assembly)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:workshop'];
+  }
+  // 13. School Event / Brigada
+  if(/\b(brigada|eskwela|teachers' month|world teachers|school opening|enrollment|early registration|flag raising|learners)\b/i.test(text)){
+    return EVENT_FLAIR_DEFINITIONS['flair:school_event'];
+  }
+
+  // Fallbacks by category
+  if(cat === 'personal') return EVENT_FLAIR_DEFINITIONS['flair:birthday'];
+  if(cat === 'focus') return EVENT_FLAIR_DEFINITIONS['flair:fitness'];
+  
+  return EVENT_FLAIR_DEFINITIONS['flair:strategy'];
+}
+
+function updateEventModalSmartBanner(){
+  const banner = $('eventModalSmartBanner');
+  const badgeText = $('eventModalBannerText');
+  const badgeIcon = $('eventModalBannerIcon');
+  const artWrap = $('eventModalBannerArt');
+  if(!banner) return;
+
+  const title = $('eventTitle')?.value || '';
+  const cat = $('eventCategory')?.value || 'work';
+  const flair = resolveEventFlair({ title, category: cat, coverPreset: currentEventCoverPreset });
+
+  banner.style.background = currentEventCoverImage ? ('url(' + currentEventCoverImage + ') center/cover no-repeat') : flair.gradient;
+  if(badgeText) badgeText.textContent = flair.badge;
+  if(badgeIcon && typeof getLucideSvg === 'function') badgeIcon.innerHTML = getLucideSvg(flair.icon, 13);
+  if(artWrap) artWrap.innerHTML = (!currentEventCoverImage && flair.svg) ? flair.svg : '';
+
+  const labelEl = $('eventCoverPresetLabel');
+  if(labelEl){
+    labelEl.textContent = (currentEventCoverPreset === 'auto') ? `Auto: ${flair.name}` : flair.name;
+  }
+
+  document.querySelectorAll('.cover-preset-btn').forEach(btn => {
+    const p = btn.getAttribute('data-cover-preset');
+    btn.classList.toggle('active', p === currentEventCoverPreset);
+  });
+}
+
+const EVENT_COVER_PRESETS = {
+  'preset:strategy': { name: 'Strategy Sync', gradient: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%)', badge: 'Strategy' },
+  'preset:focus': { name: 'Deep Focus', gradient: 'linear-gradient(135deg, #022c22 0%, #064e3b 40%, #059669 75%, #10b981 100%)', badge: 'Focus' },
+  'preset:wellness': { name: 'Wellness & Break', gradient: 'linear-gradient(135deg, #064e3b 0%, #0d9488 50%, #2dd4bf 100%)', badge: 'Wellbeing' },
+  'preset:sunset': { name: 'Sunset Workshop', gradient: 'linear-gradient(135deg, #431407 0%, #9a3412 40%, #ea580c 70%, #fb923c 100%)', badge: 'Workshop' },
+  'preset:keynote': { name: 'Keynote & Review', gradient: 'linear-gradient(135deg, #2e1065 0%, #581c87 40%, #7c3aed 70%, #c084fc 100%)', badge: 'Keynote' },
+  'preset:celebrate': { name: 'Milestone Celebration', gradient: 'linear-gradient(135deg, #831843 0%, #be185d 40%, #f43f5e 70%, #fb7185 100%)', badge: 'Milestone' }
+};
+let currentEventCoverPreset = 'auto';
 let currentEventCoverImage = '';
 let currentEventAgenda = [];
 
@@ -11003,12 +11444,13 @@ function openEvent(id = null, date = null){
     }
 
     // Cover preset
-    currentEventCoverPreset = e?.coverPreset || 'preset:strategy';
+    currentEventCoverPreset = e?.coverPreset || 'auto';
     currentEventCoverImage = e?.coverImage || '';
     currentEventAgenda = Array.isArray(e?.agenda) ? JSON.parse(JSON.stringify(e.agenda)) : [];
     document.querySelectorAll('.cover-preset-btn').forEach(b => {
       b.classList.toggle('active', b.getAttribute('data-cover-preset') === currentEventCoverPreset);
     });
+    try { updateEventModalSmartBanner(); } catch(err){}
 
     try { if(typeof renderTeamShareChips === 'function') renderTeamShareChips('eventTeamQuickChips', 'eventShareTeams'); } catch(err){}
     try { if(typeof checkEventLocationVideoCall === 'function') checkEventLocationVideoCall(); } catch(err){}
@@ -12130,7 +12572,7 @@ $('eventForm')?.addEventListener('submit', async e => {
 
   const reminderValue = $('eventReminder')?.value || 'default';
   const colorVal = $('eventColor')?.value || oldEv?.color || '#4388df';
-  const coverPresetVal = currentEventCoverPreset || oldEv?.coverPreset || 'preset:strategy';
+  const coverPresetVal = currentEventCoverPreset || oldEv?.coverPreset || 'auto';
 
   const item = {
     id,
@@ -12311,12 +12753,21 @@ function initModernEventModal(){
     locInput.addEventListener('change', checkEventLocationVideoCall);
   }
 
-  // Cover presets
+  // Cover presets & live flair selection
   document.querySelectorAll('.cover-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      currentEventCoverPreset = btn.getAttribute('data-cover-preset') || 'preset:strategy';
+      currentEventCoverPreset = btn.getAttribute('data-cover-preset') || 'auto';
       document.querySelectorAll('.cover-preset-btn').forEach(b => b.classList.toggle('active', b === btn));
+      try { updateEventModalSmartBanner(); } catch(err){}
     });
+  });
+
+  // Reactive Smart Banner live typing
+  $('eventTitle')?.addEventListener('input', () => {
+    try { updateEventModalSmartBanner(); } catch(err){}
+  });
+  $('eventCategory')?.addEventListener('change', () => {
+    try { updateEventModalSmartBanner(); } catch(err){}
   });
 }
 initModernEventModal();
@@ -15069,9 +15520,15 @@ function getCardCreatorProfile(item){
 }
 
 function getEventCardMeta(e) {
+  const flair = (typeof resolveEventFlair === 'function') ? resolveEventFlair(e) : null;
   const cat = (e.category || 'other').toLowerCase();
   let icon = 'calendar', label = 'Event', accent = '#3b82f6', catClass = 'event-work';
-  if(e.teamShared){
+  if(flair && flair.key !== 'flair:strategy'){
+    icon = flair.icon || 'calendar';
+    label = flair.badge || 'Event';
+    accent = flair.accentColor || '#3b82f6';
+    catClass = 'event-' + (flair.key.replace('flair:', ''));
+  } else if(e.teamShared){
     icon = 'users'; label = 'Team Sync'; accent = '#6366f1'; catClass = 'event-team';
   } else if(cat === 'personal'){
     icon = 'target'; label = 'Personal'; accent = '#10b981'; catClass = 'event-personal';
@@ -15255,25 +15712,16 @@ function renderEventPreviewHTML(id){
     }
   }
 
-  // Header & Cover: Ambient Canopy Gradient & Glass Category Pill
-  const coverPresetObj = (typeof EVENT_COVER_PRESETS !== 'undefined' && EVENT_COVER_PRESETS[ev.coverPreset]) || null;
-  let ambientGradient = 'linear-gradient(180deg, rgba(67, 56, 202, 0.85) 0%, rgba(67, 56, 202, 0.45) 100%)';
-  if(coverPresetObj && coverPresetObj.gradient){
-    ambientGradient = coverPresetObj.gradient;
-  } else if(accent && accent !== '#3b82f6'){
-    ambientGradient = `linear-gradient(180deg, color-mix(in srgb, ${accent} 85%, transparent) 0%, color-mix(in srgb, ${accent} 45%, transparent) 100%)`;
-  }
-  const canopyBg = ev.coverImage ? ('url(' + ev.coverImage + ') center/cover no-repeat') : ambientGradient;
-  let categoryLabel = 'STRATEGY';
-  if(coverPresetObj && coverPresetObj.name){
-    categoryLabel = coverPresetObj.name.toUpperCase();
-  } else if(ev.category){
-    if(ev.category.toLowerCase() === 'work'){
-      categoryLabel = 'STRATEGY';
-    } else {
-      categoryLabel = ev.category.toUpperCase();
-    }
-  }
+  // Header & Cover: Google-Style Smart Thematic Banner & Ambient Canopy
+  const flair = (typeof resolveEventFlair === 'function') ? resolveEventFlair(ev) : {
+    gradient: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%)',
+    badge: 'EVENT',
+    icon: 'calendar',
+    svg: ''
+  };
+  const canopyBg = ev.coverImage ? ('url(' + ev.coverImage + ') center/cover no-repeat') : flair.gradient;
+  const categoryLabel = flair.badge || 'EVENT';
+  const canopyIcon = flair.icon || 'calendar';
 
   // Creator Avatar Circle
   let avatarInner = '';
@@ -15310,11 +15758,12 @@ function renderEventPreviewHTML(id){
 
   return `
     <div class="event-preview-modal-v2">
-      <!-- Ambient Canopy -->
+      <!-- Ambient Canopy with Layered Vector Art -->
       <div class="event-preview-canopy" style="background:${canopyBg}">
         <span class="event-preview-canopy-badge">
-          ${getLucideSvg('briefcase', 14)} ${esc(categoryLabel)}
+          ${getLucideSvg(canopyIcon, 14)} ${esc(categoryLabel)}
         </span>
+        ${!ev.coverImage && flair.svg ? `<div class="event-canopy-art-wrap">${flair.svg}</div>` : ''}
       </div>
 
       <!-- Main Content Container -->
