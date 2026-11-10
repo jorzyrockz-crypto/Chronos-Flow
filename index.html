@@ -915,7 +915,7 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
 .journey-node-btn.node-today.is-focused{box-shadow:0 0 32px color-mix(in srgb,var(--accent) 70%,transparent),0 0 0 5px color-mix(in srgb,var(--accent) 40%,transparent)}
 
 /* Frosted Glass Cards with Specular Highlights & Mouse Hover Elevation */
-.journey-card{position:relative;background:var(--journey-card-bg)!important;border:1px solid var(--journey-card-border)!important;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--journey-card-shadow)!important;transition:transform .24s cubic-bezier(.16,1,.3,1),box-shadow .24s cubic-bezier(.16,1,.3,1),border-color .24s ease;cursor:pointer;will-change:transform,box-shadow;overflow:visible;min-width:0;box-sizing:border-box}
+.journey-card:not(.full-banner-card){position:relative;background:var(--journey-card-bg)!important;border:1px solid var(--journey-card-border)!important;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--journey-card-shadow)!important;transition:transform .24s cubic-bezier(.16,1,.3,1),box-shadow .24s cubic-bezier(.16,1,.3,1),border-color .24s ease;cursor:pointer;will-change:transform,box-shadow;overflow:visible;min-width:0;box-sizing:border-box}
 .journey-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--card-accent,var(--day-hue)) 65%,rgba(255,255,255,.4))!important;box-shadow:0 18px 42px -4px rgba(0,0,0,.35),0 0 28px color-mix(in srgb,var(--card-accent,var(--day-hue)) 38%,transparent),inset 0 1px 0 rgba(255,255,255,.3)!important;z-index:6}
 
 /* Precision Architectural Transit Stems Solidly Anchored to Date Node */
@@ -941,12 +941,12 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
 }
 
 /* Event Personality & Custom Color Accent - Dynamic Left Glowing Bar & Ambient Tint */
-.journey-card.event-card {
+.journey-card.event-card:not(.full-banner-card) {
   border-left: 4.5px solid var(--card-accent, #4388df) !important;
   background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, #4388df) 8%, var(--journey-card-bg, #ffffff)), var(--journey-card-bg, #ffffff)) !important;
   transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease, border-color .22s ease !important;
 }
-html[data-theme="dark"] .journey-card.event-card {
+html[data-theme="dark"] .journey-card.event-card:not(.full-banner-card) {
   background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, #4388df) 14%, var(--journey-card-bg, #1e293b)), var(--journey-card-bg, #1e293b)) !important;
 }
 .journey-card.event-card:hover {
@@ -1070,18 +1070,28 @@ html[data-theme="dark"] .journey-card-flair-pill {
   justify-content: space-between !important;
   gap: 10px !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  background: var(--full-banner-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   transition: transform .24s cubic-bezier(.16, 1, .3, 1), box-shadow .24s ease, border-color .24s ease !important;
   min-height: 104px !important;
   box-sizing: border-box !important;
   animation: bannerAuraShimmer 6s infinite ease-in-out !important;
 }
 
+html[data-theme="dark"] .journey-card.full-banner-card {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
 .journey-card.full-banner-card:hover {
   transform: translateY(-4px) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38), 0 0 28px var(--banner-glow, rgba(99, 102, 241, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 18px 40px -4px rgba(15, 23, 42, 0.32), 0 0 28px var(--banner-glow, rgba(99, 102, 241, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+
+html[data-theme="dark"] .journey-card.full-banner-card:hover {
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 28px var(--banner-glow, rgba(99, 102, 241, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
 }
 
 .full-banner-card .banner-head-row {
@@ -1104,10 +1114,10 @@ html[data-theme="dark"] .journey-card-flair-pill {
 .full-banner-card .banner-pill-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.38);
+  background: rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   font-size: 10.5px;
@@ -1115,8 +1125,8 @@ html[data-theme="dark"] .journey-card-flair-pill {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 .full-banner-card .banner-time-badge {
@@ -1125,13 +1135,13 @@ html[data-theme="dark"] .journey-card-flair-pill {
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   font-size: 10px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .full-banner-card .banner-actions-group {
@@ -1142,31 +1152,44 @@ html[data-theme="dark"] .journey-card-flair-pill {
 }
 
 .full-banner-card .full-banner-profile-chip {
-  background: rgba(0, 0, 0, 0.32) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(0, 0, 0, 0.28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
   color: #ffffff !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .full-banner-card .full-banner-profile-chip:hover {
-  background: rgba(0, 0, 0, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
 }
 .full-banner-card .full-banner-profile-chip .journey-card-creator-name {
   color: #ffffff !important;
+  font-weight: 650;
 }
 
 .full-banner-card .full-banner-menu-btn {
-  color: rgba(255, 255, 255, 0.85) !important;
-  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 50% !important;
-  width: 24px !important;
-  height: 24px !important;
-  display: grid !important;
-  place-items: center !important;
-  font-size: 12px !important;
+  width: 26px !important;
+  height: 26px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: background .15s, transform .15s, border-color .15s !important;
+  padding: 0 !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .full-banner-card .full-banner-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.28) !important;
-  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.48) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  transform: scale(1.08) !important;
+}
+.full-banner-card .full-banner-menu-btn:active {
+  transform: scale(0.95) !important;
 }
 
 .full-banner-card .banner-content-row {
@@ -2268,9 +2291,12 @@ html[data-theme="dark"] .flow-activity-beacon {
   box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 20px rgba(139, 92, 246, 0.25);
 }
 .flow-activity-beacon.is-hidden {
-  opacity: 0;
-  transform: translateY(-16px) scale(0.96);
+  opacity: 0 !important;
+  transform: translateY(-16px) scale(0.96) !important;
   pointer-events: none !important;
+  visibility: hidden !important;
+  display: none !important;
+  animation: none !important;
 }
 @keyframes beaconEntranceTop {
   0% { opacity: 0; transform: translateY(-16px) scale(0.96); }
@@ -2313,19 +2339,27 @@ html[data-theme="dark"] .flow-activity-beacon {
   color: var(--muted);
   cursor: pointer;
   font-size: 14px;
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
   border-radius: 50%;
-  transition: color .15s, background .15s;
+  transition: color .15s, background .15s, transform .15s;
   flex-shrink: 0;
   padding: 0;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
 }
 .flow-beacon-close-btn:hover {
   color: var(--text);
-  background: var(--surface2, rgba(0,0,0,0.06));
+  background: var(--surface2, rgba(0,0,0,0.08));
+  transform: scale(1.12);
+}
+.flow-beacon-close-btn:active {
+  transform: scale(0.95);
 }
 @media (max-width: 600px) {
   .flow-activity-beacon {
@@ -11515,6 +11549,7 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
       createdByPhotoURL,
       updatedBy:firebaseUser.uid,
       updatedByName:firebaseUser.displayName||firebaseUser.email||'',
+      updatedByPhotoURL:firebaseUser.photoURL||'',
       updatedAt:Date.now(),
       assigneeUids:validAssignees
     };
@@ -11550,6 +11585,7 @@ const EVENT_FLAIR_DEFINITIONS = {
     icon: 'cake',
     emoji: '🎂',
     gradient: 'linear-gradient(135deg, #4338ca 0%, #6d28d9 35%, #db2777 75%, #f43f5e 100%)',
+    lightGradient: 'linear-gradient(135deg, #701a75 0%, #c026d3 40%, #e11d48 75%, #f97316 100%)',
     accentColor: '#ec4899',
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -11592,6 +11628,7 @@ const EVENT_FLAIR_DEFINITIONS = {
     icon: 'sparkles',
     emoji: '🎄',
     gradient: 'linear-gradient(135deg, #064e3b 0%, #065f46 45%, #991b1b 85%, #b91c1c 100%)',
+    lightGradient: 'linear-gradient(135deg, #065f46 0%, #059669 45%, #b91c1c 85%, #dc2626 100%)',
     accentColor: '#10b981',
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <polygon points="440,16 458,40 450,40 464,66 454,66 470,96 410,96 426,66 416,66 430,40 422,40" fill="rgba(255,255,255,0.88)"/>
@@ -11627,6 +11664,7 @@ const EVENT_FLAIR_DEFINITIONS = {
     icon: 'sparkles',
     emoji: '🎆',
     gradient: 'linear-gradient(135deg, #09090b 0%, #1e1b4b 40%, #713f12 85%, #ca8a04 100%)',
+    lightGradient: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 40%, #854d0e 80%, #d97706 100%)',
     accentColor: '#eab308',
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g class="anim-sparkle-1" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round" opacity="0.85">
@@ -11655,6 +11693,7 @@ const EVENT_FLAIR_DEFINITIONS = {
     icon: 'flag',
     emoji: '🇵🇭',
     gradient: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #881337 85%, #9f1239 100%)',
+    lightGradient: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 45%, #991b1b 80%, #dc2626 100%)',
     accentColor: '#38bdf8',
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g class="anim-ph-sun">
@@ -16278,17 +16317,27 @@ function getCardCreatorProfile(item){
   // 1. Explicit creator on item or raw backing record
   const cName = item.createdByName || item.raw?.createdByName;
   const cUid = item.createdBy || item.raw?.createdBy;
-  const cPhoto = item.createdByPhotoURL || item.raw?.createdByPhotoURL;
+  let cPhoto = item.createdByPhotoURL || item.raw?.createdByPhotoURL;
 
   if(cName || cUid){
     let member = null;
-    if(typeof teamMembers !== 'undefined' && Array.isArray(teamMembers) && cUid){
-      member = teamMembers.find(m => m.uid === cUid);
+    if(typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)){
+      if(cUid) member = teamMembers.find(m => m.uid === cUid);
+      if(!member && cName) member = teamMembers.find(m => (m.displayName && m.displayName.toLowerCase() === cName.toLowerCase()) || (m.name && m.name.toLowerCase() === cName.toLowerCase()) || (m.email && m.email.toLowerCase() === cName.toLowerCase()));
+    }
+    if(!cPhoto && member?.photoURL) cPhoto = member.photoURL;
+    if(!cPhoto && typeof firebaseUser !== 'undefined' && firebaseUser){
+      const curUid = String(firebaseUser.uid || '');
+      const curName = String(firebaseUser.displayName || '').toLowerCase();
+      const curEmail = String(firebaseUser.email || '').toLowerCase();
+      if((cUid && String(cUid) === curUid) || (cName && (cName.toLowerCase() === curName || cName.toLowerCase() === curEmail || cName.toLowerCase() === 'you'))){
+        cPhoto = firebaseUser.photoURL || '';
+      }
     }
     return {
       uid: cUid || member?.uid || 'local',
       displayName: cName || member?.displayName || member?.name || member?.email || 'You',
-      photoURL: cPhoto || member?.photoURL || ''
+      photoURL: cPhoto || ''
     };
   }
 
@@ -18057,8 +18106,89 @@ function jumpToFlowItem(dateKey, itemId, smooth = true){
   }, 120);
 }
 
+function resolveBeaconAuthorProfile(data){
+  let name = String(data?.authorName || '').trim();
+  let photo = String(data?.authorPhoto || data?.authorPhotoURL || data?.createdByPhotoURL || data?.photoURL || '').trim();
+  const uid = String(data?.authorUid || data?.createdBy || data?.uid || '');
+
+  // 1. Check current logged-in firebaseUser
+  if(typeof firebaseUser !== 'undefined' && firebaseUser){
+    const fUid = String(firebaseUser.uid || '');
+    const fName = String(firebaseUser.displayName || '').trim().toLowerCase();
+    const fEmail = String(firebaseUser.email || '').trim().toLowerCase();
+    const targetName = name.toLowerCase();
+
+    if((uid && fUid && uid === fUid) ||
+       (name && (targetName === fName || targetName === fEmail || targetName === 'you'))){
+      if(!photo && firebaseUser.photoURL) photo = firebaseUser.photoURL;
+      if(!name || targetName === 'you') name = firebaseUser.displayName || 'You';
+    }
+  }
+
+  // 2. Check teamMembers array
+  if(!photo && typeof teamMembers !== 'undefined' && Array.isArray(teamMembers)){
+    const tm = teamMembers.find(m => {
+      if(!m) return false;
+      if(uid && String(m.uid) === uid) return true;
+      const mName = String(m.displayName || m.name || '').trim().toLowerCase();
+      const mEmail = String(m.email || '').trim().toLowerCase();
+      return (name && (mName === name.toLowerCase() || mEmail === name.toLowerCase()));
+    });
+    if(tm){
+      if(tm.photoURL) photo = tm.photoURL;
+      if(!name) name = tm.displayName || tm.name || 'Teammate';
+    }
+  }
+
+  // 3. Check chronosTeams members
+  if(!photo && typeof chronosTeams !== 'undefined' && Array.isArray(chronosTeams)){
+    for(const team of chronosTeams){
+      if(Array.isArray(team?.members)){
+        const tm = team.members.find(m => {
+          if(!m) return false;
+          if(uid && String(m.uid) === uid) return true;
+          const mName = String(m.displayName || m.name || '').trim().toLowerCase();
+          const mEmail = String(m.email || '').trim().toLowerCase();
+          return (name && (mName === name.toLowerCase() || mEmail === name.toLowerCase()));
+        });
+        if(tm && tm.photoURL){
+          photo = tm.photoURL;
+          break;
+        }
+      }
+    }
+  }
+
+  // 4. Check project people
+  if(!photo && typeof chronosProjects !== 'undefined' && Array.isArray(chronosProjects) && typeof projectPeopleFor === 'function'){
+    for(const proj of chronosProjects){
+      try {
+        const people = projectPeopleFor(proj) || [];
+        const p = people.find(x => {
+          if(!x) return false;
+          if(uid && String(x.uid) === uid) return true;
+          const pName = String(x.name || x.displayName || '').trim().toLowerCase();
+          const pEmail = String(x.email || '').trim().toLowerCase();
+          return (name && (pName === name.toLowerCase() || pEmail === name.toLowerCase()));
+        });
+        if(p && p.photoURL){
+          photo = p.photoURL;
+          break;
+        }
+      } catch{}
+    }
+  }
+
+  return { displayName: name || 'Teammate', photoURL: photo || '' };
+}
+
 window.showFlowActivityBeacon = function(data){
   if(!data || !data.title) return;
+  const itemKey = String(data.id || data.title || '');
+  if(window._flowBeaconDismissedKey === itemKey && Date.now() - (window._flowBeaconDismissedAt || 0) < 30000){
+    return;
+  }
+
   let beacon = document.getElementById('flowActivityBeacon');
   if(!beacon){
     beacon = document.createElement('div');
@@ -18067,14 +18197,15 @@ window.showFlowActivityBeacon = function(data){
     document.body.appendChild(beacon);
   }
 
-  const authorName = esc(data.authorName || 'Teammate');
+  const profile = resolveBeaconAuthorProfile(data);
+  const authorName = esc(profile.displayName || 'Teammate');
   const actionText = esc(data.action || 'updated');
   const titleText = esc(data.title || 'Untitled');
   const dateStr = data.date ? esc(data.date) : 'Today';
 
   beacon.innerHTML = `
     <div class="flow-beacon-avatar">
-      ${avatarMarkup({ displayName: data.authorName || 'Team', photoURL: data.authorPhoto || '' }, 'xs')}
+      ${avatarMarkup(profile, 'xs')}
     </div>
     <div class="flow-beacon-text">
       <strong>${authorName}</strong> ${actionText} <em>${titleText}</em> (${dateStr})
@@ -18082,39 +18213,59 @@ window.showFlowActivityBeacon = function(data){
     <button type="button" class="flow-beacon-jump-btn" id="flowBeaconJumpBtn" title="Jump to item in Calendar / Journey view">
       <span>Jump</span> ${getLucideSvg('arrow-right', 11)}
     </button>
-    <button type="button" class="flow-beacon-close-btn" id="flowBeaconCloseBtn" aria-label="Dismiss notification" title="Dismiss">✕</button>
+    <button type="button" class="flow-beacon-close-btn" id="flowBeaconCloseBtn" aria-label="Dismiss notification" title="Dismiss">${getLucideSvg('x', 14)}</button>
   `;
 
+  beacon.style.display = 'flex';
+  beacon.style.pointerEvents = 'auto';
   beacon.classList.remove('is-hidden');
+
+  const hideBeacon = () => {
+    if(window._flowBeaconTimer) clearTimeout(window._flowBeaconTimer);
+    beacon.classList.add('is-hidden');
+    beacon.style.display = 'none';
+    beacon.style.pointerEvents = 'none';
+  };
 
   // Dismiss button
   const closeBtn = document.getElementById('flowBeaconCloseBtn');
   if(closeBtn){
-    closeBtn.onclick = (e) => {
-      e.stopPropagation();
-      beacon.classList.add('is-hidden');
+    const dismissHandler = (e) => {
+      if(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+      }
+      window._flowBeaconDismissedAt = Date.now();
+      window._flowBeaconDismissedKey = itemKey;
+      hideBeacon();
     };
+    closeBtn.onclick = dismissHandler;
+    closeBtn.onpointerdown = (e) => { e.stopPropagation(); };
   }
 
   // Pill and Jump button click handlers
-  beacon.onclick = () => {
-    beacon.classList.add('is-hidden');
+  beacon.onclick = (e) => {
+    if(e.target.closest('#flowBeaconCloseBtn')) return;
+    hideBeacon();
     jumpToFlowItem(data.date, data.id, true);
   };
 
   const jumpBtn = document.getElementById('flowBeaconJumpBtn');
   if(jumpBtn){
     jumpBtn.onclick = (e) => {
-      e.stopPropagation();
-      beacon.classList.add('is-hidden');
+      if(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+      }
+      hideBeacon();
       jumpToFlowItem(data.date, data.id, true);
     };
   }
 
   if(window._flowBeaconTimer) clearTimeout(window._flowBeaconTimer);
-  window._flowBeaconTimer = setTimeout(() => {
-    beacon.classList.add('is-hidden');
-  }, 9000);
+  window._flowBeaconTimer = setTimeout(hideBeacon, 9000);
 };
 
 function renderFlowLiveRadar(){
@@ -18825,6 +18976,8 @@ function renderOverviewHorizon(options = {}){
 
       const cardAccent = e.color || (flair && flair.accentColor) || '#6366f1';
       const bannerGlow = (flair && flair.accentColor) || cardAccent;
+      const isDarkTheme = (document.documentElement.dataset.theme === 'dark');
+      const activeGradient = (isDarkTheme ? flair.gradient : (flair.lightGradient || flair.gradient)) || flair.gradient;
 
       let subtitleText = '';
       if(e.description && e.description.trim()){
@@ -18845,12 +18998,16 @@ function renderOverviewHorizon(options = {}){
         `;
       }
 
+      const badgeIconHtml = (flair.key === 'flair:holiday_national')
+        ? `${getLucideSvg('flag', 11)}`
+        : (flair.emoji ? `${flair.emoji}` : '');
+
       return `
-        <article class="journey-card event-card full-banner-card ${isMultiDay ? 'is-multiday-spanning' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(e.id)}" style="background:${flair.gradient};--card-accent:${cardAccent};--banner-glow:${bannerGlow}">
+        <article class="journey-card event-card full-banner-card ${isMultiDay ? 'is-multiday-spanning' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(e.id)}" style="background:${activeGradient} !important;--full-banner-bg:${activeGradient};--card-accent:${cardAccent};--banner-glow:${bannerGlow}">
           <div class="banner-head-row">
             <div class="banner-badge-group">
               <span class="banner-pill-badge">
-                ${flair.emoji || ''} ${esc(flair.badge)}
+                ${badgeIconHtml ? `<span>${badgeIconHtml}</span>` : ''} <span>${esc(flair.badge)}</span>
               </span>
               <span class="banner-time-badge">
                 ${getLucideSvg('calendar', 11)} ${esc(badgeTime)}
@@ -18863,7 +19020,7 @@ function renderOverviewHorizon(options = {}){
                 ${avatarMarkup(creator, 'xs')}
                 <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
               </div>
-              <button type="button" class="full-banner-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">···</button>
+              <button type="button" class="full-banner-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">${getLucideSvg('more-horizontal', 13)}</button>
             </div>
           </div>
           <div class="banner-content-row">
@@ -21552,8 +21709,9 @@ function applyTeamLiveData(){
          id: newestItem.id,
          title: newestItem.title,
          date: newestItem.date || newestItem.due || iso(today),
-         authorName: newestItem.createdByName || newestItem.authorName || 'Teammate',
-         authorPhoto: newestItem.createdByPhotoURL || newestItem.authorPhoto || '',
+         authorName: newestItem.updatedByName || newestItem.createdByName || newestItem.authorName || 'Teammate',
+         authorPhoto: newestItem.updatedByPhotoURL || newestItem.createdByPhotoURL || newestItem.authorPhoto || '',
+         authorUid: newestItem.updatedBy || newestItem.createdBy || newestItem.authorUid || '',
          type: newestType,
          action: 'added/updated'
        });
