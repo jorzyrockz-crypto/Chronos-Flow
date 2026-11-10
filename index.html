@@ -28860,8 +28860,8 @@ html[data-theme=dark] .project-ws-segmented-tab.active {
   align-items: center !important;
   gap: 8px !important;
   overflow-x: auto !important;
-  padding: 2px 0 14px 0 !important;
-  margin-bottom: 12px !important;
+  padding: 4px 0 6px 0 !important;
+  margin: 4px 0 14px 0 !important;
   border-bottom: none !important;
   -webkit-overflow-scrolling: touch !important;
 }
@@ -28957,7 +28957,7 @@ html[data-theme=dark] .project-milestone-chip.active .milestone-pct-ring {
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(255, 255, 255, 0.95) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
-  margin-bottom: 16px !important;
+  margin-bottom: 8px !important;
   transition: all 0.2s ease !important;
 }
 .project-task-create.project-task-composer:focus-within {
@@ -33152,10 +33152,24 @@ html[data-theme=dark] .btn-act-compact:hover {
     if (!inlineTasks) return;
 
     let bar = inlineTasks.querySelector('.project-milestones-bar');
+    const form = inlineTasks.querySelector('#projectTaskCreateForm');
+    const list = inlineTasks.querySelector('.project-linked-task-list');
+
     if (!bar) {
       bar = document.createElement('div');
       bar.className = 'project-milestones-bar';
-      inlineTasks.insertBefore(bar, inlineTasks.firstChild);
+      if (form && form.nextSibling) {
+        inlineTasks.insertBefore(bar, form.nextSibling);
+      } else if (list) {
+        inlineTasks.insertBefore(bar, list);
+      } else {
+        inlineTasks.appendChild(bar);
+      }
+    } else {
+      // Ensure the filter pills bar is placed directly below the task row editor
+      if (form && bar.previousElementSibling !== form) {
+        inlineTasks.insertBefore(bar, form.nextSibling);
+      }
     }
 
     const pTasks = (tasks || []).filter(t => String(t.projectId || '') === String(p.id));
