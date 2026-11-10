@@ -2149,44 +2149,280 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 .preview-modal-reading-btn.is-active,.note-reading-btn.is-active{background:var(--accent);border-color:var(--accent);color:#ffffff;box-shadow:0 2px 10px rgba(59,130,246,0.35)}
 @media(max-width:600px){.reading-mode-label{display:none!important}}
 
-/* Reading Mode & Fullscreen Layouts */
-.item-preview-modal.is-reading-mode{
-  width:min(900px,calc(100vw - 32px))!important;
-  max-width:900px!important;
-  height:calc(100dvh - 36px)!important;
-  max-height:calc(100dvh - 36px)!important;
-  border-radius:24px!important;
-  transition:width .24s cubic-bezier(0.16,1,0.3,1),height .24s cubic-bezier(0.16,1,0.3,1),max-height .24s ease!important;
+/* --- CHRONOS NOTE PREVIEW: 2-COLUMN COLLABORATIVE & READING SYSTEM --- */
+.item-preview-modal.is-note-modal {
+  width: min(1040px, calc(100vw - 32px)) !important;
+  max-width: 1040px !important;
+  height: min(92vh, 840px) !important;
+  max-height: min(92vh, 840px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 24px !important;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1), height 0.28s ease !important;
 }
-@media(max-width:768px){
-  .item-preview-modal.is-reading-mode{
-    width:100vw!important;
-    max-width:100vw!important;
-    height:100dvh!important;
-    max-height:100dvh!important;
-    border-radius:0!important;
+
+.note-preview-2col-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* Main Column: Note Focus */
+.note-preview-col-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+
+.note-preview-main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overscroll-behavior: contain;
+}
+
+.note-preview-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.note-preview-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.note-preview-byline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.note-preview-author-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+}
+
+.note-preview-date-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Full Uncramped Note Content */
+.note-preview-desc-box {
+  background: color-mix(in srgb, var(--surface) 94%, var(--surface2));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 22px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--text);
+  word-break: break-word;
+  flex: 1;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+}
+
+.note-preview-desc-box p {
+  margin: 0 0 14px 0;
+}
+.note-preview-desc-box p:last-child {
+  margin-bottom: 0;
+}
+
+.note-preview-desc-box img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 8px 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.note-preview-col-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.note-preview-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Side Column: Other Elements (Context, Plan, Comments) */
+.note-preview-col-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface2) 65%, var(--surface));
+}
+
+.note-preview-side-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overscroll-behavior: contain;
+}
+
+.note-side-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.note-side-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Reading Mode (Zen Distraction-Free Note Reading) */
+.item-preview-modal.is-reading-mode {
+  width: min(880px, calc(100vw - 32px)) !important;
+  max-width: 880px !important;
+  height: min(92vh, 840px) !important;
+  max-height: min(92vh, 840px) !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-2col-layout {
+  grid-template-columns: 1fr !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-col-side {
+  display: none !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-col-main {
+  border-right: none !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-main-scroll {
+  padding: 36px 48px !important;
+  max-width: 760px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-title {
+  font-size: 28px !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+  margin-bottom: 4px !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-desc-box {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  line-height: 1.85 !important;
+}
+
+.reading-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 750;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+/* Responsive Breakpoints for Tablet & Mobile */
+@media (max-width: 840px) {
+  .item-preview-modal.is-note-modal {
+    width: calc(100vw - 20px) !important;
+    height: calc(100dvh - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+  }
+  .note-preview-2col-layout {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .note-preview-col-main {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    overflow: visible;
+  }
+  .note-preview-main-scroll {
+    overflow: visible;
+    padding: 18px 20px;
+  }
+  .note-preview-col-side {
+    overflow: visible;
+  }
+  .note-preview-side-scroll {
+    overflow: visible;
+    padding: 16px 20px 24px;
   }
 }
-.item-preview-modal.is-reading-mode .preview-modal-body{
-  padding:24px 30px!important;
-  gap:18px!important;
-}
-.item-preview-modal.is-reading-mode .preview-title{
-  font-size:24px!important;
-  font-weight:800!important;
-  letter-spacing:-0.02em!important;
-  line-height:1.3!important;
-}
-.item-preview-modal.is-reading-mode .preview-desc-box{
-  max-height:none!important;
-  overflow-y:visible!important;
-  font-size:15px!important;
-  line-height:1.8!important;
-  padding:22px 26px!important;
-  border-radius:16px!important;
-  background:color-mix(in srgb,var(--surface) 92%,var(--surface2))!important;
-  border:1px solid var(--line)!important;
-  box-shadow:0 4px 18px rgba(0,0,0,0.03)!important;
+
+@media (max-width: 600px) {
+  .item-preview-modal.is-note-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+  }
+  .item-preview-modal.is-reading-mode .note-preview-main-scroll {
+    padding: 20px 18px !important;
+  }
 }
 
 /* Notes Studio Editor Fullscreen Reading Mode */
@@ -14138,8 +14374,11 @@ function openItemPreview(type, id, extraMeta){
   if (type === 'note') {
     const n = (typeof findNoteById === 'function') ? findNoteById(id) : null;
     modal.setAttribute('data-color', n?.color || 'default');
+    modal.classList.add('is-note-modal');
   } else {
     modal.removeAttribute('data-color');
+    modal.classList.remove('is-note-modal');
+    modal.classList.remove('is-reading-mode');
   }
   let html = '';
   try {
@@ -14163,6 +14402,7 @@ function closeItemPreview(){
   const modal = document.getElementById('itemPreviewModal');
   if(modal){
     modal.classList.remove('is-reading-mode');
+    modal.classList.remove('is-note-modal');
   }
   if(backdrop){
     backdrop.classList.add('hidden');
@@ -14755,50 +14995,93 @@ const noteColorTintMap = {
   };
   const noteTintAccent = noteColorTintMap[n.color || 'default'] || 'var(--teal)';
 
+  const modal = document.getElementById('itemPreviewModal');
+  const isReading = modal?.classList.contains('is-reading-mode');
+
   return `
-    <div class="preview-modal-head" style="--preview-tint:${noteTintAccent}">
+    <div class="preview-modal-head note-preview-head" style="--preview-tint:${noteTintAccent}">
       <div class="preview-modal-head-left">
-        <span class="preview-chip" style="color:${noteTintAccent};border-color:${noteTintAccent}">
+        <span class="preview-chip note-head-type-chip" style="color:${noteTintAccent};border-color:${noteTintAccent}">
           ${getLucideSvg('file-text', 12)} Planning Note
         </span>
         ${n.tag ? `<span class="preview-chip">#${esc(n.tag)}</span>` : ''}
         ${n.collection ? `<span class="preview-chip">${getLucideSvg('folder', 12)} ${esc(n.collection)}</span>` : ''}
+        <span class="reading-mode-badge ${isReading ? '' : 'hidden'}" id="readingModeActiveBadge">${getLucideSvg('book-open', 11)} Zen Reading Mode</span>
       </div>
-      <button type="button" class="preview-modal-close" data-preview-close title="Close (Esc)">${getLucideSvg('x', 18)}</button>
-    </div>
-    <div class="preview-modal-body">
-      <h2 class="preview-title" id="itemPreviewTitle">${esc(n.title || 'Untitled Note')}</h2>
-      
-      <div class="preview-meta-chips" style="margin-top:-2px">
-        ${collabChipsHtml}
-        <span class="preview-chip" style="font-size:11px">${getLucideSvg('clock', 11)} Updated ${esc(dateStr)}</span>
-        <button type="button" class="preview-chip clickable note-modal-like-pill ${isLiked ? 'is-liked' : ''}" data-modal-note-like="${esc(n.id)}" title="${isLiked ? 'Unlike note' : 'Like note'}">
-          ${getLucideSvg('heart', 12)}
-          <span class="modal-like-count">${likesCount}</span>
-          <span>${likesCount === 1 ? 'Like' : 'Likes'}</span>
+      <div class="preview-modal-head-right">
+        <button type="button" class="preview-modal-reading-btn ${isReading ? 'is-active' : ''}" data-toggle-reading-mode title="${isReading ? 'Exit reading mode (Esc)' : 'Reading mode — distraction-free note reading'}" aria-label="Reading mode">
+          ${isReading ? getLucideSvg('book-open', 14) : getLucideSvg('book', 14)}
+          <span class="reading-mode-label">${isReading ? 'Exit Reading' : 'Reading Mode'}</span>
         </button>
-        ${likesCount > 0 ? `
-          <button type="button" class="preview-chip clickable note-modal-view-likes-btn" data-show-note-likes="${esc(n.id)}" title="View people who liked this note">
-            ${getLucideSvg('users', 11)}
-            <span>Liked by ${likesCount}</span>
-          </button>
-        ` : ''}
+        <button type="button" class="preview-modal-close" data-preview-close title="Close (Esc)">${getLucideSvg('x', 18)}</button>
       </div>
-
-      <div class="preview-desc-box md-card-preview" style="max-height:240px;overflow-y:auto">
-        ${typeof renderMarkdown === 'function' ? renderMarkdown(n.body || 'Empty note content.', n.id) : `<p style="white-space:pre-wrap;margin:0">${esc(n.body || '')}</p>`}
-      </div>
-
-      ${planHtml}
-
-      ${commentsSectionHtml}
     </div>
-    <div class="preview-modal-actions">
-      <div class="preview-modal-actions-left">
-        <button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button>
-        <button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>
+    <div class="note-preview-2col-layout">
+      <!-- COLUMN 1: Note Main Content & Focus -->
+      <div class="note-preview-col-main">
+        <div class="note-preview-main-scroll">
+          <div class="note-preview-title-block">
+            <h2 class="preview-title note-preview-title" id="itemPreviewTitle">${esc(n.title || 'Untitled Note')}</h2>
+            <div class="note-preview-byline">
+              <div class="preview-chip clickable note-preview-author-pill" data-preview-profile="${esc(author.uid || '')}" data-preview-name="${esc(author.displayName || 'You')}" data-preview-photo="${esc(author.photoURL || '')}" title="Author: ${esc(author.displayName || 'You')}">
+                ${avatarMarkup(author, 'xs')}
+                <span>${esc(author.displayName || 'You')}</span>
+              </div>
+              <span class="note-preview-date-label">${getLucideSvg('clock', 11)} Updated ${esc(dateStr)}</span>
+            </div>
+          </div>
+
+          <div class="note-preview-desc-box md-card-preview">
+            ${typeof renderMarkdown === 'function' ? renderMarkdown(n.body || 'Empty note content.', n.id) : `<p style="white-space:pre-wrap;margin:0">${esc(n.body || '')}</p>`}
+          </div>
+        </div>
+
+        <div class="note-preview-col-footer">
+          <div class="note-preview-footer-left">
+            <button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button>
+            <button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>
+          </div>
+          <button type="button" class="btn" data-preview-close>Close</button>
+        </div>
       </div>
-      <button type="button" class="btn" data-preview-close>Close</button>
+
+      <!-- COLUMN 2: Collaborators, Engagement, Deliverables & Comments Sidebar -->
+      <aside class="note-preview-col-side">
+        <div class="note-preview-side-scroll">
+          <!-- Team & Engagement -->
+          <div class="note-side-card">
+            <div class="note-side-section-title">
+              <span>${getLucideSvg('users', 12)} Collaborators &amp; Teams</span>
+            </div>
+            <div class="preview-meta-chips" style="margin-top:2px">
+              ${collabChipsHtml}
+              <button type="button" class="preview-chip clickable note-modal-like-pill ${isLiked ? 'is-liked' : ''}" data-modal-note-like="${esc(n.id)}" title="${isLiked ? 'Unlike note' : 'Like note'}">
+                ${getLucideSvg('heart', 12)}
+                <span class="modal-like-count">${likesCount}</span>
+                <span>${likesCount === 1 ? 'Like' : 'Likes'}</span>
+              </button>
+              ${likesCount > 0 ? `
+                <button type="button" class="preview-chip clickable note-modal-view-likes-btn" data-show-note-likes="${esc(n.id)}" title="View people who liked this note">
+                  ${getLucideSvg('smile', 11)}
+                  <span>Liked by ${likesCount}</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Linked Deliverables & Plan -->
+          ${planHtml ? `
+            <div class="note-side-card">
+              ${planHtml}
+            </div>
+          ` : ''}
+
+          <!-- Comments & Discussion Thread -->
+          <div class="note-side-card note-side-comments-card">
+            ${commentsSectionHtml}
+          </div>
+        </div>
+      </aside>
     </div>
   `;
 }
@@ -15080,8 +15363,10 @@ document.addEventListener('click', async e => {
     if(modal){
       const isNowReading = modal.classList.toggle('is-reading-mode');
       readingToggle.classList.toggle('is-active', isNowReading);
-      readingToggle.title = isNowReading ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen';
-      readingToggle.innerHTML = `${isNowReading ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}<span class="reading-mode-label">${isNowReading ? 'Exit' : 'Reading Mode'}</span>`;
+      readingToggle.title = isNowReading ? 'Exit reading mode (Esc)' : 'Reading mode — distraction-free note reading';
+      readingToggle.innerHTML = `${isNowReading ? getLucideSvg('book-open', 14) : getLucideSvg('book', 14)}<span class="reading-mode-label">${isNowReading ? 'Exit Reading' : 'Reading Mode'}</span>`;
+      const badge = modal.querySelector('#readingModeActiveBadge');
+      if (badge) badge.classList.toggle('hidden', !isNowReading);
       if(typeof playInterfaceSound === 'function') playInterfaceSound();
     }
     return;
