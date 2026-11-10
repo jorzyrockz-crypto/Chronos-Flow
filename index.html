@@ -948,6 +948,85 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
 .journey-card.event-health{--card-accent:#10b981;background:linear-gradient(135deg,rgba(168,85,247,.08),var(--journey-card-bg))!important}
 .journey-card.event-personal{--card-accent:#f59e0b;background:linear-gradient(135deg,rgba(245,158,11,.08),var(--journey-card-bg))!important}
 
+/* Journey Card Thematic Flair Canopy (Hybrid Option 1) */
+.journey-card.has-canopy {
+  padding-top: 0 !important;
+  overflow: hidden !important;
+}
+.journey-card-canopy {
+  position: relative;
+  height: 48px;
+  min-height: 48px;
+  margin: 0 -16px 8px -16px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+.journey-card-canopy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 2.5px 9px;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.journey-card-canopy-art {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 58%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 1;
+  opacity: 0.95;
+}
+.journey-card-canopy-art svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Compact Thematic Flair Pill for regular meetings */
+.journey-card-flair-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1.5px 7px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--card-accent, #6366f1) 12%, transparent);
+  color: var(--card-accent, #6366f1);
+  border: 1px solid color-mix(in srgb, var(--card-accent, #6366f1) 28%, transparent);
+  flex-shrink: 0;
+}
+html[data-theme="dark"] .journey-card-flair-pill {
+  background: color-mix(in srgb, var(--card-accent, #6366f1) 22%, transparent);
+  color: color-mix(in srgb, var(--card-accent, #6366f1) 85%, #ffffff);
+  border-color: color-mix(in srgb, var(--card-accent, #6366f1) 40%, transparent);
+}
+
 /* Task Personality Based on Priority & State - Left Glowing Accent Bar */
 .journey-card.task-card-item{border-left:3.5px solid var(--card-accent,#10b981)!important}
 .journey-card.task-urgent{--card-accent:#ef4444;background:linear-gradient(135deg,rgba(239,68,68,.09),var(--journey-card-bg))!important}
@@ -17766,6 +17845,7 @@ function renderOverviewHorizon(options = {}){
     if(anytimeItems.length){
       shelfList.innerHTML = anytimeItems.map(item => {
         const creator = getCardCreatorProfile(item);
+        const flair = (!item.projectTask && typeof resolveEventFlair === 'function') ? resolveEventFlair(item) : null;
         return `
         <div class="horizon-item-card ${item.done?'is-completed':''}" data-preview-${item.projectTask ? 'task' : 'event'}="${esc(item.projectTask ? item.taskId : item.id)}" style="--event-color:${item.projectColor};cursor:pointer">
           <div class="horizon-item-main">
@@ -17777,7 +17857,7 @@ function renderOverviewHorizon(options = {}){
                   ${avatarMarkup(creator, 'xs')}
                   <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
                 </div>
-                ${item.projectTask ? `<span class="horizon-tag">${esc(item.priority||'medium')}</span>` : `<span class="horizon-tag">${esc(item.category||'all-day')}</span>`}
+                ${item.projectTask ? `<span class="horizon-tag">${esc(item.priority||'medium')}</span>` : (flair && flair.key !== 'flair:strategy' ? `<span class="horizon-tag" style="color:${flair.accentColor};font-weight:750">${flair.emoji ? `${flair.emoji} ` : ''}${esc(flair.badge)}</span>` : `<span class="horizon-tag">${esc(item.category||'all-day')}</span>`)}
                 ${item.projectTask ? `<span class="horizon-tag clickable" data-preview-project="${esc(item.projectId)}" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="View project overview">${getLucideSvg('folder', 11)} ${esc(item.projectName)}</span>` : ''}
                 ${item.location ? `<span style="display:inline-flex;align-items:center;gap:4px">${getLucideSvg('map-pin', 11)} ${esc(item.location)}</span>` : ''}
                 ${item.teamShared ? `<span class="note-chip" style="display:inline-flex;align-items:center;gap:4px">${getLucideSvg('users', 11)} ${esc(item.teamName||'Team')}</span>` : ''}
@@ -17802,9 +17882,15 @@ function renderOverviewHorizon(options = {}){
     const milestoneHues = ['#0ea5e9', '#6366f1', '#f59e0b', '#f97316', '#f43f5e', '#a855f7', '#10b981'];
 
     function getEventCardMeta(e) {
+      const flair = (typeof resolveEventFlair === 'function') ? resolveEventFlair(e) : null;
       const cat = (e.category || 'other').toLowerCase();
       let icon = 'calendar', label = 'Event', accent = '#3b82f6', catClass = 'event-work';
-      if(e.teamShared){
+      if(flair && flair.key !== 'flair:strategy'){
+        icon = flair.icon || 'calendar';
+        label = flair.badge || 'Event';
+        accent = flair.accentColor || '#3b82f6';
+        catClass = 'event-' + (flair.key.replace('flair:', ''));
+      } else if(e.teamShared){
         icon = 'users'; label = 'Team Sync'; accent = '#6366f1'; catClass = 'event-team';
       } else if(cat === 'personal'){
         icon = 'target'; label = 'Personal'; accent = '#10b981'; catClass = 'event-personal';
@@ -17813,7 +17899,7 @@ function renderOverviewHorizon(options = {}){
       } else if(cat === 'health'){
         icon = 'heart'; label = 'Wellness'; accent = '#ec4899'; catClass = 'event-health';
       }
-      return { icon, label, accent, catClass };
+      return { icon, label, accent, catClass, flair };
     }
 
     function getTaskCardMeta(t) {
@@ -17830,7 +17916,7 @@ function renderOverviewHorizon(options = {}){
     }
 
     function renderJourneyEventCard(e, isHero, dayHue, isDayToday, nowMinsParam){
-      const { icon, label, accent, catClass } = getEventCardMeta(e);
+      const { icon, label, accent, catClass, flair } = getEventCardMeta(e);
       const timeText = e.allDay ? 'All day' : (e.start ? fmtTime(e.start) : 'Time not set');
       const creator = getCardCreatorProfile(e);
 
@@ -17878,11 +17964,52 @@ function renderOverviewHorizon(options = {}){
         assignedBadgeHtml = `<span class="journey-card-assigned-badge">${getLucideSvg('user-check', 10)} You</span>`;
       }
 
+      // Hybrid Option 1: Milestone Illustrated Canopy vs Compact Flair Pill
+      const isMilestone = (function(fl, ev){
+        if(!fl) return false;
+        if(ev && ev.coverPreset && ev.coverPreset !== 'auto') return true;
+        const keys = ['flair:birthday','flair:christmas','flair:newyear','flair:holiday_national','flair:travel','flair:graduation'];
+        if(keys.includes(fl.key)) return true;
+        if(ev && ev.allDay){
+          const txt = (String(ev.title || '') + ' ' + String(ev.description || '')).toLowerCase();
+          if(/holiday|break|celebration|anniversary|party|trip|tour/i.test(txt)) return true;
+        }
+        return false;
+      })(flair, e);
+
+      let canopyHtml = '';
+      let flairPillHtml = '';
+
+      if(flair){
+        if(isMilestone){
+          canopyHtml = `
+            <div class="journey-card-canopy" style="background:${flair.gradient}">
+              <span class="journey-card-canopy-badge">
+                ${flair.emoji || ''} ${esc(flair.badge)}
+              </span>
+              <div class="journey-card-canopy-art">
+                ${flair.svg}
+              </div>
+            </div>
+          `;
+        } else if(flair.key !== 'flair:strategy' || (e && e.coverPreset && e.coverPreset !== 'auto')){
+          flairPillHtml = `
+            <span class="journey-card-flair-pill">
+              ${flair.emoji ? `${flair.emoji} ` : getLucideSvg(flair.icon, 10)} ${esc(flair.badge)}
+            </span>
+          `;
+        }
+      }
+
+      const cardAccent = (flair && flair.accentColor) ? flair.accentColor : accent;
+
       return `
-        <div class="journey-card event-card ${catClass} ${isHero ? 'is-hero-card' : ''} ${isPast ? 'is-past-item' : ''} ${isCurrent ? 'is-current-active' : ''} ${isStartingSoon ? 'is-starting-soon' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-event="${esc(e.id)}" style="--card-accent:${accent}">
+        <div class="journey-card event-card ${catClass} ${isMilestone ? 'has-canopy' : ''} ${isHero ? 'is-hero-card' : ''} ${isPast ? 'is-past-item' : ''} ${isCurrent ? 'is-current-active' : ''} ${isStartingSoon ? 'is-starting-soon' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-event="${esc(e.id)}" style="--card-accent:${cardAccent}">
+          ${canopyHtml}
           <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
             <div style="display:inline-flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap">
               <span class="journey-card-time">${esc(timeText)}</span>
+              ${flairPillHtml}
               ${statusBadgeHtml}
               ${recentBadgeHtml}
               ${assignedBadgeHtml}
@@ -18429,16 +18556,55 @@ function renderOverviewHorizon(options = {}){
 
         if(isMultiDay){
           const creator = getCardCreatorProfile(curEvent);
-          const { accent } = getEventCardMeta(curEvent);
+          const { accent, flair } = getEventCardMeta(curEvent);
           const durationLabel = `ALL DAY · ${spanInfo.spanDays} DAYS`;
           const isTodayInRange = (todayKey >= curEvent.date && spanInfo.endDateKey && todayKey <= spanInfo.endDateKey);
           const spanLiveBadge = isTodayInRange ? `<span class="journey-card-now-badge" style="margin-left:6px">${getLucideSvg('radio', 10)} Active Today</span>` : '';
 
+          const isMilestone = (function(fl, ev){
+            if(!fl) return false;
+            if(ev && ev.coverPreset && ev.coverPreset !== 'auto') return true;
+            const keys = ['flair:birthday','flair:christmas','flair:newyear','flair:holiday_national','flair:travel','flair:graduation','flair:school_event','flair:workshop'];
+            if(keys.includes(fl.key)) return true;
+            if(ev && ev.allDay){
+              const txt = (String(ev.title || '') + ' ' + String(ev.description || '')).toLowerCase();
+              if(/holiday|break|celebration|anniversary|party|trip|tour|eskwela/i.test(txt)) return true;
+            }
+            return false;
+          })(flair, curEvent);
+
+          let canopyHtml = '';
+          let flairPillHtml = '';
+          if(flair){
+            if(isMilestone){
+              canopyHtml = `
+                <div class="journey-card-canopy" style="background:${flair.gradient}">
+                  <span class="journey-card-canopy-badge">
+                    ${flair.emoji || ''} ${esc(flair.badge)}
+                  </span>
+                  <div class="journey-card-canopy-art">
+                    ${flair.svg}
+                  </div>
+                </div>
+              `;
+            } else if(flair.key !== 'flair:strategy'){
+              flairPillHtml = `
+                <span class="journey-card-flair-pill">
+                  ${flair.emoji ? `${flair.emoji} ` : getLucideSvg(flair.icon, 10)} ${esc(flair.badge)}
+                </span>
+              `;
+            }
+          }
+
+          const cardAccent = (flair && flair.accentColor) ? flair.accentColor : accent;
+
           leftHtml = `
-            <div class="journey-card event-card is-multiday-spanning ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(curEvent.id)}" style="--card-accent:${accent}">
+            <div class="journey-card event-card is-multiday-spanning ${isMilestone ? 'has-canopy' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(curEvent.id)}" style="--card-accent:${cardAccent}">
+              ${canopyHtml}
               <div class="spanning-header-row">
-                <div style="display:inline-flex;align-items:center;min-width:0">
+                <div style="display:inline-flex;align-items:center;min-width:0;flex-wrap:wrap;gap:5px">
                   <span class="spanning-all-day-tag" style="display:inline-flex;align-items:center;gap:4px;">${getLucideSvg('calendar', 12)} ${esc(durationLabel)}</span>
+                  ${flairPillHtml}
                   ${spanLiveBadge}
                 </div>
                 <div class="journey-card-profile-chip inline-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile">
