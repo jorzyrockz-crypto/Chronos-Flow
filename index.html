@@ -5134,11 +5134,10 @@ html[data-theme="dark"] .note-card .md-card-preview {
   <button type="button" class="proj-filter-chip active" data-proj-filter="active">Active Projects</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="all">All Projects</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="mine">Led by Me</button>
-  <button type="button" class="proj-filter-chip" data-proj-filter="planning">Planning</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="completed">Completed</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="archived">Archived</button>
 </div>
-<div class="project-tools"><div class="project-view-tabs" role="tablist" aria-label="Project views"><button type="button" class="active" data-project-view="overview">Overview</button><button type="button" data-project-view="board">Board</button><button type="button" data-project-view="timeline">Timeline</button><button type="button" data-project-view="deliverables">Deliverables &amp; TA</button></div><input id="projectSearch" type="search" placeholder="Search projects…" aria-label="Search projects"><select id="projectStatusFilter" aria-label="Filter projects"><option value="active">Active projects</option><option value="all">All projects</option><option value="completed">Completed</option><option value="archived">Archived</option></select></div><form id="projectCreateForm" class="project-create hidden">
+<div class="project-tools"><div class="project-view-tabs" role="tablist" aria-label="Project views"><button type="button" class="active" data-project-view="overview">Overview</button><button type="button" data-project-view="board">Board</button><button type="button" data-project-view="timeline">Timeline</button><button type="button" data-project-view="deliverables">Deliverables &amp; TA</button></div><input id="projectSearch" type="search" placeholder="Search projects…" aria-label="Search projects"><select id="projectStatusFilter" aria-label="Filter projects"><option value="active">Active projects</option><option value="all">All projects</option><option value="planning">Planning</option><option value="completed">Completed</option><option value="archived">Archived</option></select></div><form id="projectCreateForm" class="project-create hidden">
   <div class="project-modal-layout-container">
     
     <!-- LEFT COLUMN: Identity & People (7 cols on landscape) -->
@@ -26198,10 +26197,18 @@ html[data-theme=dark] .batch-menu button:hover{
         } else {
           window._projectSpecialFilter = null;
           if (statusSelect) {
-            statusSelect.value = (filter === 'planning' || filter === 'completed' || filter === 'archived') ? filter : (filter === 'all' ? 'all' : 'active');
+            statusSelect.value = (filter === 'completed' || filter === 'archived') ? filter : (filter === 'all' ? 'all' : 'active');
           }
         }
         if (typeof renderProjectManager === 'function') renderProjectManager();
+      });
+    });
+
+    $('projectStatusFilter')?.addEventListener('change', (e) => {
+      window._projectSpecialFilter = null;
+      const val = e.target.value;
+      document.querySelectorAll('.proj-filter-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.projFilter === val);
       });
     });
   }
