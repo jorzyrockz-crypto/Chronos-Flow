@@ -1094,77 +1094,126 @@ html[data-theme="dark"] .journey-card.full-banner-card:hover {
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 28px var(--banner-glow, rgba(99, 102, 241, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
 }
 
+.full-banner-card .banner-header-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  position: relative !important;
+  z-index: 3 !important;
+  width: 100% !important;
+}
+
+.full-banner-card .banner-top-bar,
 .full-banner-card .banner-head-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  position: relative;
-  z-index: 3;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.full-banner-card .banner-sub-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 3 !important;
 }
 
 .full-banner-card .banner-badge-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  min-width: 0;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
 }
 
 .full-banner-card .banner-pill-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 3px 10px !important;
+  border-radius: 9999px !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  line-height: 1.2 !important;
 }
 
 .full-banner-card .banner-time-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.24);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 3px 9px !important;
+  border-radius: 9999px !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  font-size: 10px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.04em !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  line-height: 1.2 !important;
 }
 
 .full-banner-card .banner-actions-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  min-width: 0 !important;
 }
 
 .full-banner-card .full-banner-profile-chip {
   background: rgba(0, 0, 0, 0.28) !important;
   border: 1px solid rgba(255, 255, 255, 0.28) !important;
   color: #ffffff !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  max-width: 145px !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 2px 8px 2px 3px !important;
+  border-radius: 9999px !important;
 }
+@media (max-width: 480px) {
+  .full-banner-card .full-banner-profile-chip {
+    max-width: 125px !important;
+  }
+}
+
 .full-banner-card .full-banner-profile-chip:hover {
   background: rgba(0, 0, 0, 0.45) !important;
   border-color: rgba(255, 255, 255, 0.45) !important;
 }
+
 .full-banner-card .full-banner-profile-chip .journey-card-creator-name {
   color: #ffffff !important;
-  font-weight: 650;
+  font-weight: 650 !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.2 !important;
 }
 
 .full-banner-card .full-banner-menu-btn {
@@ -1180,35 +1229,41 @@ html[data-theme="dark"] .journey-card.full-banner-card:hover {
   cursor: pointer !important;
   transition: background .15s, transform .15s, border-color .15s !important;
   padding: 0 !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  flex-shrink: 0 !important;
 }
+
 .full-banner-card .full-banner-menu-btn:hover {
   background: rgba(0, 0, 0, 0.48) !important;
   border-color: rgba(255, 255, 255, 0.5) !important;
   transform: scale(1.08) !important;
 }
+
 .full-banner-card .full-banner-menu-btn:active {
   transform: scale(0.95) !important;
 }
 
 .full-banner-card .banner-content-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  position: relative;
-  z-index: 2;
-  margin-top: 2px;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  margin-top: 4px !important;
+  width: 100% !important;
 }
 
 .full-banner-card .banner-text-col {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-  max-width: 72%;
-  z-index: 2;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  padding-right: 52px !important;
+  box-sizing: border-box !important;
+  z-index: 2 !important;
 }
 
 .full-banner-card .full-banner-title {
@@ -19147,7 +19202,7 @@ function renderOverviewHorizon(options = {}){
       const isMultiDay = spanInfo && spanInfo.spanDays >= 2;
       let badgeTime = 'ALL DAY';
       if(isMultiDay){
-        badgeTime = `ALL DAY · ${spanInfo.spanDays} DAYS`;
+        badgeTime = `ALL DAY • ${spanInfo.spanDays} DAYS`;
       } else if(e.allDay || !e.start){
         badgeTime = 'ALL DAY';
       } else {
@@ -19199,23 +19254,25 @@ function renderOverviewHorizon(options = {}){
 
       return `
         <article class="journey-card event-card full-banner-card ${isMultiDay ? 'is-multiday-spanning' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(e.id)}" style="background:${activeGradient} !important;--full-banner-bg:${activeGradient};--card-accent:${cardAccent};--banner-glow:${bannerGlow}">
-          <div class="banner-head-row">
-            <div class="banner-badge-group">
+          <div class="banner-header-section">
+            <div class="banner-top-bar">
               <span class="banner-pill-badge">
                 ${badgeIconHtml ? `<span>${badgeIconHtml}</span>` : ''} <span>${esc(flair.badge)}</span>
               </span>
+              <div class="banner-actions-group">
+                <div class="journey-card-profile-chip full-banner-profile-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile" style="cursor:pointer">
+                  ${avatarMarkup(creator, 'xs')}
+                  <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+                </div>
+                <button type="button" class="full-banner-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">${getLucideSvg('more-horizontal', 13)}</button>
+              </div>
+            </div>
+            <div class="banner-sub-row">
               <span class="banner-time-badge">
-                ${getLucideSvg('calendar', 11)} ${esc(badgeTime)}
+                ${getLucideSvg('calendar', 11)} <span>${esc(badgeTime)}</span>
               </span>
               ${recurringBadgeHtml}
               ${statusBadgeHtml}
-            </div>
-            <div class="banner-actions-group">
-              <div class="journey-card-profile-chip full-banner-profile-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile" style="cursor:pointer">
-                ${avatarMarkup(creator, 'xs')}
-                <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
-              </div>
-              <button type="button" class="full-banner-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">${getLucideSvg('more-horizontal', 13)}</button>
             </div>
           </div>
           <div class="banner-content-row">
