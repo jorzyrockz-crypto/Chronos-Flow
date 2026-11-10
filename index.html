@@ -8864,15 +8864,46 @@ function notify(s, type){
   }, duration);
 }
 function weekOffset(day){return settings.weekStart==='sunday'?day.getDay():(day.getDay()+6)%7}function fmtTime(value){if(!value)return '';if(settings.timeFormat!=='12')return value;const [h,m]=value.split(':').map(Number);return `${h%12||12}:${pad(m)} ${h>=12?'PM':'AM'}`}
-let teamCalendarEvents=[];let calendarTeamOnlyFilter=false;function eventsFor(date){const teamItems=teamCalendarEvents.filter(e=>e.date===date);if(calendarTeamOnlyFilter)return teamItems.sort((a,b)=>(a.start||'').localeCompare(b.start||''));return [...events.filter(e=>e.date===date),...teamItems].sort((a,b)=>(a.start||'').localeCompare(b.start||''))}
-function evChip(e){const action=e.teamShared?'data-team-shared="true"':`data-edit-event="${esc(e.id)}"`;return `<button class="event-chip" style="--event-color:${colors[e.category]||colors.other}" ${action} title="${esc(e.teamShared?"Team · ":"")}${esc(e.title)}">${e.allDay?'All day':e.start?esc(fmtTime(e.start)):''} ${esc(e.title)}</button>`}
+let teamCalendarEvents=[];let calendarTeamOnlyFilter=false;function eventsFor(date){
+  const personal = (events || []).filter(e => e.date === date);
+  const personalIds = new Set(personal.map(e => String(e.id)));
+  personal.forEach(p => {
+    if ((Array.isArray(p.sharedTeamIds) && p.sharedTeamIds.length > 0) || p.teamId) {
+      p.teamShared = true;
+      if (!p.teamName && Array.isArray(chronosTeams)) {
+        const t = chronosTeams.find(tm => (p.sharedTeamIds || []).includes(tm.id) || tm.id === p.teamId);
+        if (t) p.teamName = t.name;
+      }
+    }
+  });
+  const teamItems = (teamCalendarEvents || []).filter(e => {
+    if (e.date !== date) return false;
+    const sId = String(e.sourceId || e.id);
+    if (personalIds.has(sId)) {
+      const p = personal.find(x => String(x.id) === sId);
+      if (p) {
+        p.teamShared = true;
+        p.teamId = p.teamId || e.teamId;
+        p.teamName = p.teamName || e.teamName;
+      }
+      return false;
+    }
+    return true;
+  });
+  if (calendarTeamOnlyFilter) {
+    const personalTeam = personal.filter(e => e.teamShared || (Array.isArray(e.sharedTeamIds) && e.sharedTeamIds.length > 0) || e.teamId);
+    return [...personalTeam, ...teamItems].sort((a,b) => (a.start||'').localeCompare(b.start||''));
+  }
+  return [...personal, ...teamItems].sort((a,b) => (a.start||'').localeCompare(b.start||''));
+}
+function evChip(e){const action=`data-edit-event="${esc(e.id)}" ${e.teamShared?'data-team-shared="true"':''}`;return `<button class="event-chip ${e.teamShared?'team-event-chip':''}" style="--event-color:${e.color||colors[e.category]||colors.other}" ${action} title="${esc(e.teamShared?`Team (${e.teamName||'Shared'}) · `:'' )}${esc(e.title)}">${e.allDay?'All day':e.start?esc(fmtTime(e.start)):''} ${esc(e.title)}</button>`}
 function renderMonth(){const first=new Date(selected.getFullYear(),selected.getMonth(),1,12),start=new Date(first);start.setDate(1-weekOffset(first));let cells='';for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const key=iso(d),list=eventsFor(key).filter(e=>!query||(`${e.title} ${e.description} ${e.location}`.toLowerCase().includes(query)));cells+=`<button class="day ${d.getMonth()!==selected.getMonth()?'outside':''} ${key===iso(today)?'today':''} ${key===iso(selected)?'selected':''}" data-date="${key}" aria-label="${esc(fmt(d))}"><span class="day-number">${d.getDate()}</span>${list.slice(0,3).map(evChip).join('')}${list.length>3?`<span class="more-events">+${list.length-3} more</span>`:''}</button>`}
 return `<div class="weekday-row">${(settings.weekStart==='sunday'?['SUN','MON','TUE','WED','THU','FRI','SAT']:['MON','TUE','WED','THU','FRI','SAT','SUN']).map(x=>`<div>${x}</div>`).join('')}</div><div class="month-grid">${cells}</div>`}
 function renderWeek(){const d=new Date(selected),monday=new Date(d);monday.setDate(d.getDate()-weekOffset(d));return `<div class="week-grid">${Array.from({length:7},(_,i)=>{const x=new Date(monday);x.setDate(monday.getDate()+i);const key=iso(x),list=eventsFor(key).filter(e=>!query||e.title.toLowerCase().includes(query));return `<div class="week-column ${key===iso(selected)?'selected':''}" data-date="${key}"><button class="week-head" data-date="${key}"><small>${x.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()}</small><strong>${x.getDate()}</strong></button><div class="week-events">${list.map(evChip).join('')||'<span style="font-size:10px;color:var(--muted)">No events</span>'}</div></div>`}).join('')}</div>`}
 function renderDay(){const key=iso(selected),list=eventsFor(key).filter(e=>!query||e.title.toLowerCase().includes(query));return `<div class="agenda-view">${list.map(e=>`<div class="agenda-row"><div class="agenda-date">${e.allDay?'ALL DAY':esc(fmtTime(e.start)||'—')}</div><div class="agenda-event" data-edit-event="${esc(e.id)}"><span class="event-dot" style="--event-color:${colors[e.category]||colors.other}"></span><div><strong>${esc(e.title)}</strong><small>${esc(e.description||e.location||e.category)}</small></div></div></div>`).join('')||'<div class="empty">Nothing scheduled here. A little open space can be a good thing.</div>'}</div>`}
 function renderAgenda(){const base=new Date(selected);base.setDate(1);let html='';for(let i=0;i<30;i++){const d=new Date(base);d.setDate(base.getDate()+i);const list=eventsFor(iso(d)).filter(e=>!query||e.title.toLowerCase().includes(query));if(!list.length)continue;html+=`<div class="agenda-row"><div class="agenda-date">${esc(d.toLocaleDateString(undefined,{month:'short',day:'numeric'}))}<br>${esc(d.toLocaleDateString(undefined,{weekday:'short'}))}</div><div>${list.map(e=>`<div class="agenda-event" data-edit-event="${esc(e.id)}"><span class="event-dot" style="--event-color:${colors[e.category]||colors.other}"></span><div><strong>${esc(e.title)}</strong><small>${e.allDay?'All day':esc(fmtTime(e.start)||'Time not set')} · ${esc(e.category)}</small></div></div>`).join('')}</div></div>`}return `<div class="agenda-view">${html||'<div class="empty">No matching events in this period.</div>'}</div>`}
 function renderCalendar(){const title= view==='day'?fmt(selected,{month:'long',day:'numeric',year:'numeric'}):view==='week'?`Week of ${fmt(new Date(selected.getFullYear(),selected.getMonth(),selected.getDate()-((selected.getDay()+6)%7)),{month:'short',day:'numeric'})}`:fmt(selected,{month:'long',year:'numeric'});$('periodTitle').textContent=title;$('calendarCanvas').innerHTML=view==='month'?renderMonth():view==='week'?renderWeek():view==='day'?renderDay():renderAgenda();document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));renderSelected()}
-function renderSelected(){const key=iso(selected),list=eventsFor(key).filter(e=>!query||e.title.toLowerCase().includes(query));$('selectedTitle').textContent=fmt(selected,{weekday:'long',month:'short',day:'numeric'});$('selectedSubtitle').textContent=key===iso(today)?'Today · Make space for what matters':`${list.length} ${list.length===1?'event':'events'} scheduled`;$('selectedAgenda').innerHTML=list.length?list.map(e=>`<div class="agenda-item" style="--event-color:${colors[e.category]||colors.other}"><div class="agenda-time">${e.allDay?'All day':esc(fmtTime(e.start)||'—')}</div><div class="agenda-color"></div><div class="agenda-content"><strong>${esc(e.title)}</strong>${e.location?`<p>${esc(e.location)}</p>`:''}${e.description?`<p>${esc(e.description)}</p>`:''}${e.teamShared?`<span class="note-chip">Team: ${esc(e.teamName||'Shared team')}</span>`:''}${e.linkedNoteId&&notes.find(n=>n.id===e.linkedNoteId)?`<button type="button" class="event-linked-note" data-preview-note="${esc(e.linkedNoteId)}" data-edit-note="${esc(e.linkedNoteId)}">${getLucideSvg('file-text', 12)} ${esc(notes.find(n=>n.id===e.linkedNoteId).title||'Open linked note')}</button>`:''}${eventConflicts(e,e.id).length?'<span class="conflict-pill">Schedule overlap</span>':''}<div class="item-actions">${e.teamShared?'<span class="muted-label">Shared event · manage from its team</span>':`<button class="text-btn" data-edit-event="${esc(e.id)}">Edit</button><button class="text-btn" data-delete-event="${esc(e.id)}">Delete</button>`}</div></div></div>`).join(''):`<div class="empty">No events planned.<br>Leave some room for the unexpected.</div>`;renderSelectedTasks()}
+function renderSelected(){const key=iso(selected),list=eventsFor(key).filter(e=>!query||e.title.toLowerCase().includes(query));$('selectedTitle').textContent=fmt(selected,{weekday:'long',month:'short',day:'numeric'});$('selectedSubtitle').textContent=key===iso(today)?'Today · Make space for what matters':`${list.length} ${list.length===1?'event':'events'} scheduled`;$('selectedAgenda').innerHTML=list.length?list.map(e=>`<div class="agenda-item" style="--event-color:${colors[e.category]||colors.other}"><div class="agenda-time">${e.allDay?'All day':esc(fmtTime(e.start)||'—')}</div><div class="agenda-color"></div><div class="agenda-content"><strong>${esc(e.title)}</strong>${e.location?`<p>${esc(e.location)}</p>`:''}${e.description?`<p>${esc(e.description)}</p>`:''}${e.teamShared?`<span class="note-chip">Team: ${esc(e.teamName||'Shared team')}</span>`:''}${e.linkedNoteId&&notes.find(n=>n.id===e.linkedNoteId)?`<button type="button" class="event-linked-note" data-preview-note="${esc(e.linkedNoteId)}" data-edit-note="${esc(e.linkedNoteId)}">${getLucideSvg('file-text', 12)} ${esc(notes.find(n=>n.id===e.linkedNoteId).title||'Open linked note')}</button>`:''}${eventConflicts(e,e.id).length?'<span class="conflict-pill">Schedule overlap</span>':''}<div class="item-actions">${e.teamShared?`<button class="text-btn" data-edit-event="${esc(e.id)}">Details</button>`:`<button class="text-btn" data-edit-event="${esc(e.id)}">Edit</button><button class="text-btn" data-delete-event="${esc(e.id)}">Delete</button>`}</div></div></div>`).join(''):`<div class="empty">No events planned.<br>Leave some room for the unexpected.</div>`;renderSelectedTasks()}
 function mdEscape(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function mdInline(src){let x=mdEscape(src);const stash=[];const hold=v=>{const k='@@MD'+stash.length+'@@';stash.push(v);return k};x=x.replace(/\[\[([^\]]+)\]\]/g,(_,title)=>{const found=(notes||[]).find(n=>(n.title||'').toLowerCase()===title.trim().toLowerCase()&&!n.trashed);return hold(found?'<a href="#" class="note-link" data-wiki-note="'+esc(found.id)+'">'+mdEscape(title)+'</a>':'<span class="note-link note-link-missing">'+mdEscape(title)+'</span>')});x=x.replace(/`([^`]+)`/g,(_,v)=>hold('<code>'+v+'</code>'));x=x.replace(/!\[([^\]]*)\]\(((?:https?:\/\/|data:image\/|blob:)[^\s)]+)\)/g,(_,rawAlt,url)=>{
   let alt=rawAlt||'';
@@ -10444,16 +10475,16 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
   if(!firebaseUser||!firebaseDb)throw Error('Sign in to share this item with a team.');
   if(!navigator.onLine)throw Error('Team sharing requires an internet connection.');
 
-  // Clean up from unselected teams if a note was previously shared with them
-  if(type==='notes' && record && record.id && Array.isArray(chronosTeams)){
+  // Clean up from unselected teams if a note or event was previously shared with them
+  if((type==='notes' || type==='events') && record && record.id && Array.isArray(chronosTeams)){
     for(const team of chronosTeams){
       if(!targets.includes(team.id)){
         try{
-          const existingDoc = teamLiveData[team.id]?.notes?.find(x => String(x.id) === String(record.id));
+          const existingDoc = teamLiveData[team.id]?.[type]?.find(x => String(x.id) === String(record.id) || String(x.sourceId || '') === String(record.id));
           if(existingDoc && (String(existingDoc.createdBy) === String(firebaseUser.uid) || isTeamAdmin())){
-            await firebaseDb.collection('teams').doc(team.id).collection('notes').doc(String(record.id)).delete();
-            if(teamLiveData[team.id]?.notes){
-              teamLiveData[team.id].notes = teamLiveData[team.id].notes.filter(x => String(x.id) !== String(record.id));
+            await firebaseDb.collection('teams').doc(team.id).collection(type).doc(String(record.id)).delete();
+            if(teamLiveData[team.id]?.[type]){
+              teamLiveData[team.id][type] = teamLiveData[team.id][type].filter(x => String(x.id) !== String(record.id) && String(x.sourceId || '') !== String(record.id));
             }
           }
         }catch(e){
@@ -10501,18 +10532,23 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
         const arr=teamRecords[type]||[];
         teamRecords[type]=[payload,...arr.filter(x=>x.id!==record.id)];
       }
-      if(teamLiveData[teamId]?.[type]){
-        const list=teamLiveData[teamId][type]||[];
-        teamLiveData[teamId][type]=[payload,...list.filter(x=>x.id!==record.id)];
-      }
+      if(!teamLiveData[teamId]) teamLiveData[teamId] = {events:[], tasks:[], notes:[]};
+      if(!teamLiveData[teamId][type]) teamLiveData[teamId][type] = [];
+      const list=teamLiveData[teamId][type];
+      teamLiveData[teamId][type]=[payload,...list.filter(x=>x.id!==record.id)];
     }catch(err){failures.push((team.name||teamId)+': '+(err.message||'write failed'));}
   }
   if(failures.length)throw Error('Some team shares failed. '+failures.join(' | '));
+  if(type==='events'){
+    applyTeamLiveData();
+    if(typeof renderCalendar === 'function') renderCalendar();
+    if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
+  }
   renderSharedItemsInMainScreens();
   renderOverviewTeam();
   if(typeof renderNotes === 'function') renderNotes();
 }
-async function refreshUnifiedTeamCalendar(){teamCalendarEvents=[];if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const tombs=(typeof localTombstones==='function')?localTombstones():{};const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!tombs['events|'+String(e.id)]&&!tombs['events|'+String(e.sourceId||'')]);}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();render()}
+async function refreshUnifiedTeamCalendar(){if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const tombs=(typeof localTombstones==='function')?localTombstones():{};const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();if(!teamLiveData[team.id]) teamLiveData[team.id]={events:[],tasks:[],notes:[]};teamLiveData[team.id].events=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team'}));return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!tombs['events|'+String(e.id)]&&!tombs['events|'+String(e.sourceId||'')]);}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();saveTeamCache();render()}
 const EVENT_COVER_PRESETS = {
   'preset:strategy': {
     name: 'Strategy Sync',
@@ -10670,7 +10706,8 @@ function syncEventColorSwatches(color){
 function openEvent(id = null, date = null){
   try {
     const targetDate = date || (typeof iso === 'function' && typeof selected !== 'undefined' && selected ? iso(selected) : new Date().toISOString().slice(0, 10));
-    const e = (Array.isArray(events) ? events : []).find(x => x.id === id);
+    const e = (Array.isArray(events) ? events : []).find(x => String(x.id) === String(id)) || 
+              (typeof teamCalendarEvents !== 'undefined' ? (teamCalendarEvents || []).find(x => String(x.id) === String(id) || String(x.sourceId || '') === String(id)) : null);
     
     const form = $('eventForm');
     if(form) form.reset();
@@ -11739,6 +11776,18 @@ $('eventForm')?.addEventListener('submit', async e => {
     createdByPhotoURL: oldEv?.createdByPhotoURL || (firebaseUser ? (firebaseUser.photoURL || '') : '')
   };
 
+  const selectedTeamIds = Array.isArray(item.sharedTeamIds) ? item.sharedTeamIds : [];
+  if(selectedTeamIds.length > 0){
+    item.teamShared = true;
+    item.teamId = selectedTeamIds[0];
+    const matchTeam = (chronosTeams || []).find(t => selectedTeamIds.includes(t.id));
+    item.teamName = matchTeam ? matchTeam.name : 'Team';
+  } else {
+    item.teamShared = false;
+    delete item.teamId;
+    delete item.teamName;
+  }
+
   // Save to events array
   if(i >= 0){
     events[i] = item;
@@ -11769,10 +11818,15 @@ $('eventForm')?.addEventListener('submit', async e => {
   if(item.sharedTeamIds && item.sharedTeamIds.length > 0){
     try {
       if(typeof publishToTeams === 'function') await publishToTeams('events', item, item.sharedTeamIds, []);
-      if(typeof refreshUnifiedTeamCalendar === 'function') refreshUnifiedTeamCalendar();
+      if(typeof refreshUnifiedTeamCalendar === 'function') await refreshUnifiedTeamCalendar();
     } catch(err){
       console.warn('Team sync notice:', err);
     }
+  } else if(oldEv && Array.isArray(oldEv.sharedTeamIds) && oldEv.sharedTeamIds.length > 0){
+    try {
+      if(typeof publishToTeams === 'function') await publishToTeams('events', item, [], []);
+      if(typeof refreshUnifiedTeamCalendar === 'function') await refreshUnifiedTeamCalendar();
+    } catch(err){}
   }
 });
 
@@ -11783,6 +11837,9 @@ $('deleteEvent')?.addEventListener('click', async () => {
   if(ok){
     recordLocalTombstone('events', id);
     const targetEv = (events||[]).find(e => String(e.id) === String(id));
+    if(targetEv?.sharedTeamIds && targetEv.sharedTeamIds.length){
+      targetEv.sharedTeamIds.forEach(tId => deleteCloudDocumentDirectly('events', id, tId));
+    }
     deleteCloudDocumentDirectly('events', id, targetEv?.teamId);
     events = events.filter(e => String(e.id) !== String(id));
     if(typeof persist === 'function') persist();
@@ -16170,10 +16227,10 @@ function getHorizonItemsFor(dateKey){
     description: e.description || '',
     location: e.location || '',
     category: e.category || 'other',
-    projectColor: colors[e.category] || colors.other || '#4388df',
+    projectColor: e.color || colors[e.category] || colors.other || '#4388df',
     linkedNoteId: e.linkedNoteId || '',
-    teamShared: !!e.teamShared,
-    teamName: e.teamName || '',
+    teamShared: !!(e.teamShared || (Array.isArray(e.sharedTeamIds) && e.sharedTeamIds.length > 0) || e.teamId),
+    teamName: e.teamName || (e.teamId ? (chronosTeams || []).find(x => x.id === e.teamId)?.name : '') || ((Array.isArray(e.sharedTeamIds) && e.sharedTeamIds.length > 0) ? (chronosTeams || []).find(x => e.sharedTeamIds.includes(x.id))?.name : '') || (e.teamShared ? 'Team' : ''),
     createdBy: e.createdBy || '',
     createdByName: e.createdByName || '',
     createdByPhotoURL: e.createdByPhotoURL || '',
@@ -18958,7 +19015,36 @@ function teamIdSafe(v){return String(v||'').replace(/[^A-Za-z0-9_-]/g,'_').slice
 function teamCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';const bytes=new Uint8Array(8);if(window.crypto?.getRandomValues)crypto.getRandomValues(bytes);else for(let i=0;i<8;i++)bytes[i]=Math.floor(Math.random()*256);return Array.from(bytes,b=>alphabet[b%alphabet.length]).join('')}
 function teamCacheKey(){return 'chronos70.teamCache.'+(firebaseUser?.uid||'local')}
 function saveTeamCache(){try{localStorage.setItem(teamCacheKey(),JSON.stringify({teams:chronosTeams,activeTeamId,activeTeam,members:teamMembers,records:teamRecords,teamLiveData,updatedAt:Date.now()}))}catch{}}
-function loadTeamCache(){try{const c=JSON.parse(localStorage.getItem(teamCacheKey())||'null');if(c){chronosTeams=c.teams||[];activeTeamId=c.activeTeamId||'';activeTeam=c.activeTeam||null;teamMembers=c.members||[];teamRecords=c.records||{events:[],tasks:[],notes:[]};if(c.teamLiveData&&typeof c.teamLiveData==='object'){Object.assign(teamLiveData,c.teamLiveData);}renderTeamWorkspace();return true}}catch{}return false}
+function loadTeamCache(){
+  try{
+    let c = JSON.parse(localStorage.getItem(teamCacheKey())||'null');
+    if(!c){
+      for(let i=0; i<localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(k && k.startsWith('chronos70.teamCache.')){
+          try {
+            const parsed = JSON.parse(localStorage.getItem(k)||'null');
+            if(parsed && (parsed.teams?.length || parsed.teamLiveData)){ c = parsed; break; }
+          } catch(e){}
+        }
+      }
+    }
+    if(c){
+      chronosTeams=c.teams||[];
+      activeTeamId=c.activeTeamId||'';
+      activeTeam=c.activeTeam||null;
+      teamMembers=c.members||[];
+      teamRecords=c.records||{events:[],tasks:[],notes:[]};
+      if(c.teamLiveData&&typeof c.teamLiveData==='object'){
+        Object.assign(teamLiveData,c.teamLiveData);
+      }
+      applyTeamLiveData();
+      renderTeamWorkspace();
+      return true;
+    }
+  }catch(e){console.warn('loadTeamCache error:', e);}
+  return false;
+}
 function currentTeamRole(){return teamMembers.find(m=>m.uid===firebaseUser?.uid)?.role||chronosTeams.find(t=>t.id===activeTeamId)?.role||''}
 function isTeamAdmin(){return ['owner','admin'].includes(currentTeamRole())}
 function renderSharedItemsInMainScreens(){const tp=$('teamSharedTasksPanel'),tl=$('teamSharedTasksList'),np=$('teamSharedNotesPanel'),nl=$('teamSharedNotesList');const sharedTasks=teamRecords.tasks||[],sharedNotes=teamRecords.notes||[];if(tp&&tl){tp.classList.add('hidden');tl.innerHTML=sharedTasks.map(t=>{const person=teamMembers.find(m=>m.uid===(t.assigneeUid||''))||{uid:t.assigneeUid,displayName:t.assigneeName||t.assigneeEmail||'Unassigned',photoURL:t.assigneePhotoURL||''};return `<article class="task-card"><div class="task-main"><strong>${teamEsc(t.title||'Untitled task')}</strong><p>${teamEsc(t.body||t.details||'')}</p><div class="team-record-byline">${t.assigneeUid?avatarMarkup(person,'sm')+'<span>Assigned to '+teamEsc(person.displayName||person.email||'team member')+'</span>':'<span>Unassigned · '+teamEsc(activeTeam?.name||'Team')+'</span>'}${t.date?'<span>· Due '+teamEsc(t.date)+'</span>':''}</div></div><select data-main-shared-task-status="${teamEsc(t.id)}" aria-label="Update team task status" ${(t.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin())?'disabled':''}><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${t.status==='done'?'selected':''}>Completed</option></select></article>`}).join('')||'<div class="team-empty">No team tasks for the selected team yet.</div>';tl.querySelectorAll('[data-main-shared-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.mainSharedTaskStatus,sel.value)))}if(np&&nl){np.classList.toggle('hidden',!firebaseUser||!activeTeam);nl.innerHTML=sharedNotes.map(n=>{const author=teamMembers.find(m=>m.uid===n.createdBy)||{uid:n.createdBy,displayName:n.createdByName||'Team member',photoURL:n.createdByPhotoURL||''};return `<article class="note-card" data-preview-note="${teamEsc(n.id)}" style="cursor:pointer"><span class="note-chip">${teamEsc(activeTeam?.name||'Team')} · Shared plan</span><h3>${teamEsc(n.title||'Untitled note')}</h3><p>${teamEsc(n.body||'')}</p><div class="team-record-byline">${avatarMarkup(author,'sm')}<span>By ${teamEsc(author.displayName||author.email||'Team member')}</span></div></article>`}).join('')||'<div class="team-empty">No team notes for the selected team yet.</div>'}}
@@ -19039,15 +19125,26 @@ function renderTeamRecordComposer(){
 }
 function renderTeamRecords(){const box=$('teamRecordsList');if(!box)return;const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const list=(teamRecords[type]||[]).slice().sort((a,b)=>Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0));box.innerHTML=list.map(r=>{const author=teamMembers.find(m=>m.uid===r.createdBy)||{uid:r.createdBy,displayName:r.createdByName||'Team member',photoURL:r.createdByPhotoURL||''};const assignee=teamMembers.find(m=>m.uid===(r.assigneeUid||''))||{uid:r.assigneeUid,displayName:r.assigneeName||r.assigneeEmail||'',photoURL:r.assigneePhotoURL||''};return `<article class="team-record" data-team-record-id="${teamEsc(r.id)}"><div class="team-record-main"><span class="team-record-type">${type==='events'?'Calendar event':type==='tasks'?'Assigned task':'Planning note'}${r.assigneeUid?' · Assigned':''}</span><strong>${teamEsc(r.title||'Untitled')}</strong><div class="team-record-byline">${avatarMarkup(author)}<span>By ${teamEsc(author.displayName||author.email||'team member')}</span>${r.assigneeUid?`${avatarMarkup(assignee,'sm')}<span>Assigned to ${teamEsc(assignee.displayName||assignee.email||'team member')}</span>`:''}${r.date?`<span>· ${teamEsc(r.date)}</span>`:''}</div>${r.body?`<div class="team-note-body">${teamEsc(r.body)}</div>`:''}${type==='tasks'?`<label class="team-row" style="margin-top:10px;font-size:11px"><span>My progress</span><select data-team-task-status="${teamEsc(r.id)}" ${r.assigneeUid!==firebaseUser?.uid&&!isTeamAdmin()?'disabled':''}><option value="open" ${(r.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${r.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${r.status==='done'?'selected':''}>Completed</option></select></label>`:''}</div></article>`}).join('')||'<div class="team-empty">No shared items yet. Team plans will appear here.</div>';box.querySelectorAll('[data-team-task-status]').forEach(sel=>sel.addEventListener('change',()=>updateTeamTaskStatus(sel.dataset.teamTaskStatus,sel.value)))}
 async function teamReadList(collection){const snap=await firebaseDb.collection('teams').doc(activeTeamId).collection(collection).get();return snap.docs.map(d=>({...d.data(),id:d.id}))}
-function stopTeamRealtimeSync(){teamLiveUnsubs.forEach(unsub=>{try{unsub()}catch{}});teamLiveUnsubs=[];teamLiveData={};teamAssignedTasks=[];}
+function stopTeamRealtimeSync(){teamLiveUnsubs.forEach(unsub=>{try{unsub()}catch{}});teamLiveUnsubs=[];}
 function applyTeamLiveData(){
  const allEvents=[],assigned=[];
  const tombs = typeof localTombstones === 'function' ? localTombstones() : {};
- for(const team of chronosTeams){
+ for(const team of (chronosTeams||[])){
   const data=teamLiveData[team.id]||{events:[],tasks:[],notes:[]};
-  for(const ev of data.events||[]){
+  for(const ev of (data.events||[])){
    if(ev.date && !tombs['events|'+String(ev.id)] && !tombs['events|'+String(ev.sourceId||'')]) {
-    allEvents.push({...ev,id:'team_'+team.id+'_'+ev.id,sourceId:ev.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',date:ev.date||''});
+    const rawId = String(ev.id || '');
+    const cleanId = rawId.replace(new RegExp('^team_' + team.id + '_'), '');
+    const sourceId = ev.sourceId || cleanId;
+    allEvents.push({
+      ...ev,
+      id: 'team_' + team.id + '_' + sourceId,
+      sourceId: sourceId,
+      teamId: team.id,
+      teamShared: true,
+      teamName: team.name || ev.teamName || 'Team',
+      date: ev.date || ''
+    });
    }
   }
   for(const task of data.tasks||[]){
@@ -19122,7 +19219,7 @@ function applyTeamLiveData(){
 }
 function startTeamRealtimeSync(){
  stopTeamRealtimeSync();if(!firebaseUser||!firebaseDb||!navigator.onLine||!chronosTeams.length)return;
- for(const team of chronosTeams){teamLiveData[team.id]={events:[],tasks:[],notes:[]};for(const kind of ['events','tasks','notes']){
+ for(const team of chronosTeams){if(!teamLiveData[team.id]) teamLiveData[team.id]={events:[],tasks:[],notes:[]};for(const kind of ['events','tasks','notes']){
   const unsub=firebaseDb.collection('teams').doc(team.id).collection(kind).onSnapshot(snap=>{teamLiveData[team.id][kind]=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team'}));applyTeamLiveData();saveTeamCache();},err=>console.warn('Live team '+kind+' sync failed for '+team.id,err));teamLiveUnsubs.push(unsub);
  }}
 }
@@ -19176,7 +19273,7 @@ async function acceptTeamInvitation(rawCode){if(!firebaseUser||!firebaseDb)throw
     ensureTeamInviteCode(tObj).catch(()=>{});
   } catch(e){}
   await refreshTeamWorkspace()}
-async function submitTeamRecord(e){e.preventDefault();try{if(!activeTeam||!isTeamAdmin())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value;const member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false};await firebaseDb.collection('teams').doc(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];renderTeamRecords();renderOverviewTeam();$('teamRecordForm').reset();teamStatus('Published to the team. Members can now read the plan in their Team workspace.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}}
+async function submitTeamRecord(e){e.preventDefault();try{if(!activeTeam||!isTeamAdmin())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value;const member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team',teamShared:true};await firebaseDb.collection('teams').doc(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='events'){if(!teamLiveData[activeTeamId]) teamLiveData[activeTeamId]={events:[],tasks:[],notes:[]};teamLiveData[activeTeamId].events=[record,...(teamLiveData[activeTeamId].events||[]).filter(x=>x.id!==id)];applyTeamLiveData();if(typeof refreshUnifiedTeamCalendar==='function') refreshUnifiedTeamCalendar();if(typeof renderCalendar==='function') renderCalendar();if(typeof renderOverviewHorizon==='function') renderOverviewHorizon();}renderTeamRecords();renderOverviewTeam();$('teamRecordForm').reset();teamStatus('Published to the team. Members can now read the plan in their Team workspace.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}}
 async function updateTeamTaskStatus(id,status){try{const ref=firebaseDb.collection('teams').doc(activeTeamId).collection('tasks').doc(id);const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid};await ref.update(patch);teamRecords.tasks=(teamRecords.tasks||[]).map(t=>t.id===id?{...t,...patch}:t);renderTeamRecords();renderOverviewTeam();teamStatus('Task progress updated.')}catch(err){teamStatus('Could not update task: '+err.message,true);await refreshTeamWorkspace()}}
 $('teamCreateForm').addEventListener('submit',async e=>{e.preventDefault();try{await createTeam($('teamCreateName').value);$('teamCreateName').value='';teamStatus('Team created. You are the owner.')}catch(err){teamStatus(err.message,true)}});
 $('teamInviteForm').addEventListener('submit',async e=>{e.preventDefault();try{await createTeamInvitation($('teamInviteEmail').value);$('teamInviteEmail').value=''}catch(err){teamStatus(err.message,true)}});
@@ -19206,7 +19303,13 @@ document.addEventListener('click',e=>{
  const kpi=e.target.closest('[data-team-kpi]');
  if(kpi){e.preventDefault();teamTab=kpi.dataset.teamKpi;renderTeamWorkspace();document.querySelector('.team-focus-card')?.scrollIntoView({behavior:'smooth',block:'start'});return}
  const teamEvent=e.target.closest('[data-team-shared="true"]');
- if(teamEvent){e.preventDefault();notify('This is a shared team event. Open Team to review its details.');return}
+ if(teamEvent && !teamEvent.hasAttribute('data-edit-event') && !teamEvent.closest('[data-edit-event]')){
+   e.preventDefault();
+   const eid = teamEvent.dataset.eventId || teamEvent.dataset.id;
+   if(eid && typeof openEvent === 'function') openEvent(eid);
+   else notify('Shared team event: open Calendar or Team workspace to review details.');
+   return;
+ }
  const b=e.target.closest('[data-team-select]');
  if(b){activeTeamId=b.dataset.teamSelect;localStorage.setItem('chronos70.activeTeamId',activeTeamId);refreshTeamWorkspace()}
 });
@@ -19412,7 +19515,7 @@ document.addEventListener('click',async e=>{const preview=e.target.closest('[dat
 $('dictateNoteBtn')?.addEventListener('click',()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){notify('Dictation is not supported in this browser. Try Chrome with microphone permission.');return}const rec=new SR();rec.lang=navigator.language||'en-US';rec.continuous=true;rec.interimResults=false;rec.onresult=e=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript+' ';const el=$('noteBody');el.value+=(el.value?' ':'')+t.trim();scheduleNoteAutosave()};rec.onerror=()=>notify('Dictation stopped. Check microphone permission and connection.');rec.onend=()=>notify('Dictation finished.');try{rec.start();notify('Dictation started. Speak now; tap Dictate again to stop if your browser permits.');$('dictateNoteBtn').onclick=()=>{try{rec.stop()}catch{}$('dictateNoteBtn').onclick=null}}catch{notify('Could not start dictation.')}});
 
 function showChronosStartupFailure(err){console.error('Chronos startup failed:',err);let panel=$('chronosStartupFailure');if(!panel){panel=document.createElement('section');panel.id='chronosStartupFailure';panel.setAttribute('role','alert');panel.style.cssText='position:fixed;inset:16px;z-index:2147483647;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:clamp(20px,5vw,48px);background:#101827;color:#f5f7fb;border:1px solid #53627a;border-radius:20px;font:16px/1.5 system-ui,sans-serif;box-shadow:0 20px 70px #0008';document.body.appendChild(panel)}panel.replaceChildren();const title=document.createElement('h1');title.textContent='Chronos could not finish loading';title.style.cssText='font-size:clamp(24px,4vw,36px);margin:0';const detail=document.createElement('p');detail.textContent=(err&&err.message?err.message:String(err||'Unknown startup error'))+' Your existing local data has not been intentionally cleared.';detail.style.cssText='max-width:720px;margin:0;color:#d4deee';const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-top:6px';const retry=document.createElement('button');retry.type='button';retry.textContent='Reload & Clear Stale Cache';retry.style.cssText='padding:12px 18px;border:0;border-radius:10px;background:#7da7ff;color:#101827;font-weight:700;cursor:pointer';retry.onclick=async()=>{retry.disabled=true;retry.textContent='Updating Chronos...';try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches' in window){const keys=await caches.keys();for(const k of keys)await caches.delete(k);}}catch(e){}window.location.replace(window.location.pathname+'?reload='+Date.now())};btnRow.appendChild(retry);panel.append(title,detail,btnRow)}
-try{load();removeLegacySampleActivities();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
+try{load();loadTeamCache();removeLegacySampleActivities();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
  const expose=(name,get,set)=>{try{Object.defineProperty(window,name,{configurable:true,enumerable:false,get,set})}catch{try{window[name]=get()}catch{}}};
  [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v]].forEach(([name,get,set])=>expose(name,get,set));
@@ -19812,7 +19915,7 @@ function renderTeamAdminPanel3(){
  const basePublishToTeams=publishToTeams;
  publishToTeams=async function(type,record,teamIds,assignees=[]){await basePublishToTeams.apply(this,arguments);const assigned=(assignees||[]).map(a=>a.uid);for(const teamId of [...new Set([...(teamIds||[]),...(type==='tasks'?(assignees||[]).map(a=>a.teamId):[])])]){try{await notifyTeamRecipients3(teamId,record,type,assigned)}catch(e){console.warn('Notification creation failed',e)}}};
  // Team workspace record composer now generates notifications for assigned members and team-wide events/notes.
- submitTeamRecord=async function(e){e.preventDefault();try{if(!activeTeam||!isAdmin3())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value,member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeUids:assigneeUid?[assigneeUid]:[],assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team'};await teamRef3(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='tasks'&&assigneeUid)teamAssignedTasks=[...teamAssignedTasks.filter(t=>!(t.teamId===activeTeamId&&t.id===id)),{...record,teamShared:true}];try{await notifyTeamRecipients3(activeTeamId,record,type,assigneeUid?[assigneeUid]:[])}catch(err){console.warn('Notification creation failed',err)}renderTeamRecords();renderOverviewTeam();renderTasks();$('teamRecordForm').reset();teamStatus('Published. Shared records sync live; eligible members have been notified.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}};
+ submitTeamRecord=async function(e){e.preventDefault();try{if(!activeTeam||!isAdmin3())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value,member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeUids:assigneeUid?[assigneeUid]:[],assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team',teamShared:true};await teamRef3(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='tasks'&&assigneeUid)teamAssignedTasks=[...teamAssignedTasks.filter(t=>!(t.teamId===activeTeamId&&t.id===id)),{...record,teamShared:true}];if(type==='events'){if(!teamLiveData[activeTeamId]) teamLiveData[activeTeamId]={events:[],tasks:[],notes:[]};teamLiveData[activeTeamId].events=[record,...(teamLiveData[activeTeamId].events||[]).filter(x=>x.id!==id)];applyTeamLiveData();if(typeof refreshUnifiedTeamCalendar==='function') refreshUnifiedTeamCalendar();if(typeof renderCalendar==='function') renderCalendar();if(typeof renderOverviewHorizon==='function') renderOverviewHorizon();}try{await notifyTeamRecipients3(activeTeamId,record,type,assigneeUid?[assigneeUid]:[])}catch(err){console.warn('Notification creation failed',err)}renderTeamRecords();renderOverviewTeam();renderTasks();$('teamRecordForm').reset();teamStatus('Published. Shared records sync live; eligible members have been notified.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}};
 // Legacy notification capture listener removed in favor of modern card delegation with auto-close
  window.addEventListener('online',()=>{if(firebaseUser&&chronosTeams.length)startTeamRealtimeSync()});
 })();
@@ -20530,9 +20633,13 @@ html[data-theme="dark"] .notification-panel {
      }, 200);
    } else if (type === 'events') {
      if (typeof setPage === 'function') setPage('calendar');
+     const targetEv = (typeof teamCalendarEvents !== 'undefined' ? (teamCalendarEvents || []) : []).find(x => String(x.id) === String(targetId) || String(x.sourceId || '') === String(targetId)) || (typeof events !== 'undefined' ? (events || []).find(x => String(x.id) === String(targetId)) : null);
+     if (targetEv && targetEv.date && typeof parseDate === 'function') {
+       selected = parseDate(targetEv.date);
+     }
      if (typeof renderCalendar === 'function') renderCalendar();
      setTimeout(() => {
-       const ev = targetId && document.querySelector(`[data-event-id="${CSS.escape(targetId)}"]`);
+       const ev = targetId && (document.querySelector(`[data-event-id="${CSS.escape(targetId)}"]`) || document.querySelector(`[data-edit-event="${CSS.escape(targetId)}"]`) || (targetEv?.date && document.querySelector(`[data-date="${targetEv.date}"]`)));
        if (ev) {
          ev.scrollIntoView({ behavior: 'smooth', block: 'center' });
          ev.classList.add('chronos-notice-target');
