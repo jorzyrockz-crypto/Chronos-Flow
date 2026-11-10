@@ -1375,14 +1375,16 @@ html[data-motion="off"] .anim-bauble {
 .journey-card.task-card.modern-task-card {
   position: relative !important;
   border-radius: 22px !important;
-  padding: 20px 22px 18px !important;
+  padding: 22px 24px 20px !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  gap: 15px !important;
+  align-items: stretch !important;
+  gap: 16px !important;
+  width: 100% !important;
   background: var(--surface) !important;
   border: 1px solid var(--line) !important;
-  box-shadow: 0 16px 36px rgba(18, 28, 45, 0.07), 0 2px 8px rgba(18, 28, 45, 0.04) !important;
+  box-shadow: 0 12px 32px rgba(18, 28, 45, 0.05), 0 2px 6px rgba(18, 28, 45, 0.03) !important;
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.24s ease !important;
   min-width: 0 !important;
   cursor: pointer !important;
@@ -1393,9 +1395,14 @@ html[data-motion="off"] .anim-bauble {
 #tasksPage .task-card:hover,
 .modern-task-card:hover,
 .journey-card.task-card.modern-task-card:hover {
-  transform: translateY(-3.5px) !important;
-  box-shadow: 0 24px 50px rgba(18, 28, 45, 0.12), 0 4px 12px rgba(18, 28, 45, 0.06) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 20px 42px rgba(18, 28, 45, 0.1), 0 4px 12px rgba(18, 28, 45, 0.05) !important;
   border-color: color-mix(in srgb, var(--accent) 35%, var(--line)) !important;
+}
+
+#tasksPage .task-card.team-assigned-task {
+  border-left: 1px solid var(--line) !important;
+  background: var(--surface) !important;
 }
 
 html[data-theme="dark"] .modern-task-card,
@@ -1733,11 +1740,16 @@ html[data-theme="dark"] .facepile-overflow {
 }
 
 /* Bottom Progress Track & Metrics */
-.card-bottom-group {
+.card-bottom-group,
+.modern-task-card .card-bottom-group,
+#tasksPage .task-card .card-bottom-group,
+.journey-card.task-card.modern-task-card .card-bottom-group {
+  width: 100% !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
-  margin-top: 4px !important;
+  gap: 9px !important;
+  margin-top: 2px !important;
+  box-sizing: border-box !important;
 }
 
 .modern-task-card .progress-track,
@@ -1749,6 +1761,7 @@ html[data-theme="dark"] .facepile-overflow {
   overflow: hidden !important;
   position: relative !important;
   background: rgba(148, 163, 184, 0.18) !important;
+  box-sizing: border-box !important;
 }
 html[data-theme="dark"] .modern-task-card .progress-track,
 html[data-theme="dark"] #tasksPage .task-card .progress-track,
@@ -1771,37 +1784,44 @@ html[data-theme="dark"] .journey-card.task-card.modern-task-card .progress-track
 .modern-task-card .metrics-row,
 #tasksPage .task-card .metrics-row,
 .journey-card.task-card.modern-task-card .metrics-row {
+  width: 100% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  font-size: 12px !important;
+  font-size: 12.5px !important;
   line-height: 1.2 !important;
-  color: var(--muted) !important;
+  color: #9ca3af !important;
+  box-sizing: border-box !important;
+}
+
+.modern-task-card .ratio-label,
+#tasksPage .task-card .ratio-label,
+.journey-card.task-card.modern-task-card .ratio-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  color: #9ca3af !important;
+  font-weight: 500 !important;
 }
 
 .modern-task-card .ratio-label strong,
 #tasksPage .task-card .ratio-label strong,
 .journey-card.task-card.modern-task-card .ratio-label strong {
   font-weight: 750 !important;
-  color: var(--text) !important;
+  color: var(--text, #111827) !important;
 }
 
 .modern-task-card .percentage-label,
 #tasksPage .task-card .percentage-label,
 .journey-card.task-card.modern-task-card .percentage-label {
-  font-weight: 700 !important;
-  color: var(--text) !important;
+  font-weight: 750 !important;
+  color: var(--text, #111827) !important;
+  margin-left: auto !important;
 }
 
 /* Card Actions Row (Schedule, Edit, Delete) */
 .card-actions-strip {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  padding-top: 8px !important;
-  border-top: 1px dashed var(--line) !important;
-  margin-top: 4px !important;
+  display: none !important;
 }
 
 /* Free Time Gap Slots Between Meetings */
@@ -9086,7 +9106,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
 <div id="chronosInAppAlert" class="chronos-inapp-alert hidden" role="alert" aria-live="assertive"><div class="chronos-inapp-alert-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div><div class="chronos-inapp-alert-content"><strong id="chronosInAppAlertTitle">Reminder</strong><p id="chronosInAppAlertBody"></p></div><button type="button" class="chronos-inapp-alert-close" id="chronosInAppAlertClose" aria-label="Close notification"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
 <div class="modal-backdrop hidden" id="chronosConfirmBackdrop" role="presentation"><section class="modal chronos-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chronosConfirmTitle"><div class="chronos-confirm-body"><div class="chronos-confirm-icon-wrap" id="chronosConfirmIconWrap"><span id="chronosConfirmIcon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="alert-triangle"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span></div><div><h3 id="chronosConfirmTitle">Are you sure?</h3><p id="chronosConfirmMessage">This action cannot be undone.</p></div></div><div class="chronos-confirm-actions"><button type="button" class="btn" id="chronosConfirmCancel">Cancel</button><button type="button" class="btn primary" id="chronosConfirmOk">Confirm</button></div></section></div>
 <div class="modal-backdrop hidden" id="chronosPromptBackdrop" role="presentation"><section class="modal chronos-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chronosPromptTitle"><div class="chronos-confirm-body"><div class="chronos-confirm-icon-wrap info"><span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="clipboard"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></span></div><div style="flex:1;min-width:0"><h3 id="chronosPromptTitle">Notice</h3><p id="chronosPromptMessage" style="margin-bottom:12px"></p><div style="display:flex;gap:8px"><input type="text" id="chronosPromptInput" style="flex:1;width:100%;border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:9px 12px;color:var(--text);font-size:13px"><button type="button" class="btn" id="chronosPromptCopyBtn" title="Copy to clipboard">Copy</button></div></div></div><div class="chronos-confirm-actions"><button type="button" class="btn" id="chronosPromptCancel">Close</button><button type="button" class="btn primary" id="chronosPromptOk">Done</button></div></section></div>
-<div class="modal-backdrop hidden" id="teamTaskEditBackdrop" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="teamTaskEditTitle"><div class="modal-head"><div><h3 id="teamTaskEditTitle">Edit shared team task</h3><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Updates will sync live to the team workspace.</p></div><button class="close" id="teamTaskEditClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><form id="teamTaskEditForm" class="form"><input type="hidden" id="teamTaskEditTeamId"><input type="hidden" id="teamTaskEditId"><div class="field full"><label for="teamTaskEditTitleInput">Title</label><input id="teamTaskEditTitleInput" required maxlength="140"></div><div class="field"><label for="teamTaskEditDueInput">Due date</label><input id="teamTaskEditDueInput" type="date"></div><div class="field"><label for="teamTaskEditStatusInput">Status</label><select id="teamTaskEditStatusInput"><option value="open">To do</option><option value="in-progress">In progress</option><option value="done">Completed</option></select></div><div class="field full"><label for="teamTaskEditDetailsInput">Details / Instructions</label><textarea id="teamTaskEditDetailsInput" maxlength="5000" rows="4"></textarea></div><div class="modal-actions"><button class="btn" id="teamTaskEditCancel" type="button">Cancel</button><div class="spacer"></div><button class="btn primary" type="submit">Save changes</button></div></form></section></div>
+<div class="modal-backdrop hidden" id="teamTaskEditBackdrop" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="teamTaskEditTitle"><div class="modal-head"><div><h3 id="teamTaskEditTitle">Edit shared team task</h3><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Updates will sync live to the team workspace.</p></div><button class="close" id="teamTaskEditClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><form id="teamTaskEditForm" class="form"><input type="hidden" id="teamTaskEditTeamId"><input type="hidden" id="teamTaskEditId"><div class="field full"><label for="teamTaskEditTitleInput">Title</label><input id="teamTaskEditTitleInput" required maxlength="140"></div><div class="field"><label for="teamTaskEditDueInput">Due date</label><input id="teamTaskEditDueInput" type="date"></div><div class="field"><label for="teamTaskEditStatusInput">Status</label><select id="teamTaskEditStatusInput"><option value="open">To do</option><option value="in-progress">In progress</option><option value="done">Completed</option></select></div><div class="field full"><label for="teamTaskEditDetailsInput">Details / Instructions</label><textarea id="teamTaskEditDetailsInput" maxlength="5000" rows="4"></textarea></div><div class="modal-actions"><button class="btn danger" id="teamTaskEditDelete" type="button" style="margin-right:auto;">Delete task</button><button class="btn" id="teamTaskEditCancel" type="button">Cancel</button><button class="btn primary" type="submit">Save changes</button></div></form></section></div>
 <div class="modal-backdrop hidden" id="teamRecordEditBackdrop" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="teamRecordEditTitle"><div class="modal-head"><div><h3 id="teamRecordEditTitle">Edit shared team item</h3><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Updates will sync live across the team workspace.</p></div><button class="close" id="teamRecordEditClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><form id="teamRecordEditForm" class="form"><input type="hidden" id="teamRecordEditType"><input type="hidden" id="teamRecordEditId"><input type="hidden" id="teamRecordEditTeamId"><div class="field full"><label for="teamRecordEditTitleInput">Title</label><input id="teamRecordEditTitleInput" required maxlength="140"></div><div class="field" id="teamRecordEditDateFieldWrap"><label for="teamRecordEditDateInput" id="teamRecordEditDateLabel">Date</label><input id="teamRecordEditDateInput" type="date"></div><div class="field" id="teamRecordEditStatusFieldWrap"><label for="teamRecordEditStatusInput">Status</label><select id="teamRecordEditStatusInput"><option value="open">To do</option><option value="in-progress">In progress</option><option value="done">Completed</option></select></div><div class="field full" id="teamRecordEditAssigneeFieldWrap"><label for="teamRecordEditAssigneeInput">Assign to member</label><select id="teamRecordEditAssigneeInput"><option value="">Entire team / unassigned</option></select></div><div class="field full"><label for="teamRecordEditBodyInput" id="teamRecordEditBodyLabel">Details / Plan</label><textarea id="teamRecordEditBodyInput" maxlength="12000" rows="5"></textarea></div><div class="modal-actions"><button class="btn" id="teamRecordEditCancel" type="button">Cancel</button><div class="spacer"></div><button class="btn primary" type="submit">Save changes</button></div></form></section></div>
 <div id="mediaViewer" class="media-viewer hidden" role="dialog" aria-modal="true" aria-label="Media viewer"><div class="media-viewer-head"><strong id="mediaViewerTitle">Preview</strong><div class="media-viewer-tools"><button class="btn" id="mediaRotateBtn" type="button" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Rotate</button><button class="btn" id="mediaAnnotateBtn" type="button" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Annotate</button><button class="btn" id="mediaOcrBtn" type="button">Read text (OCR)</button><button class="btn" id="mediaViewerDownload" type="button">Download</button><button class="btn" id="mediaViewerClose" type="button"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div></div><div class="media-viewer-stage" id="mediaViewerStage"></div><div class="media-viewer-foot"><label>Caption <input id="mediaCaptionInput" placeholder="Add a caption for this photo…" maxlength="240"></label><button class="btn primary" id="mediaCaptionSave" type="button">Save caption</button><span id="mediaOcrStatus" class="muted-label"></span></div></div>
 <div id="storageManager" class="media-viewer hidden" role="dialog" aria-modal="true" aria-label="Media storage manager"><div class="media-viewer-head"><strong>Media storage</strong><button class="btn" id="storageClose" type="button">Close</button></div><div class="storage-manager-body"><div class="storage-summary"><div><span>Stored media</span><strong id="storageCount">0 files</strong></div><div><span>Estimated usage</span><strong id="storageBytes">0 B</strong></div></div><div class="storage-meter"><span id="storageMeterFill"></span></div><p class="muted-label">Usage is estimated from files stored in this browser. Browser quotas vary by device. Export a full backup before clearing media.</p><div id="storageItems" class="storage-items"></div><div class="media-viewer-tools"><button class="btn" id="storageExportBtn" type="button">Export full backup</button><button class="btn danger" id="storageClearBtn" type="button">Clear all media…</button></div></div></div>
@@ -19434,7 +19454,7 @@ function renderOverviewHorizon(options = {}){
           <div class="card-top-row">
             <div class="card-title-group" data-preview-task="${esc(t.taskId)}">
               <h3 class="card-title">${esc(t.title)}</h3>
-              <span class="card-due-date ${!isDone && t.due && t.due < todayKey ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}</span>
+              <span class="card-due-date ${!isDone && t.due && t.due < todayKey ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}${t.projectName ? ` · ${esc(t.projectName)}` : ''}</span>
             </div>
             <div class="card-brand-mark" style="background:${brand.bg};" title="${esc(brand.title)}">
               ${brand.svg}
@@ -19462,19 +19482,6 @@ function renderOverviewHorizon(options = {}){
             <div class="metrics-row">
               <span class="ratio-label"><strong>${ratioDone}</strong> / ${ratioTotal} Total Tasks</span>
               <span class="percentage-label">${stPct}%</span>
-            </div>
-          </div>
-
-          ${checklistHtml}
-
-          <div class="card-actions-strip">
-            <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
-              ${t.projectName ? `<span class="horizon-tag clickable" data-preview-project="${esc(t.projectId)}" style="cursor:pointer" title="View project overview">${getLucideSvg('folder', 12)} ${esc(t.projectName)}</span>` : ''}
-              ${assignedBadgeHtml}
-              ${recentBadgeHtml}
-            </div>
-            <div style="display:inline-flex;align-items:center;gap:6px;">
-              <button type="button" class="journey-card-menu-btn" data-calendar-task="${esc(t.taskId)}" title="Edit task">···</button>
             </div>
           </div>
         </div>
@@ -20463,12 +20470,16 @@ function renderTasks(){
       fillClass = 'fill-cyan';
     }
 
+    const proj=(typeof projectFor==='function'?projectFor(t.projectId):null)||(chronosProjects||[]).find(p=>String(p.id)===String(t.projectId));
+    const projName = proj ? proj.name : (t.projectName || '');
+    const subtitle = formattedDue ? `Due Date: ${formattedDue}${projName ? ` · ${projName}` : ''}` : (projName ? `Project · ${projName}` : 'No due date');
+
     return `
       <article class="task-card modern-task-card ${t.done?'completed':''} ${overdue?'is-overdue':''}" data-preview-task="${esc(t.id)}">
         <div class="card-top-row">
           <div class="card-title-group" data-edit-task="${esc(t.id)}">
             <h3 class="card-title">${esc(t.title || 'Untitled task')}</h3>
-            <span class="card-due-date ${overdue ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}</span>
+            <span class="card-due-date ${overdue ? 'is-overdue' : ''}">${esc(subtitle)}</span>
           </div>
           <div class="card-brand-mark" style="background:${brand.bg};" title="${esc(brand.title)}">
             ${brand.svg}
@@ -20497,53 +20508,11 @@ function renderTasks(){
             <span class="percentage-label">${progressPct}%</span>
           </div>
         </div>
-
-        ${subs.length ? `
-          <div class="task-subtasks" style="margin-top:4px;border-top:1px dashed var(--line);padding-top:8px;">
-            ${subs.map((st,i)=>`
-              <label class="task-subtask ${st.done?'done':''}">
-                <input type="checkbox" data-subtask-task="${esc(t.id)}" data-subtask-index="${i}" ${st.done?'checked':''}>
-                <span>${esc(st.title)}</span>
-              </label>
-            `).join('')}
-          </div>
-        ` : ''}
-
-        <div class="card-actions-strip">
-          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
-            <span class="priority ${esc(t.priority||'medium')}">${esc(t.priority||'medium')}</span>
-            ${t.recurrence&&t.recurrence!=='none'?`<span>${getLucideSvg('refresh-cw', 11)} ${esc(t.recurrence)}</span>`:''}
-            ${t.reminder&&t.reminder!=='none'?`<span>${getLucideSvg('bell', 11)} Reminder</span>`:''}
-            ${t.linkedNoteId&&notes.some(n=>n.id===t.linkedNoteId&&!n.trashed)?`<button type="button" class="text-btn" data-preview-note="${esc(t.linkedNoteId)}" data-edit-note="${esc(t.linkedNoteId)}">${getLucideSvg('file-text', 11)} Linked note</button>`:''}
-          </div>
-          <div style="display:inline-flex;align-items:center;gap:6px;">
-            <button type="button" class="task-open" data-schedule-task="${esc(t.id)}" aria-label="Schedule task as event" title="Schedule as event">${getLucideSvg('calendar', 13)}</button>
-            <button type="button" class="task-open" data-edit-task="${esc(t.id)}" data-force-edit="true" aria-label="Edit task" title="Edit task">•••</button>
-          </div>
-        </div>
       </article>
     `;
   }).join('');
  const teamHtml=assigned.map(t=>{
    const due=t.due||t.date||'',done=!!t.done||t.status==='done',overdue=!done&&due&&due<todayKey,teamName=t.teamName||chronosTeams.find(x=>x.id===t.teamId)?.name||'Team';
-   const myUid=firebaseUser?String(firebaseUser.uid||''):'';
-   const myEmail=firebaseUser?String(firebaseUser.email||'').trim().toLowerCase():'';
-   const isAssignedToMe=!!(myUid&&((t.assigneeUid&&String(t.assigneeUid)===myUid)||(Array.isArray(t.assigneeUids)&&t.assigneeUids.some(u=>String(u)===myUid))||(t.assigneeEmail&&String(t.assigneeEmail).toLowerCase()===myEmail)));
-   const isCreator=!!(myUid&&String(t.createdBy||'')===myUid);
-   const canManage=isTeamAdmin()||isCreator;
-   let assignLabel='Team task';
-   if(isAssignedToMe&&isCreator){
-    assignLabel='Created & assigned to you';
-   }else if(isAssignedToMe){
-    assignLabel='Assigned to you';
-   }else if(t.assigneeName&&t.assigneeName!=='Unassigned'){
-    assignLabel=`Assigned to ${esc(t.assigneeName)}`;
-   }else if(isCreator){
-    assignLabel='Created by you';
-   }else if(t.createdByName){
-    assignLabel=`By ${esc(t.createdByName)}`;
-   }
-
    const subs=Array.isArray(t.subtasks)?t.subtasks:[];
    const stTotal=subs.length;
    const stDone=subs.filter(s=>s.done).length;
@@ -20571,19 +20540,14 @@ function renderTasks(){
      fillClass = 'fill-red';
    }
 
-   const actionsHtml=canManage?`
-     <div class="team-assigned-actions" style="display:inline-flex;gap:6px;">
-       <button type="button" class="btn" data-team-assigned-edit="${esc(t.teamId)}|${esc(t.id)}" style="height:26px;padding:0 8px;font-size:10.5px" title="Edit shared task">Edit</button>
-       <button type="button" class="btn danger" data-team-assigned-delete="${esc(t.teamId)}|${esc(t.id)}" style="height:26px;padding:0 8px;font-size:10.5px" title="Delete shared task">Delete</button>
-     </div>
-   `:'';
+   const subtitle = formattedDue ? `Due Date: ${formattedDue}${teamName ? ` · ${teamName}` : ''}` : (teamName ? `Team · ${teamName}` : 'No due date');
 
    return `
       <article class="task-card modern-task-card team-assigned-task ${done?'completed':''} ${overdue?'is-overdue':''}" data-preview-task="${esc(t.id)}">
         <div class="card-top-row">
-          <div class="card-title-group" data-edit-task="${esc(t.id)}">
+          <div class="card-title-group" data-team-assigned-edit="${esc(t.teamId)}|${esc(t.id)}" style="cursor:pointer;" title="Click to view or edit team task">
             <h3 class="card-title">${esc(t.title || 'Untitled team task')}</h3>
-            <span class="card-due-date ${overdue ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}</span>
+            <span class="card-due-date ${overdue ? 'is-overdue' : ''}">${esc(subtitle)}</span>
           </div>
           <div class="card-brand-mark" style="background:${brand.bg};" title="${esc(brand.title)}">
             ${brand.svg}
@@ -20594,17 +20558,12 @@ function renderTasks(){
           <div class="facepile-stack" title="${esc(facepile.tooltip)}">
             ${facepile.html}
           </div>
-          <div class="card-status-wrap" style="display:inline-flex;align-items:center;gap:6px;">
+          <div class="card-status-wrap">
             <input class="task-check" id="teamchk_${esc(t.teamId)}_${esc(t.id)}" type="checkbox" data-team-assigned-done="${esc(t.teamId)}|${esc(t.id)}" ${done?'checked':''} style="position:absolute;opacity:0;pointer-events:none;" aria-label="Complete shared task ${esc(t.title||'')}">
             <label for="teamchk_${esc(t.teamId)}_${esc(t.id)}" class="status-indicator status-${statusClass}" title="Click to toggle status">
               <span class="status-dot"></span>
               <span>${statusLabel}</span>
             </label>
-            <select class="record-status" data-team-assigned-status="${esc(t.teamId)}|${esc(t.id)}" aria-label="Update shared task status" style="font-size:10.5px;padding:2px 6px;border-radius:6px;height:24px;">
-              <option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option>
-              <option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option>
-              <option value="done" ${done?'selected':''}>Completed</option>
-            </select>
           </div>
         </div>
 
@@ -20616,25 +20575,6 @@ function renderTasks(){
             <span class="ratio-label"><strong>${ratioDone}</strong> / ${ratioTotal} Total Tasks</span>
             <span class="percentage-label">${progressPct}%</span>
           </div>
-        </div>
-
-        ${subs.length ? `
-          <div class="task-subtasks" style="margin-top:4px;border-top:1px dashed var(--line);padding-top:8px;">
-            ${subs.map((st,i)=>`
-              <label class="task-subtask ${st.done?'done':''}">
-                <input type="checkbox" data-subtask-task="${esc(t.id)}" data-subtask-index="${i}" ${st.done?'checked':''}>
-                <span>${esc(st.title)}</span>
-              </label>
-            `).join('')}
-          </div>
-        ` : ''}
-
-        <div class="card-actions-strip">
-          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
-            <span class="note-chip">${getLucideSvg('users', 11)} ${esc(teamName)}</span>
-            <span>${esc(assignLabel)}</span>
-          </div>
-          ${actionsHtml}
         </div>
       </article>
     `;
@@ -20676,6 +20616,16 @@ function openTeamTaskEditor(teamId,id){
  $('teamTaskEditDueInput').value=task.due||task.date||'';
  $('teamTaskEditStatusInput').value=task.status||(task.done?'done':'open');
  $('teamTaskEditDetailsInput').value=task.details||task.body||'';
+ const myUid=firebaseUser?String(firebaseUser.uid||''):'';
+ const isCreator=!!(myUid&&String(task.createdBy||'')===myUid);
+ const canManage=isTeamAdmin()||isCreator;
+ if($('teamTaskEditDelete')){
+   $('teamTaskEditDelete').style.display=canManage?'inline-flex':'none';
+   $('teamTaskEditDelete').onclick=async()=>{
+     $('teamTaskEditBackdrop').classList.add('hidden');
+     await deleteTeamAssignedTask(teamId,id);
+   };
+ }
  $('teamTaskEditBackdrop').classList.remove('hidden');
  setTimeout(()=>$('teamTaskEditTitleInput').focus(),40);
 }
