@@ -2815,27 +2815,22 @@ html[data-theme="dark"] .team-action-btn.primary{background:var(--accent);border
    CHRONOS EDGE-TO-EDGE TOPBAR & RESPONSIVE APP SHELL
    Spans 100% viewport width while keeping page content centered
    ========================================================= */
-html, body {
+html, body, .app {
   width: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  scrollbar-gutter: stable;
+  scrollbar-width: none !important; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none !important; /* Hide scrollbar for IE/Edge */
 }
-/* Sleek floating overlay scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted) 28%, transparent);
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--muted) 50%, transparent);
+/* Completely hide root and window scrollbars across Chromium/Safari/Edge */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.app::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 .app {
   width: 100% !important;
