@@ -11437,10 +11437,12 @@ function openNote(id=null){
 }
 function movePeriod(delta,animate=true){if(view==='month')selected=new Date(selected.getFullYear(),selected.getMonth()+delta,Math.min(selected.getDate(),28),12);else if(view==='week')selected.setDate(selected.getDate()+delta*7);else if(view==='day')selected.setDate(selected.getDate()+delta);else selected=new Date(selected.getFullYear(),selected.getMonth()+delta,1,12);render();if(animate&&delta!==0){applyCalendarSlideAnimation(delta>0?'next':'prev')}}
 function applyCalendarSlideAnimation(direction){if(settings.motion==='off'||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const canvas=$('calendarCanvas');if(!canvas)return;canvas.classList.remove('calendar-slide-next','calendar-slide-prev');void canvas.offsetWidth;canvas.classList.add(direction==='next'?'calendar-slide-next':'calendar-slide-prev');if(navigator.vibrate)try{navigator.vibrate(15)}catch{}setTimeout(()=>{canvas.classList.remove('calendar-slide-next','calendar-slide-prev')},300)}
-async function handleClick(e){const dateBtn=e.target.closest('[data-date]');if(dateBtn){if(window._dateLongPressFired){window._dateLongPressFired=false;return}selected=parseDate(dateBtn.dataset.date);render();return}const edit=e.target.closest('[data-edit-event]');if(edit){if(e.target.closest('.journey-card-menu-btn')||edit.dataset.forceEdit){openEvent(edit.dataset.editEvent)}else{openItemPreview('event',edit.dataset.editEvent)}return}const del=e.target.closest('[data-delete-event]');if(del){const ok=await confirmCustomInApp('Delete this event from your calendar?',{title:'Delete Event',confirmText:'Delete',danger:true});if(ok){const delId=del.dataset.deleteEvent;recordLocalTombstone('events',delId);const targetEv=(events||[]).find(e=>String(e.id)===String(delId));deleteCloudDocumentDirectly('events',delId,targetEv?.teamId);events=events.filter(x=>String(x.id)!==String(delId));persist();render();notify('Event deleted.')}return}const forceEditNote=e.target.closest('[data-force-edit-note]');if(forceEditNote){openNote(forceEditNote.dataset.forceEditNote);return}const note=e.target.closest('[data-edit-note], [data-preview-note]');if(note&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){const nId=note.dataset.previewNote||note.dataset.editNote||note.dataset.noteId;if(note.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}}
-document.addEventListener('click',handleClick);
+// --- Calendar Cell Gestures: Left Double-Click, Double Right-Click, Touch Double-Tap & Long-Press to Trigger Add Event Modal ---
+let dateCellLastClickTime = 0;
+let dateCellLastClickDate = null;
+let dateCellLastRightClickTime = 0;
+let dateCellLastRightClickDate = null;
 
-// Calendar Day Cell: Double-Click, Touch Double-Tap & Long-Press to Trigger Add Event Modal
 let dateLongPressTimer = null;
 let dateLongPressStartX = 0;
 let dateLongPressStartY = 0;
@@ -11448,8 +11450,93 @@ let dateLastTapTime = 0;
 let dateLastTapDate = null;
 window._dateLongPressFired = false;
 
+function triggerCalendarAddEvent(targetDate, sourceEl = null) {
+  if (!targetDate) return;
+  if (sourceEl) {
+    sourceEl.classList.add('date-cell-pressed');
+    setTimeout(() => sourceEl.classList.remove('date-cell-pressed'), 350);
+  }
+  if (navigator.vibrate) try { navigator.vibrate(35); } catch(err){}
+  if (typeof playInterfaceSound === 'function') try { playInterfaceSound(); } catch(err){}
+  if (typeof parseDate === 'function') selected = parseDate(targetDate);
+  if (typeof render === 'function') render();
+  if (typeof openEvent === 'function') openEvent(null, targetDate);
+}
+
+async function handleClick(e){
+  const dateBtn = e.target.closest('[data-date]');
+  if(dateBtn){
+    if(e.target.closest('[data-edit-event], [data-calendar-task], [data-delete-event], .event-chip, .project-task-chip, a, button:not([data-date])')) return;
+    if(window._dateLongPressFired){
+      window._dateLongPressFired = false;
+      return;
+    }
+    const targetDate = dateBtn.dataset.date;
+    if (!targetDate) return;
+
+    const now = Date.now();
+    const isDoubleClick = (dateCellLastClickDate === targetDate && (now - dateCellLastClickTime) < 450);
+
+    dateCellLastClickDate = targetDate;
+    dateCellLastClickTime = now;
+
+    if (isDoubleClick) {
+      dateCellLastClickDate = null;
+      dateCellLastClickTime = 0;
+      triggerCalendarAddEvent(targetDate, dateBtn);
+      return;
+    }
+
+    selected = parseDate(targetDate);
+    render();
+    return;
+  }
+  const edit = e.target.closest('[data-edit-event]');
+  if(edit){
+    if(e.target.closest('.journey-card-menu-btn')||edit.dataset.forceEdit){
+      openEvent(edit.dataset.editEvent);
+    } else {
+      openItemPreview('event',edit.dataset.editEvent);
+    }
+    return;
+  }
+  const del = e.target.closest('[data-delete-event]');
+  if(del){
+    const ok = await confirmCustomInApp('Delete this event from your calendar?',{title:'Delete Event',confirmText:'Delete',danger:true});
+    if(ok){
+      const delId = del.dataset.deleteEvent;
+      recordLocalTombstone('events',delId);
+      const targetEv = (events||[]).find(e=>String(e.id)===String(delId));
+      if(targetEv?.sharedTeamIds && targetEv.sharedTeamIds.length){
+        targetEv.sharedTeamIds.forEach(tId => deleteCloudDocumentDirectly('events', delId, tId));
+      }
+      deleteCloudDocumentDirectly('events',delId,targetEv?.teamId);
+      events = events.filter(x=>String(x.id)!==String(delId));
+      persist();
+      render();
+      notify('Event deleted.');
+    }
+    return;
+  }
+  const forceEditNote = e.target.closest('[data-force-edit-note]');
+  if(forceEditNote){
+    openNote(forceEditNote.dataset.forceEditNote);
+    return;
+  }
+  const note = e.target.closest('[data-edit-note], [data-preview-note]');
+  if(note&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){
+    const nId = note.dataset.previewNote||note.dataset.editNote||note.dataset.noteId;
+    if(note.dataset.forceEdit){
+      openNote(nId);
+    } else {
+      openItemPreview('note',nId);
+    }
+    return;
+  }
+}
+document.addEventListener('click',handleClick);
+
 document.addEventListener('pointerdown', e => {
-  if (e.button !== undefined && e.button !== 0) return;
   const dateBtn = e.target.closest('[data-date]');
   if (!dateBtn) return;
   if (e.target.closest('[data-edit-event], [data-calendar-task], [data-delete-event], .event-chip, .project-task-chip, a, button:not([data-date])')) return;
@@ -11457,40 +11544,51 @@ document.addEventListener('pointerdown', e => {
   const targetDate = dateBtn.dataset.date;
   if (!targetDate) return;
 
-  // Touch double-tap detection (<350ms on same date cell)
   const now = Date.now();
-  if (e.pointerType === 'touch' && dateLastTapDate === targetDate && (now - dateLastTapTime) < 350) {
+
+  // Right mouse button (e.button === 2) - Double Right Click detection on pointerdown
+  if (e.button === 2) {
+    if (dateCellLastRightClickDate === targetDate && (now - dateCellLastRightClickTime) < 550) {
+      dateCellLastRightClickTime = 0;
+      dateCellLastRightClickDate = null;
+      window._dateLongPressFired = true;
+      e.preventDefault();
+      triggerCalendarAddEvent(targetDate, dateBtn);
+      return;
+    }
+    dateCellLastRightClickDate = targetDate;
+    dateCellLastRightClickTime = now;
+    return;
+  }
+
+  // Touch fast double-tap detection (<380ms)
+  if (e.pointerType === 'touch' && dateLastTapDate === targetDate && (now - dateLastTapTime) < 380) {
     clearTimeout(dateLongPressTimer);
     dateLongPressTimer = null;
     dateLastTapTime = 0;
     dateLastTapDate = null;
     window._dateLongPressFired = true;
     e.preventDefault();
-    if (navigator.vibrate) try { navigator.vibrate(25); } catch(err){}
-    selected = parseDate(targetDate);
-    if (typeof render === 'function') render();
-    if (typeof openEvent === 'function') openEvent(null, targetDate);
+    triggerCalendarAddEvent(targetDate, dateBtn);
     return;
   }
-  dateLastTapTime = now;
-  dateLastTapDate = targetDate;
+  if (e.pointerType === 'touch') {
+    dateLastTapTime = now;
+    dateLastTapDate = targetDate;
+  }
 
-  // Initiate long-press (450ms)
-  dateLongPressStartX = e.clientX;
-  dateLongPressStartY = e.clientY;
-  window._dateLongPressFired = false;
+  // Long-press timer (450ms) for primary left click or touch
+  if (e.button === 0) {
+    dateLongPressStartX = e.clientX;
+    dateLongPressStartY = e.clientY;
+    window._dateLongPressFired = false;
 
-  clearTimeout(dateLongPressTimer);
-  dateLongPressTimer = setTimeout(() => {
-    window._dateLongPressFired = true;
-    if (navigator.vibrate) try { navigator.vibrate(45); } catch(err){}
-    if (typeof playInterfaceSound === 'function') try { playInterfaceSound(); } catch(err){}
-    dateBtn.classList.add('date-cell-pressed');
-    setTimeout(() => dateBtn.classList.remove('date-cell-pressed'), 350);
-    selected = parseDate(targetDate);
-    if (typeof render === 'function') render();
-    if (typeof openEvent === 'function') openEvent(null, targetDate);
-  }, 450);
+    clearTimeout(dateLongPressTimer);
+    dateLongPressTimer = setTimeout(() => {
+      window._dateLongPressFired = true;
+      triggerCalendarAddEvent(targetDate, dateBtn);
+    }, 450);
+  }
 }, { passive: false });
 
 document.addEventListener('pointermove', e => {
@@ -11522,12 +11620,41 @@ document.addEventListener('pointercancel', () => {
   window._dateLongPressFired = false;
 }, { passive: true });
 
+// Contextmenu listener: handles right-click & double right-click on calendar cells
 document.addEventListener('contextmenu', e => {
-  if (window._dateLongPressFired || (e.target.closest('[data-date]') && dateLongPressTimer)) {
-    e.preventDefault();
+  const dateBtn = e.target.closest('[data-date]');
+  if (!dateBtn) return;
+  if (e.target.closest('[data-edit-event], [data-calendar-task], [data-delete-event], .event-chip, .project-task-chip, a, button:not([data-date])')) return;
+
+  // Suppress default browser context menu on calendar cells
+  e.preventDefault();
+  e.stopPropagation();
+
+  const targetDate = dateBtn.dataset.date;
+  if (!targetDate) return;
+
+  const now = Date.now();
+  const isDoubleRight = (dateCellLastRightClickDate === targetDate && (now - dateCellLastRightClickTime) < 550);
+
+  dateCellLastRightClickDate = targetDate;
+  dateCellLastRightClickTime = now;
+
+  selected = parseDate(targetDate);
+  if (typeof render === 'function') render();
+
+  if (isDoubleRight) {
+    dateCellLastRightClickTime = 0;
+    dateCellLastRightClickDate = null;
+    triggerCalendarAddEvent(targetDate, dateBtn);
+  } else {
+    // Single right-click visual confirmation & selection
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch(err){}
+    dateBtn.classList.add('date-cell-pressed');
+    setTimeout(() => dateBtn.classList.remove('date-cell-pressed'), 250);
   }
 });
 
+// Fallback native dblclick listener
 document.addEventListener('dblclick', e => {
   const dateBtn = e.target.closest('[data-date]');
   if (!dateBtn) return;
@@ -11538,9 +11665,9 @@ document.addEventListener('dblclick', e => {
 
   e.preventDefault();
   e.stopPropagation();
-  selected = parseDate(targetDate);
-  if (typeof render === 'function') render();
-  if (typeof openEvent === 'function') openEvent(null, targetDate);
+  dateCellLastClickDate = null;
+  dateCellLastClickTime = 0;
+  triggerCalendarAddEvent(targetDate, dateBtn);
 });document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.id==='previewSound'||b.id==='previewSuccess'||b.matches('[data-page]'))return;if(b.type==='submit')return;playInterfaceSound()},{passive:true});
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;toggleMonthPicker(false);renderCalendar()}));
