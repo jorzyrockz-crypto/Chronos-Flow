@@ -17362,10 +17362,13 @@ function getHorizonItemsFor(dateKey){
     ...(typeof teamAssignedTasks !== 'undefined' ? (teamAssignedTasks || []) : [])
   ];
   const seenTaskKeys = new Set();
+  const seenTaskIds = new Set();
   const uniqueTasks = allTasksPool.filter(t => {
-    const k = String(t.teamId || '') + '|' + String(t.id || '');
-    if (seenTaskKeys.has(k)) return false;
+    const id = String(t.id || '');
+    const k = String(t.teamId || '') + '|' + id;
+    if (!id || seenTaskKeys.has(k) || seenTaskIds.has(id)) return false;
     seenTaskKeys.add(k);
+    seenTaskIds.add(id);
     return true;
   });
   const tsks = uniqueTasks.filter(t => (t.due === dateKey || t.date === dateKey)).map(t => {
@@ -19218,26 +19221,87 @@ function renderTasks(){
  const todayKey=iso(today);
  const matchesFilter=(done,due,isTeam=false)=>{if(taskFilter==='team')return isTeam;if(taskFilter==='done')return done;if(taskFilter==='open')return !done;if(taskFilter==='today')return !done&&due===todayKey;if(taskFilter==='upcoming')return !done&&due&&due>todayKey;if(taskFilter==='overdue')return !done&&due&&due<todayKey;return true};
  const isShowcaseDismissed=localStorage.getItem('chronos90.showcaseProjectDismissed')==='1';
- const personal=(taskFilter==='team'?[]:tasks.filter(t=>!t.isDeliverableSubmission&&!t.deliverableGroup&&!String(t.id).startsWith('task_mock_stem_cohort_')&&!(isShowcaseDismissed&&String(t.id).startsWith('task_mock_stem_'))&&matchesFilter(!!t.done,t.due||'',false)));
- // Canonicalize team assignments by team + Firestore record ID to avoid duplicates
- // when live listeners and optimistic local updates both contribute the same record.
+ // Canonicalize team assignments and shared project tasks
  const seenTeamTasks=new Set();
- const assigned=(teamAssignedTasks||[]).filter(t=>{
-   const key=String(t.teamId||'')+'|'+String(t.id||'');
-   if(!t.id||seenTeamTasks.has(key))return false;seenTeamTasks.add(key);
-   const done=!!t.done||t.status==='done',due=t.due||t.date||'';
-   return matchesFilter(done,due);
+ const seenTeamTaskIds=new Set();
+ const teamPool=[...(teamAssignedTasks||[])];
+
+ (tasks||[]).forEach(t=>{
+  if(!t||!t.id)return;
+  const proj=t.projectId?((typeof projectFor==='function'?projectFor(t.projectId):null)||(chronosProjects||[]).find(p=>String(p.id)===String(t.projectId))||((typeof sharedProjects!=='undefined'&&sharedProjects)||[]).find(p=>String(p.id)===String(t.projectId))):null;
+  const teamId=t.teamId||proj?.teamId;
+  const isShared=!!(teamId||t.teamShared||proj?.teamShared||proj?.sharedProject);
+  if(isShared){
+   const alreadyIn=teamPool.some(x=>String(x.id)===String(t.id));
+   if(!alreadyIn){
+    teamPool.push({
+     ...t,
+     teamId:teamId||activeTeamId||'',
+     teamName:t.teamName||proj?.teamName||(chronosTeams||[]).find(x=>x.id===teamId)?.name||'Team',
+     projectName:t.projectName||proj?.name||'',
+     teamShared:true,
+     status:t.status||(t.done?'done':'open'),
+     done:!!t.done||t.status==='done'
+    });
+   }
+  }
  });
+
+ const assigned=teamPool.filter(t=>{
+  const key=String(t.teamId||'')+'|'+String(t.id||'');
+  if(!t.id||seenTeamTasks.has(key)||seenTeamTaskIds.has(String(t.id)))return false;
+  seenTeamTasks.add(key);
+  seenTeamTaskIds.add(String(t.id));
+  const done=!!t.done||t.status==='done',due=t.due||t.date||'';
+  return matchesFilter(done,due,true);
+ });
+
+ const personal=(taskFilter==='team'?[]:(tasks||[]).filter(t=>{
+  if(!t||!t.id)return false;
+  if(t.isDeliverableSubmission||t.deliverableGroup)return false;
+  if(String(t.id).startsWith('task_mock_stem_cohort_'))return false;
+  if(isShowcaseDismissed&&String(t.id).startsWith('task_mock_stem_'))return false;
+  if(seenTeamTaskIds.has(String(t.id)))return false;
+  if(t.teamId||t.teamShared)return false;
+  if(t.projectId){
+   const proj=(typeof projectFor==='function'?projectFor(t.projectId):null)||(chronosProjects||[]).find(p=>String(p.id)===String(t.projectId))||((typeof sharedProjects!=='undefined'&&sharedProjects)||[]).find(p=>String(p.id)===String(t.projectId));
+   if(proj&&(proj.teamId||proj.teamShared||proj.sharedProject))return false;
+  }
+  return matchesFilter(!!t.done,t.due||'',false);
+ }));
+
  personal.sort((a,b)=>Number(a.done)-Number(b.done)||(a.due||'9999').localeCompare(b.due||'9999')||({urgent:0,high:1,medium:2,low:3}[a.priority]??2)-({urgent:0,high:1,medium:2,low:3}[b.priority]??2));
  assigned.sort((a,b)=>Number(!!a.done||a.status==='done')-Number(!!b.done||b.status==='done')||((a.due||a.date||'9999').localeCompare(b.due||b.date||'9999')));
  const personalHtml=personal.map(t=>{const overdue=!t.done&&t.due&&t.due<todayKey,subs=Array.isArray(t.subtasks)?t.subtasks:[];return `<article class="task-card ${t.done?'completed':''} ${overdue?'is-overdue':''}"><input class="task-check" type="checkbox" data-task-toggle="${esc(t.id)}" ${t.done?'checked':''} aria-label="Complete ${esc(t.title)}"><div class="task-row-main" data-edit-task="${esc(t.id)}"><strong>${esc(t.title)}</strong><p>${esc(t.details||'No additional details')}</p><div class="task-due">${t.due?`${overdue?'Overdue · ':''}Due ${esc(t.due)}${t.dueTime?' · '+esc(t.dueTime):''}`:'No due date'} · <span class="priority ${esc(t.priority||'medium')}">${esc(t.priority||'medium')}</span>${t.recurrence&&t.recurrence!=='none'?` · ${getLucideSvg('refresh-cw', 11)} ${esc(t.recurrence)}`:''}${t.reminder&&t.reminder!=='none'?` · ${getLucideSvg('bell', 11)} Reminder`:''}</div>${subs.length?`<div class="task-subtasks">${subs.map((st,i)=>`<label class="task-subtask ${st.done?'done':''}"><input type="checkbox" data-subtask-task="${esc(t.id)}" data-subtask-index="${i}" ${st.done?'checked':''}><span>${esc(st.title)}</span></label>`).join('')}</div>`:''}${t.linkedNoteId&&notes.some(n=>n.id===t.linkedNoteId&&!n.trashed)?`<button type="button" class="text-btn" data-preview-note="${esc(t.linkedNoteId)}" data-edit-note="${esc(t.linkedNoteId)}">${getLucideSvg('file-text', 11)} Linked note ${getLucideSvg('external-link', 10)}</button>`:''}</div><button class="task-open" data-schedule-task="${esc(t.id)}" aria-label="Schedule task as event" title="Schedule as event">${getLucideSvg('calendar', 12)}</button><button class="task-open" data-edit-task="${esc(t.id)}" data-force-edit="true" aria-label="Edit task">•••</button></article>`}).join('');
- const teamHtml=assigned.map(t=>{const due=t.due||t.date||'',done=!!t.done||t.status==='done',overdue=!done&&due&&due<todayKey,teamName=t.teamName||chronosTeams.find(x=>x.id===t.teamId)?.name||'Team';const isCreator=firebaseUser&&(String(t.createdBy||'')===String(firebaseUser.uid));const canManage=isTeamAdmin()||isCreator;const actionsHtml=canManage?`<div class="team-assigned-actions" style="display:flex;gap:7px;margin-top:8px"><button type="button" class="btn" data-team-assigned-edit="${esc(t.teamId)}|${esc(t.id)}" style="height:30px;padding:0 10px;font-size:11px" title="Edit shared task">Edit</button><button type="button" class="btn danger" data-team-assigned-delete="${esc(t.teamId)}|${esc(t.id)}" style="height:30px;padding:0 10px;font-size:11px" title="Delete shared task">Delete</button></div>`:'';return `<article class="task-card ${done?'completed':''} ${overdue?'is-overdue':''} team-assigned-task"><input class="task-check" type="checkbox" data-team-assigned-done="${esc(t.teamId)}|${esc(t.id)}" ${done?'checked':''} aria-label="Complete shared task ${esc(t.title||'')}" title="Update shared task status"><div class="task-row-main" data-edit-task="${esc(t.id)}" style="cursor:pointer"><strong>${esc(t.title||'Untitled team task')}</strong><p>${esc(t.details||t.body||'Shared team assignment')}</p><div class="task-due"><span class="note-chip">${getLucideSvg('users', 11)} ${esc(teamName)}</span> ${due?`· ${overdue?'Overdue · ':''}Due ${esc(due)}`:'· No due date'} · Assigned to you</div>${actionsHtml}</div><select class="record-status" data-team-assigned-status="${esc(t.teamId)}|${esc(t.id)}" aria-label="Update shared task status"><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${done?'selected':''}>Completed</option></select></article>`}).join('');
+ const teamHtml=assigned.map(t=>{
+  const due=t.due||t.date||'',done=!!t.done||t.status==='done',overdue=!done&&due&&due<todayKey,teamName=t.teamName||chronosTeams.find(x=>x.id===t.teamId)?.name||'Team';
+  const myUid=firebaseUser?String(firebaseUser.uid||''):'';
+  const myEmail=firebaseUser?String(firebaseUser.email||'').trim().toLowerCase():'';
+  const isAssignedToMe=!!(myUid&&((t.assigneeUid&&String(t.assigneeUid)===myUid)||(Array.isArray(t.assigneeUids)&&t.assigneeUids.some(u=>String(u)===myUid))||(t.assigneeEmail&&String(t.assigneeEmail).toLowerCase()===myEmail)));
+  const isCreator=!!(myUid&&String(t.createdBy||'')===myUid);
+  const canManage=isTeamAdmin()||isCreator;
+  let assignLabel='· Team task';
+  if(isAssignedToMe&&isCreator){
+   assignLabel='· Created & assigned to you';
+  }else if(isAssignedToMe){
+   assignLabel='· Assigned to you';
+  }else if(t.assigneeName&&t.assigneeName!=='Unassigned'){
+   assignLabel=`· Assigned to ${esc(t.assigneeName)}`;
+  }else if(isCreator){
+   assignLabel='· Created by you';
+  }else if(t.createdByName){
+   assignLabel=`· By ${esc(t.createdByName)}`;
+  }
+  const actionsHtml=canManage?`<div class="team-assigned-actions" style="display:flex;gap:7px;margin-top:8px"><button type="button" class="btn" data-team-assigned-edit="${esc(t.teamId)}|${esc(t.id)}" style="height:30px;padding:0 10px;font-size:11px" title="Edit shared task">Edit</button><button type="button" class="btn danger" data-team-assigned-delete="${esc(t.teamId)}|${esc(t.id)}" style="height:30px;padding:0 10px;font-size:11px" title="Delete shared task">Delete</button></div>`:'';
+  const detailText=t.details||t.body||(t.projectName?`Project: ${t.projectName}`:'Shared team assignment');
+  return `<article class="task-card ${done?'completed':''} ${overdue?'is-overdue':''} team-assigned-task"><input class="task-check" type="checkbox" data-team-assigned-done="${esc(t.teamId)}|${esc(t.id)}" ${done?'checked':''} aria-label="Complete shared task ${esc(t.title||'')}" title="Update shared task status"><div class="task-row-main" data-edit-task="${esc(t.id)}" style="cursor:pointer"><strong>${esc(t.title||'Untitled team task')}</strong><p>${esc(detailText)}</p><div class="task-due"><span class="note-chip">${getLucideSvg('users', 11)} ${esc(teamName)}</span> ${due?`· ${overdue?'Overdue · ':''}Due ${esc(due)}`:'· No due date'} ${assignLabel}</div>${actionsHtml}</div><select class="record-status" data-team-assigned-status="${esc(t.teamId)}|${esc(t.id)}" aria-label="Update shared task status"><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${done?'selected':''}>Completed</option></select></article>`;
+ }).join('');
  const total=personal.length+assigned.length;
  $('taskCount').textContent=`${total} ${total===1?'task':'tasks'}${assigned.length?` · ${assigned.length} team assignment${assigned.length===1?'':'s'}`:''}`;
- const openCount=tasks.filter(t=>!t.done).length+(teamAssignedTasks||[]).filter(t=>!t.done&&t.status!=='done').filter((t,i,a)=>a.findIndex(x=>x.teamId===t.teamId&&x.id===t.id)===i).length;
- const doneCount=tasks.filter(t=>t.done).length+(teamAssignedTasks||[]).filter(t=>t.done||t.status==='done').filter((t,i,a)=>a.findIndex(x=>x.teamId===t.teamId&&x.id===t.id)===i).length;
+ const openCount=personal.filter(t=>!t.done).length+assigned.filter(t=>!t.done&&t.status!=='done').length;
+ const doneCount=personal.filter(t=>t.done).length+assigned.filter(t=>t.done||t.status==='done').length;
  if($('taskOpenSummary'))$('taskOpenSummary').textContent=String(openCount);
- if($('taskTeamSummary'))$('taskTeamSummary').textContent=String((teamAssignedTasks||[]).filter((t,i,a)=>a.findIndex(x=>x.teamId===t.teamId&&x.id===t.id)===i).length);
+ if($('taskTeamSummary'))$('taskTeamSummary').textContent=String(assigned.length);
  if($('taskDoneSummary'))$('taskDoneSummary').textContent=String(doneCount);
  const groups=(personalHtml?`<div class="task-section-label">Personal tasks <span>${personal.length}</span></div>${personalHtml}`:'')+(teamHtml?`<div class="task-section-label">Assigned by your teams <span>${assigned.length}</span></div>${teamHtml}`:'');
  $('tasksList').innerHTML=groups||`<div class="empty" style="grid-column:1/-1;padding:28px;text-align:center">${getLucideSvg('sparkles', 16)} Nothing on your list right now.<br><small>Add a personal task or ask a teammate to assign one to you.</small></div>`;
@@ -19280,9 +19344,15 @@ async function deleteTeamAssignedTask(teamId,id){
   if(!firebaseUser||!firebaseDb)throw Error('Sign in before deleting a team task.');
   if(!navigator.onLine)throw Error('Deleting shared tasks requires an internet connection.');
   await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).delete();
+  if(typeof recordLocalTombstone==='function') recordLocalTombstone('tasks', id);
   teamAssignedTasks=(teamAssignedTasks||[]).filter(t=>!(String(t.id)===String(id)&&String(t.teamId)===String(teamId)));
   if(teamLiveData[teamId]?.tasks){teamLiveData[teamId].tasks=teamLiveData[teamId].tasks.filter(t=>String(t.id)!==String(id))}
   if(activeTeamId===teamId&&teamRecords.tasks){teamRecords.tasks=teamRecords.tasks.filter(t=>String(t.id)!==String(id))}
+  const localTask=(tasks||[]).find(t=>String(t.id)===String(id));
+  if(localTask){
+   tasks=tasks.filter(t=>String(t.id)!==String(id));
+   persist();
+  }
   renderTasks();renderTeamWorkspace();renderDashboard();saveTeamCache();notify('Shared task deleted.');
  }catch(err){notify('Could not delete shared task: '+(err.message||'Check permissions.'))}
 }
@@ -19297,6 +19367,8 @@ $('teamTaskEditForm')?.addEventListener('submit',async e=>{
   teamAssignedTasks=(teamAssignedTasks||[]).map(t=>(String(t.id)===String(id)&&String(t.teamId)===String(teamId))?{...t,...patch}:t);
   if(teamLiveData[teamId]?.tasks){teamLiveData[teamId].tasks=teamLiveData[teamId].tasks.map(t=>String(t.id)===String(id)?{...t,...patch}:t)}
   if(activeTeamId===teamId&&teamRecords.tasks){teamRecords.tasks=teamRecords.tasks.map(t=>String(t.id)===String(id)?{...t,...patch}:t)}
+  const localTask=(tasks||[]).find(t=>String(t.id)===String(id));
+  if(localTask){Object.assign(localTask,patch);persist();}
   $('teamTaskEditBackdrop').classList.add('hidden');
   renderTasks();renderTeamWorkspace();renderDashboard();saveTeamCache();notify('Shared task updated.');
  }catch(err){notify('Could not update shared task: '+(err.message||'Check connection.'))}
@@ -20492,7 +20564,7 @@ function startTeamRealtimeSync(){
   const unsub=firebaseDb.collection('teams').doc(team.id).collection(kind).onSnapshot(snap=>{teamLiveData[team.id][kind]=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team'}));applyTeamLiveData();saveTeamCache();},err=>console.warn('Live team '+kind+' sync failed for '+team.id,err));teamLiveUnsubs.push(unsub);
  }}
 }
-async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>t.teamId===teamId&&t.id===id?{...t,...patch}:t);applyTeamLiveData();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
+async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>(String(t.teamId)===String(teamId)&&String(t.id)===String(id))?{...t,...patch}:t);const local=(tasks||[]).find(t=>String(t.id)===String(id));if(local){local.done=patch.done;local.status=patch.status;persist();}applyTeamLiveData();renderTasks();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
 async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
   // Ensure active team has a verified cloud invite code ready
   if (activeTeam && (isTeamAdmin() || activeTeam.ownerUid === firebaseUser.uid)) {
