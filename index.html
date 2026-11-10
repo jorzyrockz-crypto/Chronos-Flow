@@ -29577,6 +29577,726 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
   box-shadow:none!important;
 }
 
+
+
+/* =========================================================
+   CHRONOS 5.2 ULTRA-CLEAN GLASSMORPHIC DELIVERABLES & TA
+   ========================================================= */
+
+/* 1. Outer Container & Ambient Canvas */
+.deliverables-command-card {
+  position: relative !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin-bottom: 24px !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.project-deliverables-section {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* 2. Top Header & Action Bar */
+.deliverables-command-top {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 20px !important;
+}
+.deliverables-command-info {
+  min-width: 260px !important;
+  flex: 1 !important;
+}
+.deliv-eyebrow {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #4f46e5 !important;
+  margin-bottom: 4px !important;
+}
+html[data-theme=dark] .deliv-eyebrow {
+  color: #818cf8 !important;
+}
+.deliv-main-title {
+  margin: 0 0 6px 0 !important;
+  font-size: 26px !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.025em !important;
+  color: #0f172a !important;
+  line-height: 1.25 !important;
+}
+html[data-theme=dark] .deliv-main-title {
+  color: #f8fafc !important;
+}
+.deliv-subtitle {
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  color: #64748b !important;
+  line-height: 1.45 !important;
+  max-width: 620px !important;
+}
+html[data-theme=dark] .deliv-subtitle {
+  color: #94a3b8 !important;
+}
+
+.deliverables-command-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  flex-shrink: 0 !important;
+}
+.deliv-btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border-radius: 9999px !important;
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.deliv-btn-primary:hover {
+  background: #4338ca !important;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+.deliv-btn-glass {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.deliv-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+html[data-theme=dark] .deliv-btn-glass {
+  background: rgba(30, 41, 59, 0.75) !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html[data-theme=dark] .deliv-btn-glass:hover {
+  background: rgba(30, 41, 59, 0.95) !important;
+}
+
+/* 3. Horizontal Glass Ribbon (KPI Strip) */
+.deliverables-radar-strip {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  align-items: center !important;
+  gap: 0 !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  padding: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.04) !important;
+  margin-top: 18px !important;
+}
+html[data-theme=dark] .deliverables-radar-strip {
+  background: rgba(15, 23, 42, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+}
+@media(max-width: 900px) {
+  .deliverables-radar-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+}
+@media(max-width: 520px) {
+  .deliverables-radar-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+.deliv-kpi-card {
+  position: relative !important;
+  padding: 12px 18px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  box-shadow: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.deliv-kpi-card::before {
+  display: none !important;
+}
+.deliv-kpi-card:not(:first-child) {
+  border-left: 1px solid rgba(226, 232, 240, 0.7) !important;
+}
+html[data-theme=dark] .deliv-kpi-card:not(:first-child) {
+  border-left-color: rgba(255, 255, 255, 0.08) !important;
+}
+.deliv-kpi-card:first-child {
+  background: rgba(238, 242, 255, 0.85) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.06) !important;
+}
+html[data-theme=dark] .deliv-kpi-card:first-child {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+.deliv-kpi-card:first-child .kpi-label {
+  color: #4f46e5 !important;
+}
+.deliv-kpi-card:first-child .kpi-value {
+  color: #1e1b4b !important;
+}
+html[data-theme=dark] .deliv-kpi-card:first-child .kpi-value {
+  color: #e0e7ff !important;
+}
+.deliv-kpi-card.active:not(:first-child) {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+html[data-theme=dark] .deliv-kpi-card.active:not(:first-child) {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.deliv-kpi-card .kpi-label {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+  line-height: 1.2 !important;
+}
+.deliv-kpi-card .kpi-value {
+  font-size: 24px !important;
+  font-weight: 850 !important;
+  line-height: 1.15 !important;
+  margin: 2px 0 !important;
+  color: #0f172a !important;
+}
+html[data-theme=dark] .deliv-kpi-card .kpi-value {
+  color: #f8fafc !important;
+}
+.deliv-kpi-card .kpi-sub {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  line-height: 1.2 !important;
+}
+.deliv-kpi-card.kpi-ontime .kpi-value, .deliv-kpi-card .text-success { color: #059669 !important; }
+.deliv-kpi-card.kpi-pending .kpi-value, .deliv-kpi-card .text-pending { color: #4f46e5 !important; }
+.deliv-kpi-card.kpi-overdue .kpi-value, .deliv-kpi-card .text-danger { color: #dc2626 !important; }
+.deliv-kpi-card.kpi-paper .kpi-value, .deliv-kpi-card .text-sky { color: #0284c7 !important; }
+.deliv-kpi-card.kpi-ta .kpi-value, .deliv-kpi-card .text-purple { color: #7c3aed !important; }
+
+/* 4. Deliverable Accordion Card */
+.deliverable-group-card,
+.deliverable-group-card.compact-roster-card {
+  border-radius: 32px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.04) !important;
+  padding: 24px !important;
+  margin-bottom: 24px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+html[data-theme=dark] .deliverable-group-card,
+html[data-theme=dark] .deliverable-group-card.compact-roster-card {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45) !important;
+}
+
+.deliverable-group-head {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-bottom: 0 !important;
+}
+.deliv-card-header-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+}
+.deliv-title-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex: 1 !important;
+  min-width: 240px !important;
+}
+.btn-toggle-roster-collapse {
+  width: 28px !important;
+  height: 28px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+}
+.btn-toggle-roster-collapse:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+}
+html[data-theme=dark] .btn-toggle-roster-collapse {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+}
+.deliv-card-title {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+  color: #0f172a !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
+}
+html[data-theme=dark] .deliv-card-title {
+  color: #f8fafc !important;
+}
+
+.deliverable-group-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+.deliv-glass-pill-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.deliv-glass-pill-btn:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+}
+html[data-theme=dark] .deliv-glass-pill-btn {
+  background: rgba(30, 41, 59, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+.deliv-more-icon-btn {
+  width: 32px !important;
+  height: 32px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(226, 232, 240, 0.7) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.deliv-more-icon-btn:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+html[data-theme=dark] .deliv-more-icon-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+}
+.deliv-more-menu {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 6px) !important;
+  z-index: 50 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+  padding: 6px !important;
+  min-width: 170px !important;
+}
+html[data-theme=dark] .deliv-more-menu {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.deliv-menu-item-danger {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #dc2626 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.14s ease !important;
+}
+.deliv-menu-item-danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.deliv-card-header-sub {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding-left: 40px !important;
+}
+@media(max-width: 650px) {
+  .deliv-card-header-sub {
+    padding-left: 0 !important;
+  }
+}
+.deliv-card-meta-pills {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.deliverable-cutoff-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(241, 245, 249, 0.8) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  color: #475569 !important;
+}
+.deliverable-cutoff-badge.is-urgent {
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #e11d48 !important;
+}
+.deliv-progress-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+.deliv-progress-pill.is-complete {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+.deliverable-group-desc {
+  margin: 2px 0 0 !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+  line-height: 1.45 !important;
+  max-width: 780px !important;
+}
+html[data-theme=dark] .deliverable-group-desc {
+  color: #94a3b8 !important;
+}
+
+/* 5. Unboxed Filter Toolbar & Hairline */
+.deliv-roster-divider {
+  height: 1px !important;
+  background: rgba(226, 232, 240, 0.6) !important;
+  margin: 18px 0 !important;
+}
+html[data-theme=dark] .deliv-roster-divider {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+.deliv-roster-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 0 14px 0 !important;
+  margin-bottom: 8px !important;
+}
+.deliv-roster-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 9999px !important;
+  padding: 6px 14px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  min-width: 220px !important;
+  color: #64748b !important;
+}
+html[data-theme=dark] .deliv-roster-search {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.deliv-search-input {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  font-size: 12px !important;
+  color: #1e293b !important;
+  width: 100% !important;
+}
+html[data-theme=dark] .deliv-search-input {
+  color: #f8fafc !important;
+}
+.deliv-roster-filter-pills {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: rgba(241, 245, 249, 0.8) !important;
+  border-radius: 9999px !important;
+  padding: 4px !important;
+  gap: 2px !important;
+  border: 1px solid rgba(226, 232, 240, 0.6) !important;
+}
+html[data-theme=dark] .deliv-roster-filter-pills {
+  background: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.roster-filter-pill {
+  border-radius: 9999px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #64748b !important;
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  padding: 4px 12px !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+  white-space: nowrap !important;
+}
+.roster-filter-pill:hover {
+  color: #1e293b !important;
+}
+.roster-filter-pill.active {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
+}
+.roster-filter-pill.overdue.active {
+  background: #dc2626 !important;
+}
+.btn-roster-batch-paper {
+  border-radius: 9999px !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  transition: all 0.16s ease !important;
+}
+.btn-roster-batch-paper:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+  color: #065f46 !important;
+}
+
+/* 6. Floating Personnel Roster Rows */
+.deliverables-table-wrap.compact-scrollable-table {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow-x: auto !important;
+  max-height: 520px !important;
+}
+.deliverables-table.compact-table {
+  border-collapse: separate !important;
+  border-spacing: 0 8px !important;
+  width: 100% !important;
+  table-layout: auto !important;
+  font-size: 12.5px !important;
+}
+.deliverables-table.compact-table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #94a3b8 !important;
+  padding: 8px 16px !important;
+  white-space: nowrap !important;
+}
+html[data-theme=dark] .deliverables-table.compact-table thead th {
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #64748b !important;
+}
+.deliverables-table.compact-table th:nth-child(1) { width: 24% !important; min-width: 150px !important; }
+.deliverables-table.compact-table th:nth-child(2) { width: 22% !important; min-width: 140px !important; }
+.deliverables-table.compact-table th:nth-child(3) { width: 16% !important; min-width: 110px !important; }
+.deliverables-table.compact-table th:nth-child(4) { width: 24% !important; min-width: 155px !important; }
+.deliverables-table.compact-table th:nth-child(5) { width: 14% !important; min-width: 120px !important; text-align: right !important; }
+
+.deliverables-table.compact-table tbody tr {
+  background: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.deliverables-table.compact-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+  transform: translateY(-1px) !important;
+}
+html[data-theme=dark] .deliverables-table.compact-table tbody tr {
+  background: rgba(30, 41, 59, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+html[data-theme=dark] .deliverables-table.compact-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.9) !important;
+}
+.deliverables-table.compact-table tbody td {
+  padding: 12px 16px !important;
+  border: none !important;
+  vertical-align: middle !important;
+}
+.deliverables-table.compact-table tbody tr td:first-child {
+  border-top-left-radius: 16px !important;
+  border-bottom-left-radius: 16px !important;
+}
+.deliverables-table.compact-table tbody tr td:last-child {
+  border-top-right-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
+}
+
+/* TA Pill */
+.ta-compact-add-btn {
+  border: none !important;
+  background: rgba(241, 245, 249, 0.8) !important;
+  color: #64748b !important;
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.ta-compact-add-btn:hover {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+}
+html[data-theme=dark] .ta-compact-add-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+}
+html[data-theme=dark] .ta-compact-add-btn:hover {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+}
+
+/* Row Action Buttons (Clean Circular Icons) */
+.deliv-action-row-compact {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+}
+.btn-act-compact {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+}
+.btn-act-compact:hover {
+  background: rgba(241, 245, 249, 0.9) !important;
+  color: #1e293b !important;
+  transform: none !important;
+}
+.btn-act-compact.btn-paper:hover,
+.btn-act-compact.btn-paper.active {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #059669 !important;
+}
+.btn-act-compact.btn-ta:hover {
+  background: rgba(124, 58, 237, 0.15) !important;
+  color: #7c3aed !important;
+}
+.btn-act-compact.btn-turnin:hover,
+.btn-act-compact.btn-turnin.active {
+  background: rgba(79, 70, 229, 0.15) !important;
+  color: #4f46e5 !important;
+}
+.btn-act-compact.btn-del-row:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #dc2626 !important;
+}
+html[data-theme=dark] .btn-act-compact {
+  color: #94a3b8 !important;
+}
+html[data-theme=dark] .btn-act-compact:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+}
+
 </style>
 
 
@@ -30152,49 +30872,49 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
       <div class="deliverables-command-card">
         <div class="deliverables-command-top">
           <div class="deliverables-command-info">
-            <div class="eyebrow" style="color:var(--accent,#2563eb);font-weight:800;letter-spacing:.06em;">DOCUMENT &amp; OUTPUT ROSTER</div>
-            <h3>Deliverables &amp; Technical Assistance (TA)</h3>
-            <p>Track member submissions against cutoffs, verify physical hard copies, and provide TA coaching.</p>
+            <div class="deliv-eyebrow">DOCUMENT &amp; OUTPUT ROSTER</div>
+            <h3 class="deliv-main-title">Deliverables &amp; Technical Assistance (TA)</h3>
+            <p class="deliv-subtitle">Track member submissions against cutoffs, verify physical hard copies, and provide TA coaching.</p>
           </div>
           <div class="deliverables-command-actions">
-            <button type="button" class="btn primary" id="openDistributeDeliverableBtn" style="display:inline-flex;align-items:center;gap:6px;">
+            <button type="button" class="deliv-btn-primary" id="openDistributeDeliverableBtn">
               ${typeof getLucideSvg==='function'?getLucideSvg('plus',14):'+'} <span>Distribute Deliverable</span>
             </button>
-            <button type="button" class="btn" id="openTransmittalReportBtn" style="display:inline-flex;align-items:center;gap:6px;">
+            <button type="button" class="deliv-btn-glass" id="openTransmittalReportBtn">
               ${typeof getLucideSvg==='function'?getLucideSvg('file-text',14):'📄'} <span>Transmittal &amp; TA Report</span>
             </button>
           </div>
         </div>
 
-        <!-- Interactive KPI Filter Tabs -->
+        <!-- Interactive KPI Filter Ribbon -->
         <div class="deliverables-radar-strip" role="tablist" aria-label="Deliverable filter tabs">
           <button type="button" class="deliv-kpi-card ${currentDeliverableFilter==='all'?'active':''}" data-deliv-filter="all" role="tab" aria-selected="${currentDeliverableFilter==='all'}" title="Filter: All expected deliverables">
-            <span class="kpi-label">Total Expected</span>
+            <span class="kpi-label">TOTAL EXPECTED</span>
             <strong class="kpi-value">${totalRequired}</strong>
             <span class="kpi-sub">All requirements</span>
           </button>
           <button type="button" class="deliv-kpi-card kpi-ontime ${currentDeliverableFilter==='submitted'?'active':''}" data-deliv-filter="submitted" role="tab" aria-selected="${currentDeliverableFilter==='submitted'}" title="Filter: Submitted deliverables">
-            <span class="kpi-label">Submitted</span>
+            <span class="kpi-label">SUBMITTED</span>
             <strong class="kpi-value">${submittedCount}</strong>
             <span class="kpi-sub text-success">${ratePercent}% compliance</span>
           </button>
           <button type="button" class="deliv-kpi-card kpi-pending ${currentDeliverableFilter==='pending'?'active':''}" data-deliv-filter="pending" role="tab" aria-selected="${currentDeliverableFilter==='pending'}" title="Filter: Pending deliverables">
-            <span class="kpi-label">Pending</span>
+            <span class="kpi-label">PENDING</span>
             <strong class="kpi-value">${pendingCount}</strong>
             <span class="kpi-sub text-pending">Awaiting turn-in</span>
           </button>
           <button type="button" class="deliv-kpi-card kpi-overdue ${currentDeliverableFilter==='overdue'?'active':''} ${overdueCount > 0 ? 'has-overdue' : ''}" data-deliv-filter="overdue" role="tab" aria-selected="${currentDeliverableFilter==='overdue'}" title="Filter: Overdue deliverables">
-            <span class="kpi-label">Overdue</span>
+            <span class="kpi-label">OVERDUE</span>
             <strong class="kpi-value">${overdueCount}</strong>
             <span class="kpi-sub ${overdueCount > 0 ? 'text-danger' : ''}">${overdueCount > 0 ? 'Requires attention' : 'Zero overdue'}</span>
           </button>
           <button type="button" class="deliv-kpi-card kpi-paper ${currentDeliverableFilter==='hardcopy'?'active':''}" data-deliv-filter="hardcopy" role="tab" aria-selected="${currentDeliverableFilter==='hardcopy'}" title="Filter: Office paper hard copies">
-            <span class="kpi-label">Office Paper</span>
+            <span class="kpi-label">OFFICE PAPER</span>
             <strong class="kpi-value">${hardCopyCount}</strong>
             <span class="kpi-sub text-sky">Hard copies logged</span>
           </button>
           <button type="button" class="deliv-kpi-card kpi-ta ${currentDeliverableFilter==='needs_ta'?'active':''}" data-deliv-filter="needs_ta" role="tab" aria-selected="${currentDeliverableFilter==='needs_ta'}" title="Filter: Needs TA coaching">
-            <span class="kpi-label">Needs TA</span>
+            <span class="kpi-label">NEEDS TA</span>
             <strong class="kpi-value">${needsTaCount}</strong>
             <span class="kpi-sub text-purple">${taCount} coached</span>
           </button>
@@ -30205,14 +30925,14 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
       <div class="deliverables-groups-list">
         ${!groups.length ? `
           <div class="deliv-empty-banner">
-            <div style="display:inline-flex;padding:12px;border-radius:50%;background:rgba(37,99,235,.1);color:var(--accent,#2563eb);margin-bottom:8px;">
+            <div style="display:inline-flex;padding:12px;border-radius:50%;background:rgba(79,70,229,.1);color:#4f46e5;margin-bottom:8px;">
               ${typeof getLucideSvg==='function'?getLucideSvg('file-text',24):'📋'}
             </div>
             <h4>No deliverables match this filter</h4>
             <p style="margin-bottom:12px;">There are no requirements currently under this filter.</p>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-              <button type="button" class="btn" data-deliv-filter="all">Show All Requirements</button>
-              <button type="button" class="btn primary" id="emptyDistributeDeliverableBtn" style="display:inline-flex;align-items:center;gap:6px;">
+              <button type="button" class="deliv-btn-glass" data-deliv-filter="all">Show All Requirements</button>
+              <button type="button" class="deliv-btn-primary" id="emptyDistributeDeliverableBtn">
                 ${typeof getLucideSvg==='function'?getLucideSvg('plus',14):'+'} Distribute Deliverable
               </button>
             </div>
@@ -30224,22 +30944,43 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
           const gTimeliness = getDeliverableTimeliness(gFirstTask);
           const isUrgent = gTimeliness.status === 'overdue' || (gTimeliness.status === 'pending' && gTimeliness.label.includes('h'));
 
-          
           const gPending = g.tasks.filter(t => !t.submissionStatus || t.submissionStatus === 'pending').length;
           const gOverdue = g.tasks.filter(t => getDeliverableTimeliness(t).status === 'overdue').length;
           const gHardcopy = g.tasks.filter(t => t.submissionStatus === 'hardcopy').length;
 
           return `
             <article class="deliverable-group-card compact-roster-card" data-deliverable-group="${projectEsc(g.key)}">
-              <!-- 1. Header Bar: Title Row + Meta & Actions Row -->
+              <!-- Header Row: Title & Collapse on left, Actions on right -->
               <div class="deliverable-group-head">
                 <div class="deliv-card-header-top">
-                  <button type="button" class="btn-toggle-roster-collapse" data-toggle-collapse="${projectEsc(g.key)}" title="Toggle roster view">
-                    ${typeof getLucideSvg==='function'?getLucideSvg('chevron-down',14):'▼'}
-                  </button>
-                  <h4 class="deliv-card-title">${projectEsc(g.title)}</h4>
+                  <div class="deliv-title-left">
+                    <button type="button" class="btn-toggle-roster-collapse" data-toggle-collapse="${projectEsc(g.key)}" title="Toggle roster view">
+                      ${typeof getLucideSvg==='function'?getLucideSvg('chevron-down',14):'▼'}
+                    </button>
+                    <h4 class="deliv-card-title">${projectEsc(g.title)}</h4>
+                  </div>
+
+                  <div class="deliverable-group-actions">
+                    <button type="button" class="deliv-glass-pill-btn" data-edit-deliverable-group="${projectEsc(g.key)}" title="Edit deliverable requirement, deadline, and instructions">
+                      ${typeof getLucideSvg==='function'?getLucideSvg('pencil',12):'✏'} <span>Edit</span>
+                    </button>
+                    <button type="button" class="deliv-glass-pill-btn" data-print-group="${projectEsc(g.key)}" title="Generate printable transmittal sheet">
+                      ${typeof getLucideSvg==='function'?getLucideSvg('printer',12):'📄'} <span>Transmittal</span>
+                    </button>
+                    <div class="deliv-more-dropdown-wrap" style="position:relative;">
+                      <button type="button" class="deliv-more-icon-btn" data-group-more="${projectEsc(g.key)}" aria-label="More actions" title="More actions">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/></svg>
+                      </button>
+                      <div class="deliv-more-menu hidden" data-group-more-menu="${projectEsc(g.key)}">
+                        <button type="button" class="deliv-menu-item-danger" data-delete-group="${projectEsc(g.key)}" title="Delete requirement and all assigned copies">
+                          ${typeof getLucideSvg==='function'?getLucideSvg('trash-2',13):'🗑'} Delete Requirement
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
+                <!-- Sub-header Info: Badges & Description directly below title -->
                 <div class="deliv-card-header-sub">
                   <div class="deliv-card-meta-pills">
                     <span class="deliverable-cutoff-badge ${isUrgent?'is-urgent':''}">
@@ -30250,29 +30991,13 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
                       ${typeof getLucideSvg==='function'?getLucideSvg('check',11):'✓'} ${gSubmitted}/${g.tasks.length} submitted (${gPercent}%)
                     </span>
                   </div>
-
-                  <div class="deliverable-group-actions">
-                    <button type="button" class="btn text-btn deliv-action-btn" data-edit-deliverable-group="${projectEsc(g.key)}" title="Edit deliverable requirement, deadline, and instructions" style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:4px 8px;">
-                      ${typeof getLucideSvg==='function'?getLucideSvg('pencil',12):'✏'} Edit
-                    </button>
-                    <button type="button" class="btn text-btn deliv-action-btn" data-print-group="${projectEsc(g.key)}" title="Generate printable transmittal sheet" style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:4px 8px;">
-                      ${typeof getLucideSvg==='function'?getLucideSvg('printer',12):'📄'} Transmittal
-                    </button>
-                    <button type="button" class="btn text-btn danger deliv-action-btn" data-delete-group="${projectEsc(g.key)}" title="Delete requirement and all assigned copies" style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:4px 8px;color:#dc2626;">
-                      ${typeof getLucideSvg==='function'?getLucideSvg('trash-2',12):'🗑'} Delete
-                    </button>
-                  </div>
+                  ${g.details ? `<p class="deliverable-group-desc">${projectEsc(g.details)}</p>` : ''}
                 </div>
-                ${g.details ? `<p class="deliverable-group-desc" style="margin:2px 0 0 34px;font-size:12px;">${projectEsc(g.details)}</p>` : ''}
               </div>
 
-              <!-- 2. Integrated Slim Progress Bar -->
-              <div class="deliv-progress-track">
-                <div class="deliv-progress-fill" style="width:${gPercent}%"></div>
-              </div>
-
-              <!-- 3. Collapsible Roster Body -->
+              <!-- Collapsible Roster Body -->
               <div class="deliv-roster-container" data-roster-body="${projectEsc(g.key)}">
+                <div class="deliv-roster-divider"></div>
                 <!-- Filter & Search Toolbar (Designed for 20+ personnel) -->
                 <div class="deliv-roster-toolbar">
                   <div class="deliv-roster-search">
@@ -30293,16 +31018,16 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
                   </div>
                 </div>
 
-                <!-- 4. Sticky Header High-Density Scrollable Table -->
+                <!-- Personnel Roster Floating Table -->
                 <div class="deliverables-table-wrap compact-scrollable-table">
                   <table class="deliverables-table compact-table">
                     <thead>
                       <tr>
-                        <th style="width:26%;min-width:160px;">Personnel</th>
-                        <th style="width:22%;min-width:140px;">Submission &amp; Proof</th>
-                        <th style="width:18%;min-width:120px;">Timeliness</th>
-                        <th style="width:20%;min-width:130px;">TA &amp; Supervisory Coaching</th>
-                        <th style="width:14%;min-width:125px;text-align:right;">Actions</th>
+                        <th style="width:24%;min-width:150px;">PERSONNEL</th>
+                        <th style="width:22%;min-width:140px;">SUBMISSION &amp; PROOF</th>
+                        <th style="width:16%;min-width:110px;">TIMELINESS</th>
+                        <th style="width:24%;min-width:155px;">TA &amp; SUPERVISORY COACHING</th>
+                        <th style="width:14%;min-width:120px;text-align:right;">ACTIONS</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -30316,7 +31041,7 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
 
                         return `
                           <tr data-deliv-row="${projectEsc(t.id)}" data-deliv-status="${rowStatus}">
-                            <!-- Personnel (Compact) -->
+                            <!-- Personnel -->
                             <td>
                               <div class="deliv-person-cell compact">
                                 ${typeof projectAvatar==='function'?projectAvatar(person,'xs'):''}
@@ -30327,7 +31052,7 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
                               </div>
                             </td>
 
-                            <!-- Submission & Proof (Compact) -->
+                            <!-- Submission & Proof -->
                             <td>
                               <div class="deliv-proof-cell-compact">
                                 ${isHardcopy ? `
@@ -30350,7 +31075,7 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
                               </div>
                             </td>
 
-                            <!-- Timeliness Status (Compact) -->
+                            <!-- Timeliness Status -->
                             <td>
                               <span class="${timeliness.badgeClass} compact-pill">
                                 ${typeof getLucideSvg==='function' ? (
@@ -30367,7 +31092,7 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
                               </span>
                             </td>
 
-                            <!-- Technical Assistance (TA) (Compact) -->
+                            <!-- Technical Assistance (TA) -->
                             <td>
                               ${hasTA ? `
                                 <div class="ta-compact-preview" data-open-ta="${projectEsc(t.id)}" title="${projectEsc(t.taRemarks||'')} — ${projectEsc(t.taAuthor||'Supervisor')}">
@@ -30379,7 +31104,7 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
                               `}
                             </td>
 
-                            <!-- Quick Actions (Compact Horizontal Row) -->
+                            <!-- Actions -->
                             <td style="text-align:right;">
                               <div class="deliv-action-row-compact">
                                 <button type="button" class="btn-act-compact btn-paper ${isHardcopy?'active':''}" data-toggle-paper-received="${projectEsc(t.id)}" title="${isHardcopy?'Paper Copy Marked Received (Click to toggle)':'Mark Paper Copy Received in Office (Option C)'}">
@@ -30421,7 +31146,6 @@ body.task-multi-select-active #tasksPage .task-card .card-top-row,
       });
     }
   }
-
   // Cross-Project Deliverables Dashboard (when no project selected)
   function renderCrossProjectDeliverablesDashboard() {
     const root = $('projectViewContent');
