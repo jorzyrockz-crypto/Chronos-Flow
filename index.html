@@ -949,19 +949,41 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
 .journey-card.event-personal{--card-accent:#f59e0b;background:linear-gradient(135deg,rgba(245,158,11,.08),var(--journey-card-bg))!important}
 
 /* Journey Card Thematic Flair Canopy (Hybrid Option 1) */
-.journey-card.has-canopy {
-  padding-top: 0 !important;
-  overflow: hidden !important;
+.journey-card.has-canopy,
+.journey-card.is-multiday-spanning.has-canopy,
+.journey-card.is-hero-card.has-canopy {
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.journey-card:not(.has-canopy) .journey-card-body {
+  padding: 0 !important;
+  display: contents;
+}
+.journey-card.has-canopy .journey-card-body {
+  padding: 11px 16px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.journey-card.is-multiday-spanning.has-canopy .journey-card-body {
+  padding: 12px 18px 16px 18px;
 }
 .journey-card-canopy {
   position: relative;
-  height: 48px;
-  min-height: 48px;
-  margin: 0 -16px 8px -16px;
+  height: 52px;
+  min-height: 52px;
+  width: 100%;
+  margin: 0;
   padding: 0 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 15px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   overflow: hidden;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -971,10 +993,10 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
   align-items: center;
   gap: 5px;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.38);
+  background: rgba(0, 0, 0, 0.42);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  padding: 2.5px 9px;
+  padding: 3px 10px;
   font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.06em;
@@ -1103,7 +1125,8 @@ html[data-theme="dark"] .journey-card-flair-pill {
 .flow-hud-pill{display:inline-flex;align-items:center;padding:3px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.3px}
 
 /* Hero Milestone Focus (Asymmetric Zigzag Flow) */
-.journey-card.is-hero-card{padding:16px 18px;border-color:color-mix(in srgb,var(--card-accent) 55%,rgba(255,255,255,.15))!important}
+.journey-card.is-hero-card:not(.has-canopy){padding:16px 18px}
+.journey-card.is-hero-card{border-color:color-mix(in srgb,var(--card-accent) 55%,rgba(255,255,255,.15))!important}
 .journey-card.is-hero-card .journey-card-title{font-size:14.5px;font-weight:800}
 
 /* Subtasks Progress Micro-bar */
@@ -2000,12 +2023,17 @@ html[data-theme="dark"] .journey-condensed-collapse-btn {
   border: 1px solid rgba(20, 184, 166, 0.2) !important;
   border-left: 5px solid var(--card-accent, #d97706) !important;
   border-radius: 16px !important;
-  padding: 14px 18px !important;
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
   overflow: visible !important;
   margin-bottom: 0 !important;
   z-index: 6;
   transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease !important;
+}
+.journey-card.is-multiday-spanning:not(.has-canopy) {
+  padding: 14px 18px !important;
+}
+.journey-card.is-multiday-spanning.has-canopy {
+  padding: 0 !important;
 }
 html[data-theme="dark"] .journey-card.is-multiday-spanning {
   background: rgba(15, 23, 42, 0.92) !important;
@@ -2017,14 +2045,14 @@ html[data-theme="dark"] .journey-card.is-multiday-spanning {
   box-shadow: 0 18px 42px -6px rgba(0, 0, 0, 0.14), 0 0 20px color-mix(in srgb, var(--card-accent, #d97706) 30%, transparent) !important;
 }
 .journey-card.is-multiday-spanning .journey-card-title {
-  font-size: 16px !important;
+  font-size: 15.5px !important;
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;
-  color: #134e48 !important;
-  line-height: 1.3 !important;
+  color: var(--text) !important;
+  line-height: 1.35 !important;
 }
 html[data-theme="dark"] .journey-card.is-multiday-spanning .journey-card-title {
-  color: #5eead4 !important;
+  color: var(--text) !important;
 }
 .spanning-header-row {
   display: flex;
@@ -18023,29 +18051,31 @@ function renderOverviewHorizon(options = {}){
       return `
         <div class="journey-card event-card ${catClass} ${isMilestone ? 'has-canopy' : ''} ${isHero ? 'is-hero-card' : ''} ${isPast ? 'is-past-item' : ''} ${isCurrent ? 'is-current-active' : ''} ${isStartingSoon ? 'is-starting-soon' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-event="${esc(e.id)}" style="--card-accent:${cardAccent}">
           ${canopyHtml}
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-            <div style="display:inline-flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap">
-              <span class="journey-card-time">${esc(timeText)}</span>
-              ${flairPillHtml}
-              ${statusBadgeHtml}
-              ${recentBadgeHtml}
-              ${assignedBadgeHtml}
-            </div>
-            <div style="display:inline-flex;align-items:center;gap:6px;min-width:0">
-              <div class="journey-card-profile-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile" style="cursor:pointer">
-                ${avatarMarkup(creator, 'xs')}
-                <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+          <div class="journey-card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <div style="display:inline-flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap">
+                <span class="journey-card-time">${esc(timeText)}</span>
+                ${flairPillHtml}
+                ${statusBadgeHtml}
+                ${recentBadgeHtml}
+                ${assignedBadgeHtml}
               </div>
-              <button type="button" class="journey-card-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">···</button>
+              <div style="display:inline-flex;align-items:center;gap:6px;min-width:0">
+                <div class="journey-card-profile-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile" style="cursor:pointer">
+                  ${avatarMarkup(creator, 'xs')}
+                  <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+                </div>
+                <button type="button" class="journey-card-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">···</button>
+              </div>
             </div>
+            <strong class="journey-card-title" style="color:var(--text);margin-top:2px;font-size:14px">${esc(e.title)}</strong>
+            ${(e.location || e.teamShared) ? `
+              <div class="horizon-item-meta" style="margin-top:2px">
+                ${e.location ? `<span>${getLucideSvg('map-pin', 12)} ${esc(e.location)}</span>` : ''}
+                ${e.teamShared ? `<span class="note-chip">${getLucideSvg('users', 12)} ${esc(e.teamName || 'Team')}</span>` : ''}
+              </div>
+            ` : ''}
           </div>
-          <strong class="journey-card-title" style="color:var(--text);margin-top:2px;font-size:14px">${esc(e.title)}</strong>
-          ${(e.location || e.teamShared) ? `
-            <div class="horizon-item-meta" style="margin-top:2px">
-              ${e.location ? `<span>${getLucideSvg('map-pin', 12)} ${esc(e.location)}</span>` : ''}
-              ${e.teamShared ? `<span class="note-chip">${getLucideSvg('users', 12)} ${esc(e.teamName || 'Team')}</span>` : ''}
-            </div>
-          ` : ''}
         </div>
       `;
     }
@@ -18618,19 +18648,24 @@ function renderOverviewHorizon(options = {}){
           leftHtml = `
             <div class="journey-card event-card is-multiday-spanning ${isMilestone ? 'has-canopy' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(curEvent.id)}" style="--card-accent:${cardAccent}">
               ${canopyHtml}
-              <div class="spanning-header-row">
-                <div style="display:inline-flex;align-items:center;min-width:0;flex-wrap:wrap;gap:5px">
-                  <span class="spanning-all-day-tag" style="display:inline-flex;align-items:center;gap:4px;">${getLucideSvg('calendar', 12)} ${esc(durationLabel)}</span>
-                  ${flairPillHtml}
-                  ${spanLiveBadge}
+              <div class="journey-card-body">
+                <div class="spanning-header-row">
+                  <div style="display:inline-flex;align-items:center;min-width:0;flex-wrap:wrap;gap:5px">
+                    <span class="spanning-all-day-tag" style="display:inline-flex;align-items:center;gap:4px;">${getLucideSvg('calendar', 12)} ${esc(durationLabel)}</span>
+                    ${flairPillHtml}
+                    ${spanLiveBadge}
+                  </div>
+                  <div style="display:inline-flex;align-items:center;gap:6px">
+                    <div class="journey-card-profile-chip inline-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile">
+                      ${avatarMarkup(creator, 'xs')}
+                      <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+                    </div>
+                    <button type="button" class="journey-card-menu-btn" data-edit-event="${esc(curEvent.id)}" title="Edit event">···</button>
+                  </div>
                 </div>
-                <div class="journey-card-profile-chip inline-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile">
-                  ${avatarMarkup(creator, 'xs')}
-                  <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
-                </div>
+                <strong class="journey-card-title">${esc(curEvent.title)}</strong>
+                ${curEvent.location ? `<div class="horizon-item-meta" style="margin-top:2px"><span>${getLucideSvg('map-pin', 12)} ${esc(curEvent.location)}</span></div>` : ''}
               </div>
-              <strong class="journey-card-title">${esc(curEvent.title)}</strong>
-              ${curEvent.location ? `<div class="horizon-item-meta" style="margin-top:2px"><span>${getLucideSvg('map-pin', 12)} ${esc(curEvent.location)}</span></div>` : ''}
             </div>
           `;
         } else {
