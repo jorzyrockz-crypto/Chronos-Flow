@@ -5129,7 +5129,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
       <aside class="side-card"><div class="side-head"><div class="date-label">SELECTED DAY</div><h3 id="selectedTitle">Wednesday, 28</h3><p id="selectedSubtitle">Your day, at a glance.</p></div><div class="agenda-list" id="selectedAgenda"></div><div class="selected-tasks"><div class="selected-tasks-head"><strong>Tasks for this day</strong><button type="button" class="text-btn" id="addTaskForSelected" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add task</button></div><div id="selectedTasksList"></div></div><div class="side-footer"><button class="btn primary" id="addSelected" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add to this day</button></div></aside>
     </div>
   </section>
-  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button type="button" class="btn btn-showcase-sample-btn" onclick="window.openShowcaseProject()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:6px 14px;background:var(--surface2,rgba(255,255,255,0.06));border:1px solid var(--line,rgba(255,255,255,0.14));color:var(--text);margin-right:8px;" title="Open Complete Mock Project with Tasks"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Sample Project</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
+  <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div><!-- Project Quick Filter Chips -->
 <div class="project-quick-filter-chips" id="projectQuickFilterChips" role="group" aria-label="Quick project filters">
   <button type="button" class="proj-filter-chip active" data-proj-filter="active">Active Projects</button>
   <button type="button" class="proj-filter-chip" data-proj-filter="all">All Projects</button>
@@ -8046,7 +8046,7 @@ function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStor
       }
     }
     if(typeof purgeZombieShowcaseData==='function'){
-      purgeZombieShowcaseData();
+      purgeZombieShowcaseData(true);
     }
   }catch(e){}
 }
@@ -8233,7 +8233,7 @@ async function deleteCloudDocumentDirectly(type, id, teamId = null){
 window.deleteCloudDocumentDirectly = deleteCloudDocumentDirectly;
 
 // Eradicate zombie showcase mock tasks & project if dismissed or tombstoned
-function purgeZombieShowcaseData(forcePurge = false){
+function purgeZombieShowcaseData(forcePurge = true){
   try {
     const SHOWCASE_ID = 'proj_stem_showcase_2026';
     const isDismissed = localStorage.getItem('chronos90.showcaseProjectDismissed') === '1';
@@ -26848,278 +26848,11 @@ html[data-theme=dark] .batch-menu button:hover{
 
   
 /* =========================================================
-   CHRONOS FLOW 5.2 — SHOWCASE MOCK PROJECT & DEMO SEEDER
+   CHRONOS FLOW 5.2 — SHOWCASE MOCK PROJECT (RETIRED)
    ========================================================= */
 const CHRONOS_SHOWCASE_PROJECT_ID = 'proj_stem_showcase_2026';
-
-function getShowcaseMockProjectData() {
-  return {
-    id: CHRONOS_SHOWCASE_PROJECT_ID,
-    name: 'STEM & Digital Learning Initiative',
-    description: 'Cross-departmental rollout of interactive digital science modules, hybrid laboratory experiments, and collaborative student portfolios across secondary STEM departments.',
-    color: '#10b981',
-    tone: '#10b981',
-    status: 'active',
-    priority: 'high',
-    startDate: '2026-11-01',
-    dueDate: '2026-11-28',
-    owner: 'Floyran Gumban',
-    ownerUid: 'user_floyran_gumban',
-    members: ['Sarah Chen', 'Marcus Vance', 'Elena Rostova', 'David Kalu'],
-    memberUids: ['u_sarah', 'u_marcus', 'u_elena', 'u_david'],
-    isMock: true,
-    teamShared: false,
-    createdAt: Date.now() - 5 * 86400000,
-    updatedAt: Date.now()
-  };
-}
-
-function getShowcaseMockTasksData() {
-  const cohort = [
-    { name: 'Floyran Gumban', email: 'floyran.gumban@deped.gov.ph', role: 'Project Lead', status: 'hardcopy', time: 'on_time', ta: 'Exemplary alignment with Q4 science standards.', author: 'Superintendent', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Floyran&backgroundColor=ffd5dc' },
-    { name: 'Sarah Chen', email: 'sarah.chen@deped.gov.ph', role: 'Physics Head', status: 'submitted', time: 'on_time', ta: 'Approved with laboratory safety notes.', author: 'Floyran Gumban', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=SarahChen&backgroundColor=b6e3f4' },
-    { name: 'Marcus Vance', email: 'marcus.vance@deped.gov.ph', role: 'Robotics Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MarcusVance&backgroundColor=c0aede' },
-    { name: 'Elena Rostova', email: 'elena.rostova@deped.gov.ph', role: 'Chemistry Faculty', status: 'hardcopy', time: 'on_time', ta: 'Chemical disposal rubric verified.', author: 'Safety Inspector', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ElenaRostova&backgroundColor=d1d4f9' },
-    { name: 'David Kalu', email: 'david.kalu@deped.gov.ph', role: 'Biology Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=DavidKalu&backgroundColor=ffdfbf' },
-    { name: 'Maria Santos', email: 'maria.santos@deped.gov.ph', role: 'Master Teacher II', status: 'hardcopy', time: 'on_time', ta: 'Validated portfolio documentation.', author: 'Principal', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MariaSantos&backgroundColor=ffd5dc' },
-    { name: 'Juan Dela Cruz', email: 'juan.delacruz@deped.gov.ph', role: 'Curriculum Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=JuanDelaCruz&backgroundColor=b6e3f4' },
-    { name: 'Grace Hopper', email: 'grace.hopper@deped.gov.ph', role: 'Computer Science Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=GraceHopper&backgroundColor=c0aede' },
-    { name: 'Alan Turing', email: 'alan.turing@deped.gov.ph', role: 'STEM Math Specialist', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AlanTuring&backgroundColor=d1d4f9' },
-    { name: 'Katherine Johnson', email: 'katherine.j@deped.gov.ph', role: 'Calculus Instructor', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=KatherineJohnson&backgroundColor=ffd5dc' },
-    { name: 'Ada Lovelace', email: 'ada.lovelace@deped.gov.ph', role: 'Algorithmics Specialist', status: 'submitted', time: 'late', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AdaLovelace&backgroundColor=ffdfbf' },
-    { name: 'Linus Torvalds', email: 'linus.t@deped.gov.ph', role: 'IT Systems Coordinator', status: 'submitted', time: 'late', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=LinusTorvalds&backgroundColor=b6e3f4' },
-    { name: 'Rosalind Franklin', email: 'rosalind.f@deped.gov.ph', role: 'Biochemistry Faculty', status: 'hardcopy', time: 'on_time', ta: 'DNA extraction protocols attached.', author: 'Floyran Gumban', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=RosalindFranklin&backgroundColor=c0aede' },
-    { name: 'Nikola Tesla', email: 'nikola.tesla@deped.gov.ph', role: 'Applied Physics Faculty', status: 'submitted', time: 'on_time', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=NikolaTesla&backgroundColor=d1d4f9' },
-    { name: 'Marie Curie', email: 'marie.curie@deped.gov.ph', role: 'Senior Radiation Chemist', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=MarieCurie&backgroundColor=ffd5dc' },
-    { name: 'Carl Sagan', email: 'carl.sagan@deped.gov.ph', role: 'Earth & Space Science', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=CarlSagan&backgroundColor=ffdfbf' },
-    { name: 'Richard Feynman', email: 'richard.f@deped.gov.ph', role: 'Theoretical Physics', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=RichardFeynman&backgroundColor=b6e3f4' },
-    { name: 'Chien-Shiung Wu', email: 'cs.wu@deped.gov.ph', role: 'Experimental Lab Specialist', status: 'pending', time: 'pending', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ChienShiungWu&backgroundColor=c0aede' },
-    { name: 'Jane Goodall', email: 'jane.goodall@deped.gov.ph', role: 'Environmental Science', status: 'overdue', time: 'overdue', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=JaneGoodall&backgroundColor=d1d4f9' },
-    { name: 'Alexander Fleming', email: 'alexander.f@deped.gov.ph', role: 'Microbiology Head', status: 'overdue', time: 'overdue', photo: 'https://api.dicebear.com/7.x/adventurer/svg?seed=AlexanderFleming&backgroundColor=ffdfbf' }
-  ];
-
-  window._showcaseCohortDirectory = cohort.map((c, idx) => ({
-    uid: 'u_cohort_' + (idx + 1),
-    name: c.name,
-    email: c.email,
-    role: c.role,
-    photoURL: c.photo
-  }));
-
-  const tasksList = cohort.map((c, idx) => ({
-    id: 'task_mock_stem_cohort_' + (idx + 1).toString().padStart(2, '0'),
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Finalize STEM curriculum rubric & lab safety protocols',
-    deliverableGroup: 'deliv_grp_rubric_2026',
-    deliverableTitle: 'Finalize STEM curriculum rubric & lab safety protocols',
-    due: '2026-11-06',
-    dueTime: '17:00',
-    details: 'Submit signed department curriculum matrix, laboratory safety protocols, and student competency rubrics.',
-    assigneeName: c.name,
-    assigneeEmail: c.email,
-    assigneeUid: 'u_cohort_' + (idx + 1),
-    assigneePhotoURL: c.photo,
-    role: c.role,
-    phase: 'Phase 1: Planning',
-    isDeliverable: true,
-    isDeliverableSubmission: true,
-    priority: idx % 3 === 0 ? 'high' : 'medium',
-    status: (c.status === 'submitted' || c.status === 'hardcopy') ? 'done' : (c.status === 'overdue' ? 'open' : 'in_progress'),
-    done: (c.status === 'submitted' || c.status === 'hardcopy'),
-    submissionStatus: c.status,
-    submissionMode: c.status === 'hardcopy' ? 'hardcopy' : 'link',
-    submissionUrl: c.status === 'submitted' ? 'https://drive.google.com/deped/stem/' + c.name.toLowerCase().replace(/\s+/g, '_') : null,
-    submittedAt: (c.status === 'submitted' || c.status === 'hardcopy') ? (Date.now() - (idx + 1) * 3600000) : null,
-    receivedAt: c.status === 'hardcopy' ? (Date.now() - idx * 7200000) : null,
-    receivedBy: c.status === 'hardcopy' ? 'Office Administrator' : null,
-    taCategory: c.ta ? 'Quality Assurance' : null,
-    taRemarks: c.ta || null,
-    taStatus: c.ta ? 'approved' : null,
-    taAuthor: c.author || null,
-    taTimestamp: c.ta ? Date.now() - 1800000 : null
-  }));
-
-  // Add the master deliverable milestone task (shows in task list & calendar)
-  tasksList.unshift({
-    id: 'task_mock_stem_01',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Finalize STEM curriculum rubric & lab safety protocols',
-    deliverableGroup: 'deliv_grp_rubric_2026',
-    deliverableTitle: 'Finalize STEM curriculum rubric & lab safety protocols',
-    due: '2026-11-06',
-    dueTime: '17:00',
-    details: 'Department-wide submission requirement for 20 STEM faculty members across physics, chemistry, biology, mathematics, and robotics.',
-    assigneeName: 'DepEd Faculty & Specialists Cohort',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Floyran&backgroundColor=ffd5dc',
-    phase: 'Phase 1: Planning',
-    isDeliverable: true,
-    isDeliverableMilestone: true,
-    isDeliverableSubmission: false,
-    priority: 'high',
-    status: 'in_progress',
-    done: false,
-    subtasks: [
-      { title: 'Publish curriculum template & lab checklist to all departments', done: true },
-      { title: 'Collect submissions & verify compliance across 20 personnel', done: false },
-      { title: 'Supervisory technical assistance coaching for pending items', done: false }
-    ]
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_02',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Inventory audit of digital sensors & lab workstations',
-    assigneeName: 'Sarah Chen',
-    assigneeUid: 'u_sarah',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=SarahChen&backgroundColor=b6e3f4',
-    status: 'done',
-    done: true,
-    due: '2026-11-09',
-    phase: 'Phase 1: Planning',
-    priority: 'medium'
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_04',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Conduct faculty training workshop on student digital portfolios',
-    assigneeName: 'Elena Rostova',
-    assigneeUid: 'u_elena',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ElenaRostova&backgroundColor=d1d4f9',
-    status: 'open',
-    done: false,
-    due: '2026-11-20',
-    phase: 'Phase 2: Implementation',
-    priority: 'medium'
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_05',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Mid-term STEM lab workstation calibration & safety check',
-    assigneeName: 'David Kalu',
-    assigneeUid: 'u_david',
-    assigneePhotoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=DavidKalu&backgroundColor=ffdfbf',
-    status: 'open',
-    done: false,
-    due: '2026-11-25',
-    phase: 'Phase 2: Implementation',
-    priority: 'low'
-  });
-
-  // Also include the other project tasks
-  tasksList.push({
-    id: 'task_mock_stem_03',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Deploy interactive simulation software to lab computers',
-    assigneeName: 'Marcus Vance',
-    assigneeUid: 'u_marcus',
-    status: 'in_progress',
-    done: false,
-    due: '2026-11-15',
-    phase: 'Phase 2: Implementation',
-    isDeliverable: true,
-    priority: 'high',
-    subtasks: [
-      { title: 'Install master image on science lab clients', done: true },
-      { title: 'Network stress test with 30 concurrent users', done: false }
-    ]
-  });
-
-  tasksList.push({
-    id: 'task_mock_stem_06',
-    projectId: CHRONOS_SHOWCASE_PROJECT_ID,
-    title: 'Submit Q4 STEM Innovation executive transmittal & summary',
-    assigneeName: 'Floyran Gumban',
-    assigneeUid: 'user_floyran_gumban',
-    status: 'open',
-    done: false,
-    due: '2026-11-28',
-    phase: 'Phase 3: Evaluation',
-    isDeliverable: true,
-    priority: 'high',
-    subtasks: [
-      { title: 'Compile quantitative metrics & chart progress', done: false },
-      { title: 'Submit signed transmittal to curriculum director', done: false }
-    ]
-  });
-
-  return tasksList;
-}
-
-function ensureShowcaseMockProject(force = false) {
-  try {
-    if (!force && localStorage.getItem('chronos90.showcaseProjectDismissed') === '1') return;
-    const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
-    if (!force && (tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID] || tombs['tasks|task_mock_stem_01'])) return;
-
-    if (typeof chronosProjects === 'undefined') return;
-    let proj = chronosProjects.find(p => String(p.id) === CHRONOS_SHOWCASE_PROJECT_ID);
-    const mockProjData = getShowcaseMockProjectData();
-
-    if (!proj || force) {
-      if (!force && tombs['projects|' + CHRONOS_SHOWCASE_PROJECT_ID]) {
-        // Dismissed or tombstoned
-      } else {
-        if (proj) {
-          Object.assign(proj, mockProjData);
-        } else {
-          chronosProjects.unshift(mockProjData);
-        }
-        try {
-          localStorage.setItem('chronos90.projects', JSON.stringify(chronosProjects));
-        } catch(e){}
-      }
-    }
-
-    if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
-      const mockTasks = getShowcaseMockTasksData();
-      let changed = false;
-      mockTasks.forEach(mt => {
-        if (!force && tombs['tasks|' + mt.id]) return;
-        const existingIdx = tasks.findIndex(t => String(t.id) === String(mt.id));
-        if (existingIdx === -1) {
-          tasks.push(mt);
-          changed = true;
-        } else if (force || !tasks[existingIdx].assigneePhotoURL || !tasks[existingIdx].isDeliverableSubmission) {
-          Object.assign(tasks[existingIdx], mt);
-          changed = true;
-        }
-      });
-      if (changed) {
-        try {
-          localStorage.setItem('chronos40.tasks', JSON.stringify(tasks));
-        } catch(e){}
-        if (typeof persist === 'function') persist();
-      }
-    }
-
-    // If active project is empty or user is on overview, refresh manager
-    if (typeof renderProjectManager === 'function') {
-      renderProjectManager();
-    }
-  } catch(err) {
-    console.warn('Could not seed showcase mock project:', err);
-  }
-}
-
-// Showcase demo project is strictly on-demand via Demo Project button / window.openShowcaseProject()
-
-// Global helper so user or dev can trigger / open demo
 window.openShowcaseProject = function() {
-  try {
-    localStorage.removeItem('chronos90.showcaseProjectDismissed');
-    const g = JSON.parse(localStorage.getItem('chronos60.localTombstones') || '{}');
-    delete g['projects|' + CHRONOS_SHOWCASE_PROJECT_ID];
-    delete g['tasks|task_mock_stem_01'];
-    for (let i = 1; i <= 20; i++) delete g['tasks|task_mock_stem_cohort_' + i.toString().padStart(2, '0')];
-    for (let i = 1; i <= 6; i++) delete g['tasks|task_mock_stem_0' + i];
-    localStorage.setItem('chronos60.localTombstones', JSON.stringify(g));
-  } catch(e){}
-  ensureShowcaseMockProject(true);
-  if (typeof openProjectWorkspaceModal === 'function') {
-    openProjectWorkspaceModal(CHRONOS_SHOWCASE_PROJECT_ID);
-  }
+  console.info('Sample showcase project has been retired.');
 };
 
   
@@ -27394,7 +27127,7 @@ window.openShowcaseProject = function() {
     const btn = e.target.closest('[data-open-project-deliverables]');
     if (!btn) return;
     e.preventDefault();
-    const pid = btn.dataset.openProjectDeliverables || CHRONOS_SHOWCASE_PROJECT_ID;
+    const pid = btn.dataset.openProjectDeliverables || (typeof chronosProjects !== 'undefined' && chronosProjects[0] ? chronosProjects[0].id : '');
     if (typeof openProjectWorkspaceModal === 'function') {
       openProjectWorkspaceModal(pid);
     } else if (typeof openProject === 'function') {
