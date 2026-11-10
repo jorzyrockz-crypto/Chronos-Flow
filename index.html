@@ -1059,6 +1059,252 @@ html[data-theme="dark"] .journey-card-flair-pill {
   border-color: color-mix(in srgb, var(--card-accent, #6366f1) 40%, transparent);
 }
 
+/* Full Animated Celebration Banner Cards */
+.journey-card.full-banner-card {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+  padding: 13px 16px 13px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transition: transform .24s cubic-bezier(.16, 1, .3, 1), box-shadow .24s ease, border-color .24s ease !important;
+  min-height: 104px !important;
+  box-sizing: border-box !important;
+  animation: bannerAuraShimmer 6s infinite ease-in-out !important;
+}
+
+.journey-card.full-banner-card:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38), 0 0 28px var(--banner-glow, rgba(99, 102, 241, 0.35)), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+
+.full-banner-card .banner-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  position: relative;
+  z-index: 3;
+}
+
+.full-banner-card .banner-badge-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.full-banner-card .banner-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.full-banner-card .banner-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.full-banner-card .banner-actions-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.full-banner-card .full-banner-profile-chip {
+  background: rgba(0, 0, 0, 0.32) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+.full-banner-card .full-banner-profile-chip:hover {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+.full-banner-card .full-banner-profile-chip .journey-card-creator-name {
+  color: #ffffff !important;
+}
+
+.full-banner-card .full-banner-menu-btn {
+  color: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-radius: 50% !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 12px !important;
+}
+.full-banner-card .full-banner-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.full-banner-card .banner-content-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+  margin-top: 2px;
+}
+
+.full-banner-card .banner-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  max-width: 72%;
+  z-index: 2;
+}
+
+.full-banner-card .full-banner-title {
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+  word-break: break-word !important;
+  margin: 0 !important;
+}
+
+.full-banner-card .full-banner-subtitle {
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.full-banner-card .full-banner-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.full-banner-card .full-banner-meta-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.full-banner-card .full-banner-art-wrap {
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 140px;
+  height: 90px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 1;
+  opacity: 0.95;
+}
+
+.full-banner-card .full-banner-art-wrap svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Subtle GPU Animations */
+@keyframes phSunPulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px #fbbf24); }
+}
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.18) rotate(12deg); filter: drop-shadow(0 0 7px #fef08a); }
+}
+@keyframes candleFlicker {
+  0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.9; }
+  30% { transform: scaleY(1.14) scaleX(0.92) skewX(2deg); opacity: 1; filter: drop-shadow(0 0 8px #f59e0b); }
+  70% { transform: scaleY(0.94) scaleX(1.04) skewX(-2deg); opacity: 0.85; }
+}
+@keyframes balloonDrift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3.5px) rotate(1.5deg); }
+}
+@keyframes baubleSway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes bannerAuraShimmer {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.22); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22); }
+  50% { border-color: rgba(255, 255, 255, 0.45); box-shadow: 0 14px 40px var(--banner-glow, rgba(99, 102, 241, 0.28)); }
+}
+
+.anim-ph-sun { transform-origin: 420px 58px; animation: phSunPulse 4.2s infinite ease-in-out; }
+.anim-sparkle-1 { transform-origin: center; animation: sparkleTwinkle 2.6s infinite ease-in-out; }
+.anim-sparkle-2 { transform-origin: center; animation: sparkleTwinkle 3.4s infinite ease-in-out 1.1s; }
+.anim-sparkle-3 { transform-origin: center; animation: sparkleTwinkle 3.0s infinite ease-in-out 0.5s; }
+.anim-candle { transform-origin: 449px 34px; animation: candleFlicker 1.8s infinite ease-in-out; }
+.anim-balloon { animation: balloonDrift 5s infinite ease-in-out; }
+.anim-bauble { transform-origin: top center; animation: baubleSway 4s infinite ease-in-out; }
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  .journey-card.full-banner-card,
+  .anim-ph-sun, .anim-sparkle-1, .anim-sparkle-2, .anim-sparkle-3,
+  .anim-candle, .anim-balloon, .anim-bauble {
+    animation: none !important;
+  }
+}
+html[data-motion="off"] .journey-card.full-banner-card,
+html[data-motion="off"] .anim-ph-sun,
+html[data-motion="off"] .anim-sparkle-1,
+html[data-motion="off"] .anim-sparkle-2,
+html[data-motion="off"] .anim-sparkle-3,
+html[data-motion="off"] .anim-candle,
+html[data-motion="off"] .anim-balloon,
+html[data-motion="off"] .anim-bauble {
+  animation: none !important;
+}
+
 /* Task Personality Based on Priority & State - Left Glowing Accent Bar */
 .journey-card.task-card-item{border-left:3.5px solid var(--card-accent,#10b981)!important}
 .journey-card.task-urgent{--card-accent:#ef4444;background:linear-gradient(135deg,rgba(239,68,68,.09),var(--journey-card-bg))!important}
@@ -10991,24 +11237,28 @@ const EVENT_FLAIR_DEFINITIONS = {
         </radialGradient>
       </defs>
       <circle cx="430" cy="60" r="55" fill="url(#cakeGlow)"/>
-      <path d="M330,42 C330,22 346,8 362,8 C378,8 394,22 394,42 C394,58 378,68 362,68 C346,68 330,58 330,42 Z" fill="rgba(255,255,255,0.22)"/>
-      <path d="M362,68 L360,74 L364,74 Z" fill="rgba(255,255,255,0.4)"/>
-      <path d="M362,74 Q355,90 365,115" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
-      <path d="M365,34 C365,16 380,4 394,4 C408,4 422,16 422,34 C422,48 408,58 394,58 C380,58 365,48 365,34 Z" fill="rgba(255,255,255,0.32)"/>
-      <path d="M394,58 L392,64 L396,64 Z" fill="rgba(255,255,255,0.5)"/>
-      <path d="M394,64 Q402,80 395,115" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+      <g class="anim-balloon">
+        <path d="M330,42 C330,22 346,8 362,8 C378,8 394,22 394,42 C394,58 378,68 362,68 C346,68 330,58 330,42 Z" fill="rgba(255,255,255,0.22)"/>
+        <path d="M362,68 L360,74 L364,74 Z" fill="rgba(255,255,255,0.4)"/>
+        <path d="M362,74 Q355,90 365,115" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+        <path d="M365,34 C365,16 380,4 394,4 C408,4 422,16 422,34 C422,48 408,58 394,58 C380,58 365,48 365,34 Z" fill="rgba(255,255,255,0.32)"/>
+        <path d="M394,58 L392,64 L396,64 Z" fill="rgba(255,255,255,0.5)"/>
+        <path d="M394,64 Q402,80 395,115" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+      </g>
       <rect x="415" y="72" width="68" height="36" rx="4" fill="rgba(255,255,255,0.85)"/>
       <rect x="425" y="48" width="48" height="24" rx="3" fill="rgba(255,255,255,0.92)"/>
       <path d="M415,78 Q421,83 427,78 Q433,83 439,78 Q445,83 451,78 Q457,83 463,78 Q469,83 475,78 Q481,83 483,78" stroke="#f43f5e" stroke-width="2.5" fill="none"/>
       <rect x="447" y="34" width="4" height="14" rx="1" fill="#fbbf24"/>
-      <path d="M449,24 C447,28 446,31 449,34 C452,31 451,28 449,24 Z" fill="#fbbf24"/>
-      <circle cx="449,29" r="6" fill="#fef08a" opacity="0.6"/>
-      <circle cx="310" cy="25" r="3" fill="#fef08a"/>
-      <circle cx="340" cy="85" r="2.5" fill="#bae6fd"/>
-      <circle cx="410" cy="18" r="2" fill="#fed7aa"/>
-      <circle cx="488" cy="42" r="3" fill="#fef08a"/>
-      <path d="M320,50 L325,52 L320,54 L318,59 L316,54 L311,52 L316,50 L318,45 Z" fill="rgba(255,255,255,0.75)"/>
-      <path d="M475,18 L478,19 L475,20 L474,23 L473,20 L470,19 L473,18 L474,15 Z" fill="rgba(255,255,255,0.8)"/>
+      <g class="anim-candle">
+        <path d="M449,24 C447,28 446,31 449,34 C452,31 451,28 449,24 Z" fill="#fbbf24"/>
+        <circle cx="449,29" r="6" fill="#fef08a" opacity="0.6"/>
+      </g>
+      <circle cx="310" cy="25" r="3" fill="#fef08a" class="anim-sparkle-1"/>
+      <circle cx="340" cy="85" r="2.5" fill="#bae6fd" class="anim-sparkle-2"/>
+      <circle cx="410" cy="18" r="2" fill="#fed7aa" class="anim-sparkle-3"/>
+      <circle cx="488" cy="42" r="3" fill="#fef08a" class="anim-sparkle-1"/>
+      <path class="anim-sparkle-2" d="M320,50 L325,52 L320,54 L318,59 L316,54 L311,52 L316,50 L318,45 Z" fill="rgba(255,255,255,0.75)"/>
+      <path class="anim-sparkle-3" d="M475,18 L478,19 L475,20 L474,23 L473,20 L470,19 L473,18 L474,15 Z" fill="rgba(255,255,255,0.8)"/>
       <path d="M295,70 Q305,65 315,75 T335,70" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" fill="none"/>
     </svg>`
   },
@@ -11024,21 +11274,25 @@ const EVENT_FLAIR_DEFINITIONS = {
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <polygon points="440,16 458,40 450,40 464,66 454,66 470,96 410,96 426,66 416,66 430,40 422,40" fill="rgba(255,255,255,0.88)"/>
       <rect x="436" y="96" width="8" height="14" fill="rgba(255,255,255,0.6)"/>
-      <path d="M440,8 L442,13 L447,13 L443,16 L445,21 L440,18 L435,21 L437,16 L433,13 L438,13 Z" fill="#fef08a"/>
-      <line x1="375" y1="0" x2="375" y2="35" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-      <circle cx="375" cy="46" r="11" fill="rgba(255,255,255,0.3)"/>
-      <circle cx="373" cy="43" r="3" fill="rgba(255,255,255,0.7)"/>
-      <line x1="340" y1="0" x2="340" y2="55" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-      <circle cx="340" cy="69" r="14" fill="rgba(255,255,255,0.22)"/>
-      <circle cx="337" cy="65" r="4" fill="rgba(255,255,255,0.6)"/>
-      <g stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round">
+      <path class="anim-sparkle-1" d="M440,8 L442,13 L447,13 L443,16 L445,21 L440,18 L435,21 L437,16 L433,13 L438,13 Z" fill="#fef08a"/>
+      <g class="anim-bauble">
+        <line x1="375" y1="0" x2="375" y2="35" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+        <circle cx="375" cy="46" r="11" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="373" cy="43" r="3" fill="rgba(255,255,255,0.7)"/>
+      </g>
+      <g class="anim-bauble" style="animation-delay: 1.2s">
+        <line x1="340" y1="0" x2="340" y2="55" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+        <circle cx="340" cy="69" r="14" fill="rgba(255,255,255,0.22)"/>
+        <circle cx="337" cy="65" r="4" fill="rgba(255,255,255,0.6)"/>
+      </g>
+      <g class="anim-sparkle-2" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round">
         <line x1="310" y1="25" x2="310" y2="37"/><line x1="304" y1="31" x2="316" y2="31"/>
         <line x1="306" y1="27" x2="314" y2="35"/><line x1="306" y1="35" x2="314" y2="27"/>
       </g>
-      <circle cx="328" cy="88" r="2.5" fill="#fff" opacity="0.8"/>
+      <circle cx="328" cy="88" r="2.5" fill="#fff" opacity="0.8" class="anim-sparkle-3"/>
       <circle cx="360" cy="80" r="1.8" fill="#fff" opacity="0.7"/>
-      <circle cx="395" cy="22" r="2" fill="#fff" opacity="0.8"/>
-      <circle cx="482" cy="50" r="3" fill="#fef08a" opacity="0.85"/>
+      <circle cx="395" cy="22" r="2" fill="#fff" opacity="0.8" class="anim-sparkle-1"/>
+      <circle cx="482" cy="50" r="3" fill="#fef08a" opacity="0.85" class="anim-sparkle-2"/>
       <circle cx="420" cy="82" r="2.5" fill="#f43f5e"/>
       <circle cx="452" cy="55" r="2.5" fill="#38bdf8"/>
     </svg>`
@@ -11053,7 +11307,7 @@ const EVENT_FLAIR_DEFINITIONS = {
     gradient: 'linear-gradient(135deg, #09090b 0%, #1e1b4b 40%, #713f12 85%, #ca8a04 100%)',
     accentColor: '#eab308',
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="#fef08a" stroke-width="1.5" stroke-linecap="round" opacity="0.85">
+      <g class="anim-sparkle-1" stroke="#fef08a" stroke-width="1.5" stroke-linecap="round" opacity="0.85">
         <line x1="360" y1="40" x2="360" y2="22"/><line x1="360" y1="40" x2="360" y2="58"/>
         <line x1="360" y1="40" x2="342" y2="40"/><line x1="360" y1="40" x2="378" y2="40"/>
         <line x1="360" y1="40" x2="347" y2="27"/><line x1="360" y1="40" x2="373" y2="53"/>
@@ -11066,32 +11320,34 @@ const EVENT_FLAIR_DEFINITIONS = {
       <path d="M455,45 L470,45 L466,75 L459,75 Z" fill="rgba(255,255,255,0.85)" transform="rotate(15 462 60)"/>
       <line x1="462" y1="75" x2="466" y2="105" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" transform="rotate(15 462 60)"/>
       <line x1="456" y1="105" x2="472" y2="105" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" transform="rotate(15 462 60)"/>
-      <circle cx="445" cy="35" r="3" fill="#fef08a"/>
-      <circle cx="452" cy="26" r="2" fill="#fff"/>
-      <circle cx="458" cy="38" r="2.5" fill="#fef08a"/>
+      <circle cx="445" cy="35" r="3" fill="#fef08a" class="anim-sparkle-2"/>
+      <circle cx="452" cy="26" r="2" fill="#fff" class="anim-sparkle-3"/>
+      <circle cx="458" cy="38" r="2.5" fill="#fef08a" class="anim-sparkle-1"/>
     </svg>`
   },
 
   'flair:holiday_national': {
     key: 'flair:holiday_national',
     name: 'National Holiday',
-    badge: 'HOLIDAY',
+    badge: 'PH HOLIDAY',
     icon: 'flag',
     emoji: '🇵🇭',
     gradient: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #881337 85%, #9f1239 100%)',
     accentColor: '#38bdf8',
     svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="420" cy="58" r="14" fill="#fbbf24"/>
-      <g stroke="#fbbf24" stroke-width="2" stroke-linecap="round">
-        <line x1="420" y1="36" x2="420" y2="28"/><line x1="420" y1="80" x2="420" y2="88"/>
-        <line x1="398" y1="58" x2="390" y2="58"/><line x1="442" y1="58" x2="450" y2="58"/>
-        <line x1="404" y1="42" x2="398" y2="36"/><line x1="436" y1="74" x2="442" y2="80"/>
-        <line x1="404" y1="74" x2="398" y2="80"/><line x1="436" y1="42" x2="442" y2="36"/>
+      <g class="anim-ph-sun">
+        <circle cx="420" cy="58" r="14" fill="#fbbf24"/>
+        <g stroke="#fbbf24" stroke-width="2" stroke-linecap="round">
+          <line x1="420" y1="36" x2="420" y2="28"/><line x1="420" y1="80" x2="420" y2="88"/>
+          <line x1="398" y1="58" x2="390" y2="58"/><line x1="442" y1="58" x2="450" y2="58"/>
+          <line x1="404" y1="42" x2="398" y2="36"/><line x1="436" y1="74" x2="442" y2="80"/>
+          <line x1="404" y1="74" x2="398" y2="80"/><line x1="436" y1="42" x2="442" y2="36"/>
+        </g>
       </g>
       <path d="M375,70 C375,40 400,24 420,24 C440,24 465,40 465,70" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="3 4" fill="none"/>
-      <polygon points="360,35 362,40 367,40 363,43 365,48 360,45 355,48 357,43 353,40 358,40" fill="#fef08a"/>
-      <polygon points="475,35 477,40 482,40 478,43 480,48 475,45 470,48 472,43 468,40 473,40" fill="#fef08a"/>
-      <polygon points="420,10 422,14 426,14 423,17 424,21 420,18 416,21 417,17 414,14 418,14" fill="#fef08a"/>
+      <polygon class="anim-sparkle-1" points="360,35 362,40 367,40 363,43 365,48 360,45 355,48 357,43 353,40 358,40" fill="#fef08a"/>
+      <polygon class="anim-sparkle-2" points="475,35 477,40 482,40 478,43 480,48 475,45 470,48 472,43 468,40 473,40" fill="#fef08a"/>
+      <polygon class="anim-sparkle-3" points="420,10 422,14 426,14 423,17 424,21 420,18 416,21 417,17 414,14 418,14" fill="#fef08a"/>
     </svg>`
   },
 
@@ -18092,8 +18348,105 @@ function renderOverviewHorizon(options = {}){
       return { icon, label, accent, priClass };
     }
 
+    function isCelebrationBanner(fl, ev){
+      if(!fl) return false;
+      const celebrationKeys = ['flair:birthday', 'flair:christmas', 'flair:newyear', 'flair:holiday_national'];
+      if(ev && ev.coverPreset && ev.coverPreset !== 'auto'){
+        return celebrationKeys.includes(ev.coverPreset);
+      }
+      if(celebrationKeys.includes(fl.key)) return true;
+      return false;
+    }
+
+    function renderJourneyFullBannerCard(e, flair, dayHue, isDayToday, nowMinsParam, spanInfo){
+      const creator = getCardCreatorProfile(e);
+      const isMultiDay = spanInfo && spanInfo.spanDays >= 2;
+      let badgeTime = 'ALL DAY';
+      if(isMultiDay){
+        badgeTime = `ALL DAY · ${spanInfo.spanDays} DAYS`;
+      } else if(e.allDay || !e.start){
+        badgeTime = 'ALL DAY';
+      } else {
+        badgeTime = fmtTime(e.start) + (e.end ? ` – ${fmtTime(e.end)}` : '');
+      }
+
+      const isToday = (typeof isDayToday === 'boolean') ? isDayToday : (e.date === todayKey);
+      const isTodayInRange = isMultiDay 
+        ? (todayKey >= e.date && spanInfo.endDateKey && todayKey <= spanInfo.endDateKey)
+        : isToday;
+
+      let statusBadgeHtml = '';
+      if(isTodayInRange){
+        statusBadgeHtml = `<span class="journey-card-now-badge" style="background:rgba(239,68,68,0.32);border-color:rgba(255,255,255,0.45);color:#ffffff">${getLucideSvg('radio', 10)} Active Today</span>`;
+      }
+
+      const isRecurring = (e.repeat && e.repeat !== 'none') || !!e.seriesId;
+      const recurringBadgeHtml = isRecurring ? `
+        <span class="journey-card-repeat-badge" title="Recurring event (${esc(e.repeat || 'series')})" style="display:inline-flex;align-items:center;color:rgba(255,255,255,0.9);">${getLucideSvg('repeat', 10)}</span>
+      ` : '';
+
+      const cardAccent = e.color || (flair && flair.accentColor) || '#6366f1';
+      const bannerGlow = (flair && flair.accentColor) || cardAccent;
+
+      let subtitleText = '';
+      if(e.description && e.description.trim()){
+        subtitleText = esc(e.description.trim());
+      } else if(isMultiDay){
+        subtitleText = `${spanInfo.spanDays}-day celebration • ${esc(flair.name || 'All day')}`;
+      } else {
+        subtitleText = esc(flair.name || 'Special Celebration');
+      }
+
+      let metaHtml = '';
+      if(e.location || e.teamShared){
+        metaHtml = `
+          <div class="full-banner-meta-row">
+            ${e.location ? `<span>${getLucideSvg('map-pin', 11)} ${esc(e.location)}</span>` : ''}
+            ${e.teamShared ? `<span>${getLucideSvg('users', 11)} ${esc(e.teamName || 'Team')}</span>` : ''}
+          </div>
+        `;
+      }
+
+      return `
+        <article class="journey-card event-card full-banner-card ${isMultiDay ? 'is-multiday-spanning' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(e.id)}" style="background:${flair.gradient};--card-accent:${cardAccent};--banner-glow:${bannerGlow}">
+          <div class="banner-head-row">
+            <div class="banner-badge-group">
+              <span class="banner-pill-badge">
+                ${flair.emoji || ''} ${esc(flair.badge)}
+              </span>
+              <span class="banner-time-badge">
+                ${getLucideSvg('calendar', 11)} ${esc(badgeTime)}
+              </span>
+              ${recurringBadgeHtml}
+              ${statusBadgeHtml}
+            </div>
+            <div class="banner-actions-group">
+              <div class="journey-card-profile-chip full-banner-profile-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile" style="cursor:pointer">
+                ${avatarMarkup(creator, 'xs')}
+                <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+              </div>
+              <button type="button" class="full-banner-menu-btn" data-edit-event="${esc(e.id)}" title="Edit event">···</button>
+            </div>
+          </div>
+          <div class="banner-content-row">
+            <div class="banner-text-col">
+              <h4 class="full-banner-title">${esc(e.title)}</h4>
+              <p class="full-banner-subtitle">${subtitleText}</p>
+              ${metaHtml}
+            </div>
+            <div class="full-banner-art-wrap" aria-hidden="true">
+              ${flair.svg}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
     function renderJourneyEventCard(e, isHero, dayHue, isDayToday, nowMinsParam){
       const { icon, label, accent, catClass, flair } = getEventCardMeta(e);
+      if(isCelebrationBanner(flair, e)){
+        return renderJourneyFullBannerCard(e, flair, dayHue, isDayToday, nowMinsParam, null);
+      }
       const timeText = e.allDay ? 'All day' : (e.start ? fmtTime(e.start) : 'Time not set');
       const creator = getCardCreatorProfile(e);
 
@@ -18741,70 +19094,74 @@ function renderOverviewHorizon(options = {}){
         if(isMultiDay){
           const creator = getCardCreatorProfile(curEvent);
           const { accent, flair } = getEventCardMeta(curEvent);
-          const durationLabel = `ALL DAY · ${spanInfo.spanDays} DAYS`;
-          const isTodayInRange = (todayKey >= curEvent.date && spanInfo.endDateKey && todayKey <= spanInfo.endDateKey);
-          const spanLiveBadge = isTodayInRange ? `<span class="journey-card-now-badge" style="margin-left:6px">${getLucideSvg('radio', 10)} Active Today</span>` : '';
+          if(isCelebrationBanner(flair, curEvent)){
+            leftHtml = renderJourneyFullBannerCard(curEvent, flair, dayHue, isDayToday, nowMins, spanInfo);
+          } else {
+            const durationLabel = `ALL DAY · ${spanInfo.spanDays} DAYS`;
+            const isTodayInRange = (todayKey >= curEvent.date && spanInfo.endDateKey && todayKey <= spanInfo.endDateKey);
+            const spanLiveBadge = isTodayInRange ? `<span class="journey-card-now-badge" style="margin-left:6px">${getLucideSvg('radio', 10)} Active Today</span>` : '';
 
-          const isMilestone = (function(fl, ev){
-            if(!fl) return false;
-            if(ev && ev.coverPreset && ev.coverPreset !== 'auto') return true;
-            const keys = ['flair:birthday','flair:christmas','flair:newyear','flair:holiday_national','flair:travel','flair:graduation','flair:school_event','flair:workshop'];
-            if(keys.includes(fl.key)) return true;
-            if(ev && ev.allDay){
-              const txt = (String(ev.title || '') + ' ' + String(ev.description || '')).toLowerCase();
-              if(/holiday|break|celebration|anniversary|party|trip|tour|eskwela/i.test(txt)) return true;
-            }
-            return false;
-          })(flair, curEvent);
+            const isMilestone = (function(fl, ev){
+              if(!fl) return false;
+              if(ev && ev.coverPreset && ev.coverPreset !== 'auto') return true;
+              const keys = ['flair:birthday','flair:christmas','flair:newyear','flair:holiday_national','flair:travel','flair:graduation','flair:school_event','flair:workshop'];
+              if(keys.includes(fl.key)) return true;
+              if(ev && ev.allDay){
+                const txt = (String(ev.title || '') + ' ' + String(ev.description || '')).toLowerCase();
+                if(/holiday|break|celebration|anniversary|party|trip|tour|eskwela/i.test(txt)) return true;
+              }
+              return false;
+            })(flair, curEvent);
 
-          let canopyHtml = '';
-          let flairPillHtml = '';
-          if(flair){
-            if(isMilestone){
-              canopyHtml = `
-                <div class="journey-card-canopy" style="background:${flair.gradient}">
-                  <span class="journey-card-canopy-badge">
-                    ${flair.emoji || ''} ${esc(flair.badge)}
-                  </span>
-                  <div class="journey-card-canopy-art">
-                    ${flair.svg}
-                  </div>
-                </div>
-              `;
-            } else if(flair.key !== 'flair:strategy'){
-              flairPillHtml = `
-                <span class="journey-card-flair-pill">
-                  ${flair.emoji ? `${flair.emoji} ` : getLucideSvg(flair.icon, 10)} ${esc(flair.badge)}
-                </span>
-              `;
-            }
-          }
-
-          const cardAccent = curEvent.color || (flair && flair.accentColor) || accent || '#4388df';
-
-          leftHtml = `
-            <div class="journey-card event-card is-multiday-spanning ${isMilestone ? 'has-canopy' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(curEvent.id)}" style="--card-accent:${cardAccent}">
-              ${canopyHtml}
-              <div class="journey-card-body">
-                <div class="spanning-header-row">
-                  <div style="display:inline-flex;align-items:center;min-width:0;flex-wrap:wrap;gap:5px">
-                    <span class="spanning-all-day-tag" style="display:inline-flex;align-items:center;gap:4px;">${getLucideSvg('calendar', 12)} ${esc(durationLabel)}</span>
-                    ${flairPillHtml}
-                    ${spanLiveBadge}
-                  </div>
-                  <div style="display:inline-flex;align-items:center;gap:6px">
-                    <div class="journey-card-profile-chip inline-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile">
-                      ${avatarMarkup(creator, 'xs')}
-                      <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+            let canopyHtml = '';
+            let flairPillHtml = '';
+            if(flair){
+              if(isMilestone){
+                canopyHtml = `
+                  <div class="journey-card-canopy" style="background:${flair.gradient}">
+                    <span class="journey-card-canopy-badge">
+                      ${flair.emoji || ''} ${esc(flair.badge)}
+                    </span>
+                    <div class="journey-card-canopy-art">
+                      ${flair.svg}
                     </div>
-                    <button type="button" class="journey-card-menu-btn" data-edit-event="${esc(curEvent.id)}" title="Edit event">···</button>
                   </div>
+                `;
+              } else if(flair.key !== 'flair:strategy'){
+                flairPillHtml = `
+                  <span class="journey-card-flair-pill">
+                    ${flair.emoji ? `${flair.emoji} ` : getLucideSvg(flair.icon, 10)} ${esc(flair.badge)}
+                  </span>
+                `;
+              }
+            }
+
+            const cardAccent = curEvent.color || (flair && flair.accentColor) || accent || '#4388df';
+
+            leftHtml = `
+              <div class="journey-card event-card is-multiday-spanning ${isMilestone ? 'has-canopy' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(curEvent.id)}" style="--card-accent:${cardAccent}">
+                ${canopyHtml}
+                <div class="journey-card-body">
+                  <div class="spanning-header-row">
+                    <div style="display:inline-flex;align-items:center;min-width:0;flex-wrap:wrap;gap:5px">
+                      <span class="spanning-all-day-tag" style="display:inline-flex;align-items:center;gap:4px;">${getLucideSvg('calendar', 12)} ${esc(durationLabel)}</span>
+                      ${flairPillHtml}
+                      ${spanLiveBadge}
+                    </div>
+                    <div style="display:inline-flex;align-items:center;gap:6px">
+                      <div class="journey-card-profile-chip inline-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile">
+                        ${avatarMarkup(creator, 'xs')}
+                        <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
+                      </div>
+                      <button type="button" class="journey-card-menu-btn" data-edit-event="${esc(curEvent.id)}" title="Edit event">···</button>
+                    </div>
+                  </div>
+                  <strong class="journey-card-title">${esc(curEvent.title)}</strong>
+                  ${curEvent.location ? `<div class="horizon-item-meta" style="margin-top:2px"><span>${getLucideSvg('map-pin', 12)} ${esc(curEvent.location)}</span></div>` : ''}
                 </div>
-                <strong class="journey-card-title">${esc(curEvent.title)}</strong>
-                ${curEvent.location ? `<div class="horizon-item-meta" style="margin-top:2px"><span>${getLucideSvg('map-pin', 12)} ${esc(curEvent.location)}</span></div>` : ''}
               </div>
-            </div>
-          `;
+            `;
+          }
         } else {
           leftHtml = renderJourneyEventCard(curEvent, isHeroEvent, dayHue, isDayToday, nowMins);
         }
