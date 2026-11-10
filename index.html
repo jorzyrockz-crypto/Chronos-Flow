@@ -1479,13 +1479,128 @@ html[data-theme="dark"] .journey-card.task-card.modern-task-card:hover {
   display: grid !important;
   place-items: center !important;
   flex-shrink: 0 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
-  transition: transform 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  color: #ffffff !important;
+}
+.modern-task-card .card-brand-mark svg,
+#tasksPage .task-card .card-brand-mark svg,
+.journey-card.task-card.modern-task-card .card-brand-mark svg {
+  stroke: #ffffff !important;
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 2.2px !important;
+  fill: none !important;
 }
 .modern-task-card:hover .card-brand-mark,
 #tasksPage .task-card:hover .card-brand-mark,
 .journey-card.task-card.modern-task-card:hover .card-brand-mark {
-  transform: scale(1.05) !important;
+  transform: scale(1.06) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Task Modal Icon Picker */
+.task-icon-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.task-icon-live-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent, #6366f1) 6%, var(--surface, #ffffff));
+  border: 1px solid color-mix(in srgb, var(--accent, #6366f1) 20%, var(--line, #e2e8f0));
+}
+.task-modal-brand-preview {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  color: #ffffff !important;
+}
+.task-modal-brand-preview svg {
+  stroke: #ffffff !important;
+  width: 20px !important;
+  height: 20px !important;
+  stroke-width: 2.2px !important;
+  fill: none !important;
+}
+.task-icon-badge-desc {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.task-icon-badge-desc strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text, #0f172a);
+}
+.task-icon-badge-desc small {
+  font-size: 11px;
+  color: var(--muted, #64748b);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-icon-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 118px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.task-icon-opt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 9px;
+  border: 1px solid var(--line, #e2e8f0);
+  background: var(--surface, #ffffff);
+  color: var(--text, #1e293b);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.task-icon-opt-btn:hover {
+  border-color: var(--accent, #6366f1);
+  background: color-mix(in srgb, var(--accent, #6366f1) 8%, var(--surface, #ffffff));
+  transform: translateY(-1px);
+}
+.task-icon-opt-btn.active {
+  border-color: var(--accent, #6366f1) !important;
+  background: color-mix(in srgb, var(--accent, #6366f1) 16%, var(--surface, #ffffff)) !important;
+  color: var(--accent, #6366f1) !important;
+  box-shadow: 0 0 0 1.5px var(--accent, #6366f1) !important;
+}
+.task-icon-opt-btn .task-icon-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+html[data-theme="dark"] .task-icon-live-badge-wrap {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+html[data-theme="dark"] .task-icon-opt-btn {
+  background: #1c1d22;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+html[data-theme="dark"] .task-icon-opt-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent, #6366f1);
 }
 
 /* Midsection Row */
@@ -8699,6 +8814,29 @@ html[data-theme="dark"] .note-card .md-card-preview {
               </div>
             </div>
 
+            <!-- Task Brand Icon Selection -->
+            <div class="project-field-group">
+              <div class="project-field-label-bar">
+                <span class="project-field-label-title">Task Brand Icon</span>
+                <span id="taskIconBadge" class="project-field-badge badge-optional">Auto</span>
+              </div>
+              <input type="hidden" id="taskIcon" value="">
+              <div class="task-icon-picker-container">
+                <div class="task-icon-live-badge-wrap">
+                  <div id="taskIconLivePreview" class="card-brand-mark task-modal-brand-preview" title="Live Icon Preview">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+                  </div>
+                  <div class="task-icon-badge-desc">
+                    <strong id="taskIconNameLabel">Auto (Contextual)</strong>
+                    <small id="taskIconSubLabel">Automatically selects a relevant Lucide icon from title or project</small>
+                  </div>
+                </div>
+                <div class="task-icon-picker-grid" id="taskIconPickerGrid">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+
             <!-- 3. Assignees / Team Members -->
             <div class="project-field-group">
               <div class="project-field-label-bar">
@@ -9406,7 +9544,15 @@ function getLucideSvg(name, size=16, extraClass='', strokeWidth=1.8){
     'volume-2': '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
     'volume-x': '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>',
     'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
-    'rotate-cw': '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>'
+    'rotate-cw': '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
+    'layout': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/>',
+    'layers': '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 12.5-8.58 3.91a2 2 0 0 1-1.66 0L2 12.5"/><path d="m22 17.5-8.58 3.91a2 2 0 0 1-1.66 0L2 17.5"/>',
+    'book-open': '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    'bookmark': '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+    'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+    'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    'check-circle-2': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
   };
   const body = paths[name] || '<circle cx="12" cy="12" r="10"/>';
   return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="currentColor" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon ' + extraClass + '" data-lucide="' + name + '">' + body + '</svg>';
@@ -18687,42 +18833,86 @@ function formatTaskDueDate(dueStr, dueTimeStr) {
   return dateText;
 }
 
+function resolveTaskIcon(t) {
+  if (t?.icon && t.icon !== 'auto') return t.icon;
+  const title = (t?.title || '').toLowerCase();
+  
+  if (/ui|design|layout|theme|front|interface|visual|screen|mock|prototype|css|html/i.test(title)) return 'layout';
+  if (/clearance|inventory|property|classroom|audit|inspect|check|review|verify|attendance|log/i.test(title)) return 'check-square';
+  if (/school|class|student|teacher|study|learn|curriculum|module|lesson|exam|quiz/i.test(title)) return 'book-open';
+  if (/code|dev|api|bug|fix|script|build|deploy|github|pr|backend|server|db|database/i.test(title)) return 'code';
+  if (/doc|report|transmittal|form|paper|letter|contract|agreement|minutes|memo/i.test(title)) return 'file-text';
+  if (/meet|sync|call|discussion|huddle|conference|talk|interview|advisory/i.test(title)) return 'users';
+  if (/plan|goal|roadmap|strategy|milestone|objective|target|vision/i.test(title)) return 'target';
+  if (/fast|quick|urgent|launch|release|spark|boost|speed|rush/i.test(title)) return 'zap';
+  if (/balloon|celebrate|party|event|ceremony|program|festival|awarding/i.test(title)) return 'sparkles';
+  if (/mail|email|message|notify|inbox|chat|sms/i.test(title)) return 'mail';
+  if (/schedule|due|date|calendar|deadline|timeline|agenda/i.test(title)) return 'calendar';
+  if (/folder|file|drive|archive|box|asset/i.test(title)) return 'folder';
+  if (/work|office|job|admin|procurement|supply|finance|budget/i.test(title)) return 'briefcase';
+  if (/bookmark|pin|save|fav|favorite/i.test(title)) return 'bookmark';
+  if (/flag|priority|milestone/i.test(title)) return 'flag';
+
+  // Fallback to project icon or priority
+  if (t?.projectId) {
+    const proj = (typeof projectFor === 'function' ? projectFor(t.projectId) : null) ||
+                 (typeof chronosProjects !== 'undefined' && (chronosProjects || []).find(p => String(p.id) === String(t.projectId)));
+    if (proj?.icon) return proj.icon;
+  }
+
+  const pri = (t?.priority || '').toLowerCase();
+  if (pri === 'urgent') return 'alert-circle';
+  if (pri === 'high') return 'zap';
+  if (pri === 'low') return 'check';
+  return 'check-square';
+}
+
 function getTaskBrandMark(t) {
-  if (t.projectId || t.projectName) {
+  const iconName = resolveTaskIcon(t);
+  const iconSvg = typeof getLucideSvg === 'function' 
+    ? getLucideSvg(iconName, 22, '', 2.2) 
+    : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>';
+
+  if (t?.projectId || t?.projectName) {
     const proj = (typeof projectFor === 'function' ? projectFor(t.projectId) : null) ||
                  (typeof chronosProjects !== 'undefined' && (chronosProjects || []).find(p => String(p.id) === String(t.projectId)));
     const color = proj?.color || t.projectColor || '#6366f1';
     const name = t.projectName || proj?.name || 'Project';
-    const initial = name.slice(0, 1).toUpperCase();
     return {
       bg: `linear-gradient(135deg, ${color} 0%, #8b5cf6 100%)`,
-      svg: `<span style="font-size:16px;font-weight:800;color:#ffffff;line-height:1;">${esc(initial)}</span>`,
-      title: `Project: ${name}`
+      svg: iconSvg,
+      icon: iconName,
+      title: `Project: ${name} (${iconName})`
     };
   }
-  const pri = (t.priority || 'medium').toLowerCase();
+
+  const pri = (t?.priority || 'medium').toLowerCase();
   if (pri === 'urgent') {
     return {
       bg: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
-      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M12 18h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`,
+      svg: iconSvg,
+      icon: iconName,
       title: 'Urgent Priority'
     };
   } else if (pri === 'high') {
     return {
       bg: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+      svg: iconSvg,
+      icon: iconName,
       title: 'High Priority'
     };
   } else if (pri === 'low') {
     return {
       bg: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
-      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+      svg: iconSvg,
+      icon: iconName,
       title: 'Low Priority'
     };
   }
   return {
     bg: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%)',
-    svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M7 4H14C17.3137 4 20 6.68629 20 10C20 13.3137 17.3137 16 14 16H11V20H7V4Z" fill="#ffffff" fill-opacity="0.95"/></svg>`,
+    svg: iconSvg,
+    icon: iconName,
     title: 'Task'
   };
 }
@@ -20544,7 +20734,7 @@ $('teamTaskEditForm')?.addEventListener('submit',async e=>{
 $('teamTaskEditClose')?.addEventListener('click',()=>$('teamTaskEditBackdrop').classList.add('hidden'));
 $('teamTaskEditCancel')?.addEventListener('click',()=>$('teamTaskEditBackdrop').classList.add('hidden'));
 $('teamTaskEditBackdrop')?.addEventListener('click',e=>{if(e.target===$('teamTaskEditBackdrop'))$('teamTaskEditBackdrop').classList.add('hidden')});
-function openTask(id=null){const t=tasks.find(x=>x.id===id);$('taskForm').reset();populateTeamSelectors();setMulti('taskShareTeams',t?.sharedTeamIds||[]);setMulti('taskAssignees',(t?.teamAssignments||[]).map(a=>a.teamId+'|'+a.uid));$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Edit task':'New task';$('taskTitle').value=t?.title||'';$('taskDue').value=t?.due||'';$('taskDueTime').value=t?.dueTime||'';$('taskPriority').value=t?.priority||'medium';$('taskDetails').value=t?.details||'';$('taskRecurrence').value=t?.recurrence||'none';$('taskReminder').value=t?.reminder||'none';$('taskSubtasks').value=(t?.subtasks||[]).map(x=>x.title).join('\n');$('taskLinkedNote').innerHTML='<option value="">No linked note</option>'+notes.filter(n=>!n.trashed&&!n.archived).map(n=>`<option value="${esc(n.id)}">${esc(n.title||'Untitled note')}</option>`).join('');$('taskLinkedNote').value=t?.linkedNoteId||'';$('deleteTask').classList.toggle('hidden',!t);$('taskBackdrop').classList.remove('hidden');setTimeout(()=>$('taskTitle').focus(),40)}
+function openTask(id=null){const t=tasks.find(x=>x.id===id);$('taskForm').reset();populateTeamSelectors();setMulti('taskShareTeams',t?.sharedTeamIds||[]);setMulti('taskAssignees',(t?.teamAssignments||[]).map(a=>a.teamId+'|'+a.uid));$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Edit task':'New task';$('taskTitle').value=t?.title||'';$('taskDue').value=t?.due||'';$('taskDueTime').value=t?.dueTime||'';$('taskPriority').value=t?.priority||'medium';$('taskDetails').value=t?.details||'';$('taskRecurrence').value=t?.recurrence||'none';$('taskReminder').value=t?.reminder||'none';$('taskSubtasks').value=(t?.subtasks||[]).map(x=>x.title).join('\n');$('taskLinkedNote').innerHTML='<option value="">No linked note</option>'+notes.filter(n=>!n.trashed&&!n.archived).map(n=>`<option value="${esc(n.id)}">${esc(n.title||'Untitled note')}</option>`).join('');$('taskLinkedNote').value=t?.linkedNoteId||'';if($('taskIcon')){$('taskIcon').value=t?.icon||'';}if(typeof syncTaskIconUI==='function'){syncTaskIconUI(t?.icon||'',t);}$('deleteTask').classList.toggle('hidden',!t);$('taskBackdrop').classList.remove('hidden');setTimeout(()=>$('taskTitle').focus(),40)}
 function closeTask(){$('taskBackdrop').classList.add('hidden')}
 function nextTaskDue(due,rule){if(!due||!rule||rule==='none')return '';const d=new Date(due+'T12:00:00');if(rule==='daily')d.setDate(d.getDate()+1);else if(rule==='weekdays'){do{d.setDate(d.getDate()+1)}while([0,6].includes(d.getDay()))}else if(rule==='weekly')d.setDate(d.getDate()+7);else if(rule==='monthly'){const day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+1);const last=new Date(d.getFullYear(),d.getMonth()+1,0,12).getDate();d.setDate(Math.min(day,last))}return iso(d)}
 function taskReminderDate(task){if(!task.due||!task.reminder||task.reminder==='none')return null;const dueTime=task.dueTime||'09:00';const dueAt=new Date(`${task.due}T${dueTime}:00`);if(Number.isNaN(dueAt.getTime()))return null;if(task.reminder==='dayBefore')dueAt.setDate(dueAt.getDate()-1);else if(task.reminder==='hourBefore')dueAt.setHours(dueAt.getHours()-1);return dueAt}
@@ -20560,8 +20750,8 @@ function triggerDayCompletionCelebration(dateKey){
   }
 }
 function toggleTask(id,done){const t=tasks.find(x=>x.id===id);if(!t)return;const wasDone=!!t.done;t.done=done;t.updated=Date.now();if(done&&!wasDone&&t.recurrence&&t.recurrence!=='none'&&t.due){let nextDue=nextTaskDue(t.due,t.recurrence),todayKey=iso(new Date());let guard=0;while(nextDue&&nextDue<=todayKey&&guard++<500)nextDue=nextTaskDue(nextDue,t.recurrence);const root=t.recurrenceParentId||t.id;if(nextDue&&!tasks.some(x=>(x.recurrenceParentId||x.id)===root&&x.due===nextDue)){tasks.push({...t,id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,due:nextDue,done:false,reminderFiredKey:'',subtasks:(t.subtasks||[]).map(st=>({...st,id:`st${Date.now()}${Math.random().toString(36).slice(2,5)}`,done:false})),recurrenceParentId:root,updated:Date.now()})}}persist();renderTasks();renderDashboard();renderSelectedTasks();if(done){const card=[...document.querySelectorAll('.task-card')].find(el=>el.querySelector('[data-task-toggle]')?.dataset.taskToggle===id);if(card)card.classList.add('just-completed');playAppSound('success');if(t.due){const dayTasks=tasks.filter(x=>x.due===t.due);if(dayTasks.length>0&&dayTasks.every(x=>x.done)){triggerDayCompletionCelebration(t.due);}}}else playInterfaceSound();}
-$('taskForm').addEventListener('submit',async e=>{e.preventDefault();const title=$('taskTitle').value.trim(),due=$('taskDue').value,dueTime=$('taskDueTime').value,reminder=$('taskReminder').value;if(!title)return;if(reminder==='hourBefore'&&due&&!dueTime){notify('Add a due time to use the 1-hour-before reminder.');$('taskDueTime').focus();return}if(reminder!=='none'&&!due){notify('Choose a due date to schedule a task reminder.');$('taskDue').focus();return}const id=$('taskId').value||`t${Date.now()}`,i=tasks.findIndex(t=>t.id===id),old=tasks[i],subLines=$('taskSubtasks').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),oldSubs=old?.subtasks||[],subtasks=subLines.map(title=>({...oldSubs.find(x=>x.title===title),id:oldSubs.find(x=>x.title===title)?.id||`st${Date.now()}${Math.random().toString(36).slice(2,6)}`,title,done:!!oldSubs.find(x=>x.title===title)?.done})),reminderChanged=!old||old.reminder!==reminder||old.due!==due||old.dueTime!==dueTime,t={...old,id,title,due,dueTime,priority:$('taskPriority').value,details:$('taskDetails').value.trim(),recurrence:$('taskRecurrence').value,reminder,reminderFiredKey:reminderChanged?'':(old?.reminderFiredKey||''),linkedNoteId:$('taskLinkedNote').value,subtasks,done:old?.done||false,teamAssignments:selectedMulti('taskAssignees').map(v=>{const [teamId,uid]=v.split('|');return {teamId,uid}}),sharedTeamIds:[],createdBy:old?.createdBy||(firebaseUser?firebaseUser.uid:'local'),createdByName:old?.createdByName||(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:old?.createdByPhotoURL||(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()};t.sharedTeamIds=[...new Set([...selectedMulti('taskShareTeams'),...(t.teamAssignments||[]).map(a=>a.teamId)])];if(i>=0)tasks[i]=t;else tasks.push(t);persist();try{await publishToTeams('tasks',t,t.sharedTeamIds,t.teamAssignments)}catch(err){notify('Task saved locally, but team sharing failed: '+err.message)}closeTask();renderTasks();renderDashboard();renderSelectedTasks();notify(i>=0?'Task updated.':'Task added.');checkReminders();});
-$('taskQuickAddBtn')?.addEventListener('click',()=>{const title=$('taskQuickTitle').value.trim();if(!title){$('taskQuickTitle').focus();return}tasks.push({id:`t${Date.now()}`,title,due:$('taskQuickDue').value,priority:'medium',details:'',dueTime:'',done:false,recurrence:'none',reminder:'none',reminderFiredKey:'',subtasks:[],...(selectedProjectId?{projectId:selectedProjectId}:{}),createdBy:(firebaseUser?firebaseUser.uid:'local'),createdByName:(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()});$('taskQuickTitle').value='';persist();renderTasks();renderDashboard();notify('Task added.')});$('taskQuickTitle')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('taskQuickAddBtn').click()}});
+$('taskForm').addEventListener('submit',async e=>{e.preventDefault();const title=$('taskTitle').value.trim(),due=$('taskDue').value,dueTime=$('taskDueTime').value,reminder=$('taskReminder').value;if(!title)return;if(reminder==='hourBefore'&&due&&!dueTime){notify('Add a due time to use the 1-hour-before reminder.');$('taskDueTime').focus();return}if(reminder!=='none'&&!due){notify('Choose a due date to schedule a task reminder.');$('taskDue').focus();return}const id=$('taskId').value||`t${Date.now()}`,i=tasks.findIndex(t=>t.id===id),old=tasks[i],subLines=$('taskSubtasks').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),oldSubs=old?.subtasks||[],subtasks=subLines.map(title=>({...oldSubs.find(x=>x.title===title),id:oldSubs.find(x=>x.title===title)?.id||`st${Date.now()}${Math.random().toString(36).slice(2,6)}`,title,done:!!oldSubs.find(x=>x.title===title)?.done})),reminderChanged=!old||old.reminder!==reminder||old.due!==due||old.dueTime!==dueTime,t={...old,id,title,due,dueTime,priority:$('taskPriority').value,icon:$('taskIcon')?.value||'',details:$('taskDetails').value.trim(),recurrence:$('taskRecurrence').value,reminder,reminderFiredKey:reminderChanged?'':(old?.reminderFiredKey||''),linkedNoteId:$('taskLinkedNote').value,subtasks,done:old?.done||false,teamAssignments:selectedMulti('taskAssignees').map(v=>{const [teamId,uid]=v.split('|');return {teamId,uid}}),sharedTeamIds:[],createdBy:old?.createdBy||(firebaseUser?firebaseUser.uid:'local'),createdByName:old?.createdByName||(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:old?.createdByPhotoURL||(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()};t.sharedTeamIds=[...new Set([...selectedMulti('taskShareTeams'),...(t.teamAssignments||[]).map(a=>a.teamId)])];if(i>=0)tasks[i]=t;else tasks.push(t);persist();try{await publishToTeams('tasks',t,t.sharedTeamIds,t.teamAssignments)}catch(err){notify('Task saved locally, but team sharing failed: '+err.message)}closeTask();renderTasks();renderDashboard();renderSelectedTasks();notify(i>=0?'Task updated.':'Task added.');checkReminders();});
+$('taskQuickAddBtn')?.addEventListener('click',()=>{const title=$('taskQuickTitle').value.trim();if(!title){$('taskQuickTitle').focus();return}tasks.push({id:`t${Date.now()}`,title,due:$('taskQuickDue').value,priority:'medium',icon:'',details:'',dueTime:'',done:false,recurrence:'none',reminder:'none',reminderFiredKey:'',subtasks:[],...(selectedProjectId?{projectId:selectedProjectId}:{}),createdBy:(firebaseUser?firebaseUser.uid:'local'),createdByName:(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()});$('taskQuickTitle').value='';persist();renderTasks();renderDashboard();notify('Task added.')});$('taskQuickTitle')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('taskQuickAddBtn').click()}});
 $('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);if(Array.isArray(targetTask?.sharedTeamIds)){targetTask.sharedTeamIds.forEach(tid=>deleteCloudDocumentDirectly('tasks',id,tid));}if(String(id).startsWith('task_mock_stem_')||targetTask?.projectId==='proj_stem_showcase_2026'||targetTask?.deliverableGroup==='deliv_grp_rubric_2026'){try{localStorage.setItem('chronos90.showcaseProjectDismissed','1');}catch(e){}const related=(tasks||[]).filter(t=>String(t.id).startsWith('task_mock_stem_')||t.projectId==='proj_stem_showcase_2026'||t.deliverableGroup==='deliv_grp_rubric_2026');related.forEach(rt=>{recordLocalTombstone('tasks',rt.id);deleteCloudDocumentDirectly('tasks',rt.id,rt.teamId);});recordLocalTombstone('projects','proj_stem_showcase_2026');deleteCloudDocumentDirectly('projects','proj_stem_showcase_2026');tasks=tasks.filter(t=>!String(t.id).startsWith('task_mock_stem_')&&t.projectId!=='proj_stem_showcase_2026'&&t.deliverableGroup!=='deliv_grp_rubric_2026');if(typeof chronosProjects!=='undefined'&&Array.isArray(chronosProjects)){chronosProjects=chronosProjects.filter(p=>String(p.id)!=='proj_stem_showcase_2026');try{localStorage.setItem('chronos90.projects',JSON.stringify(chronosProjects));}catch(e){}}}else{tasks=tasks.filter(t=>String(t.id)!==String(id));}persist();closeTask();renderTasks();renderDashboard();if(typeof renderCalendar==='function')renderCalendar();if(typeof renderOverviewHorizon==='function')renderOverviewHorizon();if(typeof renderProjectManager==='function')renderProjectManager();notify('Task deleted.')}});
 document.addEventListener('change',e=>{if(e.target.matches('[data-task-toggle]'))toggleTask(e.target.dataset.taskToggle,e.target.checked)});
 document.addEventListener('click',e=>{const sched=e.target.closest('[data-schedule-task]');if(sched){e.stopPropagation();const t=tasks.find(x=>x.id===sched.dataset.scheduleTask);if(t){openEvent(null,t.due||iso(selected));$('eventTitle').value=t.title;$('eventDescription').value=t.details||'';$('eventLinkedNote').value=t.linkedNoteId||'';notify('Review event details, then save to schedule this task.')}return}const noteLink=e.target.closest('[data-edit-note], [data-preview-note]');if(noteLink&&!e.target.closest('.card-action-btn')&&!e.target.closest('[data-note-check]')&&!e.target.closest('[data-force-edit-note]')&&!e.target.closest('[data-tag-click]')&&!e.target.closest('a')){e.stopPropagation();const nId=noteLink.dataset.previewNote||noteLink.dataset.editNote||noteLink.dataset.noteId;if(noteLink.dataset.forceEdit){openNote(nId)}else{openItemPreview('note',nId)}return}const t=e.target.closest('[data-edit-task]');if(t){if(t.dataset.forceEdit||e.target.closest('.journey-card-menu-btn')){openTask(t.dataset.editTask)}else{openItemPreview('task',t.dataset.editTask)}return}const g=e.target.closest('[data-goto]');if(g)setPage(g.dataset.goto)});
@@ -30635,6 +30825,105 @@ window.openShowcaseProject = function() {
     }
   });
 
+  // --- CHRONOS 5.2 TASK MODAL ICON PICKER & BRAND SYNC ENGINE ---
+  const TASK_ICON_CATALOG = [
+    { id: '', label: 'Auto (smart matching)', icon: 'sparkles' },
+    { id: 'layout', label: 'UI / Design', icon: 'layout' },
+    { id: 'check-square', label: 'Checklist / Audit', icon: 'check-square' },
+    { id: 'book-open', label: 'Education / School', icon: 'book-open' },
+    { id: 'code', label: 'Code / Tech', icon: 'code' },
+    { id: 'file-text', label: 'Doc / Report', icon: 'file-text' },
+    { id: 'users', label: 'Team / Meeting', icon: 'users' },
+    { id: 'target', label: 'Goal / Target', icon: 'target' },
+    { id: 'zap', label: 'Sprint / Fast', icon: 'zap' },
+    { id: 'calendar', label: 'Event / Date', icon: 'calendar' },
+    { id: 'folder', label: 'Folder / Files', icon: 'folder' },
+    { id: 'briefcase', label: 'Work / Business', icon: 'briefcase' },
+    { id: 'bookmark', label: 'Bookmark', icon: 'bookmark' },
+    { id: 'flag', label: 'Milestone / Flag', icon: 'flag' },
+    { id: 'star', label: 'Priority / Star', icon: 'star' },
+    { id: 'alert-circle', label: 'Urgent / Alert', icon: 'alert-circle' }
+  ];
+
+  window.syncTaskIconUI = function(iconId = '', t = null) {
+    const iconInput = $('taskIcon');
+    if (iconInput) iconInput.value = iconId;
+
+    const currentTitle = $('taskTitle')?.value || t?.title || '';
+    const currentPrio = $('taskPriority')?.value || t?.priority || 'medium';
+    const effectiveTask = { ...(t || {}), title: currentTitle, priority: currentPrio, icon: iconId };
+    const effectiveIcon = typeof resolveTaskIcon === 'function' ? resolveTaskIcon(effectiveTask) : (iconId || 'check-square');
+
+    // Update buttons active class
+    document.querySelectorAll('#taskIconPickerGrid .task-icon-opt-btn').forEach(btn => {
+      const matches = (btn.dataset.taskIconOpt === iconId);
+      btn.classList.toggle('active', matches);
+    });
+
+    // Update badge label
+    const badge = $('taskIconBadge');
+    const found = TASK_ICON_CATALOG.find(x => x.id === iconId);
+    if (badge) {
+      badge.textContent = iconId ? (found?.label.split('/')[0].trim() || iconId) : 'Auto';
+    }
+
+    // Update live preview badge
+    const preview = $('taskIconLivePreview');
+    const nameLabel = $('taskIconNameLabel');
+    const subLabel = $('taskIconSubLabel');
+
+    if (typeof getTaskBrandMark === 'function') {
+      const brand = getTaskBrandMark(effectiveTask);
+      if (preview) {
+        preview.style.background = brand.bg;
+        preview.innerHTML = brand.svg;
+        preview.title = brand.title;
+      }
+    }
+    if (nameLabel) {
+      nameLabel.textContent = iconId ? (found?.label || iconId) : `Auto (${effectiveIcon})`;
+    }
+    if (subLabel) {
+      subLabel.textContent = iconId 
+        ? `Custom task icon chosen: "${iconId}"` 
+        : `Smartly matches title "${currentTitle || 'Untitled'}" → Lucide "${effectiveIcon}"`;
+    }
+  };
+
+  function initTaskIconPicker() {
+    const grid = $('taskIconPickerGrid');
+    if (!grid) return;
+    grid.innerHTML = TASK_ICON_CATALOG.map(item => `
+      <button type="button" class="task-icon-opt-btn ${!item.id ? 'active' : ''}" data-task-icon-opt="${item.id}" title="${esc(item.label)}">
+        <span class="task-icon-preview">${typeof getLucideSvg === 'function' ? getLucideSvg(item.icon, 15) : ''}</span>
+        <span class="task-icon-opt-label">${esc(item.label.split('/')[0].trim())}</span>
+      </button>
+    `).join('');
+
+    grid.addEventListener('click', e => {
+      const btn = e.target.closest('[data-task-icon-opt]');
+      if (!btn) return;
+      e.preventDefault();
+      const optId = btn.dataset.taskIconOpt;
+      if ($('taskIcon')) $('taskIcon').value = optId;
+      const currentTaskId = $('taskId')?.value;
+      const t = (tasks || []).find(x => String(x.id) === String(currentTaskId));
+      syncTaskIconUI(optId, t);
+    });
+
+    // Live update preview when user types task title (if in Auto mode)
+    $('taskTitle')?.addEventListener('input', () => {
+      if (!$('taskIcon')?.value) {
+        const currentTaskId = $('taskId')?.value;
+        const t = (tasks || []).find(x => String(x.id) === String(currentTaskId));
+        syncTaskIconUI('', t);
+      }
+    });
+  }
+
+  // Initialize the picker immediately
+  initTaskIconPicker();
+
   // Hook into openTask to dynamically update subtitle and project accent stripe
   const baseOpenTaskWithUI = (typeof openTask === 'function') ? openTask : null;
   window.openTask = function(id = null, defaultDate = null) {
@@ -30655,6 +30944,7 @@ window.openShowcaseProject = function() {
         dialog.style.setProperty('--task-accent-tone', p.color || 'var(--accent, #3b82f6)');
       }
       syncTaskPriorityUI(t.priority || 'medium');
+      syncTaskIconUI(t.icon || '', t);
     } else {
       if (titleEl) titleEl.textContent = 'New task';
       const curP = (typeof selectedProjectId !== 'undefined' && selectedProjectId) ? (chronosProjects || []).find(proj => String(proj.id) === String(selectedProjectId)) : null;
@@ -30664,6 +30954,7 @@ window.openShowcaseProject = function() {
         dialog.style.setProperty('--task-accent-tone', curP?.color || 'var(--accent, #3b82f6)');
       }
       syncTaskPriorityUI('medium');
+      syncTaskIconUI('', null);
     }
   };
 
