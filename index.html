@@ -17525,6 +17525,32 @@ function getTaskCardMeta(t) {
   return { icon, label, accent, priClass };
 }
 
+function findTaskById(id) {
+  if (!id) return null;
+  const sId = String(id);
+  let t = (typeof tasks !== 'undefined' && Array.isArray(tasks)) ? tasks.find(x => String(x.id) === sId) : null;
+  if (t) return t;
+  if (typeof teamAssignedTasks !== 'undefined' && Array.isArray(teamAssignedTasks)) {
+    t = teamAssignedTasks.find(x => String(x.id) === sId);
+    if (t) return t;
+  }
+  if (typeof teamRecords !== 'undefined' && Array.isArray(teamRecords.tasks)) {
+    t = teamRecords.tasks.find(x => String(x.id) === sId);
+    if (t) return t;
+  }
+  if (typeof teamLiveData !== 'undefined' && teamLiveData) {
+    for (const tid of Object.keys(teamLiveData)) {
+      const list = teamLiveData[tid]?.tasks;
+      if (Array.isArray(list)) {
+        t = list.find(x => String(x.id) === sId);
+        if (t) return t;
+      }
+    }
+  }
+  return null;
+}
+window.findTaskById = findTaskById;
+
 let currentPreviewConfig = null;
 
 function extractSmartVideoCallLink(text){
@@ -17587,11 +17613,19 @@ function refreshItemPreviewInPlace(){
   if(!currentPreviewConfig) return;
   const modal = document.getElementById('itemPreviewModal');
   if(!modal) return;
-  const html = renderPreviewHTML(currentPreviewConfig.type, currentPreviewConfig.id, currentPreviewConfig.extraMeta);
-  if(html){
-    modal.innerHTML = html;
-  } else {
-    closeItemPreview();
+  const body = modal.querySelector('.task-preview-body, .modal-body');
+  const scrollY = body ? body.scrollTop : 0;
+  try {
+    const html = renderPreviewHTML(currentPreviewConfig.type, currentPreviewConfig.id, currentPreviewConfig.extraMeta);
+    if(html){
+      modal.innerHTML = html;
+      const newBody = modal.querySelector('.task-preview-body, .modal-body');
+      if(newBody && scrollY) newBody.scrollTop = scrollY;
+    } else {
+      closeItemPreview();
+    }
+  } catch(err) {
+    console.warn('refreshItemPreviewInPlace error:', err);
   }
 }
 
@@ -17813,8 +17847,8 @@ function renderEventPreviewHTML(id){
 }
 
 function renderTaskPreviewHTML(id){
-  const t = (tasks || []).find(x => String(x.id) === String(id)) || 
-            (typeof teamAssignedTasks !== 'undefined' ? (teamAssignedTasks || []).find(x => String(x.id) === String(id)) : null);
+  const t = (typeof findTaskById === 'function') ? findTaskById(id) : ((tasks || []).find(x => String(x.id) === String(id)) || 
+            (typeof teamAssignedTasks !== 'undefined' ? (teamAssignedTasks || []).find(x => String(x.id) === String(id)) : null));
   if(!t) return '';
 
   const { icon, label, accent, priClass } = getTaskCardMeta(t);
@@ -19048,34 +19082,109 @@ document.addEventListener('keydown', e => {
 document.addEventListener('change', e => {
   if(e.target.matches('[data-preview-task-check]')){
     const id = e.target.dataset.previewTaskCheck;
-    toggleTask(id, e.target.checked);
+    if(typeof toggleTask === 'function') toggleTask(id, e.target.checked);
     refreshItemPreviewInPlace();
     return;
   }
 
-  if(e.target.matches('[data-preview-subtask-check]')){
-    const id = e.target.dataset.previewSubtaskCheck;
-    const sIdx = Number(e.target.dataset.subtaskIdx);
-    const t = tasks.find(x => String(x.id) === String(id));
-    if(t && t.subtasks && t.subtasks[sIdx]){
-      t.subtasks[sIdx].done = e.target.checked;
+  const subCheck = e.target.closest('[data-preview-subtask-check]');
+  if(subCheck){
+    const id = subCheck.dataset.previewSubtaskCheck;
+    const sIdx = Number(subCheck.dataset.subtaskIdx);
+    const t = (typeof findTaskById === 'function') ? findTaskById(id) : (tasks || []).find(x => String(x.id) === String(id));
+    if(t && Array.isArray(t.subtasks) && t.subtasks[sIdx]){
+      t.subtasks[sIdx].done = subCheck.checked;
       t.updated = Date.now();
       if(t.subtasks.length > 0){
         t.done = t.subtasks.every(s => s.done);
       }
-      persist();
-      renderTasks();
-      renderDashboard();
-      renderSelectedTasks();
-      if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
-      refreshItemPreviewInPlace();
-      if(e.target.checked && typeof playInterfaceSound === 'function') playInterfaceSound();
+
+      // Sync across both tasks and teamAssignedTasks if present in both
+      if(typeof tasks !== 'undefined' && Array.isArray(tasks)){
+        const local = tasks.find(x => String(x.id) === String(id));
+        if(local && local !== t){
+          local.subtasks = t.subtasks;
+          local.done = t.done;
+          local.updated = Date.now();
+        }
+      }
+      if(typeof teamAssignedTasks !== 'undefined' && Array.isArray(teamAssignedTasks)){
+        const tat = teamAssignedTasks.find(x => String(x.id) === String(id));
+        if(tat && tat !== t){
+          tat.subtasks = t.subtasks;
+          tat.done = t.done;
+          tat.updated = Date.now();
+        }
+      }
+
+      // 1. Instant DOM visual update on the checklist row
+      const itemLabel = subCheck.closest('.task-preview-subtask-item');
+      if(itemLabel){
+        itemLabel.classList.toggle('is-done', subCheck.checked);
+      }
+
+      // 2. Instant DOM progress bar & counter update
+      const subs = t.subtasks || [];
+      const stTotal = subs.length;
+      const stDone = subs.filter(s => s.done).length;
+      const stPct = stTotal > 0 ? Math.round((stDone / stTotal) * 100) : (t.done ? 100 : 0);
+
+      const counterEl = document.querySelector('.task-preview-checklist-counter');
+      if(counterEl){
+        counterEl.textContent = `${stDone}/${stTotal} completed`;
+        counterEl.classList.toggle('is-empty', stTotal === 0);
+      }
+
+      const fillEl = document.querySelector('.task-preview-progress-fill');
+      if(fillEl){
+        fillEl.style.width = `${stPct}%`;
+      }
+
+      // 3. Update main task title and checkbox if all subtasks complete
+      const titleEl = document.querySelector('.task-preview-title');
+      const mainCheck = document.querySelector('[data-preview-task-check]');
+      const statusBadge = document.querySelector('.task-preview-badge-status');
+      if(t.done){
+        if(titleEl) titleEl.classList.add('is-done');
+        if(mainCheck) mainCheck.checked = true;
+        if(statusBadge){
+          statusBadge.classList.add('is-done');
+          statusBadge.innerHTML = `${typeof getLucideSvg === 'function' ? getLucideSvg('check', 12) : ''} Completed`;
+        }
+      } else {
+        if(titleEl) titleEl.classList.remove('is-done');
+        if(mainCheck) mainCheck.checked = false;
+        if(statusBadge){
+          statusBadge.classList.remove('is-done');
+          statusBadge.innerHTML = 'In Progress';
+        }
+      }
+
+      if(subCheck.checked && typeof playInterfaceSound === 'function') playInterfaceSound();
+
+      // 4. Persist data locally & cloud
+      if(typeof persist === 'function') persist();
+      if(t.teamId && typeof saveTeamCache === 'function') saveTeamCache();
+
+      if(t.teamId && typeof firebaseDb !== 'undefined' && firebaseDb && typeof firebaseUser !== 'undefined' && firebaseUser && navigator.onLine){
+        firebaseDb.collection('teams').doc(t.teamId).collection('tasks').doc(String(t.id)).update({
+          subtasks: t.subtasks,
+          done: t.done,
+          updatedAt: Date.now()
+        }).catch(()=>{});
+      }
+
+      // 5. Safe background UI sync (non-blocking)
+      try { if(typeof renderTasks === 'function') renderTasks(); } catch(err){ console.warn(err); }
+      try { if(typeof renderDashboard === 'function') renderDashboard(); } catch(err){ console.warn(err); }
+      try { if(typeof renderSelectedTasks === 'function') renderSelectedTasks(); } catch(err){ console.warn(err); }
+      try { if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon(); } catch(err){ console.warn(err); }
     }
     return;
   }
 });
 
-// Interactive Submit Handler for Subtasks inside Preview Modal
+// Interactive Submit Handler for Subtasks inside Preview Modal (Instant Zero-Lag Item Insertion)
 document.addEventListener('submit', e => {
   const form = e.target.closest('[data-preview-subtask-form]');
   if(!form) return;
@@ -19085,22 +19194,107 @@ document.addEventListener('submit', e => {
   const input = form.querySelector('.preview-subtask-input');
   const title = input?.value?.trim();
   if(!title) return;
-  const t = tasks.find(x => String(x.id) === String(id));
+  const t = (typeof findTaskById === 'function') ? findTaskById(id) : (tasks || []).find(x => String(x.id) === String(id));
   if(t){
     if(!Array.isArray(t.subtasks)) t.subtasks = [];
-    t.subtasks.push({
+    const newIdx = t.subtasks.length;
+    const newSubtask = {
       id: 'st' + Date.now() + Math.random().toString(36).slice(2, 5),
       title: title,
       done: false
-    });
+    };
+    t.subtasks.push(newSubtask);
     t.updated = Date.now();
-    persist();
-    renderTasks();
-    renderDashboard();
-    renderSelectedTasks();
-    if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon();
-    refreshItemPreviewInPlace();
+
+    // Sync across both tasks and teamAssignedTasks if present in both
+    if(typeof tasks !== 'undefined' && Array.isArray(tasks)){
+      const local = tasks.find(x => String(x.id) === String(id));
+      if(local && local !== t){
+        local.subtasks = t.subtasks;
+        local.updated = Date.now();
+      }
+    }
+    if(typeof teamAssignedTasks !== 'undefined' && Array.isArray(teamAssignedTasks)){
+      const tat = teamAssignedTasks.find(x => String(x.id) === String(id));
+      if(tat && tat !== t){
+        tat.subtasks = t.subtasks;
+        tat.updated = Date.now();
+      }
+    }
+
+    // Clear input immediately so user can type next item
+    input.value = '';
+
+    // 1. Instantly update or create the checklist containers in DOM
+    const checklistSection = document.querySelector('.task-preview-checklist-section');
+    let listEl = document.querySelector('.task-preview-subtask-list');
+    let trackEl = document.querySelector('.task-preview-progress-track');
+
+    const subs = t.subtasks;
+    const stTotal = subs.length;
+    const stDone = subs.filter(s => s.done).length;
+    const stPct = stTotal > 0 ? Math.round((stDone / stTotal) * 100) : 0;
+
+    // Update Counter
+    const counterEl = document.querySelector('.task-preview-checklist-counter');
+    if(counterEl){
+      counterEl.textContent = `${stDone}/${stTotal} completed`;
+      counterEl.classList.remove('is-empty');
+    }
+
+    // Ensure Progress Track Bar exists & update
+    if(!trackEl && checklistSection){
+      trackEl = document.createElement('div');
+      trackEl.className = 'task-preview-progress-track';
+      trackEl.innerHTML = `<div class="task-preview-progress-fill" style="width: ${stPct}%;"></div>`;
+      const headEl = checklistSection.querySelector('.task-preview-checklist-head');
+      if(headEl && headEl.nextSibling){
+        checklistSection.insertBefore(trackEl, headEl.nextSibling);
+      }
+    } else {
+      const fillEl = document.querySelector('.task-preview-progress-fill');
+      if(fillEl) fillEl.style.width = `${stPct}%`;
+    }
+
+    // Ensure Subtask List container exists & append new item
+    if(!listEl && checklistSection){
+      listEl = document.createElement('div');
+      listEl.className = 'task-preview-subtask-list';
+      form.parentNode.insertBefore(listEl, form);
+    }
+
+    if(listEl){
+      const newLabel = document.createElement('label');
+      newLabel.className = 'task-preview-subtask-item';
+      newLabel.innerHTML = `
+        <input type="checkbox" class="task-preview-subtask-check" data-preview-subtask-check="${typeof esc === 'function' ? esc(t.id) : t.id}" data-subtask-idx="${newIdx}">
+        <span class="task-preview-subtask-title">${typeof esc === 'function' ? esc(title) : title}</span>
+      `;
+      listEl.appendChild(newLabel);
+    }
+
     if(typeof playInterfaceSound === 'function') playInterfaceSound();
+
+    // 2. Persist data locally & cloud
+    if(typeof persist === 'function') persist();
+    if(t.teamId && typeof saveTeamCache === 'function') saveTeamCache();
+
+    if(t.teamId && typeof firebaseDb !== 'undefined' && firebaseDb && typeof firebaseUser !== 'undefined' && firebaseUser && navigator.onLine){
+      firebaseDb.collection('teams').doc(t.teamId).collection('tasks').doc(String(t.id)).update({
+        subtasks: t.subtasks,
+        done: t.done,
+        updatedAt: Date.now()
+      }).catch(()=>{});
+    }
+
+    // Keep focus in input for consecutive adds
+    try { input.focus(); } catch(e){}
+
+    // 3. Safe background UI sync (non-blocking)
+    try { if(typeof renderTasks === 'function') renderTasks(); } catch(err){ console.warn(err); }
+    try { if(typeof renderDashboard === 'function') renderDashboard(); } catch(err){ console.warn(err); }
+    try { if(typeof renderSelectedTasks === 'function') renderSelectedTasks(); } catch(err){ console.warn(err); }
+    try { if(typeof renderOverviewHorizon === 'function') renderOverviewHorizon(); } catch(err){ console.warn(err); }
   }
 });
 
@@ -21700,7 +21894,7 @@ $('teamTaskEditForm')?.addEventListener('submit',async e=>{
 $('teamTaskEditClose')?.addEventListener('click',()=>$('teamTaskEditBackdrop').classList.add('hidden'));
 $('teamTaskEditCancel')?.addEventListener('click',()=>$('teamTaskEditBackdrop').classList.add('hidden'));
 $('teamTaskEditBackdrop')?.addEventListener('click',e=>{if(e.target===$('teamTaskEditBackdrop'))$('teamTaskEditBackdrop').classList.add('hidden')});
-function openTask(id=null){const t=tasks.find(x=>x.id===id);$('taskForm').reset();populateTeamSelectors();setMulti('taskShareTeams',t?.sharedTeamIds||[]);setMulti('taskAssignees',(t?.teamAssignments||[]).map(a=>a.teamId+'|'+a.uid));$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Edit task':'New task';$('taskTitle').value=t?.title||'';$('taskDue').value=t?.due||'';$('taskDueTime').value=t?.dueTime||'';$('taskPriority').value=t?.priority||'medium';$('taskDetails').value=t?.details||'';$('taskRecurrence').value=t?.recurrence||'none';$('taskReminder').value=t?.reminder||'none';$('taskSubtasks').value=(t?.subtasks||[]).map(x=>x.title).join('\n');$('taskLinkedNote').innerHTML='<option value="">No linked note</option>'+notes.filter(n=>!n.trashed&&!n.archived).map(n=>`<option value="${esc(n.id)}">${esc(n.title||'Untitled note')}</option>`).join('');$('taskLinkedNote').value=t?.linkedNoteId||'';if($('taskIcon')){$('taskIcon').value=t?.icon||'';}if(typeof syncTaskIconUI==='function'){syncTaskIconUI(t?.icon||'',t);}$('deleteTask').classList.toggle('hidden',!t);$('taskBackdrop').classList.remove('hidden');setTimeout(()=>$('taskTitle').focus(),40)}
+function openTask(id=null){const t=(typeof findTaskById==='function')?findTaskById(id):(tasks||[]).find(x=>String(x.id)===String(id));$('taskForm').reset();populateTeamSelectors();setMulti('taskShareTeams',t?.sharedTeamIds||[]);setMulti('taskAssignees',(t?.teamAssignments||[]).map(a=>a.teamId+'|'+a.uid));$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Edit task':'New task';$('taskTitle').value=t?.title||'';$('taskDue').value=t?.due||'';$('taskDueTime').value=t?.dueTime||'';$('taskPriority').value=t?.priority||'medium';$('taskDetails').value=t?.details||'';$('taskRecurrence').value=t?.recurrence||'none';$('taskReminder').value=t?.reminder||'none';$('taskSubtasks').value=(t?.subtasks||[]).map(x=>x.title).join('\n');$('taskLinkedNote').innerHTML='<option value="">No linked note</option>'+notes.filter(n=>!n.trashed&&!n.archived).map(n=>`<option value="${esc(n.id)}">${esc(n.title||'Untitled note')}</option>`).join('');$('taskLinkedNote').value=t?.linkedNoteId||'';if($('taskIcon')){$('taskIcon').value=t?.icon||'';}if(typeof syncTaskIconUI==='function'){syncTaskIconUI(t?.icon||'',t);}$('deleteTask').classList.toggle('hidden',!t);$('taskBackdrop').classList.remove('hidden');setTimeout(()=>$('taskTitle').focus(),40)}
 function closeTask(){$('taskBackdrop').classList.add('hidden')}
 function nextTaskDue(due,rule){if(!due||!rule||rule==='none')return '';const d=new Date(due+'T12:00:00');if(rule==='daily')d.setDate(d.getDate()+1);else if(rule==='weekdays'){do{d.setDate(d.getDate()+1)}while([0,6].includes(d.getDay()))}else if(rule==='weekly')d.setDate(d.getDate()+7);else if(rule==='monthly'){const day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+1);const last=new Date(d.getFullYear(),d.getMonth()+1,0,12).getDate();d.setDate(Math.min(day,last))}return iso(d)}
 function taskReminderDate(task){if(!task.due||!task.reminder||task.reminder==='none')return null;const dueTime=task.dueTime||'09:00';const dueAt=new Date(`${task.due}T${dueTime}:00`);if(Number.isNaN(dueAt.getTime()))return null;if(task.reminder==='dayBefore')dueAt.setDate(dueAt.getDate()-1);else if(task.reminder==='hourBefore')dueAt.setHours(dueAt.getHours()-1);return dueAt}
@@ -21715,7 +21909,7 @@ function triggerDayCompletionCelebration(dateKey){
     setTimeout(() => { nodeWrap.classList.remove('node-celebrating'); }, 1200);
   }
 }
-function toggleTask(id,done){const t=tasks.find(x=>x.id===id);if(!t)return;const wasDone=!!t.done;t.done=done;t.updated=Date.now();if(done&&!wasDone&&t.recurrence&&t.recurrence!=='none'&&t.due){let nextDue=nextTaskDue(t.due,t.recurrence),todayKey=iso(new Date());let guard=0;while(nextDue&&nextDue<=todayKey&&guard++<500)nextDue=nextTaskDue(nextDue,t.recurrence);const root=t.recurrenceParentId||t.id;if(nextDue&&!tasks.some(x=>(x.recurrenceParentId||x.id)===root&&x.due===nextDue)){tasks.push({...t,id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,due:nextDue,done:false,reminderFiredKey:'',subtasks:(t.subtasks||[]).map(st=>({...st,id:`st${Date.now()}${Math.random().toString(36).slice(2,5)}`,done:false})),recurrenceParentId:root,updated:Date.now()})}}persist();renderTasks();renderDashboard();renderSelectedTasks();if(done){const card=[...document.querySelectorAll('.task-card')].find(el=>el.querySelector('[data-task-toggle]')?.dataset.taskToggle===id);if(card)card.classList.add('just-completed');playAppSound('success');if(t.due){const dayTasks=tasks.filter(x=>x.due===t.due);if(dayTasks.length>0&&dayTasks.every(x=>x.done)){triggerDayCompletionCelebration(t.due);}}}else playInterfaceSound();}
+function toggleTask(id,done){const t=(typeof findTaskById==='function')?findTaskById(id):(tasks||[]).find(x=>String(x.id)===String(id));if(!t)return;const wasDone=!!t.done;t.done=done;t.updated=Date.now();if(done&&!wasDone&&t.recurrence&&t.recurrence!=='none'&&t.due){let nextDue=nextTaskDue(t.due,t.recurrence),todayKey=iso(new Date());let guard=0;while(nextDue&&nextDue<=todayKey&&guard++<500)nextDue=nextTaskDue(nextDue,t.recurrence);const root=t.recurrenceParentId||t.id;if(nextDue&&!tasks.some(x=>(x.recurrenceParentId||x.id)===root&&x.due===nextDue)){tasks.push({...t,id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,due:nextDue,done:false,reminderFiredKey:'',subtasks:(t.subtasks||[]).map(st=>({...st,id:`st${Date.now()}${Math.random().toString(36).slice(2,5)}`,done:false})),recurrenceParentId:root,updated:Date.now()})}}persist();renderTasks();renderDashboard();renderSelectedTasks();if(done){const card=[...document.querySelectorAll('.task-card')].find(el=>el.querySelector('[data-task-toggle]')?.dataset.taskToggle===id);if(card)card.classList.add('just-completed');playAppSound('success');if(t.due){const dayTasks=tasks.filter(x=>x.due===t.due);if(dayTasks.length>0&&dayTasks.every(x=>x.done)){triggerDayCompletionCelebration(t.due);}}}else playInterfaceSound();}
 $('taskForm').addEventListener('submit',async e=>{e.preventDefault();const title=$('taskTitle').value.trim(),due=$('taskDue').value,dueTime=$('taskDueTime').value,reminder=$('taskReminder').value;if(!title)return;if(reminder==='hourBefore'&&due&&!dueTime){notify('Add a due time to use the 1-hour-before reminder.');$('taskDueTime').focus();return}if(reminder!=='none'&&!due){notify('Choose a due date to schedule a task reminder.');$('taskDue').focus();return}const id=$('taskId').value||`t${Date.now()}`,i=tasks.findIndex(t=>t.id===id),old=tasks[i],subLines=$('taskSubtasks').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),oldSubs=old?.subtasks||[],subtasks=subLines.map(title=>({...oldSubs.find(x=>x.title===title),id:oldSubs.find(x=>x.title===title)?.id||`st${Date.now()}${Math.random().toString(36).slice(2,6)}`,title,done:!!oldSubs.find(x=>x.title===title)?.done})),reminderChanged=!old||old.reminder!==reminder||old.due!==due||old.dueTime!==dueTime,t={...old,id,title,due,dueTime,priority:$('taskPriority').value,icon:$('taskIcon')?.value||'',details:$('taskDetails').value.trim(),recurrence:$('taskRecurrence').value,reminder,reminderFiredKey:reminderChanged?'':(old?.reminderFiredKey||''),linkedNoteId:$('taskLinkedNote').value,subtasks,done:old?.done||false,teamAssignments:selectedMulti('taskAssignees').map(v=>{const [teamId,uid]=v.split('|');return {teamId,uid}}),sharedTeamIds:[],createdBy:old?.createdBy||(firebaseUser?firebaseUser.uid:'local'),createdByName:old?.createdByName||(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:old?.createdByPhotoURL||(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()};t.sharedTeamIds=[...new Set([...selectedMulti('taskShareTeams'),...(t.teamAssignments||[]).map(a=>a.teamId)])];if(i>=0)tasks[i]=t;else tasks.push(t);persist();try{await publishToTeams('tasks',t,t.sharedTeamIds,t.teamAssignments)}catch(err){notify('Task saved locally, but team sharing failed: '+err.message)}closeTask();renderTasks();renderDashboard();renderSelectedTasks();notify(i>=0?'Task updated.':'Task added.');checkReminders();});
 $('taskQuickAddBtn')?.addEventListener('click',()=>{const title=$('taskQuickTitle').value.trim();if(!title){$('taskQuickTitle').focus();return}tasks.push({id:`t${Date.now()}`,title,due:$('taskQuickDue').value,priority:'medium',icon:'',details:'',dueTime:'',done:false,recurrence:'none',reminder:'none',reminderFiredKey:'',subtasks:[],...(selectedProjectId?{projectId:selectedProjectId}:{}),createdBy:(firebaseUser?firebaseUser.uid:'local'),createdByName:(firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You'),createdByPhotoURL:(firebaseUser?(firebaseUser.photoURL||''):''),updated:Date.now()});$('taskQuickTitle').value='';persist();renderTasks();renderDashboard();notify('Task added.')});$('taskQuickTitle')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('taskQuickAddBtn').click()}});
 $('newTaskTop').addEventListener('click',()=>openTask());$('dashboardAddTask').addEventListener('click',()=>openTask());$('taskModalClose').addEventListener('click',closeTask);$('cancelTask').addEventListener('click',closeTask);$('taskBackdrop').addEventListener('click',e=>{if(e.target===$('taskBackdrop'))closeTask()});$('deleteTask').addEventListener('click',async()=>{const id=$('taskId').value;if(!id)return;const ok=await confirmCustomInApp('Delete this task from your workspace?',{title:'Delete Task',confirmText:'Delete',danger:true});if(ok){recordLocalTombstone('tasks',id);const targetTask=(tasks||[]).find(t=>String(t.id)===String(id));deleteCloudDocumentDirectly('tasks',id,targetTask?.teamId);if(Array.isArray(targetTask?.sharedTeamIds)){targetTask.sharedTeamIds.forEach(tid=>deleteCloudDocumentDirectly('tasks',id,tid));}if(String(id).startsWith('task_mock_stem_')||targetTask?.projectId==='proj_stem_showcase_2026'||targetTask?.deliverableGroup==='deliv_grp_rubric_2026'){try{localStorage.setItem('chronos90.showcaseProjectDismissed','1');}catch(e){}const related=(tasks||[]).filter(t=>String(t.id).startsWith('task_mock_stem_')||t.projectId==='proj_stem_showcase_2026'||t.deliverableGroup==='deliv_grp_rubric_2026');related.forEach(rt=>{recordLocalTombstone('tasks',rt.id);deleteCloudDocumentDirectly('tasks',rt.id,rt.teamId);});recordLocalTombstone('projects','proj_stem_showcase_2026');deleteCloudDocumentDirectly('projects','proj_stem_showcase_2026');tasks=tasks.filter(t=>!String(t.id).startsWith('task_mock_stem_')&&t.projectId!=='proj_stem_showcase_2026'&&t.deliverableGroup!=='deliv_grp_rubric_2026');if(typeof chronosProjects!=='undefined'&&Array.isArray(chronosProjects)){chronosProjects=chronosProjects.filter(p=>String(p.id)!=='proj_stem_showcase_2026');try{localStorage.setItem('chronos90.projects',JSON.stringify(chronosProjects));}catch(e){}}}else{tasks=tasks.filter(t=>String(t.id)!==String(id));}persist();closeTask();renderTasks();renderDashboard();if(typeof renderCalendar==='function')renderCalendar();if(typeof renderOverviewHorizon==='function')renderOverviewHorizon();if(typeof renderProjectManager==='function')renderProjectManager();notify('Task deleted.')}});
