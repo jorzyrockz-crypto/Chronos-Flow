@@ -940,13 +940,23 @@ button:active{transform:none!important}.task-check,.task-subtask input{accent-co
   z-index:3
 }
 
-/* Event Personality Based on Category - Left Glowing Accent Bar */
-.journey-card.event-card{border-left:3.5px solid var(--card-accent,#3b82f6)!important}
-.journey-card.event-work{--card-accent:#3b82f6;background:linear-gradient(135deg,rgba(59,130,246,.08),var(--journey-card-bg))!important}
-.journey-card.event-team{--card-accent:#6366f1;background:linear-gradient(135deg,rgba(99,102,241,.09),var(--journey-card-bg))!important}
-.journey-card.event-focus{--card-accent:#a855f7;background:linear-gradient(135deg,rgba(168,85,247,.08),var(--journey-card-bg))!important}
-.journey-card.event-health{--card-accent:#10b981;background:linear-gradient(135deg,rgba(168,85,247,.08),var(--journey-card-bg))!important}
-.journey-card.event-personal{--card-accent:#f59e0b;background:linear-gradient(135deg,rgba(245,158,11,.08),var(--journey-card-bg))!important}
+/* Event Personality & Custom Color Accent - Dynamic Left Glowing Bar & Ambient Tint */
+.journey-card.event-card {
+  border-left: 4.5px solid var(--card-accent, #4388df) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, #4388df) 8%, var(--journey-card-bg, #ffffff)), var(--journey-card-bg, #ffffff)) !important;
+  transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease, border-color .22s ease !important;
+}
+html[data-theme="dark"] .journey-card.event-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, #4388df) 14%, var(--journey-card-bg, #1e293b)), var(--journey-card-bg, #1e293b)) !important;
+}
+.journey-card.event-card:hover {
+  box-shadow: 0 16px 36px -6px rgba(0,0,0,.12), 0 0 20px color-mix(in srgb, var(--card-accent, #4388df) 26%, transparent) !important;
+}
+.journey-card.event-work { --card-cat-accent: #4388df; }
+.journey-card.event-team { --card-cat-accent: #8367d8; }
+.journey-card.event-focus { --card-cat-accent: #2aa889; }
+.journey-card.event-health { --card-cat-accent: #4f8b52; }
+.journey-card.event-personal { --card-cat-accent: #d18a35; }
 
 /* Journey Card Thematic Flair Canopy (Hybrid Option 1) */
 .journey-card.has-canopy,
@@ -2019,9 +2029,9 @@ html[data-theme="dark"] .journey-condensed-collapse-btn {
 /* 3. Multi-Day Spanning Card on Left Wing (Option A: Central Spine Ribbon System) */
 .journey-card.is-multiday-spanning {
   position: relative;
-  background: rgba(255, 255, 255, 0.94) !important;
-  border: 1px solid rgba(20, 184, 166, 0.2) !important;
-  border-left: 5px solid var(--card-accent, #d97706) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, #4388df) 8%, var(--journey-card-bg, #ffffff)), var(--journey-card-bg, #ffffff)) !important;
+  border: 1px solid color-mix(in srgb, var(--card-accent, #4388df) 22%, var(--line)) !important;
+  border-left: 5px solid var(--card-accent, #4388df) !important;
   border-radius: 16px !important;
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
   overflow: visible !important;
@@ -2036,13 +2046,13 @@ html[data-theme="dark"] .journey-condensed-collapse-btn {
   padding: 0 !important;
 }
 html[data-theme="dark"] .journey-card.is-multiday-spanning {
-  background: rgba(15, 23, 42, 0.92) !important;
-  border-color: rgba(45, 212, 191, 0.22) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, #4388df) 14%, var(--journey-card-bg, #0f172a)), var(--journey-card-bg, #0f172a)) !important;
+  border-color: color-mix(in srgb, var(--card-accent, #4388df) 26%, rgba(255, 255, 255, 0.1)) !important;
   box-shadow: 0 14px 40px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
 }
 .journey-card.is-multiday-spanning:hover {
   transform: translateY(-3px) scale(1.01) !important;
-  box-shadow: 0 18px 42px -6px rgba(0, 0, 0, 0.14), 0 0 20px color-mix(in srgb, var(--card-accent, #d97706) 30%, transparent) !important;
+  box-shadow: 0 18px 42px -6px rgba(0, 0, 0, 0.14), 0 0 22px color-mix(in srgb, var(--card-accent, #4388df) 30%, transparent) !important;
 }
 .journey-card.is-multiday-spanning .journey-card-title {
   font-size: 15.5px !important;
@@ -11255,6 +11265,15 @@ const EVENT_FLAIR_DEFINITIONS = {
   }
 };
 
+const COLOR_ACCENT_GRADIENTS = {
+  '#4388df': 'linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 40%, #2563eb 70%, #60a5fa 100%)', // Blue
+  '#2aa889': 'linear-gradient(135deg, #042f2e 0%, #115e59 40%, #0d9488 70%, #2dd4bf 100%)', // Teal
+  '#8367d8': 'linear-gradient(135deg, #2e1065 0%, #581c87 40%, #7c3aed 70%, #c084fc 100%)', // Purple
+  '#d45b86': 'linear-gradient(135deg, #4c0519 0%, #881337 40%, #be123c 70%, #fb7185 100%)', // Rose
+  '#d18a35': 'linear-gradient(135deg, #451a03 0%, #78350f 40%, #b45309 70%, #f59e0b 100%)', // Amber
+  '#4f8b52': 'linear-gradient(135deg, #022c22 0%, #064e3b 40%, #047857 70%, #10b981 100%)'  // Green
+};
+
 function resolveEventFlair(evOrPayload){
   if(!evOrPayload) return EVENT_FLAIR_DEFINITIONS['flair:strategy'];
   
@@ -11330,11 +11349,35 @@ function resolveEventFlair(evOrPayload){
     return EVENT_FLAIR_DEFINITIONS['flair:school_event'];
   }
 
-  // Fallbacks by category
-  if(cat === 'personal') return EVENT_FLAIR_DEFINITIONS['flair:birthday'];
-  if(cat === 'focus') return EVENT_FLAIR_DEFINITIONS['flair:fitness'];
-  
-  return EVENT_FLAIR_DEFINITIONS['flair:strategy'];
+  // Dynamic Clean Category / Color-Driven Fallback
+  const colorKey = String(evOrPayload.color || '').toLowerCase();
+  const chosenGradient = (colorKey && COLOR_ACCENT_GRADIENTS[colorKey]) || COLOR_ACCENT_GRADIENTS['#4388df'];
+  const chosenColor = evOrPayload.color || '#4388df';
+
+  let badge = 'STRATEGY';
+  let icon = 'briefcase';
+  let name = 'Strategy & Meeting';
+
+  if(cat === 'personal'){
+    badge = 'PERSONAL'; icon = 'user'; name = 'Personal Schedule';
+  } else if(cat === 'focus'){
+    badge = 'FOCUS'; icon = 'zap'; name = 'Deep Focus';
+  } else if(cat === 'health'){
+    badge = 'WELLNESS'; icon = 'heart'; name = 'Health & Wellbeing';
+  } else if(cat === 'team' || evOrPayload.teamShared){
+    badge = 'TEAM'; icon = 'users'; name = 'Team Sync';
+  } else if(cat === 'work'){
+    badge = 'WORK'; icon = 'briefcase'; name = 'Work & Strategy';
+  }
+
+  return {
+    ...EVENT_FLAIR_DEFINITIONS['flair:strategy'],
+    name,
+    badge,
+    icon,
+    gradient: chosenGradient,
+    accentColor: chosenColor
+  };
 }
 
 function updateEventModalSmartBanner(){
@@ -11346,7 +11389,8 @@ function updateEventModalSmartBanner(){
 
   const title = $('eventTitle')?.value || '';
   const cat = $('eventCategory')?.value || 'work';
-  const flair = resolveEventFlair({ title, category: cat, coverPreset: currentEventCoverPreset });
+  const color = $('eventColor')?.value || '#4388df';
+  const flair = resolveEventFlair({ title, category: cat, coverPreset: currentEventCoverPreset, color });
 
   banner.style.background = currentEventCoverImage ? ('url(' + currentEventCoverImage + ') center/cover no-repeat') : flair.gradient;
   if(badgeText) badgeText.textContent = flair.badge;
@@ -11492,6 +11536,11 @@ function syncEventColorSwatches(color){
   if (evHead) {
     evHead.style.borderBottom = `2px solid color-mix(in srgb, ${activeColor} 30%, var(--line))`;
   }
+
+  // Real-time banner canopy update matching selected color
+  try {
+    if(typeof updateEventModalSmartBanner === 'function') updateEventModalSmartBanner();
+  } catch(err){}
 }
 
 function openEvent(id = null, date = null){
@@ -15646,20 +15695,23 @@ function getCardCreatorProfile(item){
 function getEventCardMeta(e) {
   const flair = (typeof resolveEventFlair === 'function') ? resolveEventFlair(e) : null;
   const cat = (e.category || 'other').toLowerCase();
-  let icon = 'calendar', label = 'Event', accent = '#3b82f6', catClass = 'event-work';
+  const userAccent = e.color || (flair && flair.accentColor) || '#4388df';
+  let icon = 'calendar', label = 'Event', accent = userAccent, catClass = 'event-work';
   if(flair && flair.key !== 'flair:strategy'){
     icon = flair.icon || 'calendar';
     label = flair.badge || 'Event';
-    accent = flair.accentColor || '#3b82f6';
+    accent = e.color || flair.accentColor || '#4388df';
     catClass = 'event-' + (flair.key.replace('flair:', ''));
   } else if(e.teamShared){
-    icon = 'users'; label = 'Team Sync'; accent = '#6366f1'; catClass = 'event-team';
+    icon = 'users'; label = 'Team Sync'; accent = e.color || '#8367d8'; catClass = 'event-team';
   } else if(cat === 'personal'){
-    icon = 'target'; label = 'Personal'; accent = '#10b981'; catClass = 'event-personal';
+    icon = 'user'; label = 'Personal'; accent = e.color || '#d18a35'; catClass = 'event-personal';
   } else if(cat === 'focus'){
-    icon = 'zap'; label = 'Deep Focus'; accent = '#8b5cf6'; catClass = 'event-focus';
+    icon = 'zap'; label = 'Deep Focus'; accent = e.color || '#2aa889'; catClass = 'event-focus';
   } else if(cat === 'health'){
-    icon = 'heart'; label = 'Wellness'; accent = '#ec4899'; catClass = 'event-health';
+    icon = 'heart'; label = 'Wellness'; accent = e.color || '#4f8b52'; catClass = 'event-health';
+  } else {
+    accent = e.color || '#4388df';
   }
   return { icon, label, accent, catClass };
 }
@@ -15895,7 +15947,7 @@ function renderEventPreviewHTML(id){
         <!-- Type Tag & Close Button -->
         <div class="event-preview-topbar">
           <div class="event-preview-tags">
-            <span class="event-preview-type-tag">
+            <span class="event-preview-type-tag" style="background:color-mix(in srgb, ${accent} 12%, transparent);color:${accent};border-color:color-mix(in srgb, ${accent} 30%, transparent)">
               ${getLucideSvg('calendar', 14)} Event
             </span>
             ${statusBadge}
@@ -17929,20 +17981,23 @@ function renderOverviewHorizon(options = {}){
     function getEventCardMeta(e) {
       const flair = (typeof resolveEventFlair === 'function') ? resolveEventFlair(e) : null;
       const cat = (e.category || 'other').toLowerCase();
-      let icon = 'calendar', label = 'Event', accent = '#3b82f6', catClass = 'event-work';
+      const userAccent = e.color || (flair && flair.accentColor) || '#4388df';
+      let icon = 'calendar', label = 'Event', accent = userAccent, catClass = 'event-work';
       if(flair && flair.key !== 'flair:strategy'){
         icon = flair.icon || 'calendar';
         label = flair.badge || 'Event';
-        accent = flair.accentColor || '#3b82f6';
+        accent = e.color || flair.accentColor || '#4388df';
         catClass = 'event-' + (flair.key.replace('flair:', ''));
       } else if(e.teamShared){
-        icon = 'users'; label = 'Team Sync'; accent = '#6366f1'; catClass = 'event-team';
+        icon = 'users'; label = 'Team Sync'; accent = e.color || '#8367d8'; catClass = 'event-team';
       } else if(cat === 'personal'){
-        icon = 'target'; label = 'Personal'; accent = '#10b981'; catClass = 'event-personal';
+        icon = 'user'; label = 'Personal'; accent = e.color || '#d18a35'; catClass = 'event-personal';
       } else if(cat === 'focus'){
-        icon = 'zap'; label = 'Deep Focus'; accent = '#8b5cf6'; catClass = 'event-focus';
+        icon = 'zap'; label = 'Deep Focus'; accent = e.color || '#2aa889'; catClass = 'event-focus';
       } else if(cat === 'health'){
-        icon = 'heart'; label = 'Wellness'; accent = '#ec4899'; catClass = 'event-health';
+        icon = 'heart'; label = 'Wellness'; accent = e.color || '#4f8b52'; catClass = 'event-health';
+      } else {
+        accent = e.color || '#4388df';
       }
       return { icon, label, accent, catClass, flair };
     }
@@ -18046,7 +18101,7 @@ function renderOverviewHorizon(options = {}){
         }
       }
 
-      const cardAccent = (flair && flair.accentColor) ? flair.accentColor : accent;
+      const cardAccent = e.color || (flair && flair.accentColor) || accent || '#4388df';
 
       return `
         <div class="journey-card event-card ${catClass} ${isMilestone ? 'has-canopy' : ''} ${isHero ? 'is-hero-card' : ''} ${isPast ? 'is-past-item' : ''} ${isCurrent ? 'is-current-active' : ''} ${isStartingSoon ? 'is-starting-soon' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-event="${esc(e.id)}" style="--card-accent:${cardAccent}">
@@ -18461,7 +18516,7 @@ function renderOverviewHorizon(options = {}){
       const startIdx = allVisibleDays.indexOf(span.startDay);
       if(startIdx !== -1){
         const meta = getEventCardMeta(span.event);
-        const accent = meta.accent || '#10b981';
+        const accent = span.event.color || meta.accent || '#4388df';
         for(let k = 0; k < span.spanDays; k++){
           const curIdx = startIdx + k;
           if(curIdx >= allVisibleDays.length) break;
@@ -18537,7 +18592,7 @@ function renderOverviewHorizon(options = {}){
         const microRowsHtml = eventsList.map(e => {
           const creator = getCardCreatorProfile(e);
           const meta = getEventCardMeta(e);
-          const accent = meta.accent || dayHue;
+          const accent = e.color || meta.accent || dayHue;
           let badgeText = 'ALL DAY';
           if(!e.allDay && e.start){
             badgeText = fmtTime(e.start);
@@ -18643,7 +18698,7 @@ function renderOverviewHorizon(options = {}){
             }
           }
 
-          const cardAccent = (flair && flair.accentColor) ? flair.accentColor : accent;
+          const cardAccent = curEvent.color || (flair && flair.accentColor) || accent || '#4388df';
 
           leftHtml = `
             <div class="journey-card event-card is-multiday-spanning ${isMilestone ? 'has-canopy' : ''} ${isTodayInRange ? 'is-current-active' : ''}" data-preview-event="${esc(curEvent.id)}" style="--card-accent:${cardAccent}">
@@ -23532,7 +23587,7 @@ html[data-theme=dark] .about-emblem-wrap img {
     document.querySelectorAll('.agenda-item').forEach(el=>{const trigger=el.querySelector('[data-edit-event]'),event=trigger&&byId(trigger.dataset.editEvent);if(event)el.style.setProperty('--event-color',colorFor(event))});
     document.querySelectorAll('#dashboardAgenda .dash-event').forEach(el=>{const title=el.querySelector('strong')?.textContent.trim(),event=list.find(item=>item.date===window.iso?.(new Date())&&item.title===title)||list.find(item=>item.title===title);if(event)el.style.setProperty('--event-color',colorFor(event))});
   };
-  const syncSwatches=()=>{const input=document.getElementById('eventColor'),color=valid(input?.value)||palette.work,buttons=[...document.querySelectorAll('[data-event-preset-color]')];buttons.forEach(button=>{const active=valid(button.dataset.eventPresetColor)===color;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});const active=buttons.find(button=>valid(button.dataset.eventPresetColor)===color),label=document.getElementById('eventColorLabel');if(label)label.textContent=active?.dataset.eventPresetName||'Custom'};
+  const syncSwatches=()=>{const input=document.getElementById('eventColor'),color=valid(input?.value)||palette.work,buttons=[...document.querySelectorAll('[data-event-preset-color]')];buttons.forEach(button=>{const active=valid(button.dataset.eventPresetColor)===color;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});const active=buttons.find(button=>valid(button.dataset.eventPresetColor)===color),label=document.getElementById('eventColorLabel');if(label)label.textContent=active?.dataset.eventPresetName||'Custom';try{if(typeof updateEventModalSmartBanner==='function')updateEventModalSmartBanner();}catch(e){}};
   const syncEditorColor=()=>{const modal=document.getElementById('modalBackdrop'),input=document.getElementById('eventColor');if(!modal||!input||modal.classList.contains('hidden'))return;const event=(window.events||[]).find(item=>String(item.id)===String(document.getElementById('eventId')?.value||''));input.value=colorFor(event);syncSwatches()};
   const modal=document.getElementById('modalBackdrop');if(modal)new MutationObserver(syncEditorColor).observe(modal,{attributes:true,attributeFilter:['class']});
   document.querySelectorAll('[data-event-preset-color]').forEach(button=>button.addEventListener('click',()=>{const color=valid(button.dataset.eventPresetColor),input=document.getElementById('eventColor');if(!color||!input)return;input.value=color;syncSwatches()}));
