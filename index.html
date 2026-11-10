@@ -13966,7 +13966,21 @@ function renderNotificationBell(){const items=teamActivityItems(),unread=items.f
 function renderNotificationList(){const items=teamActivityItems(),box=$('notificationList');if(!box)return;const unread=items.filter(x=>x.unread).length;$('notificationSummary').textContent=unread?`${unread} unread update${unread===1?'':'s'} from your team workspace.`:'You are all caught up.';$('notificationConnection').textContent=firebaseUser?(navigator.onLine?'Firestore team activity':'Offline · showing cached activity'):'Local mode';box.innerHTML=items.length?items.slice(0,60).map(n=>`<button type="button" class="notification-item ${n.unread?'unread':'read'}" data-notification-key="${esc(n.key)}" data-notification-type="${esc(n.type)}" data-notification-id="${esc(n.id)}"><span class="notification-dot"></span><span class="notification-copy"><span class="notification-type">${n.type==='events'?'Calendar':n.type==='tasks'?'Task':'Planning'} · ${esc(n.teamName)}</span><strong>${esc(n.title)}: ${esc(n.recordTitle)}</strong><p>${esc(n.detail)} · ${esc(n.actor)}</p><small>${n.time?esc(new Date(n.time).toLocaleString()):'Recent team activity'}</small></span></button>`).join(''):'<div class="overview-empty" style="padding:28px 16px;text-align:center">No team activity to show yet. When shared events, tasks, or notes are updated, they will appear here.</div>';renderNotificationBellBadgeOnly(items)}
 function renderNotificationBellBadgeOnly(items=teamActivityItems()){const unread=items.filter(x=>x.unread).length,badge=$('notificationBadge');if(badge){badge.textContent=unread>9?'9+':String(unread);badge.classList.toggle('hidden',!unread)}}
 function openNotifications(){refreshNotificationReadState();$('notificationBackdrop').classList.remove('hidden');renderNotificationList()}
-function closeNotifications(){$('notificationBackdrop').classList.add('hidden')}
+function closeNotifications(){
+  const backdrop = $('notificationBackdrop');
+  const panel = $('notificationPanel');
+  if (backdrop) {
+    backdrop.classList.remove('chronos-notification-open');
+    backdrop.classList.add('hidden');
+    backdrop.style.removeProperty('display');
+    backdrop.style.removeProperty('visibility');
+    backdrop.style.removeProperty('opacity');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+  if (panel) {
+    panel.setAttribute('aria-hidden', 'true');
+  }
+}
 function markAllNotificationsRead(){teamNotificationRead=new Set(teamActivityItems().map(x=>x.key));try{localStorage.setItem(currentNotificationKey(),JSON.stringify([...teamNotificationRead]))}catch{}renderNotificationList();notify('Team activity marked as read.')}
 function markNotificationRead(key){teamNotificationRead.add(key);try{localStorage.setItem(currentNotificationKey(),JSON.stringify([...teamNotificationRead]))}catch{}renderNotificationBell()}
 function renderOverviewTeam(){const subtitle=$('overviewTeamSubtitle');if(!subtitle)return;const signed=!!firebaseUser,team=activeTeam||chronosTeams.find(t=>t.id===activeTeamId),list=teamActivityItems();subtitle.textContent=!signed?'Sign in and join a team to see shared events, assignments, and planning notes.':!team?'You are not in a selected team yet. Create or join a team to collaborate here.':`${team.name||'Selected team'} · shared work at a glance`;const upcoming=(teamRecords.events||[]).filter(r=>!r.date||r.date>=iso(today)).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')).slice(0,3);const tasksList=(teamRecords.tasks||[]).filter(r=>r.status!=='done'&&!r.done).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')).slice(0,3);const notesList=(teamRecords.notes||[]).slice().sort((a,b)=>Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0)).slice(0,3);const renderRows=(arr,type)=>arr.length?arr.map(r=>`<div class="overview-record" ${type==='notes'?`data-preview-note="${esc(r.id)}" style="cursor:pointer"`:type==='events'?`data-preview-event="${esc(r.id)}" style="cursor:pointer"`:type==='tasks'?`data-preview-task="${esc(r.id)}" style="cursor:pointer"`:''}><strong>${esc(r.title||'Untitled')}</strong><small>${esc(type==='events'?(r.date||'Date not set'):type==='tasks'?`${r.assigneeEmail||((r.assigneeUid||r.assigneeUids?.length)?'Assigned':'Unassigned')}${r.date?' · '+r.date:''}`:`Updated ${new Date(Number(r.updatedAt||r.createdAt||Date.now())).toLocaleDateString()}`)}</small>${type==='tasks'?`<span class="record-status">${esc(r.status||'open')}</span>`:''}</div>`).join(''):'<div class="overview-empty">'+(!signed?'Sign in to load team work.':!team?'Choose a team in Team workspace.':'Nothing shared here yet.')+'</div>';$('overviewTeamEvents').innerHTML=renderRows(upcoming,'events');$('overviewTeamTasks').innerHTML=renderRows(tasksList,'tasks');$('overviewTeamNotes').innerHTML=renderRows(notesList,'notes');$('overviewEventsCount').textContent=`${(teamRecords.events||[]).length} shared`;$('overviewTasksCount').textContent=`${(teamRecords.tasks||[]).filter(r=>r.status!=='done'&&!r.done).length} open`; $('overviewNotesCount').textContent=`${(teamRecords.notes||[]).length} shared`;renderNotificationBell()}
@@ -19236,8 +19250,7 @@ function renderTeamAdminPanel3(){
  publishToTeams=async function(type,record,teamIds,assignees=[]){await basePublishToTeams.apply(this,arguments);const assigned=(assignees||[]).map(a=>a.uid);for(const teamId of [...new Set([...(teamIds||[]),...(type==='tasks'?(assignees||[]).map(a=>a.teamId):[])])]){try{await notifyTeamRecipients3(teamId,record,type,assigned)}catch(e){console.warn('Notification creation failed',e)}}};
  // Team workspace record composer now generates notifications for assigned members and team-wide events/notes.
  submitTeamRecord=async function(e){e.preventDefault();try{if(!activeTeam||!isAdmin3())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value,member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeUids:assigneeUid?[assigneeUid]:[],assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team'};await teamRef3(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='tasks'&&assigneeUid)teamAssignedTasks=[...teamAssignedTasks.filter(t=>!(t.teamId===activeTeamId&&t.id===id)),{...record,teamShared:true}];try{await notifyTeamRecipients3(activeTeamId,record,type,assigneeUid?[assigneeUid]:[])}catch(err){console.warn('Notification creation failed',err)}renderTeamRecords();renderOverviewTeam();renderTasks();$('teamRecordForm').reset();teamStatus('Published. Shared records sync live; eligible members have been notified.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}};
- // Notification clicks persist read state, then navigate to the related page/team.
- $('notificationList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-notification-key]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const teamId=b.dataset.notificationTeam,type=b.dataset.notificationType,targetId=b.dataset.notificationTargetId||b.dataset.notificationId;await markNotificationRead(b.dataset.notificationKey);closeNotifications();if(teamId){activeTeamId=teamId;try{localStorage.setItem('chronos70.activeTeamId',teamId)}catch{}await refreshTeamWorkspace()}setPage(type==='events'?'calendar':type==='tasks'?'tasks':'team');if(type==='notes'||type==='tasks'){teamTab=type;renderTeamWorkspace();if(type==='tasks')renderTasks()}else if(type==='events'){selected=new Date();if(typeof renderCalendar==='function')renderCalendar()}setTimeout(()=>{const target=targetId&&document.querySelector(`[data-team-record-id="${CSS.escape(targetId)}"]`);if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.classList.add('chronos-notice-target');setTimeout(()=>target.classList.remove('chronos-notice-target'),2200)}else if(type==='events'){const ev=document.querySelector('[data-event-id]');ev?.scrollIntoView({behavior:'smooth',block:'center'})}},180)},true);
+// Legacy notification capture listener removed in favor of modern card delegation with auto-close
  window.addEventListener('online',()=>{if(firebaseUser&&chronosTeams.length)startTeamRealtimeSync()});
 })();
 </script>
@@ -19880,7 +19893,7 @@ html[data-theme="dark"] .notification-panel {
    });
  }
 
- // Card click delegation with deep-linking
+ // Card click delegation with deep-linking & auto-close
  byId('notificationList')?.addEventListener('click', async e => {
    const card = e.target.closest('.notification-card[data-notification-key]');
    if (!card) return;
@@ -19891,12 +19904,29 @@ html[data-theme="dark"] .notification-panel {
    const targetId = card.dataset.notificationTargetId || card.dataset.notificationId;
 
    if (typeof markNotificationRead === 'function') {
-     await markNotificationRead(key);
+     try { await markNotificationRead(key); } catch {}
+   }
+
+   // Auto-close notification drawer immediately after clicking
+   if (typeof hideChronosNotifications === 'function') {
+     hideChronosNotifications();
    }
    if (typeof window.chronosCloseNotifications === 'function') {
      window.chronosCloseNotifications();
-   } else if (typeof closeNotifications === 'function') {
+   }
+   if (typeof closeNotifications === 'function') {
      closeNotifications();
+   }
+   const nb = byId('notificationBackdrop');
+   if (nb) {
+     nb.classList.remove('chronos-notification-open');
+     nb.classList.add('hidden');
+     nb.style.removeProperty('display');
+     nb.style.removeProperty('visibility');
+     nb.style.removeProperty('opacity');
+     nb.setAttribute('aria-hidden', 'true');
+     const np = byId('notificationPanel');
+     if (np) np.setAttribute('aria-hidden', 'true');
    }
 
    if (teamId && typeof chronosTeams !== 'undefined') {
