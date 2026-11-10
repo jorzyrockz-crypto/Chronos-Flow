@@ -28347,12 +28347,52 @@ html[data-theme=dark] .project-workspace-modal-card {
 
 /* Modal Topbar */
 .project-workspace-modal-topbar {
+  position: relative !important;
+  z-index: 100 !important;
   padding: 22px 28px 14px !important;
   background: transparent !important;
   border-bottom: none !important;
 }
 
+.project-workspace-topbar-actions {
+  position: relative !important;
+  z-index: 105 !important;
+}
+
+.project-ws-more-wrap {
+  position: relative !important;
+  z-index: 110 !important;
+}
+
+.project-ws-more-menu {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  min-width: 185px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.16), 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+  padding: 8px !important;
+  z-index: 10070 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.project-ws-more-menu.hidden {
+  display: none !important;
+}
+
+html[data-theme=dark] .project-ws-more-menu {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
 #projectWorkspaceModalMount {
+  position: relative !important;
+  z-index: 10 !important;
   padding: 0 28px 28px !important;
 }
 
@@ -29851,6 +29891,8 @@ html[data-theme=dark] .deliverable-group-card.compact-roster-card {
   justify-content: space-between !important;
   gap: 16px !important;
   flex-wrap: wrap !important;
+  position: relative !important;
+  z-index: 25 !important;
 }
 .deliv-title-left {
   display: flex !important;
