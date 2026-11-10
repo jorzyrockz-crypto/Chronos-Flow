@@ -247,18 +247,193 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 .note-card .note-collection{font-size:10px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
 .note-card .note-extra{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 
-/* List View Mode */
-.notes-view-list{display:flex;flex-direction:column;gap:8px}
-.notes-view-list .note-card{min-height:0;padding:12px 16px;flex-direction:row;align-items:center;gap:14px}
-.notes-view-list .note-card-top{margin-bottom:0;flex:0 0 auto;flex-direction:row-reverse}
-.notes-view-list .note-card-body{flex-direction:row;align-items:center;gap:16px;min-width:0}
-.notes-view-list .note-card-body h4{flex:0 0 220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.notes-view-list .md-card-preview{-webkit-line-clamp:1;flex:1}
-.notes-view-list .note-card-footer{margin-top:0;flex-direction:row;align-items:center;flex:0 0 auto}
-@media(max-width:760px){
-  .notes-view-list .note-card{flex-direction:column;align-items:stretch}
-  .notes-view-list .note-card-body{flex-direction:column;align-items:stretch}
-  .notes-view-list .note-card-body h4{flex:none}
+/* List View Mode Overhaul */
+.notes-grid.notes-view-list,
+.notes-grid-pinned.notes-view-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  column-count: auto !important;
+  width: 100% !important;
+}
+
+.notes-view-list .note-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: 0 !important;
+  padding: 16px 20px !important;
+  border-radius: 16px !important;
+  gap: 8px !important;
+  margin-bottom: 0 !important;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+.notes-view-list .note-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card Top: Metas on left, Actions on right in natural order */
+.notes-view-list .note-card-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 2px !important;
+  width: 100% !important;
+  flex: none !important;
+}
+
+.notes-view-list .note-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+}
+
+.notes-view-list .note-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+  opacity: 0.8 !important;
+  transition: opacity .15s ease !important;
+}
+.notes-view-list .note-card:hover .note-card-actions,
+.notes-view-list .note-card:focus-within .note-card-actions {
+  opacity: 1 !important;
+}
+
+/* Card Body: Full width title & 3-line excerpt */
+.notes-view-list .note-card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+}
+
+.notes-view-list .note-card-body h4 {
+  font-size: 16px !important;
+  font-weight: 750 !important;
+  color: var(--text) !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+  flex: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: break-word !important;
+  letter-spacing: -0.01em !important;
+}
+
+.notes-view-list .md-card-preview {
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  color: var(--muted) !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  flex: none !important;
+  width: 100% !important;
+}
+
+/* Compact bounded images in list cards */
+.notes-view-list .note-card .md-card-preview img {
+  max-height: 190px !important;
+  max-width: 520px !important;
+  width: auto !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  margin: 8px 0 !important;
+  display: block !important;
+}
+
+.notes-view-list .note-inline-figure {
+  margin: 8px 0 !important;
+  width: auto !important;
+  max-width: 100% !important;
+  float: none !important;
+  clear: both !important;
+}
+
+.notes-view-list .note-inline-figure .figure-toolbar {
+  display: none !important;
+}
+
+/* Card Footer: Balanced row with tags and engagements */
+.notes-view-list .note-card-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 4px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid color-mix(in srgb, var(--line) 45%, transparent) !important;
+  width: 100% !important;
+  flex-wrap: wrap !important;
+}
+
+.notes-view-list .note-card-tags {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.notes-view-list .note-collection {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--muted) !important;
+}
+
+.notes-view-list .note-card-footer-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-left: auto !important;
+}
+
+.notes-view-list .note-extra {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.notes-view-list .note-card-facepile {
+  display: flex !important;
+  align-items: center !important;
+}
+
+@media (max-width: 600px) {
+  .notes-view-list .note-card {
+    padding: 13px 15px !important;
+    border-radius: 14px !important;
+  }
+  .notes-view-list .note-card-body h4 {
+    font-size: 15px !important;
+  }
+  .notes-view-list .note-card-footer {
+    gap: 8px !important;
+  }
+  .notes-view-list .note-card-footer-row {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin-left: 0 !important;
+  }
 }
 
 /* Modal Markdown Editor & Split View */
@@ -4493,7 +4668,7 @@ html[data-theme="dark"][data-accent] .note-comment-item {
 .notes-grid-pinned.notes-view-list {
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
+  gap: 12px !important;
   column-count: auto !important;
 }
 .notes-grid.notes-view-list .note-card,
