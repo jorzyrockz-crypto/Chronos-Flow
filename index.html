@@ -5543,7 +5543,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
 <button data-page="notes" aria-label="Notes"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="file-text" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/></svg><span>Notes</span></button>
 <button data-page="team" aria-label="Team" id="floatingNavTeamBtn" style="position:relative"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="users" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span><span class="nav-team-pill hidden" id="floatingNavTeamBadge">0</span></button>
 </nav>
-<div class="notification-backdrop hidden" id="notificationBackdrop" role="presentation"><section class="notification-panel" id="notificationPanel" role="dialog" aria-modal="true" aria-labelledby="notificationTitle"><header class="notification-head"><div><div class="eyebrow">TEAM ACTIVITY</div><h3 id="notificationTitle">Notifications</h3><p id="notificationSummary">Recent updates from your workspace.</p></div><button class="close" id="notificationClose" aria-label="Close notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></header><div class="notification-toolbar"><button type="button" class="text-btn" id="markNotificationsRead">Mark all as read</button><span id="notificationConnection" class="muted-label">Local-first inbox</span></div><nav class="chronos-notification-filters" id="notificationFilters" aria-label="Filter notifications"><button type="button" data-notice-filter="all" class="active" aria-pressed="true">All</button><button type="button" data-notice-filter="unread" aria-pressed="false">Unread</button><button type="button" data-notice-filter="tasks" aria-pressed="false">Tasks</button><button type="button" data-notice-filter="invitations" aria-pressed="false">Invitations</button></nav><div id="notificationList" class="notification-list" aria-live="polite"></div><footer class="notification-foot"><span>In-app updates from teams you belong to.</span><button class="btn" type="button" data-goto="team" id="notificationOpenTeam">Open team workspace</button></footer></section></div>
+<div class="notification-backdrop hidden" id="notificationBackdrop" role="presentation"><section class="notification-panel" id="notificationPanel" role="dialog" aria-modal="true" aria-labelledby="notificationTitle"><header class="notification-head"><div><div class="eyebrow">TEAM ACTIVITY</div><div class="notification-title-wrap"><h3 id="notificationTitle">Notifications</h3><span class="notification-badge-pill" id="notificationHeadBadge">0 new</span></div><p id="notificationSummary">Recent updates from your workspace.</p></div><div class="notification-head-actions"><button type="button" class="notification-icon-btn" id="markNotificationsRead" title="Mark all as read" aria-label="Mark all as read"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="check-check"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg></button><button class="close notification-close-btn" id="notificationClose" aria-label="Close notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div></header><div class="notification-toolbar"><div class="notification-live-status"><span class="notification-live-dot"></span><span id="notificationConnection" class="muted-label">Live Firestore inbox · Real-time sync</span></div></div><nav class="chronos-notification-filters" id="notificationFilters" aria-label="Filter notifications"><button type="button" data-notice-filter="all" class="active" aria-pressed="true"><span>All</span> <span class="filter-num" id="noticeCountAll">0</span></button><button type="button" data-notice-filter="unread" aria-pressed="false"><span>Unread</span> <span class="filter-num" id="noticeCountUnread">0</span></button><button type="button" data-notice-filter="notes" aria-pressed="false"><span>Notes</span> <span class="filter-num" id="noticeCountNotes">0</span></button><button type="button" data-notice-filter="tasks" aria-pressed="false"><span>Tasks</span> <span class="filter-num" id="noticeCountTasks">0</span></button><button type="button" data-notice-filter="invitations" aria-pressed="false"><span>Invites</span> <span class="filter-num" id="noticeCountInvites">0</span></button></nav><div id="notificationList" class="notification-list" aria-live="polite"></div><footer class="notification-foot"><span>In-app updates from teams you belong to.</span><button class="btn" type="button" data-goto="team" id="notificationOpenTeam">Open team workspace ↗</button></footer></section></div>
 <style id="chronosTeamEasyAccessStyles">
 /* Team Workspace Modals & Sharing */
 .team-modal-card {
@@ -19126,14 +19126,334 @@ function renderTeamAdminPanel3(){
 
 
 <style id="chronosInteractiveNotifications">
-.chronos-notification-filters{display:flex;gap:7px;padding:10px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
-.chronos-notification-filters button{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);padding:8px 12px;font:700 11px/1.2 inherit;cursor:pointer;min-height:36px}
-.chronos-notification-filters button.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
-.notification-item{width:calc(100% - 24px);margin:8px 12px;text-align:left;cursor:pointer;transition:transform .15s,border-color .15s}
-.notification-item:focus-visible,.chronos-notification-filters button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.notification-item.read{opacity:.78}.notification-item .notification-copy{min-width:0}.notification-item strong,.notification-item p{overflow-wrap:anywhere}
-.team-record.chronos-notice-target{outline:3px solid var(--accent);outline-offset:2px;background:var(--accent-soft);transition:background .2s}
-@media(prefers-reduced-motion:reduce){.notification-item{transition:none}}
+/* Refined Notifications & Team Activity Drawer */
+.notification-panel {
+  width: min(450px, 100%) !important;
+  height: 100% !important;
+  max-height: 100dvh !important;
+  overflow-y: auto !important;
+  background: var(--surface) !important;
+  border-left: 1px solid var(--line) !important;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.12) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  color: var(--text) !important;
+}
+html[data-theme="dark"] .notification-panel {
+  background: rgba(18, 24, 38, 0.96) !important;
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5) !important;
+}
+.notification-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  padding: 22px 20px 16px !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+.notification-title-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 4px 0 6px !important;
+}
+.notification-title-wrap h3 {
+  font-size: 22px !important;
+  font-weight: 750 !important;
+  margin: 0 !important;
+  letter-spacing: -0.5px !important;
+  color: var(--text) !important;
+}
+.notification-badge-pill {
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--accent) 15%, transparent) !important;
+  color: var(--accent) !important;
+  font-size: 0.72rem !important;
+  font-weight: 750 !important;
+}
+.notification-badge-pill.caught-up {
+  background: rgba(120, 130, 150, 0.12) !important;
+  color: var(--muted) !important;
+}
+.notification-head-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-left: auto !important;
+}
+.notification-icon-btn,
+.notification-close-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--surface2) !important;
+  color: var(--muted) !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transition: all .15s ease !important;
+  padding: 0 !important;
+}
+.notification-icon-btn:hover {
+  background: var(--surface) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  transform: scale(1.05) !important;
+}
+.notification-close-btn:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+.notification-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: var(--surface2) !important;
+}
+.notification-live-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.75rem !important;
+  color: var(--muted) !important;
+}
+.notification-live-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #10b981 !important;
+  box-shadow: 0 0 8px #10b981 !important;
+  flex-shrink: 0 !important;
+}
+.chronos-notification-filters {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 12px 18px !important;
+  border-bottom: 1px solid var(--line) !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+}
+.chronos-notification-filters::-webkit-scrollbar {
+  display: none !important;
+}
+.chronos-notification-filters button {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--surface) !important;
+  color: var(--muted) !important;
+  font-size: 0.76rem !important;
+  font-weight: 650 !important;
+  cursor: pointer !important;
+  min-height: 34px !important;
+  transition: all .15s ease !important;
+  white-space: nowrap !important;
+}
+.chronos-notification-filters button:hover {
+  border-color: var(--accent) !important;
+  color: var(--text) !important;
+}
+.chronos-notification-filters button.active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px var(--accent-glow, rgba(70, 92, 245, 0.3)) !important;
+}
+.chronos-notification-filters button .filter-num {
+  padding: 1px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(120, 130, 150, 0.12) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+}
+.chronos-notification-filters button.active .filter-num {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+}
+.notification-list {
+  padding: 12px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  flex: 1 !important;
+  overflow-y: auto !important;
+}
+.notification-card {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: all .18s ease !important;
+  box-sizing: border-box !important;
+}
+.notification-card:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line)) !important;
+}
+.notification-card.unread {
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface)) !important;
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line)) !important;
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 8%, transparent) !important;
+}
+.notif-card-header {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: flex-start !important;
+  min-width: 0 !important;
+}
+.notif-avatar-wrap {
+  position: relative !important;
+  flex-shrink: 0 !important;
+}
+.notif-avatar-wrap .chronos-avatar,
+.notif-avatar-wrap .avatar-fallback {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+}
+.notif-type-badge {
+  position: absolute !important;
+  bottom: -3px !important;
+  right: -3px !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background: var(--surface) !important;
+  border: 1.5px solid var(--surface) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15) !important;
+}
+.notif-type-badge.notif-type-notes { color: #3b82f6 !important; }
+.notif-type-badge.notif-type-tasks { color: #8b5cf6 !important; }
+.notif-type-badge.notif-type-events { color: #f59e0b !important; }
+.notif-type-badge.notif-type-invitations { color: #10b981 !important; }
+.notif-unread-glow-dot {
+  position: absolute !important;
+  top: -2px !important;
+  left: -2px !important;
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #06b6d4 !important;
+  box-shadow: 0 0 8px #06b6d4 !important;
+  border: 1.5px solid var(--surface) !important;
+}
+.notif-meta-col {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+.notif-meta-top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 4px !important;
+}
+.notif-team-chip {
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  background: rgba(120, 130, 150, 0.1) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+}
+.notif-category-tag {
+  font-size: 0.68rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  color: var(--accent) !important;
+}
+.notif-time-ago {
+  font-size: 0.68rem !important;
+  color: var(--muted) !important;
+  margin-left: auto !important;
+}
+.notif-title {
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+  overflow-wrap: anywhere !important;
+}
+.notif-excerpt {
+  font-size: 0.78rem !important;
+  color: var(--muted) !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+.notif-card-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  margin-top: 4px !important;
+  padding-top: 6px !important;
+  border-top: 1px dashed var(--line) !important;
+}
+.notif-action-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  font-size: 0.72rem !important;
+  font-weight: 650 !important;
+  transition: all .15s ease !important;
+}
+.notification-card:hover .notif-action-pill {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+.notification-foot {
+  padding: 14px 18px !important;
+  border-top: 1px solid var(--line) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  background: var(--surface2) !important;
+}
+.notification-foot .btn {
+  font-size: 0.78rem !important;
+  padding: 8px 14px !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+}
+.team-record.chronos-notice-target,
+.note-card.chronos-notice-target {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 20px var(--accent-glow) !important;
+  transition: all .3s ease !important;
+}
+@media(prefers-reduced-motion:reduce){
+  .notification-card{transition:none !important}
+}
 </style>
 <script id="chronosInteractiveNotificationsLogic">
 (()=>{
@@ -19141,25 +19461,280 @@ function renderTeamAdminPanel3(){
  const root=document.getElementById('notificationFilters');
  const byId=id=>document.getElementById(id);
  const safeEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- function normalizeType(n){const t=String(n.targetType||n.type||'notes').toLowerCase();if(t.includes('invitation'))return 'invitations';if(t==='task'||t==='tasks'||t.includes('task'))return 'tasks';if(t==='event'||t==='events'||t.includes('calendar'))return 'events';return 'notes'}
- function renderFiltered(){
-  const all=typeof teamActivityItems==='function'?teamActivityItems():[];
-  const unread=all.filter(n=>n.unread).length;
-  const summary=byId('notificationSummary');if(summary)summary.textContent=unread?`${unread} unread update${unread===1?'':'s'} from your team workspace.`:'You are all caught up.';
-  const connection=byId('notificationConnection');if(connection)connection.textContent=(typeof firebaseUser!=='undefined'&&firebaseUser)?(navigator.onLine?'Live Firestore inbox':'Offline · last available notifications'):'Sign in to receive team notifications';
-  const shown=all.filter(n=>noticeFilter==='all'||(noticeFilter==='unread'&&n.unread)||(noticeFilter==='tasks'&&normalizeType(n)==='tasks')||(noticeFilter==='invitations'&&normalizeType(n)==='invitations')).slice(0,80);
-  const box=byId('notificationList');if(!box)return;
-  box.innerHTML=shown.length?shown.map(n=>{const type=normalizeType(n);const label=type==='events'?'Calendar':type==='tasks'?'Task':type==='invitations'?'Invitation':'Planning';const key=n.key||`${n.teamId||''}|${n.id||''}`;return `<button type="button" class="notification-item ${n.unread?'unread':'read'}" data-notification-key="${safeEsc(key)}" data-notification-type="${safeEsc(type)}" data-notification-id="${safeEsc(n.id||'')}" data-notification-target-id="${safeEsc(n.targetId||'')}" data-notification-team="${safeEsc(n.teamId||'')}" aria-label="${n.unread?'Unread. ':''}${safeEsc(n.title||'Team update')}. Open ${label.toLowerCase()} item"><span class="notification-dot" aria-hidden="true"></span><span class="notification-copy"><span class="notification-type">${label} · ${safeEsc(n.teamName||'Team')}</span><strong>${safeEsc(n.title||'Team update')}</strong><p>${safeEsc(n.message||n.detail||'A team update needs your attention.')}</p><small>${n.time?esc3(new Date(n.time).toLocaleString()):'Recent'}</small></span></button>`}).join(''):`<div class="overview-empty" style="padding:28px 16px;text-align:center">${noticeFilter==='unread'?'You’re all caught up. No unread notifications.':noticeFilter==='tasks'?'No task notifications yet.':noticeFilter==='invitations'?'No team invitations to show.':'No notifications yet. New team activity will appear here.'}</div>`;
-  const badge=byId('notificationBadge');if(badge){badge.textContent=unread>99?'99+':String(unread);badge.classList.toggle('hidden',unread===0)}
-  byId('notificationBell')?.setAttribute('aria-label',unread?`Open notifications, ${unread} unread`:'Open notifications');
+
+ function formatRelativeTime(timestamp) {
+   if (!timestamp) return 'Recent';
+   const now = Date.now();
+   const diff = Math.max(0, now - Number(timestamp));
+   const mins = Math.floor(diff / 60000);
+   if (mins < 1) return 'Just now';
+   if (mins < 60) return `${mins}m ago`;
+   const hours = Math.floor(mins / 60);
+   if (hours < 24) return `${hours}h ago`;
+   const days = Math.floor(hours / 24);
+   if (days === 1) return 'Yesterday';
+   if (days < 7) return `${days}d ago`;
+   return new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
  }
- if(root){root.addEventListener('click',e=>{const b=e.target.closest('[data-notice-filter]');if(!b)return;noticeFilter=b.dataset.noticeFilter;root.querySelectorAll('[data-notice-filter]').forEach(x=>{const active=x===b;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active))});renderFiltered()})}
- // Override renderers after the original scripts have initialized.
- const previousRender=window.renderNotificationList;
- window.renderNotificationList=function(){try{renderFiltered()}catch(e){console.warn('Notification rendering fallback',e);if(typeof previousRender==='function')previousRender()}};
- const previousMarkAll=window.markAllNotificationsRead;
- window.markAllNotificationsRead=async function(){if(typeof teamActivityItems!=='function')return previousMarkAll?.();const unread=teamActivityItems().filter(n=>n.unread);for(const n of unread){try{await firebaseDb.collection('teams').doc(n.teamId).collection('notifications').doc(n.id).update({readAt:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){console.warn('Could not mark notification read',n.id,e)}}renderFiltered();if(typeof notify==='function')notify('Notifications marked as read.')};
- // Re-render after the page loads and keep the existing Firestore listeners as source of truth.
+
+ function normalizeType(n) {
+   const t = String(n.targetType || n.type || 'notes').toLowerCase();
+   if (t.includes('invitation')) return 'invitations';
+   if (t === 'task' || t === 'tasks' || t.includes('task')) return 'tasks';
+   if (t === 'event' || t === 'events' || t.includes('calendar')) return 'events';
+   return 'notes';
+ }
+
+ function getTypeMeta(type) {
+   switch(type) {
+     case 'notes':
+       return {
+         label: 'Shared Note',
+         actionLabel: 'View in Notes Studio →',
+         iconSvg: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>'
+       };
+     case 'tasks':
+       return {
+         label: 'Task update',
+         actionLabel: 'Open Task →',
+         iconSvg: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'
+       };
+     case 'events':
+       return {
+         label: 'Calendar event',
+         actionLabel: 'View on Calendar →',
+         iconSvg: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 2v4M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>'
+       };
+     case 'invitations':
+       return {
+         label: 'Team Invite',
+         actionLabel: 'Review Invite →',
+         iconSvg: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>'
+       };
+     default:
+       return {
+         label: 'Team update',
+         actionLabel: 'View details →',
+         iconSvg: '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/></svg>'
+       };
+   }
+ }
+
+ function renderFiltered() {
+   const all = typeof teamActivityItems === 'function' ? teamActivityItems() : [];
+   const unread = all.filter(n => n.unread).length;
+   const countNotes = all.filter(n => normalizeType(n) === 'notes').length;
+   const countTasks = all.filter(n => normalizeType(n) === 'tasks').length;
+   const countInvites = all.filter(n => normalizeType(n) === 'invitations').length;
+
+   // Update filter counts
+   const countAllEl = byId('noticeCountAll'); if (countAllEl) countAllEl.textContent = all.length;
+   const countUnreadEl = byId('noticeCountUnread'); if (countUnreadEl) countUnreadEl.textContent = unread;
+   const countNotesEl = byId('noticeCountNotes'); if (countNotesEl) countNotesEl.textContent = countNotes;
+   const countTasksEl = byId('noticeCountTasks'); if (countTasksEl) countTasksEl.textContent = countTasks;
+   const countInvitesEl = byId('noticeCountInvites'); if (countInvitesEl) countInvitesEl.textContent = countInvites;
+
+   // Header badge
+   const headBadge = byId('notificationHeadBadge');
+   if (headBadge) {
+     headBadge.textContent = unread ? `${unread} new` : 'Caught up';
+     headBadge.classList.toggle('caught-up', unread === 0);
+   }
+
+   const summary = byId('notificationSummary');
+   if (summary) summary.textContent = unread ? `${unread} unread update${unread===1?'':'s'} from your team workspace.` : 'You are all caught up.';
+   
+   const connection = byId('notificationConnection');
+   if (connection) connection.textContent = (typeof firebaseUser !== 'undefined' && firebaseUser) ? (navigator.onLine ? 'Live Firestore inbox · Real-time sync' : 'Offline · last available notifications') : 'Sign in to receive team notifications';
+
+   const shown = all.filter(n => {
+     if (noticeFilter === 'all') return true;
+     if (noticeFilter === 'unread') return n.unread;
+     if (noticeFilter === 'notes') return normalizeType(n) === 'notes';
+     if (noticeFilter === 'tasks') return normalizeType(n) === 'tasks';
+     if (noticeFilter === 'invitations') return normalizeType(n) === 'invitations';
+     return true;
+   }).slice(0, 80);
+
+   const box = byId('notificationList');
+   if (!box) return;
+
+   box.innerHTML = shown.length ? shown.map(n => {
+     const type = normalizeType(n);
+     const meta = getTypeMeta(type);
+     const key = n.key || `${n.teamId||''}|${n.id||''}`;
+     const targetId = n.targetId || n.recordId || n.id || '';
+     const relTime = formatRelativeTime(n.time);
+     const fullTime = n.time ? new Date(n.time).toLocaleString() : '';
+     
+     let avatarHtml = '';
+     if (typeof avatarMarkup === 'function') {
+       avatarHtml = avatarMarkup({ uid: n.actorUid, displayName: n.actorName || n.actor, photoURL: n.actorPhotoURL }, 'sm');
+     } else {
+       avatarHtml = `<div class="avatar-fallback">${safeEsc((n.actorName||n.actor||'T')[0])}</div>`;
+     }
+
+     return `<article class="notification-card ${n.unread ? 'unread' : 'read'}" data-notification-key="${safeEsc(key)}" data-notification-type="${safeEsc(type)}" data-notification-id="${safeEsc(n.id||'')}" data-notification-target-id="${safeEsc(targetId)}" data-notification-team="${safeEsc(n.teamId||'')}" role="button" tabindex="0" aria-label="${n.unread?'Unread: ':''}${safeEsc(n.title||'Team update')}">
+       <div class="notif-card-header">
+         <div class="notif-avatar-wrap">
+           ${avatarHtml}
+           <span class="notif-type-badge notif-type-${safeEsc(type)}">${meta.iconSvg}</span>
+           ${n.unread ? '<span class="notif-unread-glow-dot" title="Unread"></span>' : ''}
+         </div>
+         <div class="notif-meta-col">
+           <div class="notif-meta-top">
+             <span class="notif-team-chip">👥 ${safeEsc(n.teamName||'Team')}</span>
+             <span class="notif-category-tag">${meta.label}</span>
+             <span class="notif-time-ago" title="${safeEsc(fullTime)}">${relTime}</span>
+           </div>
+           <h4 class="notif-title">${safeEsc(n.recordTitle || n.title || 'Team update')}</h4>
+         </div>
+       </div>
+       ${(n.message || n.detail) ? `<p class="notif-excerpt">${safeEsc(n.message || n.detail)}</p>` : ''}
+       <div class="notif-card-footer">
+         <span class="notif-action-pill">${meta.actionLabel}</span>
+       </div>
+     </article>`;
+   }).join('') : `<div class="overview-empty" style="padding:36px 16px;text-align:center">
+     <div style="font-size:26px;margin-bottom:8px">🎉</div>
+     <strong style="display:block;font-size:13px;color:var(--text);margin-bottom:4px">
+       ${noticeFilter==='unread'?'You’re all caught up':noticeFilter==='notes'?'No note notifications yet':noticeFilter==='tasks'?'No task notifications yet':noticeFilter==='invitations'?'No invitations to show':'No notifications yet'}
+     </strong>
+     <p style="font-size:12px;color:var(--muted);margin:0">
+       ${noticeFilter==='unread'?'All team notifications have been reviewed.':'New team activity and shared updates will appear here.'}
+     </p>
+   </div>`;
+
+   const badge = byId('notificationBadge');
+   if (badge) {
+     badge.textContent = unread > 99 ? '99+' : String(unread);
+     badge.classList.toggle('hidden', unread === 0);
+   }
+   byId('notificationBell')?.setAttribute('aria-label', unread ? `Open notifications, ${unread} unread` : 'Open notifications');
+ }
+
+ if (root) {
+   root.addEventListener('click', e => {
+     const b = e.target.closest('[data-notice-filter]');
+     if (!b) return;
+     noticeFilter = b.dataset.noticeFilter;
+     root.querySelectorAll('[data-notice-filter]').forEach(x => {
+       const active = x === b;
+       x.classList.toggle('active', active);
+       x.setAttribute('aria-pressed', String(active));
+     });
+     renderFiltered();
+   });
+ }
+
+ // Card click delegation with deep-linking
+ byId('notificationList')?.addEventListener('click', async e => {
+   const card = e.target.closest('.notification-card[data-notification-key]');
+   if (!card) return;
+   e.preventDefault(); e.stopPropagation();
+   const key = card.dataset.notificationKey;
+   const type = card.dataset.notificationType;
+   const teamId = card.dataset.notificationTeam;
+   const targetId = card.dataset.notificationTargetId || card.dataset.notificationId;
+
+   if (typeof markNotificationRead === 'function') {
+     await markNotificationRead(key);
+   }
+   if (typeof window.chronosCloseNotifications === 'function') {
+     window.chronosCloseNotifications();
+   } else if (typeof closeNotifications === 'function') {
+     closeNotifications();
+   }
+
+   if (teamId && typeof chronosTeams !== 'undefined') {
+     activeTeamId = teamId;
+     try { localStorage.setItem('chronos70.activeTeamId', teamId); } catch {}
+     if (typeof refreshTeamWorkspace === 'function') await refreshTeamWorkspace();
+   }
+
+   if (type === 'notes') {
+     // Direct navigation to Notes Studio Flow
+     if (typeof setPage === 'function') setPage('notes');
+     // Set team filter in Notes Studio to match
+     const noteTeamFilter = byId('noteTeamFilter');
+     if (noteTeamFilter) {
+       noteTeamFilter.value = 'all'; // show all so note is visible
+     }
+     if (typeof renderNotes === 'function') renderNotes();
+     setTimeout(() => {
+       const target = targetId && (document.querySelector(`[data-note-id="${CSS.escape(targetId)}"]`) || document.querySelector(`[data-team-record-id="${CSS.escape(targetId)}"]`));
+       if (target) {
+         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         target.classList.add('chronos-notice-target');
+         setTimeout(() => target.classList.remove('chronos-notice-target'), 2600);
+       } else if (typeof previewNote === 'function' && targetId) {
+         try { previewNote(targetId); } catch {}
+       }
+     }, 200);
+   } else if (type === 'tasks') {
+     if (typeof setPage === 'function') setPage('tasks');
+     if (typeof renderTasks === 'function') renderTasks();
+     setTimeout(() => {
+       const target = targetId && (document.querySelector(`[data-task-id="${CSS.escape(targetId)}"]`) || document.querySelector(`[data-team-record-id="${CSS.escape(targetId)}"]`));
+       if (target) {
+         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         target.classList.add('chronos-notice-target');
+         setTimeout(() => target.classList.remove('chronos-notice-target'), 2600);
+       }
+     }, 200);
+   } else if (type === 'events') {
+     if (typeof setPage === 'function') setPage('calendar');
+     if (typeof renderCalendar === 'function') renderCalendar();
+     setTimeout(() => {
+       const ev = targetId && document.querySelector(`[data-event-id="${CSS.escape(targetId)}"]`);
+       if (ev) {
+         ev.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         ev.classList.add('chronos-notice-target');
+         setTimeout(() => ev.classList.remove('chronos-notice-target'), 2600);
+       }
+     }, 200);
+   } else if (type === 'invitations') {
+     if (typeof setPage === 'function') setPage('team');
+     if (typeof teamTab !== 'undefined') teamTab = 'manage';
+     if (typeof renderTeamWorkspace === 'function') renderTeamWorkspace();
+   } else {
+     if (typeof setPage === 'function') setPage('team');
+     if (typeof renderTeamWorkspace === 'function') renderTeamWorkspace();
+   }
+ }, true);
+
+ // Override renderers after original scripts have initialized
+ const previousRender = window.renderNotificationList;
+ window.renderNotificationList = function() {
+   try { renderFiltered(); } catch(e) {
+     console.warn('Notification rendering fallback', e);
+     if (typeof previousRender === 'function') previousRender();
+   }
+ };
+
+ const previousMarkAll = window.markAllNotificationsRead;
+ window.markAllNotificationsRead = async function() {
+   if (typeof teamActivityItems !== 'function') return previousMarkAll?.();
+   const unread = teamActivityItems().filter(n => n.unread);
+   for (const n of unread) {
+     try {
+       await firebaseDb.collection('teams').doc(n.teamId).collection('notifications').doc(n.id).update({
+         readAt: firebase.firestore.FieldValue.serverTimestamp()
+       });
+     } catch(e) {
+       console.warn('Could not mark notification read', n.id, e);
+     }
+   }
+   renderFiltered();
+   if (typeof notify === 'function') notify('All notifications marked as read.');
+ };
+
+ // Wire mark all as read icon button
+ byId('markNotificationsRead')?.addEventListener('click', e => {
+   e.preventDefault(); e.stopPropagation();
+   if (typeof window.markAllNotificationsRead === 'function') window.markAllNotificationsRead();
+ });
+
  renderFiltered();
 })();
 
