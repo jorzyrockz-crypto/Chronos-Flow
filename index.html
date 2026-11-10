@@ -2501,16 +2501,71 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
   color: var(--muted);
 }
 
-/* Reading Mode (Zen Distraction-Free Note Reading) */
+/* Reading Mode & Edge-to-Edge Full Screen Systems */
+#itemPreviewBackdrop.is-reading-mode,
+#itemPreviewBackdrop:has(.is-reading-mode) {
+  padding: 0 !important;
+  background: var(--surface, #ffffff) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme="dark"] #itemPreviewBackdrop.is-reading-mode,
+html[data-theme="dark"] #itemPreviewBackdrop:has(.is-reading-mode) {
+  background: #0b1120 !important;
+}
+
 .item-preview-modal.is-reading-mode {
-  width: min(880px, calc(100vw - 32px)) !important;
-  max-width: 880px !important;
-  height: min(92vh, 840px) !important;
-  max-height: min(92vh, 840px) !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  background: var(--surface, #ffffff) !important;
+  z-index: 2147483600 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  animation: none !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] .item-preview-modal.is-reading-mode {
+  background: #0b1120 !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-head {
+  padding: 12px 32px !important;
+  background: var(--surface, #ffffff) !important;
+  border-bottom: 1px solid var(--line, rgba(0,0,0,0.08)) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+}
+html[data-theme="dark"] .item-preview-modal.is-reading-mode .note-preview-head {
+  background: #0b1120 !important;
+  border-bottom-color: rgba(255,255,255,0.08) !important;
 }
 
 .item-preview-modal.is-reading-mode .note-preview-2col-layout {
   grid-template-columns: 1fr !important;
+  height: calc(100dvh - 58px) !important;
+  max-height: calc(100dvh - 58px) !important;
+  background: var(--surface, #ffffff) !important;
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] .item-preview-modal.is-reading-mode .note-preview-2col-layout {
+  background: #0b1120 !important;
 }
 
 .item-preview-modal.is-reading-mode .note-preview-col-side {
@@ -2519,30 +2574,94 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
 
 .item-preview-modal.is-reading-mode .note-preview-col-main {
   border-right: none !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--surface, #ffffff) !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] .item-preview-modal.is-reading-mode .note-preview-col-main {
+  background: #0b1120 !important;
 }
 
 .item-preview-modal.is-reading-mode .note-preview-main-scroll {
-  padding: 36px 48px !important;
-  max-width: 760px !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  padding: 44px 32px 100px !important;
+  max-width: 860px !important;
   margin: 0 auto !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  overscroll-behavior: contain !important;
 }
 
 .item-preview-modal.is-reading-mode .note-preview-title {
-  font-size: 28px !important;
+  font-size: clamp(28px, 4vw, 40px) !important;
   font-weight: 850 !important;
   line-height: 1.25 !important;
-  margin-bottom: 4px !important;
+  letter-spacing: -0.025em !important;
+  color: var(--text) !important;
+  margin-bottom: 12px !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-byline {
+  margin-bottom: 24px !important;
+  padding-bottom: 16px !important;
+  border-bottom: 1px solid var(--line, rgba(0,0,0,0.06)) !important;
+  gap: 12px !important;
 }
 
 .item-preview-modal.is-reading-mode .note-preview-desc-box {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
-  font-size: 16px !important;
-  line-height: 1.85 !important;
+  padding: 4px 0 0 !important;
+  font-size: 17.5px !important;
+  line-height: 1.95 !important;
+  color: var(--text) !important;
+}
+.item-preview-modal.is-reading-mode .note-preview-desc-box p {
+  font-size: 17.5px !important;
+  line-height: 1.95 !important;
+  margin-bottom: 20px !important;
+}
+.item-preview-modal.is-reading-mode .note-preview-desc-box h1,
+.item-preview-modal.is-reading-mode .note-preview-desc-box h2,
+.item-preview-modal.is-reading-mode .note-preview-desc-box h3 {
+  line-height: 1.35 !important;
+  margin-top: 32px !important;
+  margin-bottom: 14px !important;
+}
+.item-preview-modal.is-reading-mode .note-preview-desc-box img {
+  max-width: 100% !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+  margin: 20px auto !important;
+  display: block !important;
+}
+
+.item-preview-modal.is-reading-mode .note-preview-col-footer {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: var(--surface, #ffffff) !important;
+  border-top: 1px solid var(--line, rgba(0,0,0,0.08)) !important;
+  padding: 12px 32px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+html[data-theme="dark"] .item-preview-modal.is-reading-mode .note-preview-col-footer {
+  background: #0b1120 !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+.item-preview-modal.is-reading-mode .note-preview-col-footer > * {
+  max-width: 860px;
+}
+.item-preview-modal.is-reading-mode .note-preview-footer-left {
+  max-width: 600px;
 }
 
 .reading-mode-badge {
@@ -2596,33 +2715,127 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
     border-radius: 0 !important;
   }
   .item-preview-modal.is-reading-mode .note-preview-main-scroll {
-    padding: 20px 18px !important;
+    padding: 24px 16px 80px !important;
   }
 }
 
 /* Notes Studio Editor Fullscreen Reading Mode */
-.note-modal-wide.is-reading-mode{
-  width:min(960px,calc(100vw - 28px))!important;
-  max-width:960px!important;
-  height:calc(100dvh - 28px)!important;
-  max-height:calc(100dvh - 28px)!important;
-  border-radius:24px!important;
-  transition:width .24s cubic-bezier(0.16,1,0.3,1),height .24s cubic-bezier(0.16,1,0.3,1),max-height .24s ease!important;
+#noteBackdrop.is-reading-mode,
+#noteBackdrop:has(.is-reading-mode) {
+  padding: 0 !important;
+  background: var(--surface, #ffffff) !important;
+  display: block !important;
+  overflow: hidden !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
-@media(max-width:768px){
-  .note-modal-wide.is-reading-mode{
-    width:100vw!important;
-    max-width:100vw!important;
-    height:100dvh!important;
-    max-height:100dvh!important;
-    border-radius:0!important;
+html[data-theme="dark"] #noteBackdrop.is-reading-mode,
+html[data-theme="dark"] #noteBackdrop:has(.is-reading-mode) {
+  background: #0b1120 !important;
+}
+
+.note-modal-wide.is-reading-mode {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  background: var(--surface, #ffffff) !important;
+  z-index: 2147483600 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] .note-modal-wide.is-reading-mode {
+  background: #0b1120 !important;
+}
+
+.note-modal-wide.is-reading-mode .modal-head {
+  padding: 12px 32px !important;
+  border-bottom: 1px solid var(--line, rgba(0,0,0,0.08)) !important;
+  background: var(--surface, #ffffff) !important;
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+html[data-theme="dark"] .note-modal-wide.is-reading-mode .modal-head {
+  background: #0b1120 !important;
+  border-bottom-color: rgba(255,255,255,0.08) !important;
+}
+
+.note-modal-wide.is-reading-mode .form {
+  display: flex !important;
+  flex-direction: column !important;
+  max-width: 860px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 36px 32px 60px !important;
+  box-sizing: border-box !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  background: transparent !important;
+  overscroll-behavior: contain !important;
+}
+
+.note-modal-wide.is-reading-mode .note-title-field input#noteTitle {
+  font-size: clamp(26px, 3.5vw, 38px) !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.025em !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 0 8px 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--line, rgba(0,0,0,0.06)) !important;
+  border-radius: 0 !important;
+}
+
+.note-modal-wide.is-reading-mode .note-body-editor {
+  min-height: calc(100dvh - 340px) !important;
+  max-height: none !important;
+  font-size: 17.5px !important;
+  line-height: 1.85 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 16px 0 !important;
+}
+
+.note-modal-wide.is-reading-mode .modal-actions {
+  width: 100% !important;
+  background: var(--surface, #ffffff) !important;
+  border-top: 1px solid var(--line, rgba(0,0,0,0.08)) !important;
+  padding: 12px 32px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+html[data-theme="dark"] .note-modal-wide.is-reading-mode .modal-actions {
+  background: #0b1120 !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+@media (max-width: 600px) {
+  .item-preview-modal.is-reading-mode .note-preview-head,
+  .note-modal-wide.is-reading-mode .modal-head {
+    padding: 10px 16px !important;
   }
-}
-.note-modal-wide.is-reading-mode .note-body-editor{
-  min-height:360px!important;
-  max-height:calc(100dvh - 360px)!important;
-  font-size:15px!important;
-  line-height:1.75!important;
+  .item-preview-modal.is-reading-mode .note-preview-main-scroll {
+    padding: 24px 16px 80px !important;
+  }
+  .note-modal-wide.is-reading-mode .form {
+    padding: 20px 16px 40px !important;
+  }
+  .item-preview-modal.is-reading-mode .note-preview-col-footer,
+  .note-modal-wide.is-reading-mode .modal-actions {
+    padding: 10px 16px !important;
+  }
 }
 
 .preview-modal-body{padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1}
@@ -11374,6 +11587,15 @@ function openNote(id=null){
   const n=(typeof findNoteById==='function'?findNoteById(id):null)||notes.find(x=>String(x.id)===String(id));
   $('noteForm').reset();
   $('noteOptionsDrawer')?.classList.add('hidden');
+  const noteModalWide = document.querySelector('#noteBackdrop .note-modal-wide');
+  if(noteModalWide) noteModalWide.classList.remove('is-reading-mode');
+  $('noteBackdrop')?.classList.remove('is-reading-mode');
+  const readingBtn = $('noteEditorReadingBtn');
+  if(readingBtn){
+    readingBtn.classList.remove('is-active');
+    readingBtn.title = 'Reading mode / Fullscreen';
+    readingBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="maximize-2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span class="reading-mode-label">Reading Mode</span>';
+  }
   populateTeamSelectors();
   populateNoteAllowedEditors(n?.allowedEditorUids||[]);
   const selectedTeams = (Array.isArray(n?.sharedTeamIds) && n.sharedTeamIds.length) ? n.sharedTeamIds : (n?.teamId ? [n.teamId] : []);
@@ -12321,6 +12543,7 @@ function requestCloseNote(){
   saveNoteDraft(false);
   const noteModalWide = document.querySelector('#noteBackdrop .note-modal-wide');
   if(noteModalWide) noteModalWide.classList.remove('is-reading-mode');
+  $('noteBackdrop')?.classList.remove('is-reading-mode');
   const readingBtn = $('noteEditorReadingBtn');
   if(readingBtn){
     readingBtn.classList.remove('is-active');
@@ -12335,9 +12558,11 @@ function requestCloseNote(){
 }
 $('noteEditorReadingBtn')?.addEventListener('click', () => {
   const modal = document.querySelector('#noteBackdrop .note-modal-wide');
+  const backdrop = $('noteBackdrop');
   const btn = $('noteEditorReadingBtn');
   if (modal && btn) {
     const isNowReading = modal.classList.toggle('is-reading-mode');
+    if (backdrop) backdrop.classList.toggle('is-reading-mode', isNowReading);
     btn.classList.toggle('is-active', isNowReading);
     btn.title = isNowReading ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen';
     btn.innerHTML = `${isNowReading ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="minimize-2"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/></svg>' : '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="maximize-2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>'}<span class="reading-mode-label">${isNowReading ? 'Exit' : 'Reading Mode'}</span>`;
@@ -14602,7 +14827,24 @@ if($('settingProjectSchoolName')) settings.projectSchoolName = $('settingProject
 if($('settingProjectApprovingAuthority')) settings.projectApprovingAuthority = $('settingProjectApprovingAuthority').value.trim();if($('settingHomePage'))settings.homePage=$('settingHomePage').value;if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';if($('settingFlowStickyBar'))settings.flowStickyBarEnabled=$('settingFlowStickyBar').checked;applySettings(false);saveSettings();render();$('settingsSaveState').textContent='Saved just now.';closeSettings();notify('Preferences saved.')});
 $('overviewHomeSelect')?.addEventListener('change',e=>{const val=e.target.value;settings.homePage=val;saveSettings();if($('settingHomePage'))$('settingHomePage').value=val;const label=({dashboard:'Overview',calendar:'Calendar',tasks:'Projects',notes:'Notes',team:'Team'})[val]||'Overview';notify(`Default home screen set to ${label}.`)});
 $('settingHomePage')?.addEventListener('change',e=>{const val=e.target.value;settings.homePage=val;saveSettings();if($('overviewHomeSelect'))$('overviewHomeSelect').value=val;const label=({dashboard:'Overview',calendar:'Calendar',tasks:'Projects',notes:'Notes',team:'Team'})[val]||'Overview';notify(`Default home screen set to ${label}.`)});$('requestNotificationPermission')?.addEventListener('click',()=>{notify('Custom in-app notifications are active. System notifications are disabled.')});$('chronosInAppAlertClose')?.addEventListener('click',()=>{$('chronosInAppAlert')?.classList.add('hidden')});$('previewSound').addEventListener('click',()=>{settings.sounds=$('settingSounds').checked;settings.interfaceSounds=$('settingInterfaceSounds').checked;settings.volume=Number($('settingVolume').value);settings.soundProfile=$('settingSoundProfile').value;if(!settings.sounds){notify('Turn on app sounds to preview.');return}playAppSound();notify('Playing sound preview.')});$('settingsBackup').addEventListener('click',exportBackup);$('settingsImport')?.addEventListener('click',()=> $('importFile')?.click());
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEvent();$('noteBackdrop').classList.add('hidden')}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();const sticky=document.getElementById('flowStickySearchInput');if(page==='dashboard'&&sticky){sticky.focus();sticky.select()}else{$('globalSearch').focus()}}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){
+  const nb = $('noteBackdrop');
+  if(nb && !nb.classList.contains('hidden')){
+    const noteWide = nb.querySelector('.note-modal-wide');
+    if (noteWide && noteWide.classList.contains('is-reading-mode')) {
+      noteWide.classList.remove('is-reading-mode');
+      nb.classList.remove('is-reading-mode');
+      const readingBtn = $('noteEditorReadingBtn');
+      if (readingBtn) {
+        readingBtn.classList.remove('is-active');
+        readingBtn.title = 'Reading mode / Fullscreen';
+        readingBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="maximize-2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span class="reading-mode-label">Reading Mode</span>';
+      }
+      return;
+    }
+  }
+  closeEvent();$('noteBackdrop').classList.add('hidden');
+}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();const sticky=document.getElementById('flowStickySearchInput');if(page==='dashboard'&&sticky){sticky.focus();sticky.select()}else{$('globalSearch').focus()}}});
 
 function downloadFile(filename,content,type){
   const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -14841,6 +15083,7 @@ function openItemPreview(type, id, extraMeta){
     modal.removeAttribute('data-color');
     modal.classList.remove('is-note-modal');
     modal.classList.remove('is-reading-mode');
+    backdrop.classList.remove('is-reading-mode');
   }
   let html = '';
   try {
@@ -14867,6 +15110,7 @@ function closeItemPreview(){
     modal.classList.remove('is-note-modal');
   }
   if(backdrop){
+    backdrop.classList.remove('is-reading-mode');
     backdrop.classList.add('hidden');
     document.body.style.overflow = '';
     currentPreviewConfig = null;
@@ -15471,9 +15715,9 @@ const noteColorTintMap = {
         <span class="reading-mode-badge ${isReading ? '' : 'hidden'}" id="readingModeActiveBadge">${getLucideSvg('book-open', 11)} Zen Reading Mode</span>
       </div>
       <div class="preview-modal-head-right">
-        <button type="button" class="preview-modal-reading-btn ${isReading ? 'is-active' : ''}" data-toggle-reading-mode title="${isReading ? 'Exit reading mode (Esc)' : 'Reading mode — distraction-free note reading'}" aria-label="Reading mode">
-          ${isReading ? getLucideSvg('book-open', 14) : getLucideSvg('book', 14)}
-          <span class="reading-mode-label">${isReading ? 'Exit Reading' : 'Reading Mode'}</span>
+        <button type="button" class="preview-modal-reading-btn ${isReading ? 'is-active' : ''}" data-toggle-reading-mode title="${isReading ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen'}" aria-label="Reading mode">
+          ${isReading ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}
+          <span class="reading-mode-label">${isReading ? 'Exit' : 'Reading Mode'}</span>
         </button>
         <button type="button" class="preview-modal-close" data-preview-close title="Close (Esc)">${getLucideSvg('x', 18)}</button>
       </div>
@@ -15822,11 +16066,13 @@ document.addEventListener('click', async e => {
   const readingToggle = e.target.closest('[data-toggle-reading-mode]');
   if(readingToggle){
     const modal = document.getElementById('itemPreviewModal');
+    const backdrop = document.getElementById('itemPreviewBackdrop');
     if(modal){
       const isNowReading = modal.classList.toggle('is-reading-mode');
+      if(backdrop) backdrop.classList.toggle('is-reading-mode', isNowReading);
       readingToggle.classList.toggle('is-active', isNowReading);
-      readingToggle.title = isNowReading ? 'Exit reading mode (Esc)' : 'Reading mode — distraction-free note reading';
-      readingToggle.innerHTML = `${isNowReading ? getLucideSvg('book-open', 14) : getLucideSvg('book', 14)}<span class="reading-mode-label">${isNowReading ? 'Exit Reading' : 'Reading Mode'}</span>`;
+      readingToggle.title = isNowReading ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen';
+      readingToggle.innerHTML = `${isNowReading ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}<span class="reading-mode-label">${isNowReading ? 'Exit' : 'Reading Mode'}</span>`;
       const badge = modal.querySelector('#readingModeActiveBadge');
       if (badge) badge.classList.toggle('hidden', !isNowReading);
       if(typeof playInterfaceSound === 'function') playInterfaceSound();
@@ -16327,6 +16573,20 @@ document.addEventListener('keydown', e => {
     }
     const backdrop = document.getElementById('itemPreviewBackdrop');
     if(backdrop && !backdrop.classList.contains('hidden')){
+      const modal = document.getElementById('itemPreviewModal');
+      if(modal && modal.classList.contains('is-reading-mode')){
+        modal.classList.remove('is-reading-mode');
+        backdrop.classList.remove('is-reading-mode');
+        const readingToggle = modal.querySelector('[data-toggle-reading-mode]');
+        if(readingToggle){
+          readingToggle.classList.remove('is-active');
+          readingToggle.title = 'Reading mode / Fullscreen';
+          readingToggle.innerHTML = `${getLucideSvg('maximize-2', 14)}<span class="reading-mode-label">Reading Mode</span>`;
+        }
+        const badge = modal.querySelector('#readingModeActiveBadge');
+        if(badge) badge.classList.add('hidden');
+        return;
+      }
       closeItemPreview();
     }
     return;
@@ -19664,7 +19924,21 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventL
     const top=visible.sort((a,b)=>Number(getComputedStyle(b).zIndex||0)-Number(getComputedStyle(a).zIndex||0))[0];
     if(top.id==='mediaViewer')hide('mediaViewer');
     else if(top.id==='storageManager')hide('storageManager');
-    else if(top.id==='noteBackdrop')hide('noteBackdrop');
+    else if(top.id==='noteBackdrop'){
+      const noteWide = top.querySelector('.note-modal-wide');
+      if (noteWide && noteWide.classList.contains('is-reading-mode')) {
+        noteWide.classList.remove('is-reading-mode');
+        top.classList.remove('is-reading-mode');
+        const readingBtn = document.getElementById('noteEditorReadingBtn');
+        if (readingBtn) {
+          readingBtn.classList.remove('is-active');
+          readingBtn.title = 'Reading mode / Fullscreen';
+          readingBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="maximize-2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span class="reading-mode-label">Reading Mode</span>';
+        }
+        return;
+      }
+      hide('noteBackdrop');
+    }
     else if(top.id==='settingsBackdrop')hide('settingsBackdrop');
     else if(top.id==='taskBackdrop')hide('taskBackdrop');
     else hide('modalBackdrop');
