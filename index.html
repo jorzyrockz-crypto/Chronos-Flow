@@ -1344,6 +1344,328 @@ html[data-motion="off"] .anim-bauble {
 .journey-subtask-input:focus{border-style:solid;border-color:var(--card-accent,var(--accent));background:var(--surface);box-shadow:0 0 0 3px color-mix(in srgb,var(--card-accent,var(--accent)) 18%,transparent)}
 .journey-subtask-input::placeholder{color:var(--muted);opacity:.7}
 
+/* =========================================================
+   Modern Task Card Architecture (Dribbble / Linear Style)
+   ========================================================= */
+.modern-task-card,
+#tasksPage .task-card,
+.journey-card.task-card.modern-task-card {
+  position: relative !important;
+  border-radius: 22px !important;
+  padding: 20px 22px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: 15px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 16px 36px rgba(18, 28, 45, 0.07), 0 2px 8px rgba(18, 28, 45, 0.04) !important;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.24s ease !important;
+  min-width: 0 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+}
+
+#tasksPage .task-card:hover,
+.modern-task-card:hover,
+.journey-card.task-card.modern-task-card:hover {
+  transform: translateY(-3.5px) !important;
+  box-shadow: 0 24px 50px rgba(18, 28, 45, 0.12), 0 4px 12px rgba(18, 28, 45, 0.06) !important;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line)) !important;
+}
+
+html[data-theme="dark"] .modern-task-card,
+html[data-theme="dark"] #tasksPage .task-card,
+html[data-theme="dark"] .journey-card.task-card.modern-task-card {
+  background: #1c1d22 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+html[data-theme="dark"] #tasksPage .task-card:hover,
+html[data-theme="dark"] .modern-task-card:hover,
+html[data-theme="dark"] .journey-card.task-card.modern-task-card:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+#tasksPage .task-card.completed,
+.modern-task-card.completed {
+  opacity: 0.9 !important;
+}
+
+/* Card Top Row */
+.modern-task-card .card-top-row,
+#tasksPage .task-card .card-top-row,
+.journey-card.task-card.modern-task-card .card-top-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+.modern-task-card .card-title-group,
+#tasksPage .task-card .card-title-group,
+.journey-card.task-card.modern-task-card .card-title-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.modern-task-card .card-title,
+#tasksPage .task-card .card-title,
+.journey-card.task-card.modern-task-card .card-title {
+  font-size: 16px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.3px !important;
+  line-height: 1.3 !important;
+  color: var(--text) !important;
+  margin: 0 !important;
+  word-break: break-word !important;
+}
+#tasksPage .task-card.completed .card-title,
+.journey-card.task-card.modern-task-card.completed .card-title {
+  text-decoration: line-through !important;
+  color: var(--muted) !important;
+}
+
+.modern-task-card .card-due-date,
+#tasksPage .task-card .card-due-date,
+.journey-card.task-card.modern-task-card .card-due-date {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--muted) !important;
+  line-height: 1.3 !important;
+}
+.modern-task-card .card-due-date.is-overdue,
+#tasksPage .task-card .card-due-date.is-overdue,
+.journey-card.task-card.modern-task-card .card-due-date.is-overdue {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+
+.modern-task-card .card-brand-mark,
+#tasksPage .task-card .card-brand-mark,
+.journey-card.task-card.modern-task-card .card-brand-mark {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.2s ease !important;
+}
+.modern-task-card:hover .card-brand-mark,
+#tasksPage .task-card:hover .card-brand-mark,
+.journey-card.task-card.modern-task-card:hover .card-brand-mark {
+  transform: scale(1.05) !important;
+}
+
+/* Midsection Row */
+.modern-task-card .card-mid-row,
+#tasksPage .task-card .card-mid-row,
+.journey-card.task-card.modern-task-card .card-mid-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 2px !important;
+}
+
+.modern-task-card .facepile-stack,
+#tasksPage .task-card .facepile-stack,
+.journey-card.task-card.modern-task-card .facepile-stack {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.modern-task-card .facepile-avatar,
+#tasksPage .task-card .facepile-avatar,
+.journey-card.task-card.modern-task-card .facepile-avatar {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  margin-left: -7px !important;
+  border: 2px solid var(--surface) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
+.modern-task-card .facepile-avatar:first-child,
+#tasksPage .task-card .facepile-avatar:first-child,
+.journey-card.task-card.modern-task-card .facepile-avatar:first-child {
+  margin-left: 0 !important;
+}
+html[data-theme="dark"] .facepile-avatar {
+  border-color: #1c1d22 !important;
+}
+
+.modern-task-card .facepile-fallback,
+#tasksPage .task-card .facepile-fallback,
+.journey-card.task-card.modern-task-card .facepile-fallback {
+  display: grid !important;
+  place-items: center !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+}
+
+.modern-task-card .facepile-overflow,
+#tasksPage .task-card .facepile-overflow,
+.journey-card.task-card.modern-task-card .facepile-overflow {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  margin-left: -7px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 10.5px !important;
+  font-weight: 750 !important;
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+  border: 2px solid var(--surface) !important;
+}
+html[data-theme="dark"] .facepile-overflow {
+  background: #2b2c34 !important;
+  color: #e2e8f0 !important;
+  border-color: #1c1d22 !important;
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.1px !important;
+  cursor: pointer !important;
+  padding: 3px 6px !important;
+  border-radius: 6px !important;
+  transition: background 0.15s ease !important;
+  user-select: none !important;
+}
+.status-indicator:hover {
+  background: var(--surface2) !important;
+}
+.status-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+}
+.status-approved {
+  color: #fbbf24 !important;
+}
+.status-approved .status-dot {
+  background: #fbbf24 !important;
+  box-shadow: 0 0 7px rgba(251, 191, 36, 0.7) !important;
+}
+.status-pending {
+  color: #38bdf8 !important;
+}
+.status-pending .status-dot {
+  background: #38bdf8 !important;
+  box-shadow: 0 0 7px rgba(56, 189, 248, 0.7) !important;
+}
+.status-in-progress {
+  color: #0ea5e9 !important;
+}
+.status-in-progress .status-dot {
+  background: #0ea5e9 !important;
+  box-shadow: 0 0 7px rgba(14, 165, 233, 0.7) !important;
+}
+.status-done {
+  color: #34d399 !important;
+}
+.status-done .status-dot {
+  background: #34d399 !important;
+  box-shadow: 0 0 7px rgba(52, 211, 153, 0.7) !important;
+}
+.status-overdue {
+  color: #ef4444 !important;
+}
+.status-overdue .status-dot {
+  background: #ef4444 !important;
+  box-shadow: 0 0 7px rgba(239, 68, 68, 0.7) !important;
+}
+
+/* Bottom Progress Track & Metrics */
+.card-bottom-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+
+.modern-task-card .progress-track,
+#tasksPage .task-card .progress-track,
+.journey-card.task-card.modern-task-card .progress-track {
+  height: 6px !important;
+  width: 100% !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background: rgba(148, 163, 184, 0.18) !important;
+}
+html[data-theme="dark"] .modern-task-card .progress-track,
+html[data-theme="dark"] #tasksPage .task-card .progress-track,
+html[data-theme="dark"] .journey-card.task-card.modern-task-card .progress-track {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.modern-task-card .progress-fill,
+#tasksPage .task-card .progress-fill,
+.journey-card.task-card.modern-task-card .progress-fill {
+  height: 100% !important;
+  border-radius: 999px !important;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.fill-gold { background: #fbbf24 !important; }
+.fill-cyan { background: #38bdf8 !important; }
+.fill-green { background: #10b981 !important; }
+.fill-red { background: #ef4444 !important; }
+
+.modern-task-card .metrics-row,
+#tasksPage .task-card .metrics-row,
+.journey-card.task-card.modern-task-card .metrics-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  color: var(--muted) !important;
+}
+
+.modern-task-card .ratio-label strong,
+#tasksPage .task-card .ratio-label strong,
+.journey-card.task-card.modern-task-card .ratio-label strong {
+  font-weight: 750 !important;
+  color: var(--text) !important;
+}
+
+.modern-task-card .percentage-label,
+#tasksPage .task-card .percentage-label,
+.journey-card.task-card.modern-task-card .percentage-label {
+  font-weight: 700 !important;
+  color: var(--text) !important;
+}
+
+/* Card Actions Row (Schedule, Edit, Delete) */
+.card-actions-strip {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding-top: 8px !important;
+  border-top: 1px dashed var(--line) !important;
+  margin-top: 4px !important;
+}
+
 /* Free Time Gap Slots Between Meetings */
 .journey-gap-slot{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:6px 0;position:relative}
 .journey-gap-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent-soft) 55%,var(--surface));border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--text);font-size:11px;font-weight:600;cursor:pointer;transition:transform .15s ease,background .15s ease,border-color .15s ease;box-shadow:0 2px 6px rgba(0,0,0,.03);user-select:none}
@@ -18186,6 +18508,122 @@ window.executeDawnRollover = executeDawnRollover;
 window.executeDawnMoveToBacklog = executeDawnMoveToBacklog;
 window.dismissDawnRollover = dismissDawnRollover;
 
+function formatTaskDueDate(dueStr, dueTimeStr) {
+  if(!dueStr) return 'No due date';
+  const todayKeyStr = typeof todayKey !== 'undefined' ? todayKey : new Date().toISOString().slice(0, 10);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowKeyStr = tomorrow.toISOString().slice(0, 10);
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let dateText = '';
+  if (dueStr === todayKeyStr) {
+    dateText = 'Today';
+  } else if (dueStr === tomorrowKeyStr) {
+    dateText = 'Tomorrow';
+  } else {
+    const parts = dueStr.split('-');
+    if (parts.length === 3) {
+      const mIdx = Number(parts[1]) - 1;
+      dateText = `${months[mIdx] || parts[1]} ${Number(parts[2])}, ${parts[0]}`;
+    } else {
+      dateText = dueStr;
+    }
+  }
+  if (dueTimeStr) {
+    dateText += ` · ${typeof fmtTime === 'function' ? fmtTime(dueTimeStr) : dueTimeStr}`;
+  }
+  return dateText;
+}
+
+function getTaskBrandMark(t) {
+  if (t.projectId || t.projectName) {
+    const proj = (typeof projectFor === 'function' ? projectFor(t.projectId) : null) ||
+                 (typeof chronosProjects !== 'undefined' && (chronosProjects || []).find(p => String(p.id) === String(t.projectId)));
+    const color = proj?.color || t.projectColor || '#6366f1';
+    const name = t.projectName || proj?.name || 'Project';
+    const initial = name.slice(0, 1).toUpperCase();
+    return {
+      bg: `linear-gradient(135deg, ${color} 0%, #8b5cf6 100%)`,
+      svg: `<span style="font-size:16px;font-weight:800;color:#ffffff;line-height:1;">${esc(initial)}</span>`,
+      title: `Project: ${name}`
+    };
+  }
+  const pri = (t.priority || 'medium').toLowerCase();
+  if (pri === 'urgent') {
+    return {
+      bg: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M12 18h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`,
+      title: 'Urgent Priority'
+    };
+  } else if (pri === 'high') {
+    return {
+      bg: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+      title: 'High Priority'
+    };
+  } else if (pri === 'low') {
+    return {
+      bg: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+      svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+      title: 'Low Priority'
+    };
+  }
+  return {
+    bg: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%)',
+    svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M7 4H14C17.3137 4 20 6.68629 20 10C20 13.3137 17.3137 16 14 16H11V20H7V4Z" fill="#ffffff" fill-opacity="0.95"/></svg>`,
+    title: 'Task'
+  };
+}
+
+function buildTaskFacepile(t) {
+  const users = [];
+  if (t.assigneeName && t.assigneeName !== 'Unassigned') {
+    users.push({
+      name: t.assigneeName,
+      photo: t.assigneePhotoURL || '',
+      initial: t.assigneeName.slice(0, 1).toUpperCase()
+    });
+  }
+  if (Array.isArray(t.teamAssignments)) {
+    t.teamAssignments.forEach(a => {
+      const member = (typeof teamMembers !== 'undefined' && (teamMembers || []).find(m => m.uid === a.uid));
+      if (member && !users.some(u => u.name === member.displayName)) {
+        users.push({
+          name: member.displayName || 'Member',
+          photo: member.photoURL || '',
+          initial: (member.displayName || 'M').slice(0, 1).toUpperCase()
+        });
+      }
+    });
+  }
+  if (users.length === 0) {
+    const creatorName = t.createdByName || (typeof firebaseUser !== 'undefined' && firebaseUser ? (firebaseUser.displayName || 'You') : 'You');
+    const creatorPhoto = t.createdByPhotoURL || (typeof firebaseUser !== 'undefined' && firebaseUser ? (firebaseUser.photoURL || '') : '');
+    users.push({
+      name: creatorName,
+      photo: creatorPhoto,
+      initial: creatorName.slice(0, 1).toUpperCase()
+    });
+  }
+
+  const maxVisible = 2;
+  const visible = users.slice(0, maxVisible);
+  const remaining = Math.max(0, users.length - maxVisible);
+
+  const avatarsHtml = visible.map(u => {
+    if (u.photo) {
+      return `<img class="facepile-avatar" src="${esc(u.photo)}" alt="${esc(u.name)}" title="${esc(u.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="facepile-avatar facepile-fallback" style="display:none;" title="${esc(u.name)}">${esc(u.initial)}</span>`;
+    }
+    return `<span class="facepile-avatar facepile-fallback" title="${esc(u.name)}">${esc(u.initial)}</span>`;
+  }).join('');
+
+  const overflowHtml = remaining > 0 ? `<span class="facepile-overflow">+${remaining}</span>` : '';
+  const tooltip = users.map(u => u.name).join(', ');
+
+  return { html: avatarsHtml + overflowHtml, tooltip };
+}
+
 function renderOverviewHorizon(options = {}){
   if(!$('horizonTimelineStream') || page !== 'dashboard') return;
   const shouldFocusDate = options && options.focusDate === true;
@@ -18636,41 +19074,77 @@ function renderOverviewHorizon(options = {}){
         `;
       }
 
+      const brand = getTaskBrandMark({ ...t, priority: t.priority });
+      const facepile = buildTaskFacepile({ ...t, createdByName: creator.displayName, createdByPhotoURL: creator.photoURL, createdBy: creator.uid });
+      const formattedDue = formatTaskDueDate(t.due, t.dueTime);
+      const ratioDone = stTotal > 0 ? stDone : (isDone ? 1 : 0);
+      const ratioTotal = stTotal > 0 ? stTotal : 1;
+
+      let statusClass = 'pending';
+      let statusLabel = 'Pending';
+      let fillClass = 'fill-cyan';
+      if(isDone){
+        statusClass = 'approved';
+        statusLabel = 'Approved';
+        fillClass = 'fill-gold';
+      } else if(!isDone && t.due && t.due < todayKey){
+        statusClass = 'overdue';
+        statusLabel = 'Overdue';
+        fillClass = 'fill-red';
+      } else if(!isDone && t.due === todayKey){
+        statusClass = 'in-progress';
+        statusLabel = 'In Progress';
+        fillClass = 'fill-cyan';
+      }
+
       return `
-        <div class="journey-card task-card ${priClass} ${isHero ? 'is-hero-card' : ''} ${isDone ? 'is-task-done' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-task="${esc(t.taskId)}" style="--card-accent:${accent}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-            <div style="display:inline-flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap">
-              <span class="journey-card-time">${esc(t.dueTime ? fmtTime(t.dueTime) : 'Due today')}</span>
-              ${urgencyBadgeHtml}
-              ${recentBadgeHtml}
-              ${assignedBadgeHtml}
+        <div class="journey-card task-card modern-task-card ${priClass} ${isHero ? 'is-hero-card' : ''} ${isDone ? 'completed' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-task="${esc(t.taskId)}" style="--card-accent:${accent}">
+          <div class="card-top-row">
+            <div class="card-title-group" data-preview-task="${esc(t.taskId)}">
+              <h3 class="card-title">${esc(t.title)}</h3>
+              <span class="card-due-date ${!isDone && t.due && t.due < todayKey ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}</span>
             </div>
-            <div style="display:inline-flex;align-items:center;gap:6px;min-width:0">
-              <button type="button" class="journey-card-quick-toggle ${isDone ? 'is-done' : ''}" data-task-toggle-btn="${esc(t.taskId)}" title="${isDone ? 'Mark open' : 'Complete task'}">
-                ${getLucideSvg(isDone ? 'check-circle' : 'circle', 11)}
-                <span>${isDone ? 'Done' : 'Complete'}</span>
+            <div class="card-brand-mark" style="background:${brand.bg};" title="${esc(brand.title)}">
+              ${brand.svg}
+            </div>
+          </div>
+
+          <div class="card-mid-row">
+            <div class="facepile-stack" title="${esc(facepile.tooltip)}">
+              ${facepile.html}
+            </div>
+            <div class="card-status-wrap" style="display:inline-flex;align-items:center;gap:6px;">
+              <button type="button" class="journey-card-quick-toggle ${isDone ? 'is-done' : ''}" data-task-toggle-btn="${esc(t.taskId)}" title="${isDone ? 'Mark open' : 'Complete task'}" style="padding:0;background:transparent;border:0;">
+                <span class="status-indicator status-${statusClass}">
+                  <span class="status-dot"></span>
+                  <span>${statusLabel}</span>
+                </span>
               </button>
-              <div class="journey-card-profile-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}" title="Created by ${esc(creator.displayName)} — click for profile" style="cursor:pointer">
-                ${avatarMarkup(creator, 'xs')}
-                <span class="journey-card-creator-name">${esc(creator.displayName)}</span>
-              </div>
+            </div>
+          </div>
+
+          <div class="card-bottom-group">
+            <div class="progress-track">
+              <div class="progress-fill ${fillClass}" style="width:${stPct}%;"></div>
+            </div>
+            <div class="metrics-row">
+              <span class="ratio-label"><strong>${ratioDone}</strong> / ${ratioTotal} Total Tasks</span>
+              <span class="percentage-label">${stPct}%</span>
+            </div>
+          </div>
+
+          ${checklistHtml}
+
+          <div class="card-actions-strip">
+            <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
+              ${t.projectName ? `<span class="horizon-tag clickable" data-preview-project="${esc(t.projectId)}" style="cursor:pointer" title="View project overview">${getLucideSvg('folder', 12)} ${esc(t.projectName)}</span>` : ''}
+              ${assignedBadgeHtml}
+              ${recentBadgeHtml}
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:6px;">
               <button type="button" class="journey-card-menu-btn" data-calendar-task="${esc(t.taskId)}" title="Edit task">···</button>
             </div>
           </div>
-          <strong class="journey-card-title" style="color:var(--text);margin-top:2px;font-size:14px">${esc(t.title)}</strong>
-          ${(t.projectName || (t.assigneeName && t.assigneeName !== creator.displayName)) ? `
-            <div class="horizon-item-meta" style="margin-top:3px">
-              ${t.projectName ? `<span class="horizon-tag clickable" data-preview-project="${esc(t.projectId)}" style="cursor:pointer" title="View project overview">${getLucideSvg('folder', 12)} ${esc(t.projectName)}</span>` : ''}
-              ${(t.assigneeName && t.assigneeName !== creator.displayName) ? `<span class="horizon-tag">${getLucideSvg('user', 12)} ${esc(t.assigneeName)}</span>` : ''}
-            </div>
-          ` : ''}
-          ${checklistHtml}
-          ${stTotal > 0 ? `
-            <div class="journey-progress-wrap">
-              <div class="journey-progress-bar"><div class="fill" style="width:${stPct}%"></div></div>
-              <span class="journey-progress-text">${stDone}/${stTotal} done</span>
-            </div>
-          ` : ''}
         </div>
       `;
     }
@@ -19629,30 +20103,210 @@ function renderTasks(){
 
  personal.sort((a,b)=>Number(a.done)-Number(b.done)||(a.due||'9999').localeCompare(b.due||'9999')||({urgent:0,high:1,medium:2,low:3}[a.priority]??2)-({urgent:0,high:1,medium:2,low:3}[b.priority]??2));
  assigned.sort((a,b)=>Number(!!a.done||a.status==='done')-Number(!!b.done||b.status==='done')||((a.due||a.date||'9999').localeCompare(b.due||b.date||'9999')));
- const personalHtml=personal.map(t=>{const overdue=!t.done&&t.due&&t.due<todayKey,subs=Array.isArray(t.subtasks)?t.subtasks:[];return `<article class="task-card ${t.done?'completed':''} ${overdue?'is-overdue':''}"><input class="task-check" type="checkbox" data-task-toggle="${esc(t.id)}" ${t.done?'checked':''} aria-label="Complete ${esc(t.title)}"><div class="task-row-main" data-edit-task="${esc(t.id)}"><strong>${esc(t.title)}</strong><p>${esc(t.details||'No additional details')}</p><div class="task-due">${t.due?`${overdue?'Overdue · ':''}Due ${esc(t.due)}${t.dueTime?' · '+esc(t.dueTime):''}`:'No due date'} · <span class="priority ${esc(t.priority||'medium')}">${esc(t.priority||'medium')}</span>${t.recurrence&&t.recurrence!=='none'?` · ${getLucideSvg('refresh-cw', 11)} ${esc(t.recurrence)}`:''}${t.reminder&&t.reminder!=='none'?` · ${getLucideSvg('bell', 11)} Reminder`:''}</div>${subs.length?`<div class="task-subtasks">${subs.map((st,i)=>`<label class="task-subtask ${st.done?'done':''}"><input type="checkbox" data-subtask-task="${esc(t.id)}" data-subtask-index="${i}" ${st.done?'checked':''}><span>${esc(st.title)}</span></label>`).join('')}</div>`:''}${t.linkedNoteId&&notes.some(n=>n.id===t.linkedNoteId&&!n.trashed)?`<button type="button" class="text-btn" data-preview-note="${esc(t.linkedNoteId)}" data-edit-note="${esc(t.linkedNoteId)}">${getLucideSvg('file-text', 11)} Linked note ${getLucideSvg('external-link', 10)}</button>`:''}</div><button class="task-open" data-schedule-task="${esc(t.id)}" aria-label="Schedule task as event" title="Schedule as event">${getLucideSvg('calendar', 12)}</button><button class="task-open" data-edit-task="${esc(t.id)}" data-force-edit="true" aria-label="Edit task">•••</button></article>`}).join('');
+ const personalHtml=personal.map(t=>{
+    const overdue=!t.done&&t.due&&t.due<todayKey,subs=Array.isArray(t.subtasks)?t.subtasks:[];
+    const stTotal = subs.length;
+    const stDone = subs.filter(s => s.done).length;
+    const progressPct = stTotal > 0 ? Math.round((stDone / stTotal) * 100) : (t.done ? 100 : 0);
+    const ratioDone = stTotal > 0 ? stDone : (t.done ? 1 : 0);
+    const ratioTotal = stTotal > 0 ? stTotal : 1;
+    const formattedDue = formatTaskDueDate(t.due, t.dueTime);
+    const brand = getTaskBrandMark(t);
+    const facepile = buildTaskFacepile(t);
+
+    let statusClass = 'pending';
+    let statusLabel = 'Pending';
+    let fillClass = 'fill-cyan';
+    if(t.done){
+      statusClass = 'approved';
+      statusLabel = 'Approved';
+      fillClass = 'fill-gold';
+    } else if(overdue){
+      statusClass = 'overdue';
+      statusLabel = 'Overdue';
+      fillClass = 'fill-red';
+    } else if(t.due === todayKey){
+      statusClass = 'in-progress';
+      statusLabel = 'In Progress';
+      fillClass = 'fill-cyan';
+    }
+
+    return `
+      <article class="task-card modern-task-card ${t.done?'completed':''} ${overdue?'is-overdue':''}" data-preview-task="${esc(t.id)}">
+        <div class="card-top-row">
+          <div class="card-title-group" data-edit-task="${esc(t.id)}">
+            <h3 class="card-title">${esc(t.title || 'Untitled task')}</h3>
+            <span class="card-due-date ${overdue ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}</span>
+          </div>
+          <div class="card-brand-mark" style="background:${brand.bg};" title="${esc(brand.title)}">
+            ${brand.svg}
+          </div>
+        </div>
+
+        <div class="card-mid-row">
+          <div class="facepile-stack" title="${esc(facepile.tooltip)}">
+            ${facepile.html}
+          </div>
+          <div class="card-status-wrap">
+            <input class="task-check" id="tchk_${esc(t.id)}" type="checkbox" data-task-toggle="${esc(t.id)}" ${t.done?'checked':''} style="position:absolute;opacity:0;pointer-events:none;" aria-label="Complete ${esc(t.title)}">
+            <label for="tchk_${esc(t.id)}" class="status-indicator status-${statusClass}" title="Click to toggle status">
+              <span class="status-dot"></span>
+              <span>${statusLabel}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card-bottom-group">
+          <div class="progress-track">
+            <div class="progress-fill ${fillClass}" style="width:${progressPct}%;"></div>
+          </div>
+          <div class="metrics-row">
+            <span class="ratio-label"><strong>${ratioDone}</strong> / ${ratioTotal} Total Tasks</span>
+            <span class="percentage-label">${progressPct}%</span>
+          </div>
+        </div>
+
+        ${subs.length ? `
+          <div class="task-subtasks" style="margin-top:4px;border-top:1px dashed var(--line);padding-top:8px;">
+            ${subs.map((st,i)=>`
+              <label class="task-subtask ${st.done?'done':''}">
+                <input type="checkbox" data-subtask-task="${esc(t.id)}" data-subtask-index="${i}" ${st.done?'checked':''}>
+                <span>${esc(st.title)}</span>
+              </label>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        <div class="card-actions-strip">
+          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
+            <span class="priority ${esc(t.priority||'medium')}">${esc(t.priority||'medium')}</span>
+            ${t.recurrence&&t.recurrence!=='none'?`<span>${getLucideSvg('refresh-cw', 11)} ${esc(t.recurrence)}</span>`:''}
+            ${t.reminder&&t.reminder!=='none'?`<span>${getLucideSvg('bell', 11)} Reminder</span>`:''}
+            ${t.linkedNoteId&&notes.some(n=>n.id===t.linkedNoteId&&!n.trashed)?`<button type="button" class="text-btn" data-preview-note="${esc(t.linkedNoteId)}" data-edit-note="${esc(t.linkedNoteId)}">${getLucideSvg('file-text', 11)} Linked note</button>`:''}
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:6px;">
+            <button type="button" class="task-open" data-schedule-task="${esc(t.id)}" aria-label="Schedule task as event" title="Schedule as event">${getLucideSvg('calendar', 13)}</button>
+            <button type="button" class="task-open" data-edit-task="${esc(t.id)}" data-force-edit="true" aria-label="Edit task" title="Edit task">•••</button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
  const teamHtml=assigned.map(t=>{
-  const due=t.due||t.date||'',done=!!t.done||t.status==='done',overdue=!done&&due&&due<todayKey,teamName=t.teamName||chronosTeams.find(x=>x.id===t.teamId)?.name||'Team';
-  const myUid=firebaseUser?String(firebaseUser.uid||''):'';
-  const myEmail=firebaseUser?String(firebaseUser.email||'').trim().toLowerCase():'';
-  const isAssignedToMe=!!(myUid&&((t.assigneeUid&&String(t.assigneeUid)===myUid)||(Array.isArray(t.assigneeUids)&&t.assigneeUids.some(u=>String(u)===myUid))||(t.assigneeEmail&&String(t.assigneeEmail).toLowerCase()===myEmail)));
-  const isCreator=!!(myUid&&String(t.createdBy||'')===myUid);
-  const canManage=isTeamAdmin()||isCreator;
-  let assignLabel='· Team task';
-  if(isAssignedToMe&&isCreator){
-   assignLabel='· Created & assigned to you';
-  }else if(isAssignedToMe){
-   assignLabel='· Assigned to you';
-  }else if(t.assigneeName&&t.assigneeName!=='Unassigned'){
-   assignLabel=`· Assigned to ${esc(t.assigneeName)}`;
-  }else if(isCreator){
-   assignLabel='· Created by you';
-  }else if(t.createdByName){
-   assignLabel=`· By ${esc(t.createdByName)}`;
-  }
-  const actionsHtml=canManage?`<div class="team-assigned-actions" style="display:flex;gap:7px;margin-top:8px"><button type="button" class="btn" data-team-assigned-edit="${esc(t.teamId)}|${esc(t.id)}" style="height:30px;padding:0 10px;font-size:11px" title="Edit shared task">Edit</button><button type="button" class="btn danger" data-team-assigned-delete="${esc(t.teamId)}|${esc(t.id)}" style="height:30px;padding:0 10px;font-size:11px" title="Delete shared task">Delete</button></div>`:'';
-  const detailText=t.details||t.body||(t.projectName?`Project: ${t.projectName}`:'Shared team assignment');
-  return `<article class="task-card ${done?'completed':''} ${overdue?'is-overdue':''} team-assigned-task"><input class="task-check" type="checkbox" data-team-assigned-done="${esc(t.teamId)}|${esc(t.id)}" ${done?'checked':''} aria-label="Complete shared task ${esc(t.title||'')}" title="Update shared task status"><div class="task-row-main" data-edit-task="${esc(t.id)}" style="cursor:pointer"><strong>${esc(t.title||'Untitled team task')}</strong><p>${esc(detailText)}</p><div class="task-due"><span class="note-chip">${getLucideSvg('users', 11)} ${esc(teamName)}</span> ${due?`· ${overdue?'Overdue · ':''}Due ${esc(due)}`:'· No due date'} ${assignLabel}</div>${actionsHtml}</div><select class="record-status" data-team-assigned-status="${esc(t.teamId)}|${esc(t.id)}" aria-label="Update shared task status"><option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option><option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option><option value="done" ${done?'selected':''}>Completed</option></select></article>`;
- }).join('');
+   const due=t.due||t.date||'',done=!!t.done||t.status==='done',overdue=!done&&due&&due<todayKey,teamName=t.teamName||chronosTeams.find(x=>x.id===t.teamId)?.name||'Team';
+   const myUid=firebaseUser?String(firebaseUser.uid||''):'';
+   const myEmail=firebaseUser?String(firebaseUser.email||'').trim().toLowerCase():'';
+   const isAssignedToMe=!!(myUid&&((t.assigneeUid&&String(t.assigneeUid)===myUid)||(Array.isArray(t.assigneeUids)&&t.assigneeUids.some(u=>String(u)===myUid))||(t.assigneeEmail&&String(t.assigneeEmail).toLowerCase()===myEmail)));
+   const isCreator=!!(myUid&&String(t.createdBy||'')===myUid);
+   const canManage=isTeamAdmin()||isCreator;
+   let assignLabel='Team task';
+   if(isAssignedToMe&&isCreator){
+    assignLabel='Created & assigned to you';
+   }else if(isAssignedToMe){
+    assignLabel='Assigned to you';
+   }else if(t.assigneeName&&t.assigneeName!=='Unassigned'){
+    assignLabel=`Assigned to ${esc(t.assigneeName)}`;
+   }else if(isCreator){
+    assignLabel='Created by you';
+   }else if(t.createdByName){
+    assignLabel=`By ${esc(t.createdByName)}`;
+   }
+
+   const subs=Array.isArray(t.subtasks)?t.subtasks:[];
+   const stTotal=subs.length;
+   const stDone=subs.filter(s=>s.done).length;
+   const progressPct=stTotal>0?Math.round((stDone/stTotal)*100):(done?100:(t.status==='in-progress'?50:0));
+   const ratioDone=stTotal>0?stDone:(done?1:0);
+   const ratioTotal=stTotal>0?stTotal:1;
+   const formattedDue=formatTaskDueDate(due, t.dueTime);
+   const brand=getTaskBrandMark(t);
+   const facepile=buildTaskFacepile(t);
+
+   let statusClass = 'pending';
+   let statusLabel = 'To do';
+   let fillClass = 'fill-cyan';
+   if(done || t.status==='done'){
+     statusClass = 'approved';
+     statusLabel = 'Approved';
+     fillClass = 'fill-gold';
+   } else if(t.status==='in-progress'){
+     statusClass = 'in-progress';
+     statusLabel = 'In Progress';
+     fillClass = 'fill-cyan';
+   } else if(overdue){
+     statusClass = 'overdue';
+     statusLabel = 'Overdue';
+     fillClass = 'fill-red';
+   }
+
+   const actionsHtml=canManage?`
+     <div class="team-assigned-actions" style="display:inline-flex;gap:6px;">
+       <button type="button" class="btn" data-team-assigned-edit="${esc(t.teamId)}|${esc(t.id)}" style="height:26px;padding:0 8px;font-size:10.5px" title="Edit shared task">Edit</button>
+       <button type="button" class="btn danger" data-team-assigned-delete="${esc(t.teamId)}|${esc(t.id)}" style="height:26px;padding:0 8px;font-size:10.5px" title="Delete shared task">Delete</button>
+     </div>
+   `:'';
+
+   return `
+      <article class="task-card modern-task-card team-assigned-task ${done?'completed':''} ${overdue?'is-overdue':''}" data-preview-task="${esc(t.id)}">
+        <div class="card-top-row">
+          <div class="card-title-group" data-edit-task="${esc(t.id)}">
+            <h3 class="card-title">${esc(t.title || 'Untitled team task')}</h3>
+            <span class="card-due-date ${overdue ? 'is-overdue' : ''}">Due Date: ${esc(formattedDue)}</span>
+          </div>
+          <div class="card-brand-mark" style="background:${brand.bg};" title="${esc(brand.title)}">
+            ${brand.svg}
+          </div>
+        </div>
+
+        <div class="card-mid-row">
+          <div class="facepile-stack" title="${esc(facepile.tooltip)}">
+            ${facepile.html}
+          </div>
+          <div class="card-status-wrap" style="display:inline-flex;align-items:center;gap:6px;">
+            <input class="task-check" id="teamchk_${esc(t.teamId)}_${esc(t.id)}" type="checkbox" data-team-assigned-done="${esc(t.teamId)}|${esc(t.id)}" ${done?'checked':''} style="position:absolute;opacity:0;pointer-events:none;" aria-label="Complete shared task ${esc(t.title||'')}">
+            <label for="teamchk_${esc(t.teamId)}_${esc(t.id)}" class="status-indicator status-${statusClass}" title="Click to toggle status">
+              <span class="status-dot"></span>
+              <span>${statusLabel}</span>
+            </label>
+            <select class="record-status" data-team-assigned-status="${esc(t.teamId)}|${esc(t.id)}" aria-label="Update shared task status" style="font-size:10.5px;padding:2px 6px;border-radius:6px;height:24px;">
+              <option value="open" ${(t.status||'open')==='open'?'selected':''}>To do</option>
+              <option value="in-progress" ${t.status==='in-progress'?'selected':''}>In progress</option>
+              <option value="done" ${done?'selected':''}>Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card-bottom-group">
+          <div class="progress-track">
+            <div class="progress-fill ${fillClass}" style="width:${progressPct}%;"></div>
+          </div>
+          <div class="metrics-row">
+            <span class="ratio-label"><strong>${ratioDone}</strong> / ${ratioTotal} Total Tasks</span>
+            <span class="percentage-label">${progressPct}%</span>
+          </div>
+        </div>
+
+        ${subs.length ? `
+          <div class="task-subtasks" style="margin-top:4px;border-top:1px dashed var(--line);padding-top:8px;">
+            ${subs.map((st,i)=>`
+              <label class="task-subtask ${st.done?'done':''}">
+                <input type="checkbox" data-subtask-task="${esc(t.id)}" data-subtask-index="${i}" ${st.done?'checked':''}>
+                <span>${esc(st.title)}</span>
+              </label>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        <div class="card-actions-strip">
+          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex-wrap:wrap;">
+            <span class="note-chip">${getLucideSvg('users', 11)} ${esc(teamName)}</span>
+            <span>${esc(assignLabel)}</span>
+          </div>
+          ${actionsHtml}
+        </div>
+      </article>
+    `;
+  }).join('');
  const total=personal.length+assigned.length;
  $('taskCount').textContent=`${total} ${total===1?'task':'tasks'}${assigned.length?` · ${assigned.length} team assignment${assigned.length===1?'':'s'}`:''}`;
  const openCount=personal.filter(t=>!t.done).length+assigned.filter(t=>!t.done&&t.status!=='done').length;
