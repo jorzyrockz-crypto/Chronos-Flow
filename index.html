@@ -2091,6 +2091,759 @@ html[data-theme="dark"] .event-preview-btn-edit:hover{background:rgba(255,255,25
 .event-preview-btn-done:hover{background:#115e59;transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,118,110,0.35)}
 .event-preview-btn-done:active{transform:scale(0.98)}
 
+/* --- CHRONOS TASK PREVIEW MODAL V2 (MODERN SAAS SYSTEM) --- */
+.item-preview-modal.is-task-modal {
+  width: min(580px, calc(100vw - 24px)) !important;
+  max-width: 580px !important;
+  max-height: min(92vh, 840px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+html[data-theme="dark"] .item-preview-modal.is-task-modal {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: #0f172a !important;
+}
+
+.task-preview-modal-v2 {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: inherit;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* 1. Header Bar: Refined Surface & Micro-Badges */
+.task-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  background: linear-gradient(90deg, rgba(254, 243, 199, 0.7) 0%, rgba(248, 250, 252, 0.4) 50%, rgba(238, 242, 255, 0.4) 100%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  flex-shrink: 0;
+}
+html[data-theme="dark"] .task-preview-header {
+  background: linear-gradient(90deg, rgba(217, 119, 6, 0.12) 0%, rgba(15, 23, 42, 0.6) 50%, rgba(99, 102, 241, 0.12) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+@media (max-width: 600px) {
+  .task-preview-header {
+    padding: 12px 16px;
+  }
+}
+.task-preview-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.task-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+.task-preview-badge-category {
+  background: rgba(255, 255, 255, 0.95);
+  color: #334155;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  cursor: default;
+}
+.task-preview-badge-category.clickable {
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.task-preview-badge-category.clickable:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+html[data-theme="dark"] .task-preview-badge-category {
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+html[data-theme="dark"] .task-preview-badge-category.clickable:hover {
+  background: rgba(51, 65, 85, 0.9);
+  color: #ffffff;
+}
+
+.task-preview-badge-priority {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+}
+.task-preview-badge-priority.task-urgent {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.22);
+}
+.task-preview-badge-priority.task-low {
+  background: rgba(148, 163, 184, 0.1);
+  color: #64748b;
+  border-color: rgba(148, 163, 184, 0.22);
+}
+html[data-theme="dark"] .task-preview-badge-priority {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+html[data-theme="dark"] .task-preview-badge-priority.task-urgent {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+html[data-theme="dark"] .task-preview-badge-priority.task-low {
+  background: rgba(148, 163, 184, 0.14);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.task-preview-badge-status {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.18);
+}
+.task-preview-badge-status.is-done {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.2);
+}
+html[data-theme="dark"] .task-preview-badge-status {
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.3);
+}
+html[data-theme="dark"] .task-preview-badge-status.is-done {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.task-preview-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.task-preview-reading-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: rgba(255, 255, 255, 0.9);
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.task-preview-reading-btn:hover {
+  background: #ffffff;
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+.task-preview-reading-btn.is-active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+}
+html[data-theme="dark"] .task-preview-reading-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+html[data-theme="dark"] .task-preview-reading-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.5);
+}
+html[data-theme="dark"] .task-preview-reading-btn.is-active {
+  background: #4f46e5;
+  color: #ffffff;
+}
+.task-preview-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.task-preview-close-btn:hover {
+  background: rgba(226, 232, 240, 0.6);
+  color: #1e293b;
+}
+html[data-theme="dark"] .task-preview-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+/* Scrollable Body */
+.task-preview-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 0;
+}
+
+/* 2. Title & Completion Checkbox */
+.task-preview-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 24px 16px 24px;
+}
+@media (max-width: 600px) {
+  .task-preview-title-row {
+    padding: 16px 16px 12px 16px;
+    gap: 12px;
+  }
+}
+.task-preview-checkbox-btn {
+  display: inline-flex;
+  cursor: pointer;
+  margin-top: 3px;
+  flex-shrink: 0;
+  position: relative;
+  user-select: none;
+}
+.task-preview-native-check {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.task-preview-custom-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+.task-preview-custom-check svg {
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  stroke-width: 3;
+}
+.task-preview-checkbox-btn:hover .task-preview-custom-check {
+  border-color: #6366f1;
+}
+.task-preview-native-check:checked + .task-preview-custom-check {
+  background: #4f46e5;
+  border-color: #4f46e5;
+}
+.task-preview-native-check:checked + .task-preview-custom-check svg {
+  opacity: 1;
+  transform: scale(1);
+}
+.task-preview-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+  color: #0f172a;
+  word-break: break-word;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+.task-preview-title.is-done {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #94a3b8;
+  color: #94a3b8;
+}
+html[data-theme="dark"] .task-preview-custom-check {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+html[data-theme="dark"] .task-preview-title {
+  color: #f8fafc;
+}
+html[data-theme="dark"] .task-preview-title.is-done {
+  color: #64748b;
+  text-decoration-color: #64748b;
+}
+
+/* 3. Unified 3-Column Metadata Strip */
+.task-preview-metadata-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 24px;
+  padding: 14px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .task-preview-metadata-strip {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 0 16px;
+    padding: 12px;
+  }
+}
+.task-preview-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.task-preview-strip-clickable {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 3px 6px;
+  margin: -3px -6px;
+  transition: background 0.15s;
+}
+.task-preview-strip-clickable:hover {
+  background: rgba(226, 232, 240, 0.55);
+}
+.task-preview-strip-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.task-preview-strip-avatar-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e2e8f0;
+}
+.task-preview-strip-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.task-preview-strip-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 750;
+  color: #475569;
+  background: rgba(226, 232, 240, 0.9);
+}
+.task-preview-strip-assignee-box {
+  background: rgba(16, 185, 129, 0.1);
+}
+.task-preview-strip-initials.is-assignee {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+.task-preview-strip-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.task-preview-strip-microlabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+.task-preview-strip-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+.task-preview-slot-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #d97706;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s;
+}
+.task-preview-slot-mini-btn:hover {
+  background: rgba(245, 158, 11, 0.22);
+}
+html[data-theme="dark"] .task-preview-metadata-strip {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+html[data-theme="dark"] .task-preview-strip-clickable:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+html[data-theme="dark"] .task-preview-strip-icon-box {
+  background: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+}
+html[data-theme="dark"] .task-preview-strip-avatar-box {
+  background: #334155;
+}
+html[data-theme="dark"] .task-preview-strip-initials {
+  background: #334155;
+  color: #cbd5e1;
+}
+html[data-theme="dark"] .task-preview-strip-initials.is-assignee {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+html[data-theme="dark"] .task-preview-strip-value {
+  color: #f1f5f9;
+}
+html[data-theme="dark"] .task-preview-slot-mini-btn {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+/* 4. Details & Instructions: Editorial Accent */
+.task-preview-details-section {
+  margin: 20px 24px 0 24px;
+}
+@media (max-width: 600px) {
+  .task-preview-details-section {
+    margin: 16px 16px 0 16px;
+  }
+}
+.task-preview-details-header {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+.task-preview-editorial-callout {
+  border-left: 2.5px solid rgba(99, 102, 241, 0.45);
+  padding-left: 14px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.task-preview-details-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #475569;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+html[data-theme="dark"] .task-preview-details-text {
+  color: #cbd5e1;
+}
+html[data-theme="dark"] .task-preview-editorial-callout {
+  border-left-color: rgba(129, 140, 248, 0.45);
+}
+.task-preview-linked-note-wrap {
+  margin-top: 10px;
+}
+.task-preview-linked-note-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.task-preview-linked-note-chip:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+}
+html[data-theme="dark"] .task-preview-linked-note-chip {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+}
+
+/* 5. Clean Checklist Section */
+.task-preview-checklist-section {
+  margin: 20px 24px 0 24px;
+  padding-bottom: 24px;
+}
+@media (max-width: 600px) {
+  .task-preview-checklist-section {
+    margin: 16px 16px 0 16px;
+    padding-bottom: 20px;
+  }
+}
+.task-preview-checklist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.task-preview-checklist-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1e293b;
+}
+.task-preview-checklist-counter {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2.5px 8.5px;
+  border-radius: 9999px;
+  background: rgba(241, 245, 249, 0.9);
+  color: #475569;
+}
+.task-preview-checklist-counter.is-empty {
+  background: transparent;
+  color: #94a3b8;
+  font-weight: 600;
+  padding: 0;
+}
+.task-preview-progress-track {
+  height: 5px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.task-preview-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #6366f1, #10b981);
+  transition: width 0.25s ease;
+}
+.task-preview-subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+.task-preview-subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.task-preview-subtask-item:hover {
+  background: #f8fafc;
+}
+.task-preview-subtask-check {
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  accent-color: #4f46e5;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.task-preview-subtask-title {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.4;
+  word-break: break-word;
+  transition: color 0.15s;
+}
+.task-preview-subtask-item.is-done .task-preview-subtask-title {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+.task-preview-subtask-form {
+  margin-top: 6px;
+}
+.task-preview-add-subtask-box {
+  border: 1px dashed rgba(203, 213, 225, 0.9);
+  background: rgba(248, 250, 252, 0.6);
+  border-radius: 12px;
+  padding: 4px 6px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.task-preview-add-subtask-box:focus-within {
+  border-color: #818cf8;
+  background: #ffffff;
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+}
+.task-preview-add-subtask-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: #1e293b;
+  outline: none;
+  box-sizing: border-box;
+}
+.task-preview-add-subtask-input::placeholder {
+  color: #94a3b8;
+}
+html[data-theme="dark"] .task-preview-checklist-title {
+  color: #f1f5f9;
+}
+html[data-theme="dark"] .task-preview-checklist-counter {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+}
+html[data-theme="dark"] .task-preview-progress-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+html[data-theme="dark"] .task-preview-subtask-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+html[data-theme="dark"] .task-preview-subtask-title {
+  color: #cbd5e1;
+}
+html[data-theme="dark"] .task-preview-subtask-item.is-done .task-preview-subtask-title {
+  color: #64748b;
+}
+html[data-theme="dark"] .task-preview-add-subtask-box {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.45);
+}
+html[data-theme="dark"] .task-preview-add-subtask-box:focus-within {
+  border-color: #6366f1;
+  background: rgba(15, 23, 42, 0.9);
+}
+html[data-theme="dark"] .task-preview-add-subtask-input {
+  color: #f8fafc;
+}
+
+/* 6. De-cluttered Footer Bar */
+.task-preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(248, 250, 252, 0.7);
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .task-preview-footer {
+    padding: 12px 16px;
+  }
+}
+.task-preview-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.task-preview-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #475569;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.task-preview-ghost-btn:hover {
+  background: rgba(226, 232, 240, 0.7);
+  color: #0f172a;
+}
+.task-preview-ghost-delete:hover {
+  background: rgba(244, 63, 94, 0.12);
+  color: #e11d48;
+}
+.task-preview-done-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #4f46e5;
+  color: #ffffff;
+  padding: 8px 24px;
+  font-size: 12.5px;
+  font-weight: 750;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.task-preview-done-pill:hover {
+  background: #4338ca;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+html[data-theme="dark"] .task-preview-footer {
+  border-top-color: rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.7);
+}
+html[data-theme="dark"] .task-preview-ghost-btn {
+  color: #94a3b8;
+}
+html[data-theme="dark"] .task-preview-ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+}
+html[data-theme="dark"] .task-preview-ghost-delete:hover {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fb7185;
+}
+
 /* --- CHRONOS FLOW REDESIGN: STICKY UTILITY BAR, CONDENSED DAYS & SPANNING CARDS --- */
 /* 1. Compact Sticky Utility Bar */
 .flow-sticky-utility-bar {
@@ -16645,6 +17398,7 @@ function openItemPreview(type, id, extraMeta){
   if(!backdrop || !modal) return;
   
   currentPreviewConfig = { type, id, extraMeta };
+  modal.classList.toggle('is-task-modal', type === 'task');
   if (type === 'note') {
     const n = (typeof findNoteById === 'function') ? findNoteById(id) : null;
     modal.setAttribute('data-color', n?.color || 'default');
@@ -16678,6 +17432,7 @@ function closeItemPreview(){
   if(modal){
     modal.classList.remove('is-reading-mode');
     modal.classList.remove('is-note-modal');
+    modal.classList.remove('is-task-modal');
   }
   if(backdrop){
     backdrop.classList.remove('is-reading-mode');
@@ -16930,54 +17685,35 @@ function renderTaskPreviewHTML(id){
 
   const proj = (chronosProjects || []).find(p => String(p.id) === String(t.projectId));
   const creator = getCardCreatorProfile(t);
+  const creatorName = creator?.displayName || 'You';
+  const creatorPhoto = creator?.photoURL || '';
+  const creatorInitials = (creatorName.trim().split(/\s+/).map(x=>x[0]).join('').slice(0,2) || 'U').toUpperCase();
+
+  let assigneeName = t.assigneeName || '';
+  let assigneeUid = t.assigneeUid || '';
+  let assigneePhoto = t.assigneePhotoURL || '';
+  if(!assigneeName && assigneeUid && typeof teamMembers !== 'undefined'){
+    const m = teamMembers.find(x => x.uid === assigneeUid);
+    if(m){
+      assigneeName = m.displayName || m.name || m.email || '';
+      if(!assigneePhoto) assigneePhoto = m.photoURL || '';
+    }
+  }
+  if(!assigneeName && !assigneeUid){
+    assigneeName = 'Unassigned';
+  }
+  const assigneeInitials = (assigneeName.trim().split(/\s+/).map(x=>x[0]).join('').slice(0,2) || 'A').toUpperCase();
 
   const d = t.due ? parseDate(t.due) : null;
-  const dueStr = d ? fmt(d, { weekday: 'long', month: 'short', day: 'numeric' }) : 'No due date set';
-  const timeStr = t.dueTime ? `Scheduled for ${fmtTime(t.dueTime)}` : 'Flexible / Anytime';
-
-  let checklistHtml = '';
-  if(subs.length > 0){
-    checklistHtml = `
-      <div class="preview-checklist-box">
-        <div class="preview-checklist-head">
-          <span>Checklist & Subtasks</span>
-          <span>${stDone} of ${stTotal} completed (${stPct}%)</span>
-        </div>
-        <div class="preview-checklist-rail">
-          <div class="preview-checklist-fill" style="width:${stPct}%"></div>
-        </div>
-        <div class="preview-checklist-items">
-          ${subs.map((st, i) => `
-            <label class="preview-subtask-row ${st.done ? 'is-done' : ''}">
-              <input type="checkbox" data-preview-subtask-check="${esc(t.id)}" data-subtask-idx="${i}" ${st.done ? 'checked' : ''}>
-              <span>${esc(st.title || 'Subtask item')}</span>
-            </label>
-          `).join('')}
-        </div>
-        <form class="preview-subtask-add" data-preview-subtask-form="${esc(t.id)}">
-          <input type="text" class="preview-subtask-input" placeholder="＋ Add subtask item…" maxlength="120" required>
-        </form>
-      </div>
-    `;
-  } else {
-    checklistHtml = `
-      <div class="preview-checklist-box">
-        <div class="preview-checklist-head">
-          <span>Checklist</span>
-          <span style="color:var(--muted);font-size:11px">No subtasks yet</span>
-        </div>
-        <form class="preview-subtask-add" data-preview-subtask-form="${esc(t.id)}">
-          <input type="text" class="preview-subtask-input" placeholder="＋ Add checklist item…" maxlength="120" required>
-        </form>
-      </div>
-    `;
-  }
+  const schedDateStr = d ? fmt(d, { weekday: 'short', month: 'short', day: 'numeric' }) : 'No due date';
+  const schedTimeStr = t.dueTime ? fmtTime(t.dueTime) : 'Flexible';
+  const scheduleDisplay = d ? `${schedDateStr} • ${schedTimeStr}` : 'No due date set';
 
   let slotBtnHtml = '';
   if(!t.dueTime && t.due){
     slotBtnHtml = `
-      <button type="button" class="preview-slot-gap-btn" data-preview-slot-gap="${esc(t.id)}" title="Slot into free daytime gap in Calendar">
-        ${getLucideSvg('clock', 12)} Slot into Calendar Gap
+      <button type="button" class="task-preview-slot-mini-btn" data-preview-slot-gap="${esc(t.id)}" title="Slot into free daytime gap in Calendar">
+        ${getLucideSvg('clock', 10)} Gap
       </button>
     `;
   }
@@ -16985,8 +17721,16 @@ function renderTaskPreviewHTML(id){
   let projectBadgeHtml = '';
   if(proj){
     projectBadgeHtml = `
-      <span class="preview-chip clickable" data-preview-project="${esc(proj.id)}" title="Click to view project details">
-        ${getLucideSvg('folder', 12)} <strong>${esc(proj.name)}</strong>
+      <button type="button" class="task-preview-badge task-preview-badge-category clickable" data-preview-project="${esc(proj.id)}" title="Click to view project details">
+        ${getLucideSvg('folder', 13)}
+        <span>${esc(proj.name)}</span>
+      </button>
+    `;
+  } else if(t.category){
+    projectBadgeHtml = `
+      <span class="task-preview-badge task-preview-badge-category">
+        ${getLucideSvg('folder', 13)}
+        <span>${esc(t.category)}</span>
       </span>
     `;
   }
@@ -16996,9 +17740,11 @@ function renderTaskPreviewHTML(id){
     const n = (notes || []).find(x => String(x.id) === String(t.linkedNoteId) && !x.trashed);
     if(n){
       linkedNoteHtml = `
-        <div class="preview-meta-chips">
-          <button type="button" class="preview-chip clickable" data-preview-note="${esc(n.id)}" title="Click to view linked note preview">
-            ${getLucideSvg('file-text', 12)} Linked Note: <strong>${esc(n.title || 'Untitled')}</strong> ${getLucideSvg('external-link', 11)}
+        <div class="task-preview-linked-note-wrap">
+          <button type="button" class="task-preview-linked-note-chip" data-preview-note="${esc(n.id)}" title="Click to view linked note preview">
+            ${getLucideSvg('file-text', 13)}
+            <span>Linked Note: <strong>${esc(n.title || 'Untitled')}</strong></span>
+            ${getLucideSvg('external-link', 11)}
           </button>
         </div>
       `;
@@ -17006,66 +17752,153 @@ function renderTaskPreviewHTML(id){
   }
 
   return `
-    <div class="preview-modal-head" style="--preview-tint:${accent}">
-      <div class="preview-modal-head-left">
-        ${projectBadgeHtml}
-        <span class="preview-chip" style="border-color:${accent};color:${accent}">
-          ${getLucideSvg(icon, 12)} ${esc(label)}
-        </span>
-        <span class="preview-chip" style="color:${isDone ? '#10b981' : 'var(--muted)'}">
-          ${isDone ? `${getLucideSvg('check', 11)} Completed` : 'In Progress'}
-        </span>
+    <div class="task-preview-modal-v2">
+      <!-- 1. Header Bar: Refined Surface & Badges -->
+      <div class="task-preview-header">
+        <div class="task-preview-badges">
+          ${projectBadgeHtml}
+          <span class="task-preview-badge task-preview-badge-priority ${priClass || ''}">
+            ${getLucideSvg(icon, 13)}
+            <span>${esc(label)}</span>
+          </span>
+          <span class="task-preview-badge task-preview-badge-status ${isDone ? 'is-done' : ''}">
+            ${isDone ? `${getLucideSvg('check', 12)} Completed` : 'In Progress'}
+          </span>
+        </div>
+        <div class="task-preview-header-actions">
+          <button type="button" class="task-preview-reading-btn ${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'is-active' : ''}" data-toggle-reading-mode title="${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen'}" aria-label="Reading mode">
+            ${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}
+            <span class="reading-mode-label">${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'Exit' : 'Reading Mode'}</span>
+          </button>
+          <button type="button" class="task-preview-close-btn" data-preview-close title="Close (Esc)" aria-label="Close modal">
+            ${getLucideSvg('x', 18)}
+          </button>
+        </div>
       </div>
-      <div class="preview-modal-head-right">
-        <button type="button" class="preview-modal-reading-btn ${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'is-active' : ''}" data-toggle-reading-mode title="${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen'}" aria-label="Reading mode">
-          ${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}
-          <span class="reading-mode-label">${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'Exit' : 'Reading Mode'}</span>
-        </button>
-        <button type="button" class="preview-modal-close" data-preview-close title="Close (Esc)">${getLucideSvg('x', 18)}</button>
-      </div>
-    </div>
-    <div class="preview-modal-body">
-      <div class="preview-title-row">
-        <input type="checkbox" class="preview-main-check" data-preview-task-check="${esc(t.id)}" ${isDone ? 'checked' : ''} aria-label="Toggle task completion">
-        <h2 class="preview-title ${isDone ? 'is-done-text' : ''}" id="itemPreviewTitle">${esc(t.title)}</h2>
-      </div>
-      <div class="preview-time-box">
-        <div class="preview-time-box-main">
-          <span class="preview-time-box-icon">${getLucideSvg('calendar', 18)}</span>
-          <div class="preview-time-box-text">
-            <strong>${esc(dueStr)}</strong>
-            <p>${esc(timeStr)}</p>
+
+      <!-- Scrollable Modal Content -->
+      <div class="task-preview-body">
+        <!-- 2. Title & Completion Checkbox -->
+        <div class="task-preview-title-row">
+          <label class="task-preview-checkbox-btn" title="${isDone ? 'Mark as incomplete' : 'Mark as complete'}">
+            <input type="checkbox" class="task-preview-native-check" data-preview-task-check="${esc(t.id)}" ${isDone ? 'checked' : ''} aria-label="Toggle task completion">
+            <span class="task-preview-custom-check">
+              ${getLucideSvg('check', 13)}
+            </span>
+          </label>
+          <h2 class="task-preview-title ${isDone ? 'is-done' : ''}" id="itemPreviewTitle">${esc(t.title)}</h2>
+        </div>
+
+        <!-- 3. Unified 3-Column Metadata Strip -->
+        <div class="task-preview-metadata-strip">
+          <!-- Col 1: Schedule -->
+          <div class="task-preview-strip-item">
+            <div class="task-preview-strip-icon-box">
+              ${getLucideSvg('calendar', 16)}
+            </div>
+            <div class="task-preview-strip-details">
+              <span class="task-preview-strip-microlabel">SCHEDULED</span>
+              <span class="task-preview-strip-value" title="${esc(scheduleDisplay)}">${esc(scheduleDisplay)}</span>
+              ${slotBtnHtml}
+            </div>
+          </div>
+
+          <!-- Col 2: Created By -->
+          <div class="task-preview-strip-item task-preview-strip-clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creatorName)}" data-preview-photo="${esc(creatorPhoto)}" title="Click to view creator profile">
+            <div class="task-preview-strip-avatar-box">
+              ${creatorPhoto ? `
+                <img src="${esc(creatorPhoto)}" alt="${esc(creatorName)}" class="task-preview-strip-avatar" onerror="this.outerHTML='<span class=\\'task-preview-strip-initials\\'>${esc(creatorInitials)}</span>'">
+              ` : `
+                <span class="task-preview-strip-initials">${esc(creatorInitials)}</span>
+              `}
+            </div>
+            <div class="task-preview-strip-details">
+              <span class="task-preview-strip-microlabel">CREATED BY</span>
+              <span class="task-preview-strip-value" title="${esc(creatorName)}">${esc(creatorName)}</span>
+            </div>
+          </div>
+
+          <!-- Col 3: Assigned To -->
+          <div class="task-preview-strip-item" title="Assigned to ${esc(assigneeName)}">
+            <div class="task-preview-strip-avatar-box task-preview-strip-assignee-box">
+              ${assigneePhoto ? `
+                <img src="${esc(assigneePhoto)}" alt="${esc(assigneeName)}" class="task-preview-strip-avatar" onerror="this.outerHTML='<span class=\\'task-preview-strip-initials is-assignee\\'>${esc(assigneeInitials)}</span>'">
+              ` : `
+                <span class="task-preview-strip-initials is-assignee">
+                  ${assigneeName === 'Unassigned' ? getLucideSvg('user', 14) : esc(assigneeInitials)}
+                </span>
+              `}
+            </div>
+            <div class="task-preview-strip-details">
+              <span class="task-preview-strip-microlabel">ASSIGNED TO</span>
+              <span class="task-preview-strip-value" title="${esc(assigneeName)}">${esc(assigneeName)}</span>
+            </div>
           </div>
         </div>
-        ${slotBtnHtml}
-      </div>
-      ${checklistHtml}
-      <div class="preview-meta-chips">
-        <div class="preview-chip clickable" data-preview-profile="${esc(creator.uid || '')}" data-preview-name="${esc(creator.displayName)}" data-preview-photo="${esc(creator.photoURL || '')}">
-          ${avatarMarkup(creator, 'xs')}
-          <span>Created by <strong>${esc(creator.displayName)}</strong></span>
-        </div>
-        ${(t.assigneeName && t.assigneeName !== creator.displayName) ? `
-          <div class="preview-chip">
-            ${getLucideSvg('user', 12)} Assigned to: <strong>${esc(t.assigneeName)}</strong>
+
+        <!-- 4. Reorder Body: Details & Instructions First (Editorial Accent) -->
+        ${(t.details || linkedNoteHtml) ? `
+          <div class="task-preview-details-section">
+            <div class="task-preview-details-header">DETAILS &amp; INSTRUCTIONS</div>
+            ${t.details ? `
+              <div class="task-preview-editorial-callout">
+                <p class="task-preview-details-text">${esc(t.details)}</p>
+              </div>
+            ` : ''}
+            ${linkedNoteHtml}
           </div>
         ` : ''}
-      </div>
-      ${linkedNoteHtml}
-      ${t.details ? `
-        <div class="preview-desc-box">
-          <h4>Details & Instructions</h4>
-          <p style="margin:0;white-space:pre-wrap">${esc(t.details)}</p>
+
+        <!-- 5. Clean Checklist Section -->
+        <div class="task-preview-checklist-section">
+          <div class="task-preview-checklist-head">
+            <span class="task-preview-checklist-title">Checklist</span>
+            <span class="task-preview-checklist-counter ${stTotal === 0 ? 'is-empty' : ''}">
+              ${stTotal > 0 ? `${stDone}/${stTotal} completed` : 'No subtasks yet'}
+            </span>
+          </div>
+
+          ${stTotal > 0 ? `
+            <div class="task-preview-progress-track">
+              <div class="task-preview-progress-fill" style="width: ${stPct}%"></div>
+            </div>
+            <div class="task-preview-subtask-list">
+              ${subs.map((st, i) => `
+                <label class="task-preview-subtask-item ${st.done ? 'is-done' : ''}">
+                  <input type="checkbox" class="task-preview-subtask-check" data-preview-subtask-check="${esc(t.id)}" data-subtask-idx="${i}" ${st.done ? 'checked' : ''}>
+                  <span class="task-preview-subtask-title">${esc(st.title || 'Subtask item')}</span>
+                </label>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <form class="task-preview-subtask-form" data-preview-subtask-form="${esc(t.id)}">
+            <div class="task-preview-add-subtask-box">
+              <input type="text" class="preview-subtask-input task-preview-add-subtask-input" placeholder="+ Add checklist item…" maxlength="120" required>
+            </div>
+          </form>
         </div>
-      ` : ''}
-    </div>
-    <div class="preview-modal-actions">
-      <div class="preview-modal-actions-left">
-        <button type="button" class="btn" data-preview-edit-task="${esc(t.id)}">${getLucideSvg('pencil', 12)} Full Edit</button>
-        ${t.due ? `<button type="button" class="btn" data-preview-backlog-task="${esc(t.id)}">${getLucideSvg('folder', 12)} To Backlog</button>` : ''}
-        <button type="button" class="btn danger-hover" data-preview-delete-task="${esc(t.id)}">${getLucideSvg('trash-2', 12)} Delete</button>
       </div>
-      <button type="button" class="btn primary" data-preview-close>Done</button>
+
+      <!-- 6. De-cluttered Footer Bar -->
+      <div class="task-preview-footer">
+        <div class="task-preview-footer-left">
+          <button type="button" class="task-preview-ghost-btn" data-preview-edit-task="${esc(t.id)}">
+            ${getLucideSvg('pencil', 13)} Full Edit
+          </button>
+          ${t.due ? `
+            <button type="button" class="task-preview-ghost-btn" data-preview-backlog-task="${esc(t.id)}">
+              ${getLucideSvg('folder', 13)} To Backlog
+            </button>
+          ` : ''}
+          <button type="button" class="task-preview-ghost-btn task-preview-ghost-delete" data-preview-delete-task="${esc(t.id)}">
+            ${getLucideSvg('trash-2', 13)} Delete
+          </button>
+        </div>
+        <button type="button" class="task-preview-done-pill" data-preview-close>
+          Done
+        </button>
+      </div>
     </div>
   `;
 }
