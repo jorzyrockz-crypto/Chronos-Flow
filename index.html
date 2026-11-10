@@ -6888,23 +6888,29 @@ html[data-theme="dark"] .note-card .md-card-preview {
 }
 .event-schedule-row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
 }
 .event-date-col {
-  flex: 1;
-  min-width: 170px;
+  flex: 1 1 160px;
 }
 .event-chips-col {
   display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 0 1 auto;
+}
+.event-recurrence-chips-wrap {
+  display: flex;
   align-items: center;
+  min-height: 40px;
 }
 
 .quick-chips {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -6913,11 +6919,12 @@ html[data-theme="dark"] .note-card .md-card-preview {
   background: var(--surface);
   color: var(--muted);
   border-radius: 999px;
-  padding: 3px 9px;
-  font-size: 0.74rem;
+  padding: 4px 11px;
+  font-size: 0.75rem;
   font-weight: 650;
   cursor: pointer;
   transition: all 0.15s ease;
+  user-select: none;
 }
 .quick-chip:hover {
   background: var(--accent-soft);
@@ -6925,10 +6932,10 @@ html[data-theme="dark"] .note-card .md-card-preview {
   border-color: var(--accent);
 }
 .quick-chip.active {
-  background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
-  box-shadow: 0 2px 6px var(--accent-glow);
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 2px 8px var(--accent-glow, rgba(40, 100, 215, 0.28));
 }
 
 .event-time-row {
@@ -7263,10 +7270,17 @@ html[data-theme="dark"] .note-card .md-card-preview {
             <input id="eventDate" type="date" required class="event-clean-input">
           </div>
           <div class="event-chips-col">
-            <div class="quick-chips" id="eventQuickDateChips">
-              <button type="button" class="quick-chip" data-quick-date="today">Today</button>
-              <button type="button" class="quick-chip" data-quick-date="tomorrow">Tomorrow</button>
-              <button type="button" class="quick-chip" data-quick-date="next-mon">Next Mon</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <label class="event-field-label" style="margin:0;" for="eventRepeat">RECURRING</label>
+              <span id="eventRepeatSummary" style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.04em"></span>
+            </div>
+            <div class="event-recurrence-chips-wrap">
+              <div class="quick-chips" id="eventRecurrenceChips" role="group" aria-label="Event recurrence options">
+                <button type="button" class="quick-chip" data-event-repeat="daily" title="Repeats daily">Daily</button>
+                <button type="button" class="quick-chip" data-event-repeat="weekly" title="Repeats weekly">Weekly</button>
+                <button type="button" class="quick-chip" data-event-repeat="monthly" title="Repeats monthly">Monthly</button>
+                <button type="button" class="quick-chip" data-event-repeat="yearly" title="Repeats yearly">Yearly</button>
+              </div>
             </div>
           </div>
         </div>
@@ -7365,9 +7379,10 @@ html[data-theme="dark"] .note-card .md-card-preview {
               <label class="event-field-label" for="eventRepeat">REPEAT RECURRENCE</label>
               <select id="eventRepeat" class="event-clean-input">
                 <option value="none">Does not repeat</option>
-                <option value="daily">Daily · 12 occurrences</option>
+                <option value="daily">Daily · 14 occurrences</option>
                 <option value="weekly">Weekly · 12 occurrences</option>
                 <option value="monthly">Monthly · 12 occurrences</option>
+                <option value="yearly">Yearly · Annual repeat (5 years)</option>
               </select>
             </div>
             <div class="field">
@@ -11543,6 +11558,29 @@ function syncEventColorSwatches(color){
   } catch(err){}
 }
 
+function syncEventRepeatChips(val){
+  const repeatVal = String(val || 'none').toLowerCase();
+  const select = $('eventRepeat');
+  if(select && select.value !== repeatVal){
+    select.value = repeatVal;
+  }
+  document.querySelectorAll('#eventRecurrenceChips [data-event-repeat]').forEach(btn => {
+    const r = (btn.getAttribute('data-event-repeat') || '').toLowerCase();
+    const isMatch = (r === repeatVal);
+    btn.classList.toggle('active', isMatch);
+    btn.setAttribute('aria-pressed', String(isMatch));
+  });
+  const summary = $('eventRepeatSummary');
+  if(summary){
+    if(repeatVal === 'daily') summary.textContent = 'Daily';
+    else if(repeatVal === 'weekly') summary.textContent = 'Weekly';
+    else if(repeatVal === 'monthly') summary.textContent = 'Monthly';
+    else if(repeatVal === 'yearly') summary.textContent = 'Yearly';
+    else summary.textContent = '';
+  }
+}
+window.syncEventRepeatChips = syncEventRepeatChips;
+
 function openEvent(id = null, date = null){
   try {
     const targetDate = date || (typeof iso === 'function' && typeof selected !== 'undefined' && selected ? iso(selected) : new Date().toISOString().slice(0, 10));
@@ -11585,7 +11623,9 @@ function openEvent(id = null, date = null){
 
     if($('eventLocation')) $('eventLocation').value = e?.location || '';
     if($('eventDescription')) $('eventDescription').value = e?.description || '';
-    if($('eventRepeat')) $('eventRepeat').value = 'none';
+    const repeatVal = e?.repeat || 'none';
+    if(typeof syncEventRepeatChips === 'function') syncEventRepeatChips(repeatVal);
+    else if($('eventRepeat')) $('eventRepeat').value = repeatVal;
     if($('eventReminder')) $('eventReminder').value = e?.reminderMinutes === null ? 'none' : (e?.reminderMinutes !== undefined ? String(e.reminderMinutes) : 'default');
     if($('eventLinkedNote')) $('eventLinkedNote').value = e?.linkedNoteId || '';
     if($('eventConflictHint')) $('eventConflictHint').style.display = 'none';
@@ -11611,8 +11651,8 @@ function openEvent(id = null, date = null){
     try { if(typeof renderTeamShareChips === 'function') renderTeamShareChips('eventTeamQuickChips', 'eventShareTeams'); } catch(err){}
     try { if(typeof checkEventLocationVideoCall === 'function') checkEventLocationVideoCall(); } catch(err){}
 
-    // Reset chips active state
-    document.querySelectorAll('#eventQuickDateChips [data-quick-date]').forEach(b => b.classList.remove('active'));
+    // Reset recurrence & duration chips active state
+    if(typeof syncEventRepeatChips === 'function') syncEventRepeatChips(repeatVal);
     document.querySelectorAll('#eventDurationChips [data-quick-duration]').forEach(b => b.classList.remove('active'));
 
     // Delete button
@@ -12786,20 +12826,50 @@ $('eventForm')?.addEventListener('submit', async e => {
     delete item.teamName;
   }
 
+  const repeat = $('eventRepeat')?.value || 'none';
+  item.repeat = repeat;
+
   // Save to events array
   if(i >= 0){
     events[i] = item;
-  } else {
-    events.push(item);
-    const repeat = $('eventRepeat')?.value || 'none';
-    if(repeat !== 'none' && typeof parseDate === 'function'){
+    if(repeat !== 'none' && !item.seriesId && typeof parseDate === 'function'){
+      // Re-generate recurring series if master event repeat changed
+      events = events.filter(ev => String(ev.seriesId || '') !== String(id));
       const base = parseDate(item.date);
-      for(let n = 1; n < 12; n++){
+      const maxCount = (repeat === 'yearly') ? 5 : (repeat === 'daily' ? 14 : 12);
+      for(let n = 1; n < maxCount; n++){
         const d = new Date(base);
         if(repeat === 'daily') d.setDate(d.getDate() + n);
-        if(repeat === 'weekly') d.setDate(d.getDate() + 7 * n);
-        if(repeat === 'monthly') d.setMonth(d.getMonth() + n);
-        events.push({...item, id: `${id}_${n}`, date: typeof iso === 'function' ? iso(d) : d.toISOString().slice(0, 10), seriesId: id});
+        else if(repeat === 'weekly') d.setDate(d.getDate() + 7 * n);
+        else if(repeat === 'monthly') d.setMonth(d.getMonth() + n);
+        else if(repeat === 'yearly') d.setFullYear(d.getFullYear() + n);
+        events.push({
+          ...item,
+          id: `${id}_${n}`,
+          date: typeof iso === 'function' ? iso(d) : d.toISOString().slice(0, 10),
+          seriesId: id,
+          repeat
+        });
+      }
+    }
+  } else {
+    events.push(item);
+    if(repeat !== 'none' && typeof parseDate === 'function'){
+      const base = parseDate(item.date);
+      const maxCount = (repeat === 'yearly') ? 5 : (repeat === 'daily' ? 14 : 12);
+      for(let n = 1; n < maxCount; n++){
+        const d = new Date(base);
+        if(repeat === 'daily') d.setDate(d.getDate() + n);
+        else if(repeat === 'weekly') d.setDate(d.getDate() + 7 * n);
+        else if(repeat === 'monthly') d.setMonth(d.getMonth() + n);
+        else if(repeat === 'yearly') d.setFullYear(d.getFullYear() + n);
+        events.push({
+          ...item,
+          id: `${id}_${n}`,
+          date: typeof iso === 'function' ? iso(d) : d.toISOString().slice(0, 10),
+          seriesId: id,
+          repeat
+        });
       }
     }
   }
@@ -12849,23 +12919,22 @@ $('deleteEvent')?.addEventListener('click', async () => {
 });
 
 function initModernEventModal(){
-  // Quick date chips
-  document.querySelectorAll('#eventQuickDateChips [data-quick-date]').forEach(btn => {
+  // Recurrence chips selection & toggle
+  document.querySelectorAll('#eventRecurrenceChips [data-event-repeat]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const type = btn.getAttribute('data-quick-date');
-      const now = new Date();
-      let d = new Date();
-      if (type === 'tomorrow') {
-        d.setDate(now.getDate() + 1);
-      } else if (type === 'next-mon') {
-        const day = now.getDay();
-        const diff = (day === 0 ? 1 : (8 - day));
-        d.setDate(now.getDate() + diff);
-      }
-      if($('eventDate')) $('eventDate').value = typeof iso === 'function' ? iso(d) : d.toISOString().slice(0, 10);
-      document.querySelectorAll('#eventQuickDateChips [data-quick-date]').forEach(b => b.classList.toggle('active', b === btn));
+      const repeatVal = btn.getAttribute('data-event-repeat');
+      const curVal = $('eventRepeat')?.value || 'none';
+      const nextVal = (curVal === repeatVal) ? 'none' : repeatVal;
+      syncEventRepeatChips(nextVal);
     });
   });
+
+  const repeatSelect = $('eventRepeat');
+  if(repeatSelect){
+    repeatSelect.addEventListener('change', () => {
+      syncEventRepeatChips(repeatSelect.value);
+    });
+  }
 
   // Quick duration chips
   document.querySelectorAll('#eventDurationChips [data-quick-duration]').forEach(btn => {
@@ -15950,6 +16019,11 @@ function renderEventPreviewHTML(id){
             <span class="event-preview-type-tag" style="background:color-mix(in srgb, ${accent} 12%, transparent);color:${accent};border-color:color-mix(in srgb, ${accent} 30%, transparent)">
               ${getLucideSvg('calendar', 14)} Event
             </span>
+            ${((ev.repeat && ev.repeat !== 'none') || ev.seriesId) ? `
+              <span class="event-preview-repeat-tag" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted)">
+                ${getLucideSvg('repeat', 11)} ${esc(ev.repeat ? ev.repeat.charAt(0).toUpperCase() + ev.repeat.slice(1) : 'Recurring')}
+              </span>
+            ` : ''}
             ${statusBadge}
             ${ev.teamShared ? `<span class="event-preview-team-tag">${getLucideSvg('users', 12)} ${esc(ev.teamName || 'Team Shared')}</span>` : ''}
           </div>
@@ -18102,6 +18176,10 @@ function renderOverviewHorizon(options = {}){
       }
 
       const cardAccent = e.color || (flair && flair.accentColor) || accent || '#4388df';
+      const isRecurring = (e.repeat && e.repeat !== 'none') || !!e.seriesId;
+      const recurringBadgeHtml = isRecurring ? `
+        <span class="journey-card-repeat-badge" title="Recurring event (${esc(e.repeat || 'series')})" style="display:inline-flex;align-items:center;color:var(--card-accent, var(--muted));opacity:0.85">${getLucideSvg('repeat', 10)}</span>
+      ` : '';
 
       return `
         <div class="journey-card event-card ${catClass} ${isMilestone ? 'has-canopy' : ''} ${isHero ? 'is-hero-card' : ''} ${isPast ? 'is-past-item' : ''} ${isCurrent ? 'is-current-active' : ''} ${isStartingSoon ? 'is-starting-soon' : ''} ${isRecentlyAdded ? 'is-recently-updated' : ''}" data-preview-event="${esc(e.id)}" style="--card-accent:${cardAccent}">
@@ -18110,6 +18188,7 @@ function renderOverviewHorizon(options = {}){
             <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
               <div style="display:inline-flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap">
                 <span class="journey-card-time">${esc(timeText)}</span>
+                ${recurringBadgeHtml}
                 ${flairPillHtml}
                 ${statusBadgeHtml}
                 ${recentBadgeHtml}
