@@ -27309,18 +27309,69 @@ html[data-theme=dark] .batch-menu{
 html[data-theme=dark] .batch-menu button:hover{
   background:rgba(255,255,255,0.08);
 }
-.task-card.is-batch-selected{
+.task-card.is-batch-selected,
+.modern-task-card.is-batch-selected{
   border-color:var(--accent)!important;
   background:color-mix(in srgb,var(--accent) 12%,var(--surface))!important;
-  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)!important;
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--accent) 55%,transparent), 0 16px 36px rgba(18,28,45,0.08)!important;
+}
+html[data-theme="dark"] .task-card.is-batch-selected,
+html[data-theme="dark"] .modern-task-card.is-batch-selected{
+  background:color-mix(in srgb,var(--accent) 18%,#1c1d22)!important;
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--accent) 65%,transparent), 0 20px 48px rgba(0,0,0,0.5)!important;
 }
 .task-batch-checkbox{
+  display:none;
   width:18px;
   height:18px;
   accent-color:var(--accent);
   cursor:pointer;
-  margin-top:2px;
   flex:0 0 auto;
+  user-select:none;
+}
+body.task-multi-select-active .task-batch-checkbox,
+.task-card.is-batch-selected .task-batch-checkbox,
+.modern-task-card.is-batch-selected .task-batch-checkbox{
+  display:inline-block!important;
+}
+.modern-task-card .task-batch-checkbox,
+#tasksPage .task-card .task-batch-checkbox{
+  position:absolute!important;
+  top:18px!important;
+  left:18px!important;
+  width:20px!important;
+  height:20px!important;
+  border-radius:6px!important;
+  accent-color:var(--accent)!important;
+  cursor:pointer!important;
+  z-index:6!important;
+  margin:0!important;
+  transition:transform 0.18s cubic-bezier(0.16,1,0.3,1)!important;
+}
+.modern-task-card .task-batch-checkbox:hover,
+#tasksPage .task-card .task-batch-checkbox:hover{
+  transform:scale(1.15)!important;
+}
+body.task-multi-select-active .modern-task-card .card-top-row,
+body.task-multi-select-active #tasksPage .task-card .card-top-row,
+.task-card.is-batch-selected .card-top-row,
+.modern-task-card.is-batch-selected .card-top-row{
+  padding-left:28px!important;
+}
+@keyframes taskLongPressPop{
+  0%{transform:scale(1);}
+  35%{transform:scale(0.965);}
+  70%{transform:scale(1.028);}
+  100%{transform:scale(1);}
+}
+.task-card.task-longpress-pop,
+.modern-task-card.task-longpress-pop{
+  animation:taskLongPressPop 0.38s cubic-bezier(0.175,0.885,0.32,1.275)!important;
+  z-index:20!important;
+}
+.task-card,
+.modern-task-card{
+  -webkit-touch-callout:none!important;
 }
 @media(max-width:768px){
   .task-batch-dock{
@@ -29490,6 +29541,23 @@ html[data-theme=dark] .batch-menu button:hover{
 
 
   // --- 3. DYNAMIC TASK GROUPING & INLINE SUBTASKS ---
+  function ensureCardBatchCheckbox(card) {
+    if (!card) return null;
+    let cb = card.querySelector('.task-batch-checkbox');
+    if (!cb) {
+      const editBtn = card.querySelector('[data-edit-task]');
+      const taskId = editBtn?.dataset.editTask || card.dataset.previewTask || card.dataset.taskId || card.querySelector('[data-task-toggle]')?.dataset.taskToggle;
+      if (!taskId) return null;
+      cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'task-batch-checkbox';
+      cb.dataset.batchTask = String(taskId);
+      card.insertBefore(cb, card.firstChild);
+    }
+    cb.style.display = taskMultiSelectMode ? 'inline-block' : 'none';
+    return cb;
+  }
+
   const originalRenderTasks = window.renderTasks;
   window.renderTasks = function() {
     if (typeof originalRenderTasks === 'function') originalRenderTasks.apply(this, arguments);
@@ -29505,25 +29573,17 @@ html[data-theme=dark] .batch-menu button:hover{
     const taskCards = list.querySelectorAll('.task-card');
     taskCards.forEach(card => {
       const editBtn = card.querySelector('[data-edit-task]');
-      const taskId = editBtn?.dataset.editTask;
+      const taskId = editBtn?.dataset.editTask || card.dataset.previewTask || card.dataset.taskId;
       if (!taskId) return;
 
       const t = (tasks || []).find(x => String(x.id) === String(taskId));
       if (!t) return;
 
       // 1. Multi-select checkbox
-      let batchCheck = card.querySelector('.task-batch-checkbox');
-      if (!batchCheck) {
-        batchCheck = document.createElement('input');
-        batchCheck.type = 'checkbox';
-        batchCheck.className = 'task-batch-checkbox';
-        batchCheck.dataset.batchTask = taskId;
-        batchCheck.style.cssText = 'margin-right:6px;cursor:pointer;' + (taskMultiSelectMode ? 'display:inline-block;' : 'display:none;');
-        card.insertBefore(batchCheck, card.firstChild);
-      } else {
-        batchCheck.style.display = taskMultiSelectMode ? 'inline-block' : 'none';
+      let batchCheck = ensureCardBatchCheckbox(card);
+      if (batchCheck) {
+        batchCheck.checked = selectedBatchTaskIds.has(String(taskId));
       }
-      batchCheck.checked = selectedBatchTaskIds.has(String(taskId));
 
       // 2. Inline subtask expansion pill
       const subs = Array.isArray(t.subtasks) ? t.subtasks : [];
@@ -29680,18 +29740,25 @@ html[data-theme=dark] .batch-menu button:hover{
     if (countEl) countEl.textContent = count;
     dock.classList.toggle('hidden', count === 0);
 
+    // Sync body class for multi-select styling
+    document.body.classList.toggle('task-multi-select-active', taskMultiSelectMode || count > 0);
+
     // Sync card visual selection and checkboxes
-    document.querySelectorAll('#tasksList .task-card').forEach(card => {
-      const cb = card.querySelector('.task-batch-checkbox');
-      if (cb) {
-        const isSel = selectedBatchTaskIds.has(String(cb.dataset.batchTask));
-        cb.checked = isSel;
+    document.querySelectorAll('#tasksList .task-card, #projectDetail .task-card, .modern-task-card').forEach(card => {
+      const cb = ensureCardBatchCheckbox(card);
+      const tId = cb ? String(cb.dataset.batchTask) : (card.dataset.previewTask || card.dataset.taskId || card.querySelector('[data-edit-task]')?.dataset.editTask);
+      if (tId) {
+        const isSel = selectedBatchTaskIds.has(String(tId));
+        if (cb) {
+          cb.checked = isSel;
+          cb.style.display = taskMultiSelectMode ? 'inline-block' : 'none';
+        }
         card.classList.toggle('is-batch-selected', isSel);
       }
     });
 
     // Update Select All / Deselect All label
-    const allVisibleChecks = [...document.querySelectorAll('#tasksList .task-batch-checkbox')];
+    const allVisibleChecks = [...document.querySelectorAll('#tasksList .task-batch-checkbox, #projectDetail .task-batch-checkbox, .modern-task-card .task-batch-checkbox')];
     const allChecked = allVisibleChecks.length > 0 && allVisibleChecks.every(cb => cb.checked);
     const selectAllLabel = $('batchSelectAllLabel');
     if (selectAllLabel) {
@@ -29709,6 +29776,113 @@ html[data-theme=dark] .batch-menu button:hover{
     }
   }
 
+  // --- 5. LONG-PRESS GESTURE CONTROLLER (MOUSE & TOUCH) FOR MULTI-TASK SELECT ---
+  let taskLongPressTimer = null;
+  let taskLongPressTriggered = false;
+  let taskLongPressTriggeredTime = 0;
+  let taskLongPressStart = { x: 0, y: 0 };
+  let taskLongPressTargetCard = null;
+
+  function cancelTaskLongPress() {
+    if (taskLongPressTimer) {
+      clearTimeout(taskLongPressTimer);
+      taskLongPressTimer = null;
+    }
+    taskLongPressTargetCard = null;
+  }
+
+  document.addEventListener('pointerdown', e => {
+    // Only primary mouse button (0) or touch/pen
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    const card = e.target.closest('#tasksList .task-card, #projectDetail .task-card, .modern-task-card');
+    if (!card) return;
+
+    // Ignore interactive child controls
+    if (e.target.closest('button, select, input, textarea, a, .task-subtasks-wrapper, .task-subtask, [data-task-toggle], .record-status, .project-task-edit, .card-brand-mark, .status-indicator, .facepile-stack')) {
+      return;
+    }
+
+    cancelTaskLongPress();
+    taskLongPressTriggered = false;
+    taskLongPressStart = { x: e.clientX, y: e.clientY };
+    taskLongPressTargetCard = card;
+
+    taskLongPressTimer = setTimeout(() => {
+      taskLongPressTriggered = true;
+      taskLongPressTriggeredTime = Date.now();
+      taskLongPressTimer = null;
+
+      // 1. Activate multi-select mode if not already active
+      if (!taskMultiSelectMode) {
+        taskMultiSelectMode = true;
+        const label = $('taskMultiSelectLabel');
+        if (label) label.textContent = 'Done';
+        document.body.classList.add('task-multi-select-active');
+      }
+
+      // 2. Ensure checkbox exists and select this task
+      const cb = ensureCardBatchCheckbox(card);
+      const taskId = cb ? String(cb.dataset.batchTask) : (card.dataset.previewTask || card.dataset.taskId || card.querySelector('[data-edit-task]')?.dataset.editTask);
+
+      if (taskId) {
+        selectedBatchTaskIds.add(String(taskId));
+        updateBatchDockUI();
+
+        // 3. Sensory Feedback: haptic vibration + sound
+        if (navigator.vibrate) {
+          try { navigator.vibrate(50); } catch(err){}
+        }
+        if (typeof playAppSound === 'function') {
+          playAppSound('action');
+        } else if (typeof playInterfaceSound === 'function') {
+          playInterfaceSound();
+        }
+
+        // 4. Visual pop bounce feedback
+        card.classList.add('task-longpress-pop');
+        setTimeout(() => card.classList.remove('task-longpress-pop'), 450);
+      }
+    }, 480);
+  }, { passive: true });
+
+  document.addEventListener('pointermove', e => {
+    if (!taskLongPressTimer) return;
+    const dist = Math.hypot(e.clientX - taskLongPressStart.x, e.clientY - taskLongPressStart.y);
+    if (dist > 9) {
+      cancelTaskLongPress();
+    }
+  }, { passive: true });
+
+  document.addEventListener('pointerup', cancelTaskLongPress, { passive: true });
+  document.addEventListener('pointercancel', cancelTaskLongPress, { passive: true });
+
+  // Suppress click / preview / edit opening on release after a long press
+  document.addEventListener('click', e => {
+    if (taskLongPressTriggered || (Date.now() - taskLongPressTriggeredTime < 380)) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      taskLongPressTriggered = false;
+      return false;
+    }
+  }, true);
+
+  // Prevent browser context menu on long-press
+  document.addEventListener('contextmenu', e => {
+    if (taskLongPressTriggered || (Date.now() - taskLongPressTriggeredTime < 500)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+    const card = e.target.closest('#tasksList .task-card, #projectDetail .task-card, .modern-task-card');
+    if (card && (taskMultiSelectMode || taskLongPressTimer)) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
+
   // Multi-select toggle & Batch Action handlers
   document.addEventListener('click', async e => {
     // Multi-select toggle button
@@ -29716,10 +29890,11 @@ html[data-theme=dark] .batch-menu button:hover{
       taskMultiSelectMode = !taskMultiSelectMode;
       const label = $('taskMultiSelectLabel');
       if (label) label.textContent = taskMultiSelectMode ? 'Done' : 'Select';
+      document.body.classList.toggle('task-multi-select-active', taskMultiSelectMode);
       if (!taskMultiSelectMode) {
         selectedBatchTaskIds.clear();
-        updateBatchDockUI();
       }
+      updateBatchDockUI();
       if (typeof renderTasks === 'function') renderTasks();
       return;
     }
@@ -29727,7 +29902,7 @@ html[data-theme=dark] .batch-menu button:hover{
     // Select All / Deselect All button
     if (e.target.closest('#batchSelectAllBtn')) {
       e.preventDefault();
-      const allVisibleChecks = [...document.querySelectorAll('#tasksList .task-batch-checkbox')];
+      const allVisibleChecks = [...document.querySelectorAll('#tasksList .task-batch-checkbox, #projectDetail .task-batch-checkbox, .modern-task-card .task-batch-checkbox')];
       const allChecked = allVisibleChecks.length > 0 && allVisibleChecks.every(cb => cb.checked);
       allVisibleChecks.forEach(cb => {
         const tId = String(cb.dataset.batchTask);
@@ -29752,13 +29927,13 @@ html[data-theme=dark] .batch-menu button:hover{
 
     // In Multi-select mode: Clicking on task card toggles selection
     if (taskMultiSelectMode) {
-      const card = e.target.closest('#tasksList .task-card');
-      if (card && !e.target.closest('button, select, input, a, .task-subtasks-wrapper')) {
+      const card = e.target.closest('#tasksList .task-card, #projectDetail .task-card, .modern-task-card');
+      if (card && !e.target.closest('button, select, input, textarea, a, .task-subtasks-wrapper, [data-task-toggle], .status-indicator, .record-status, .card-brand-mark')) {
         e.preventDefault();
         e.stopPropagation();
-        const cb = card.querySelector('.task-batch-checkbox');
-        if (cb) {
-          const tId = String(cb.dataset.batchTask);
+        const cb = ensureCardBatchCheckbox(card);
+        const tId = cb ? String(cb.dataset.batchTask) : (card.dataset.previewTask || card.dataset.taskId || card.querySelector('[data-edit-task]')?.dataset.editTask);
+        if (tId) {
           if (selectedBatchTaskIds.has(tId)) selectedBatchTaskIds.delete(tId);
           else selectedBatchTaskIds.add(tId);
           updateBatchDockUI();
@@ -29907,6 +30082,10 @@ html[data-theme=dark] .batch-menu button:hover{
     if (e.target.closest('#batchClearBtn')) {
       e.preventDefault();
       selectedBatchTaskIds.clear();
+      taskMultiSelectMode = false;
+      document.body.classList.remove('task-multi-select-active');
+      const label = $('taskMultiSelectLabel');
+      if (label) label.textContent = 'Select';
       updateBatchDockUI();
       return;
     }
