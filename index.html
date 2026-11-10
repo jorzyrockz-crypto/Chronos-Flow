@@ -6839,22 +6839,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
     <button type="button" class="btn btn-cancel-rounded" id="projectCancelBtn">Cancel</button>
     <button class="btn btn-emerald-pill" type="submit">Save project</button>
   </div>
-</form><div id="projectDetail" class="project-detail hidden"></div><div id="projectViewContent" class="project-view-content"></div></div><div class="project-task-divider"><div><strong>Task workspace</strong><span id="selectedProjectLabel">All personal tasks and team assignments</span></div><button type="button" class="text-btn hidden" id="clearProjectSelection">Show all tasks ×</button></div><div class="task-quick-add"><input id="taskQuickTitle" type="text" maxlength="160" placeholder="Add a task…" aria-label="Quick add task"><input id="taskQuickDue" type="date" aria-label="Task due date"><button class="btn primary" id="taskQuickAddBtn" type="button" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add</button></div><div class="tasks-toolbar"><div class="task-filters"><button class="active" data-task-filter="all">All</button><button data-task-filter="today">Today</button><button data-task-filter="upcoming">Upcoming</button><button data-task-filter="overdue">Overdue</button><button data-task-filter="open">To do</button><button data-task-filter="done">Completed</button><button data-task-filter="team" style="color:var(--teal);display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="users" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team Assigned</button></div><div class="task-toolbar-actions" style="display:flex;align-items:center;gap:10px;margin-left:auto;">
-  <div class="task-group-by-wrap" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="color:var(--muted);font-weight:600;">Group by:</span>
-    <select id="taskGroupBySelect" style="padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;">
-      <option value="none">None</option>
-      <option value="project">Project</option>
-      <option value="due">Due Date</option>
-      <option value="priority">Priority</option>
-    </select>
-  </div>
-  <button type="button" class="btn text-btn" id="taskMultiSelectToggleBtn" title="Toggle multi-task select" style="font-size:12px;padding:4px 9px;display:inline-flex;align-items:center;gap:4px;">
-    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    <span id="taskMultiSelectLabel">Select</span>
-  </button>
-</div>
-<span id="taskCount" class="muted-label"></span></div><div id="tasksList" class="tasks-list"></div><p class="task-page-footnote">Personal tasks and tasks assigned to you by your teams appear here once. Browse the Team workspace to see all team tasks.</p></section>
+</form><div id="projectDetail" class="project-detail hidden"></div><div id="projectViewContent" class="project-view-content"></div></div><div class="project-task-divider"><div><strong>Task workspace</strong><span id="selectedProjectLabel">All personal tasks and team assignments</span></div><button type="button" class="text-btn hidden" id="clearProjectSelection">Show all tasks ×</button></div><div class="task-quick-add"><input id="taskQuickTitle" type="text" maxlength="160" placeholder="Add a task…" aria-label="Quick add task"><input id="taskQuickDue" type="date" aria-label="Task due date"><button class="btn primary" id="taskQuickAddBtn" type="button" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add</button></div><div class="tasks-toolbar"><div class="task-filters"><button class="active" data-task-filter="all">All</button><button data-task-filter="today">Today</button><button data-task-filter="upcoming">Upcoming</button><button data-task-filter="overdue">Overdue</button><button data-task-filter="open">To do</button><button data-task-filter="done">Completed</button><button data-task-filter="team" style="color:var(--teal);display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="users" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team Assigned</button></div></div><div id="tasksList" class="tasks-list"></div><p class="task-page-footnote">Personal tasks and tasks assigned to you by your teams appear here once. Browse the Team workspace to see all team tasks.</p></section>
   <section id="notesPage" class="hidden notes-studio-v2">
     <div class="notes-studio-head">
       <div>
@@ -20655,7 +20640,7 @@ function renderTasks(){
     `;
   }).join('');
  const total=personal.length+assigned.length;
- $('taskCount').textContent=`${total} ${total===1?'task':'tasks'}${assigned.length?` · ${assigned.length} team assignment${assigned.length===1?'':'s'}`:''}`;
+ if ($('taskCount')) $('taskCount').textContent=`${total} ${total===1?'task':'tasks'}${assigned.length?` · ${assigned.length} team assignment${assigned.length===1?'':'s'}`:''}`;
  const openCount=personal.filter(t=>!t.done).length+assigned.filter(t=>!t.done&&t.status!=='done').length;
  const doneCount=personal.filter(t=>t.done).length+assigned.filter(t=>t.done||t.status==='done').length;
  if($('taskOpenSummary'))$('taskOpenSummary').textContent=String(openCount);
@@ -27498,6 +27483,12 @@ html[data-theme=dark] .batch-menu{
 }
 html[data-theme=dark] .batch-menu button:hover{
   background:rgba(255,255,255,0.08);
+}
+.task-toolbar-actions,
+#taskCount,
+.task-group-by-wrap,
+#taskMultiSelectToggleBtn {
+  display: none !important;
 }
 .task-card.is-batch-selected,
 .modern-task-card.is-batch-selected{
