@@ -24124,7 +24124,7 @@ function renderTeamAdminPanel3(){
   const defaultAppsList = (typeof window.DEFAULT_MEMBER_APPS !== 'undefined' ? window.DEFAULT_MEMBER_APPS : [
     { id: 'paperuss', name: 'Paperuss', category: 'DepEd Paperless', badgeTone: 'emerald', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>', gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', desc: 'Paperless document tracking, administrative clearances, transmittal receipts, and school office routing.', tags: ['Clearances', 'Transmittals', 'Routing'], url: 'https://paperuss-2.web.app', status: 'Cloud PWA', actionText: 'Launch App' },
     { id: 'scanflow', name: 'ScanFlow', category: 'Mobile Scanner', badgeTone: 'sky', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>', gradient: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)', desc: 'High-speed document scanner, auto edge-detection, and camera-based proof upload for submissions.', tags: ['Camera OCR', 'PDF Batch', 'Receipts'], url: 'https://github.com/jorzyrockz-crypto/Chronos-Flow/releases', status: 'Scanner Tool', actionText: 'Open Scanner' },
-    { id: 'pondo', name: 'Pondo', category: 'Finance & MOOE', badgeTone: 'amber', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>', gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', desc: 'School budget allocation, petty cash disbursements, MOOE liquidation reports, and expense logs.', tags: ['MOOE Tracking', 'Liquidation', 'Vouchers'], url: 'https://play.google.com/store/apps', status: 'Finance Hub', actionText: 'Open Pondo' },
+    { id: 'pondo', name: 'Pondo — Fund Tracker', category: 'Finance & MOOE', badgeTone: 'emerald', iconSvg: '<img src="https://jorzyrockz-crypto.github.io/PondoApp/icons/icon-192.png" alt="Pondo" style="width:24px;height:24px;object-fit:contain;border-radius:6px;" onerror="this.onerror=null;this.parentElement.innerHTML=\'<svg viewBox=&quot;0 0 24 24&quot; width=&quot;22&quot; height=&quot;22&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1&quot;/><path d=&quot;M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4&quot;/></svg>\'">', gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)', desc: 'Track and manage your funds with Pondo. School budget allocation, petty cash disbursements, MOOE liquidation reports, and expense logs.', tags: ['Fund Tracker', 'MOOE Tracking', 'Liquidation'], url: 'https://jorzyrockz-crypto.github.io/PondoApp/index.html', status: 'Cloud PWA', actionText: 'Launch Pondo' },
     { id: 'learningzone', name: 'LearningZone', category: 'Curriculum & LMS', badgeTone: 'purple', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', desc: 'Curriculum exemplars, instructional materials, DepEd lesson plans, and classroom learning banks.', tags: ['DepEd LR', 'Lesson Plans', 'Modules'], url: 'https://commons.deped.gov.ph', status: 'Curriculum', actionText: 'Launch Portal' },
     { id: 'deped-portals', name: 'DepEd Portals', category: 'Official Enterprise', badgeTone: 'indigo', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>', gradient: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)', desc: 'Quick access to Learner Information System (LIS), Basic Education Information System (BEIS), and DepEd Commons.', tags: ['LIS Portal', 'BEIS', 'DepEd SSO'], url: 'https://lis.deped.gov.ph', status: 'Official SSO', actionText: 'Open Portal' }
   ]);
@@ -34182,16 +34182,16 @@ html[data-theme=dark] .btn-act-compact:hover {
     },
     {
       id: 'pondo',
-      name: 'Pondo',
+      name: 'Pondo — Fund Tracker',
       category: 'Finance & MOOE',
-      badgeTone: 'amber',
-      iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>',
-      gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-      desc: 'School budget allocation, petty cash disbursements, MOOE liquidation reports, and expense logs.',
-      tags: ['MOOE Tracking', 'Liquidation', 'Vouchers'],
-      url: 'https://play.google.com/store/apps',
-      status: 'Finance Hub',
-      actionText: 'Open Pondo'
+      badgeTone: 'emerald',
+      iconSvg: '<img src="https://jorzyrockz-crypto.github.io/PondoApp/icons/icon-192.png" alt="Pondo" style="width:24px;height:24px;object-fit:contain;border-radius:6px;" onerror="this.onerror=null;this.parentElement.innerHTML=\'<svg viewBox=&quot;0 0 24 24&quot; width=&quot;22&quot; height=&quot;22&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1&quot;/><path d=&quot;M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4&quot;/></svg>\'">',
+      gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+      desc: 'Track and manage your funds with Pondo. School budget allocation, petty cash disbursements, MOOE liquidation reports, and expense logs.',
+      tags: ['Fund Tracker', 'MOOE Tracking', 'Liquidation'],
+      url: 'https://jorzyrockz-crypto.github.io/PondoApp/index.html',
+      status: 'Cloud PWA',
+      actionText: 'Launch Pondo'
     },
     {
       id: 'learningzone',
@@ -34610,6 +34610,15 @@ html[data-theme=dark] .btn-act-compact:hover {
         desc: 'Interactive collaborative notice board, feedback wall, and student sharing.',
         badgeTone: 'rose',
         gradient: 'linear-gradient(135deg, #f43f5e 0%, #db2777 100%)'
+      };
+    } else if (host.includes('pondoapp') || (host.includes('github.io') && path.includes('pondoapp'))) {
+      detected = {
+        name: 'Pondo — Fund Tracker',
+        category: 'Finance & MOOE',
+        desc: 'Track and manage your funds with Pondo. School budget allocation, petty cash disbursements, MOOE liquidation reports, and expense logs.',
+        badgeTone: 'emerald',
+        gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        iconSvg: '<img src="https://jorzyrockz-crypto.github.io/PondoApp/icons/icon-192.png" alt="Pondo" style="width:24px;height:24px;object-fit:contain;border-radius:6px;" onerror="this.onerror=null;this.parentElement.innerHTML=\'<svg viewBox=&quot;0 0 24 24&quot; width=&quot;22&quot; height=&quot;22&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1&quot;/><path d=&quot;M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4&quot;/></svg>\'">'
       };
     }
 
