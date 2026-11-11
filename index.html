@@ -8086,9 +8086,9 @@ html[data-theme="dark"] .note-card .md-card-preview {
           <p class="team-apps-sub">Integrated productivity suites, document tools, and portals connected for your team.</p>
         </div>
         <div class="team-apps-actions">
-          <button class="btn team-action-btn" id="teamAddCustomAppBtn" type="button" title="Add custom tool or link for this team">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="plus"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Add tool link</span>
+          <button class="btn team-action-btn" id="teamManageAppsInSettingsBtn" type="button" title="Manage ecosystem tools in Workspace Settings">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Manage Tools</span>
           </button>
         </div>
       </div>
@@ -24116,12 +24116,117 @@ function renderTeamAdminPanel3(){
     </div>
   `;
 
+  // Tab: Member Tools & Ecosystem Content
+  const defaultAppsList = (typeof window.DEFAULT_MEMBER_APPS !== 'undefined' ? window.DEFAULT_MEMBER_APPS : [
+    { id: 'paperuss', name: 'Paperuss', category: 'DepEd Paperless', badgeTone: 'emerald', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>', gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', desc: 'Paperless document tracking, administrative clearances, transmittal receipts, and school office routing.', tags: ['Clearances', 'Transmittals', 'Routing'], url: 'https://paperuss-2.web.app', status: 'Cloud PWA', actionText: 'Launch App' },
+    { id: 'scanflow', name: 'ScanFlow', category: 'Mobile Scanner', badgeTone: 'sky', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>', gradient: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)', desc: 'High-speed document scanner, auto edge-detection, and camera-based proof upload for submissions.', tags: ['Camera OCR', 'PDF Batch', 'Receipts'], url: 'https://github.com/jorzyrockz-crypto/Chronos-Flow/releases', status: 'Scanner Tool', actionText: 'Open Scanner' },
+    { id: 'pondo', name: 'Pondo', category: 'Finance & MOOE', badgeTone: 'amber', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>', gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', desc: 'School budget allocation, petty cash disbursements, MOOE liquidation reports, and expense logs.', tags: ['MOOE Tracking', 'Liquidation', 'Vouchers'], url: 'https://play.google.com/store/apps', status: 'Finance Hub', actionText: 'Open Pondo' },
+    { id: 'learningzone', name: 'LearningZone', category: 'Curriculum & LMS', badgeTone: 'purple', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', desc: 'Curriculum exemplars, instructional materials, DepEd lesson plans, and classroom learning banks.', tags: ['DepEd LR', 'Lesson Plans', 'Modules'], url: 'https://commons.deped.gov.ph', status: 'Curriculum', actionText: 'Launch Portal' },
+    { id: 'deped-portals', name: 'DepEd Portals', category: 'Official Enterprise', badgeTone: 'indigo', iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>', gradient: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)', desc: 'Quick access to Learner Information System (LIS), Basic Education Information System (BEIS), and DepEd Commons.', tags: ['LIS Portal', 'BEIS', 'DepEd SSO'], url: 'https://lis.deped.gov.ph', status: 'Official SSO', actionText: 'Open Portal' }
+  ]);
+
+  const hiddenIds = typeof window.getHiddenTeamApps === 'function' ? window.getHiddenTeamApps() : (() => { try { return JSON.parse(localStorage.getItem('chronos90.hiddenTeamApps') || '[]'); } catch(e){ return []; } })();
+  const visibleDefaults = defaultAppsList.filter(app => !hiddenIds.includes(app.id));
+  const customApps = typeof window.getCustomTeamApps === 'function' ? window.getCustomTeamApps().filter(app => !hiddenIds.includes(app.id)) : (() => { try { return JSON.parse(localStorage.getItem('chronos90.customTeamApps') || '[]').filter(app => !hiddenIds.includes(app.id)); } catch(e){ return []; } })();
+  const allModalApps = [...visibleDefaults, ...customApps];
+  const hasHiddenDefaults = hiddenIds.some(id => defaultAppsList.some(d => d.id === id));
+
+  const toolsHtml = `
+    <div class="team-modal-pane ${curTab === 'tools' ? 'active' : ''}" data-pane="tools">
+      <div class="team-tools-modal-strip">
+        <div>
+          <span class="team-apps-kicker" style="font-size:10px;font-weight:800;color:var(--accent,#4f46e5);">ECOSYSTEM &amp; MEMBER TOOLS</span>
+          <h5 style="margin:2px 0 0;font-size:16px;font-weight:800;color:var(--text,#0f172a);">Connected Tools &amp; Portals</h5>
+          <p style="margin:3px 0 0;font-size:12px;color:var(--muted,#64748b);">Manage integrated productivity suites, official portals, and document links available to your workspace members.</p>
+        </div>
+        <div class="team-tools-modal-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          ${hasHiddenDefaults && canManage ? `
+            <button type="button" class="btn btn-action-pill" id="teamModalResetDefaultAppsBtn" title="Restore original default apps">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+              Restore Defaults
+            </button>
+          ` : ''}
+          ${canManage ? `
+            <button type="button" class="btn primary btn-action-pill" id="teamModalAddToolBtn" style="background:var(--accent,#4f46e5);color:#fff;font-weight:700;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              + Add Custom Tool
+            </button>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="team-tools-modal-list">
+        ${allModalApps.map(app => {
+          const badgeToneClass = app.badgeTone ? ('badge-' + app.badgeTone) : 'badge-indigo';
+          const iconDisplay = app.iconSvg || '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+          return `
+            <div class="team-tool-modal-item" data-app-id="${safeEsc(app.id)}">
+              <div class="team-tool-modal-icon" style="background:${app.gradient || 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'}">
+                ${iconDisplay}
+              </div>
+              <div class="team-tool-modal-info">
+                <div class="team-tool-modal-name-row">
+                  <strong class="team-tool-modal-title">${safeEsc(app.name)}</strong>
+                  <span class="team-app-badge ${badgeToneClass}">${safeEsc(app.category || 'Member Tool')}</span>
+                  <span class="team-app-status-chip">${safeEsc(app.status || 'Connected')}</span>
+                </div>
+                <p class="team-tool-modal-desc">${safeEsc(app.desc || '')}</p>
+                <div class="team-tool-modal-meta">
+                  <a href="${safeEsc(app.url)}" target="_blank" rel="noopener noreferrer" class="team-tool-modal-url" title="Open ${safeEsc(app.url)}">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>${safeEsc(app.url)}</span>
+                  </a>
+                  ${Array.isArray(app.tags) && app.tags.length ? `
+                    <span class="compact-meta-dot">·</span>
+                    <span class="team-tool-modal-tags-inline">${app.tags.map(t => `<span class="team-app-tag">${safeEsc(t)}</span>`).join('')}</span>
+                  ` : ''}
+                </div>
+              </div>
+              <div class="team-tool-modal-actions">
+                <a href="${safeEsc(app.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-action-pill" title="Test launch tool">
+                  <span>Launch</span>
+                  <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+                ${canManage ? `
+                  <button type="button" class="btn btn-action-pill btn-action-danger" data-delete-team-app="${safeEsc(app.id)}" title="Delete or remove ${safeEsc(app.name)} from workspace">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    Delete
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('') || '<div class="team-empty">No tools connected to this workspace yet.</div>'}
+      </div>
+
+      ${canManage ? `
+        <div class="team-app-card-dashed" id="teamModalAppsCardAdd" role="button" tabindex="0" title="Add a custom tool link for this team" style="padding:16px 20px;margin-top:12px;">
+          <div class="team-app-dashed-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <strong style="font-size:13.5px;font-weight:750;color:var(--text,#0f172a);margin-bottom:2px;">Add Custom Tool or Portal Link</strong>
+          <span style="font-size:11.5px;color:var(--muted,#64748b);">Connect Google Drive folders, attendance sheets, DepEd portals, or external web tools for your team.</span>
+        </div>
+      ` : ''}
+
+      <div class="team-roles-callout" style="margin-top:14px;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span><strong>Workspace Ecosystem:</strong> Tools added here appear directly on the Team dashboard for all members to launch. Adding and deleting tools is managed by workspace owners and administrators through this settings panel.</span>
+      </div>
+    </div>
+  `;
+
   // Assemble full panel markup
   panel.innerHTML = `
     <div class="team-modal-tabs-bar" role="tablist">
       <button type="button" class="team-modal-tab-btn ${curTab === 'customization' ? 'active' : ''}" data-team-modal-tab="customization">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
         <span>Customization</span>
+      </button>
+      <button type="button" class="team-modal-tab-btn ${curTab === 'tools' ? 'active' : ''}" data-team-modal-tab="tools">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        <span>Member Tools</span>
       </button>
       <button type="button" class="team-modal-tab-btn ${curTab === 'members' ? 'active' : ''}" data-team-modal-tab="members">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -24134,10 +24239,12 @@ function renderTeamAdminPanel3(){
     </div>
     <div class="team-modal-panes-body">
       ${customizationHtml}
+      ${toolsHtml}
       ${membersHtml}
       ${dangerHtml}
     </div>
   `;
+  window.renderTeamAdminPanel3 = renderTeamAdminPanel3;
 }
  document.addEventListener('click', e => {
     if (e.target.closest('#teamGridNewBtn')) {
@@ -25969,6 +26076,142 @@ html[data-theme=dark] .team-danger-body p {
   color: #cbd5e1 !important;
 }
 
+/* Member Tools Modal Tab Styling */
+.team-tools-modal-strip {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  margin-bottom: 16px !important;
+  flex-wrap: wrap !important;
+}
+
+.team-tools-modal-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+.team-tool-modal-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 14px 18px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  border-radius: 16px !important;
+  background: var(--surface, #ffffff) !important;
+  transition: all 0.15s ease !important;
+}
+
+.team-tool-modal-item:hover {
+  border-color: var(--line, #cbd5e1) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+}
+
+.team-tool-modal-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 13px !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #ffffff !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+}
+
+.team-tool-modal-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.team-tool-modal-info {
+  flex: 1 1 auto !important;
+  min-width: 140px !important;
+}
+
+.team-tool-modal-name-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.team-tool-modal-title {
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  color: var(--text, #0f172a) !important;
+  letter-spacing: -0.01em !important;
+}
+
+.team-tool-modal-desc {
+  margin: 3px 0 5px !important;
+  font-size: 12px !important;
+  color: var(--muted, #64748b) !important;
+  line-height: 1.4 !important;
+}
+
+.team-tool-modal-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  font-size: 11px !important;
+}
+
+.team-tool-modal-url {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  color: var(--accent, #4f46e5) !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  max-width: 280px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.team-tool-modal-url:hover {
+  text-decoration: underline !important;
+}
+
+.team-tool-modal-tags-inline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-wrap: wrap !important;
+}
+
+.team-tool-modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+#teamAddAppModalBackdrop {
+  z-index: 10300 !important;
+}
+#teamAddAppModalBackdrop .chronos-repair-dialog {
+  position: relative !important;
+  z-index: 10301 !important;
+}
+
+html[data-theme=dark] .team-tool-modal-item {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+html[data-theme=dark] .team-tool-modal-item:hover {
+  border-color: #475569 !important;
+}
+html[data-theme=dark] .team-tool-modal-title {
+  color: #f8fafc !important;
+}
+html[data-theme=dark] .team-tool-modal-desc {
+  color: #94a3b8 !important;
+}
+
 @media(max-width: 650px) {
   .team-custom-identity-layout {
     grid-template-columns: 1fr !important;
@@ -26179,6 +26422,7 @@ html[data-theme=dark] .about-emblem-wrap img {
   }
 }
  window.chronosOpenManageTeam=openTeam;
+ window.openTeam=openTeam;
 
   // --- CHRONOS 5.2 TEAM CUSTOMIZATION & MODAL HANDLERS ---
   async function saveTeamCustomization(e) {
@@ -33937,6 +34181,12 @@ html[data-theme=dark] .btn-act-compact:hover {
     } catch(err) {}
   }
 
+  window.DEFAULT_MEMBER_APPS = DEFAULT_MEMBER_APPS;
+  window.getCustomTeamApps = getCustomTeamApps;
+  window.saveCustomTeamApps = saveCustomTeamApps;
+  window.getHiddenTeamApps = getHiddenTeamApps;
+  window.saveHiddenTeamApps = saveHiddenTeamApps;
+
   window.renderTeamApps = function() {
     const grid = $('teamAppsGrid');
     if (!grid) return;
@@ -33946,20 +34196,13 @@ html[data-theme=dark] .btn-act-compact:hover {
     const customApps = getCustomTeamApps().filter(app => !hiddenIds.includes(app.id));
     const allApps = [...visibleDefaults, ...customApps];
 
-    // Update Header Actions to include Restore button if default apps were removed
+    // Update Header Actions to open Workspace Settings directly on the Member Tools tab
     const actionsContainer = document.querySelector('.team-apps-actions');
     if (actionsContainer) {
-      const hasHiddenDefaults = hiddenIds.some(id => DEFAULT_MEMBER_APPS.some(d => d.id === id));
       actionsContainer.innerHTML = `
-        ${hasHiddenDefaults ? `
-          <button class="btn team-action-btn" id="teamResetDefaultAppsBtn" type="button" title="Restore all original default apps">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-            <span>Restore original apps</span>
-          </button>
-        ` : ''}
-        <button class="btn team-action-btn" id="teamAddCustomAppBtn" type="button" title="Add custom tool or link for this team">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="plus"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span>Add tool link</span>
+        <button class="btn team-action-btn" id="teamManageAppsInSettingsBtn" type="button" title="Manage ecosystem tools in Workspace Settings">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Manage Tools</span>
         </button>
       `;
     }
@@ -33977,9 +34220,6 @@ html[data-theme=dark] .btn-act-compact:hover {
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
               <span class="team-app-badge ${badgeToneClass}">${esc(app.category || 'Member Tool')}</span>
-              <button type="button" class="team-app-delete-btn" data-delete-team-app="${esc(app.id)}" title="Delete ${esc(app.name)} from team view" aria-label="Delete ${esc(app.name)}">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
             </div>
           </div>
           <div class="team-app-body">
@@ -34003,12 +34243,12 @@ html[data-theme=dark] .btn-act-compact:hover {
     }).join('');
 
     const addCardHtml = `
-      <div class="team-app-card-dashed" id="teamAppsCardAdd" role="button" tabindex="0" title="Add a custom tool link for this team">
+      <div class="team-app-card-dashed" id="teamAppsCardAdd" role="button" tabindex="0" title="Manage tools in Workspace Settings">
         <div class="team-app-dashed-icon">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </div>
         <strong style="font-size:14.5px;font-weight:800;color:var(--text,#0f172a);margin-bottom:3px;">Add Custom Tool</strong>
-        <span style="font-size:11.5px;color:var(--muted,#64748b);max-width:220px;line-height:1.4;">Add Google Drive, LMS, forms, or any team portal</span>
+        <span style="font-size:11.5px;color:var(--muted,#64748b);max-width:220px;line-height:1.4;">Manage and connect tools in Workspace Settings</span>
       </div>
     `;
 
@@ -34017,8 +34257,22 @@ html[data-theme=dark] .btn-act-compact:hover {
 
   // Wire up Team App Handlers (Add, Delete & Restore)
   document.addEventListener('click', e => {
-    // Open Add Tool Modal
-    if (e.target.closest('#teamAddCustomAppBtn') || e.target.closest('#teamAppsCardAdd')) {
+    // 1. Open Workspace Settings directly on "Member Tools" tab from the main page
+    if (e.target.closest('#teamManageAppsInSettingsBtn') || e.target.closest('#teamAppsCardAdd')) {
+      e.preventDefault();
+      window._teamModalActiveTab = 'tools';
+      if (typeof window.chronosOpenManageTeam === 'function') {
+        window.chronosOpenManageTeam();
+      } else if (typeof window.openTeam === 'function') {
+        window.openTeam();
+      } else {
+        $('teamSettingsBtn')?.click();
+      }
+      return;
+    }
+
+    // 2. Open Add Custom Tool modal (from Workspace Settings modal or direct)
+    if (e.target.closest('#teamModalAddToolBtn') || e.target.closest('#teamModalAppsCardAdd') || e.target.closest('#teamAddCustomAppBtn')) {
       e.preventDefault();
       const modal = $('teamAddAppModalBackdrop');
       if (modal) {
@@ -34028,7 +34282,7 @@ html[data-theme=dark] .btn-act-compact:hover {
       return;
     }
 
-    // Close Add Tool Modal
+    // 3. Close Add Tool Modal
     if (e.target.closest('#closeAddAppModalBtn') || e.target.closest('#cancelAddAppModalBtn') || e.target === $('teamAddAppModalBackdrop')) {
       e.preventDefault();
       const modal = $('teamAddAppModalBackdrop');
@@ -34036,30 +34290,29 @@ html[data-theme=dark] .btn-act-compact:hover {
       return;
     }
 
-    // Restore Original Apps
-    if (e.target.closest('#teamResetDefaultAppsBtn')) {
+    // 4. Restore Original Apps (both modal button and legacy button)
+    if (e.target.closest('#teamResetDefaultAppsBtn') || e.target.closest('#teamModalResetDefaultAppsBtn')) {
       e.preventDefault();
       saveHiddenTeamApps([]);
       if (typeof renderTeamApps === 'function') renderTeamApps();
-      if (typeof notify === 'function') notify('Restored original team apps.');
+      if (typeof renderTeamAdminPanel3 === 'function') renderTeamAdminPanel3();
+      if (typeof notify === 'function') notify('Restored original team tools.');
       return;
     }
 
-    // Delete Team App (Both Default and Custom)
+    // 5. Delete Team App (Both Default and Custom, managed from modal)
     const delBtn = e.target.closest('[data-delete-team-app]') || e.target.closest('[data-delete-custom-app]');
     if (delBtn) {
       e.preventDefault();
       e.stopPropagation();
       const id = delBtn.dataset.deleteTeamApp || delBtn.dataset.deleteCustomApp;
 
-      // Check if it's a custom app
       let customApps = getCustomTeamApps();
       const isCustom = customApps.some(a => a.id === id);
       if (isCustom) {
         customApps = customApps.filter(a => a.id !== id);
         saveCustomTeamApps(customApps);
       } else {
-        // Default app: add to hidden list
         let hidden = getHiddenTeamApps();
         if (!hidden.includes(id)) {
           hidden.push(id);
@@ -34068,7 +34321,8 @@ html[data-theme=dark] .btn-act-compact:hover {
       }
 
       if (typeof renderTeamApps === 'function') renderTeamApps();
-      if (typeof notify === 'function') notify('App removed from team view.');
+      if (typeof renderTeamAdminPanel3 === 'function') renderTeamAdminPanel3();
+      if (typeof notify === 'function') notify('Tool removed from team workspace.');
       return;
     }
   });
@@ -34107,7 +34361,8 @@ html[data-theme=dark] .btn-act-compact:hover {
       $('teamAddCustomAppForm').reset();
 
       if (typeof renderTeamApps === 'function') renderTeamApps();
-      if (typeof notify === 'function') notify('Added ' + name + ' to member apps!');
+      if (typeof renderTeamAdminPanel3 === 'function') renderTeamAdminPanel3();
+      if (typeof notify === 'function') notify('Added ' + name + ' to workspace tools!');
     }
   });
 
