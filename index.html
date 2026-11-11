@@ -37,7 +37,7 @@ html[data-density="compact"] .stat-card,html[data-density="compact"] .dash-card,
 [data-lucide]{width:16px;height:16px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 /* Overlay stack: every dialog sits above the floating navigation/FAB (z-index:40).
    Keep secondary overlays ordered so media and settings can cover the Notes Studio. */
-html.has-modal-open,body.has-modal-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;height:100%!important}
+html.has-modal-open,body.has-modal-open{overflow:hidden!important;overscroll-behavior:none!important;height:100%!important}
 .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:2147482000;isolation:isolate;display:grid;place-items:center;padding:18px;backdrop-filter:blur(5px);overscroll-behavior:contain!important}
 .modal-backdrop#settingsBackdrop{z-index:2147483200}
 #mediaViewer.media-viewer,#storageManager.media-viewer{z-index:2147483300}
@@ -25770,7 +25770,6 @@ html.has-modal-open,
 body.has-modal-open {
   overflow: hidden !important;
   overscroll-behavior: none !important;
-  touch-action: none !important;
   height: 100% !important;
 }
 
@@ -25797,6 +25796,7 @@ body.has-modal-open {
 [data-modal-scrollable] {
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
 }
 
 /* ==========================================================================
@@ -37999,117 +37999,65 @@ window.openShowcaseProject = function() {
       isLocked = true;
       document.documentElement.classList.add('has-modal-open');
       document.body.classList.add('has-modal-open');
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
     } else if (!hasModals && isLocked) {
       isLocked = false;
       document.documentElement.classList.remove('has-modal-open');
       document.body.classList.remove('has-modal-open');
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
     }
   }
 
-  function getTopmostActiveModal() {
-    const modals = getActiveModals();
-    return modals.length ? modals[modals.length - 1] : null;
-  }
-
-  // Helper to determine if target or any ancestor within the modal is scrollable in the given direction
-  function findScrollableModalAncestor(target, modalContainer, deltaY) {
-    if (!target || !modalContainer) return null;
-    let curr = target;
-    while (curr && curr !== document.body && curr !== document.documentElement) {
-      const style = window.getComputedStyle(curr);
-      const overflowY = style.overflowY;
-      const canScrollY = (overflowY === 'auto' || overflowY === 'scroll');
-
-      if (canScrollY && curr.scrollHeight > curr.clientHeight) {
-        if (deltaY < 0) {
-          // Scrolling UP - check if there is room to scroll up
-          if (curr.scrollTop > 0) return curr;
-        } else if (deltaY > 0) {
-          // Scrolling DOWN - check if there is room to scroll down
-          const maxScroll = curr.scrollHeight - curr.clientHeight;
-          if (curr.scrollTop < maxScroll - 1) return curr;
-        } else {
-          return curr;
-        }
+  function isDirectBackdrop(target) {
+    if (!target) return false;
+    try {
+      if (target.classList && (
+        target.classList.contains('modal-backdrop') ||
+        target.classList.contains('chronos-repair-backdrop') ||
+        target.classList.contains('item-preview-backdrop') ||
+        target.classList.contains('media-viewer')
+      )) {
+        return true;
       }
-
-      if (curr === modalContainer) break;
-      curr = curr.parentElement;
-    }
-    return null;
+      if (typeof target.id === 'string' && target.id.endsWith('Backdrop')) {
+        return true;
+      }
+    } catch (_) {}
+    return false;
   }
 
-  // 1. Wheel event listener: prevent wheel events from chaining to the background behind modals
+  // 1. Wheel event listener: prevent wheel scrolling directly on empty backdrop overlay
   window.addEventListener('wheel', function(e) {
     if (!isLocked) return;
-    if (e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
-    const activeModal = getTopmostActiveModal();
-    if (!activeModal) return;
-
-    // Check if target is inside the active modal
-    if (!activeModal.contains(e.target) && activeModal !== e.target) {
-      e.preventDefault();
-      return;
-    }
-
-    // Target is inside active modal or is the backdrop.
-    // Check if it has a scrollable container in the direction of the wheel
-    const scrollable = findScrollableModalAncestor(e.target, activeModal, e.deltaY);
-    if (!scrollable) {
-      // At boundary or on a non-scrollable area (header, footer, backdrop padding)
+    if (e.target.closest && e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
+    if (isDirectBackdrop(e.target)) {
       e.preventDefault();
     }
   }, { passive: false });
 
-  // 2. Touch event listeners: prevent mobile swipe/touch drags from scrolling behind modals
-  let touchStartY = 0;
-  window.addEventListener('touchstart', function(e) {
-    if (!isLocked) return;
-    if (e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
-    if (e.touches && e.touches.length > 0) {
-      touchStartY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
+  // 2. Touch event listeners: prevent mobile swipe/touch drags on empty backdrop overlay
   window.addEventListener('touchmove', function(e) {
     if (!isLocked) return;
-    if (e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
-    const activeModal = getTopmostActiveModal();
-    if (!activeModal) return;
-
-    if (!activeModal.contains(e.target) && activeModal !== e.target) {
-      e.preventDefault();
-      return;
-    }
-
-    const currentY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : touchStartY;
-    const deltaY = touchStartY - currentY; // positive = scroll down, negative = scroll up
-
-    const scrollable = findScrollableModalAncestor(e.target, activeModal, deltaY);
-    if (!scrollable) {
+    if (e.target.closest && e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
+    if (isDirectBackdrop(e.target)) {
       e.preventDefault();
     }
   }, { passive: false });
 
-  // 3. Keydown listener: prevent space/pageUp/pageDown/arrow keys from scrolling background
+  // 3. Keydown listener: prevent space/pageUp/pageDown/arrow keys from scrolling background when focus is on body/backdrop
   window.addEventListener('keydown', function(e) {
     if (!isLocked) return;
-    const scrollKeys = ['Space', ' ', 'PageUp', 'PageDown', 'End', 'Home', 'ArrowUp', 'ArrowDown'];
+    const scrollKeys = ['Space', ' ', 'PageUp', 'PageDown', 'End', 'Home'];
     if (!scrollKeys.includes(e.key) && !scrollKeys.includes(e.code)) return;
 
-    const tag = (e.target.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) {
+    const tag = (e.target?.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target?.isContentEditable) {
       return;
     }
 
-    const activeModal = getTopmostActiveModal();
-    if (!activeModal) return;
-
-    const isDown = e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ' || e.code === 'Space';
-    const scrollable = findScrollableModalAncestor(e.target, activeModal, isDown ? 1 : -1);
-    if (!scrollable) {
+    if (document.activeElement === document.body || isDirectBackdrop(document.activeElement)) {
       e.preventDefault();
     }
   }, { passive: false });
