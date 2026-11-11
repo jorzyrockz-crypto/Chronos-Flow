@@ -7615,7 +7615,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
     </div>
   </section>
   <section id="calendarPage">
-    <div class="page-heading"><div><div class="eyebrow" id="todayEyebrow">YOUR TIME, IN FOCUS</div><h2 id="greeting">A little more clarity.</h2><p class="subheading">A clear view of your days, one thing at a time.</p></div><div class="heading-actions"><button class="btn" id="todayBtn">Today</button><input type="file" id="importFile" accept="application/json,.json" class="hidden"><button class="btn primary" id="addEventHeading" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add event</button></div></div>
+    <div class="page-heading"><div><div class="eyebrow" id="todayEyebrow">YOUR TIME, IN FOCUS</div><h2 id="greeting">A little more clarity.</h2><p class="subheading">A clear view of your days, one thing at a time.</p></div><div class="heading-actions"><button class="btn" id="todayBtn">Today</button><a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" class="btn" id="gcalDirectBtn" title="Open Google Calendar in new tab" style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg><span>Google Calendar</span></a><input type="file" id="importFile" accept="application/json,.json" class="hidden"><button class="btn primary" id="addEventHeading" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add event</button></div></div>
     <div class="workspace">
       <section class="calendar-card">
         <div class="calendar-toolbar">
@@ -17649,6 +17649,47 @@ function refreshItemPreviewInPlace(){
   }
 }
 
+function buildGoogleCalendarUrl({ title, date, start, end, allDay, details, location }) {
+  if (!date && !start) return 'https://calendar.google.com';
+
+  const cleanDate = (d) => String(d || '').replace(/-/g, '');
+  
+  let datesParam = '';
+  if (allDay || !start) {
+    const sDate = cleanDate(date);
+    const dObj = new Date(date + 'T00:00:00');
+    dObj.setDate(dObj.getDate() + 1);
+    const y = dObj.getFullYear();
+    const m = String(dObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dObj.getDate()).padStart(2, '0');
+    const eDate = `${y}${m}${d}`;
+    datesParam = `${sDate}/${eDate}`;
+  } else {
+    const sDate = cleanDate(date);
+    const sTime = String(start || '09:00').replace(/:/g, '').padEnd(4, '0') + '00';
+    let eTime = '';
+    if (end) {
+      eTime = String(end).replace(/:/g, '').padEnd(4, '0') + '00';
+    } else {
+      const [h, min] = String(start).split(':').map(Number);
+      const nextH = String((h + 1) % 24).padStart(2, '0');
+      eTime = `${nextH}${String(min || 0).padStart(2, '0')}00`;
+    }
+    datesParam = `${sDate}T${sTime}/${sDate}T${eTime}`;
+  }
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title || 'Chronos Event',
+    dates: datesParam
+  });
+
+  if (details) params.set('details', details);
+  if (location) params.set('location', location);
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 function renderPreviewHTML(type, id, extraMeta){
   if(type === 'event') return renderEventPreviewHTML(id);
   if(type === 'task') return renderTaskPreviewHTML(id);
@@ -17853,6 +17894,10 @@ function renderEventPreviewHTML(id){
             ${getLucideSvg('trash-2', 16)} Delete
           </button>
           <div class="event-preview-footer-right">
+            <a href="${buildGoogleCalendarUrl({ title: ev.title, date: ev.date, start: ev.start, end: ev.end, allDay: ev.allDay, details: ev.description, location: ev.location })}" target="_blank" rel="noopener noreferrer" class="event-preview-btn-gcal" title="Add this event to Google Calendar">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              <span>Add to Google Cal</span>
+            </a>
             <button type="button" class="event-preview-btn-edit" data-preview-edit-event="${esc(ev.id)}">
               ${getLucideSvg('edit-3', 16)} Edit
             </button>
@@ -18085,6 +18130,10 @@ function renderTaskPreviewHTML(id){
             <button type="button" class="task-preview-ghost-btn" data-preview-backlog-task="${esc(t.id)}">
               ${getLucideSvg('folder', 13)} To Backlog
             </button>
+            <a href="${buildGoogleCalendarUrl({ title: t.title, date: t.due, start: t.dueTime, allDay: !t.dueTime, details: (t.details || '') + (t.subtasks && t.subtasks.length ? '\n\nChecklist:\n' + t.subtasks.map(s => (s.done ? '[x] ' : '[ ] ') + s.title).join('\n') : '') })}" target="_blank" rel="noopener noreferrer" class="task-preview-ghost-btn task-preview-ghost-gcal" title="Add this scheduled task to Google Calendar">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              <span>Google Cal</span>
+            </a>
           ` : ''}
           <button type="button" class="task-preview-ghost-btn task-preview-ghost-delete" data-preview-delete-task="${esc(t.id)}">
             ${getLucideSvg('trash-2', 13)} Delete
@@ -28342,6 +28391,57 @@ html[data-theme="dark"] .team-member-credit {
   border-radius: 9999px !important;
   background: rgba(99, 102, 241, 0.08) !important;
   border: 1px solid rgba(99, 102, 241, 0.16) !important;
+}
+</style>
+
+<style id="chronosGcalStyles">
+/* Google Calendar Button Styling */
+.event-preview-btn-gcal {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 9999px !important;
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+  color: #1e293b !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.16s ease !important;
+}
+.event-preview-btn-gcal:hover {
+  background: #ffffff !important;
+  color: var(--accent, #4f46e5) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+html[data-theme="dark"] .event-preview-btn-gcal {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+}
+html[data-theme="dark"] .event-preview-btn-gcal:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.task-preview-ghost-gcal {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  text-decoration: none !important;
+  color: var(--muted, #64748b) !important;
+  transition: color 0.15s ease !important;
+}
+.task-preview-ghost-gcal:hover {
+  color: var(--accent, #4f46e5) !important;
+}
+html[data-theme="dark"] .task-preview-ghost-gcal:hover {
+  color: #818cf8 !important;
 }
 </style>
 
