@@ -9990,7 +9990,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
                 <div class="task-field-group">
                   <label for="taskIcon" class="task-field-label">Task Brand Icon</label>
                   <div class="task-icon-row">
-                    <div class="task-icon-select-wrap">
+                    <div class="task-icon-select-wrap chronos-custom-select-wrap">
                       <select id="taskIcon" class="project-form-input task-icon-select" aria-label="Task Brand Icon">
                         <option value="">✨ Auto (smart matching)</option>
                         <option value="layout">⊞ UI / Design</option>
@@ -10009,9 +10009,6 @@ html[data-theme="dark"] .note-card .md-card-preview {
                         <option value="star">⭐ Priority / Star</option>
                         <option value="alert-circle">⚠️ Urgent / Alert</option>
                       </select>
-                      <span class="task-icon-select-chevron" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                      </span>
                     </div>
                     <div class="task-icon-preview-wrap">
                       <div id="taskIconLivePreview" class="task-icon-accent-badge" title="Live Accent Brand Icon">
@@ -10025,9 +10022,11 @@ html[data-theme="dark"] .note-card .md-card-preview {
                 <!-- Linked Note -->
                 <div class="task-field-group">
                   <label for="taskLinkedNote" class="task-field-label">Linked Note</label>
-                  <select id="taskLinkedNote" class="project-form-input" style="width:100%;">
-                    <option value="">No linked note</option>
-                  </select>
+                  <div class="chronos-custom-select-wrap">
+                    <select id="taskLinkedNote" class="project-form-input" style="width:100%;">
+                      <option value="">No linked note</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -10080,25 +10079,29 @@ html[data-theme="dark"] .note-card .md-card-preview {
                   <span>Due time</span>
                   <input id="taskDueTime" type="time" class="project-form-input">
                 </label>
-                <label class="task-prop-subfield">
-                  <span>Repeat</span>
-                  <select id="taskRecurrence" class="project-form-input">
-                    <option value="none">Does not repeat</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekdays">Weekdays</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
-                </label>
-                <label class="task-prop-subfield">
-                  <span>Reminder</span>
-                  <select id="taskReminder" class="project-form-input">
-                    <option value="none">No reminder</option>
-                    <option value="atDue">On due date</option>
-                    <option value="dayBefore">1 day before</option>
-                    <option value="hourBefore">1 hour before</option>
-                  </select>
-                </label>
+                <div class="task-prop-subfield">
+                  <label for="taskRecurrence">Repeat</label>
+                  <div class="chronos-custom-select-wrap">
+                    <select id="taskRecurrence" class="project-form-input">
+                      <option value="none">Does not repeat</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekdays">Weekdays</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="task-prop-subfield">
+                  <label for="taskReminder">Reminder</label>
+                  <div class="chronos-custom-select-wrap">
+                    <select id="taskReminder" class="project-form-input">
+                      <option value="none">No reminder</option>
+                      <option value="atDue">On due date</option>
+                      <option value="dayBefore">1 day before</option>
+                      <option value="hourBefore">1 hour before</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -25741,9 +25744,206 @@ body.has-modal-open {
 .custom-app-cat-chips,
 .media-viewer,
 .item-preview-modal,
+.chronos-custom-select-popover,
 [data-modal-scrollable] {
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch !important;
+}
+
+/* ==========================================================================
+   CHRONOS FLOW GLASSMORPHIC CUSTOM SELECT DROPDOWNS
+   Replaces stark OS/browser native select popups with luxury glassmorphic menus
+   ========================================================================== */
+.chronos-sr-select {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  border: 0 !important;
+}
+
+.chronos-custom-select-wrap {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.chronos-custom-select-trigger {
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--text, #f8fafc) !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  user-select: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-trigger {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+
+.chronos-custom-select-trigger:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-trigger:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.chronos-custom-select-trigger.is-open,
+.chronos-custom-select-trigger:focus-visible {
+  border-color: var(--accent, #4f46e5) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #4f46e5) 20%, transparent) !important;
+}
+
+.chronos-custom-select-text {
+  flex: 1 1 auto !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+}
+
+.chronos-custom-select-chevron {
+  flex-shrink: 0 !important;
+  color: var(--muted, #94a3b8) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease !important;
+}
+
+.chronos-custom-select-trigger.is-open .chronos-custom-select-chevron {
+  transform: rotate(180deg) !important;
+  color: var(--accent, #818cf8) !important;
+}
+
+.chronos-custom-select-popover {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-height: 230px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  background: rgba(15, 23, 42, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+  padding: 6px !important;
+  z-index: 1050 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  animation: chronosSelectIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform-origin: top center !important;
+}
+
+.chronos-custom-select-popover.open-up {
+  top: auto !important;
+  bottom: calc(100% + 6px) !important;
+  transform-origin: bottom center !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-popover {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.14), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+
+.chronos-custom-select-popover.hidden {
+  display: none !important;
+}
+
+@keyframes chronosSelectIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chronos-custom-select-opt {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 9px 12px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text, #f8fafc) !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  user-select: none !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-opt {
+  color: #0f172a !important;
+}
+
+.chronos-custom-select-opt:hover {
+  background: rgba(99, 102, 241, 0.12) !important;
+  color: var(--accent, #818cf8) !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-opt:hover {
+  background: rgba(79, 70, 229, 0.08) !important;
+  color: #4f46e5 !important;
+}
+
+.chronos-custom-select-opt.selected {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: var(--accent, #818cf8) !important;
+  font-weight: 700 !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-opt.selected {
+  background: rgba(79, 70, 229, 0.12) !important;
+  color: #4f46e5 !important;
+}
+
+.chronos-custom-select-opt-label {
+  flex: 1 1 auto !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.chronos-custom-select-check {
+  flex-shrink: 0 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: var(--accent, #818cf8) !important;
+}
+
+:root:not([data-theme="dark"]) .chronos-custom-select-check {
+  color: #4f46e5 !important;
 }
 
 /* Universal Stacking Context: Detail & Edit Modals MUST render above Project Workspace (z-index 10050) */
@@ -31747,9 +31947,11 @@ html[data-theme=dark] .status-popover-check {
 }
 
 .task-prop-subfield input,
-.task-prop-subfield select {
+.task-prop-subfield select,
+.task-prop-subfield .chronos-custom-select-trigger {
   font-size: 12.5px !important;
   height: 38px !important;
+  min-height: 38px !important;
   padding: 6px 10px !important;
   border-radius: 10px !important;
 }
@@ -37311,6 +37513,170 @@ window.openShowcaseProject = function() {
   // Initialize the picker immediately
   initTaskIconPicker();
 
+  // ==========================================================================
+  // CHRONOS FLOW GLASSMORPHIC CUSTOM SELECT ENGINE
+  // Upgrades native selects in modals to signature glassmorphic dropdown popovers
+  // ==========================================================================
+  const CUSTOM_SELECT_IDS = ['taskLinkedNote', 'taskRecurrence', 'taskReminder', 'taskIcon'];
+  const customSelectRegistry = new Map();
+
+  function escapeSelectHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function initSingleCustomSelect(selectId) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    if (customSelectRegistry.has(selectId)) {
+      const entry = customSelectRegistry.get(selectId);
+      if (entry) entry.sync();
+      return;
+    }
+
+    let wrap = sel.parentElement;
+    if (!wrap || !wrap.classList.contains('chronos-custom-select-wrap')) {
+      wrap = document.createElement('div');
+      wrap.className = 'chronos-custom-select-wrap';
+      sel.parentNode.insertBefore(wrap, sel);
+      wrap.appendChild(sel);
+    }
+    sel.classList.add('chronos-sr-select');
+
+    let trigger = wrap.querySelector('.chronos-custom-select-trigger');
+    if (!trigger) {
+      trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'chronos-custom-select-trigger';
+      trigger.setAttribute('aria-haspopup', 'listbox');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.innerHTML = '<span class="chronos-custom-select-text"></span><span class="chronos-custom-select-chevron"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>';
+      wrap.appendChild(trigger);
+    }
+
+    let popover = wrap.querySelector('.chronos-custom-select-popover');
+    if (!popover) {
+      popover = document.createElement('div');
+      popover.className = 'chronos-custom-select-popover hidden';
+      popover.setAttribute('role', 'listbox');
+      popover.setAttribute('data-modal-scrollable', 'true');
+      wrap.appendChild(popover);
+    }
+
+    function sync() {
+      const selectedIndex = sel.selectedIndex >= 0 ? sel.selectedIndex : 0;
+      const selectedOpt = sel.options[selectedIndex];
+      const textSpan = trigger.querySelector('.chronos-custom-select-text');
+      if (textSpan) {
+        textSpan.textContent = selectedOpt ? selectedOpt.textContent.trim() : 'Select option...';
+      }
+
+      if (popover) {
+        const opts = Array.from(sel.options);
+        popover.innerHTML = opts.map(opt => {
+          const isSelected = (opt.value === sel.value) || (!sel.value && !opt.value);
+          const rawLabel = (opt.textContent || '').trim();
+          return '<button type="button" role="option" class="chronos-custom-select-opt ' + (isSelected ? 'selected' : '') + '" data-value="' + escapeSelectHtml(opt.value) + '" aria-selected="' + String(isSelected) + '"><span class="chronos-custom-select-opt-label">' + escapeSelectHtml(rawLabel) + '</span><span class="chronos-custom-select-check">' + (isSelected ? '✓' : '') + '</span></button>';
+        }).join('');
+      }
+    }
+
+    function openPopover() {
+      closeAllChronosCustomSelects();
+
+      const rect = trigger.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < 220 && rect.top > 220;
+      popover.classList.toggle('open-up', openUp);
+
+      sync();
+      popover.classList.remove('hidden');
+      trigger.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+
+      const selOptBtn = popover.querySelector('.chronos-custom-select-opt.selected');
+      if (selOptBtn) {
+        try {
+          selOptBtn.scrollIntoView({ block: 'nearest' });
+        } catch(_) {}
+      }
+    }
+
+    function closePopover() {
+      popover.classList.add('hidden');
+      trigger.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    trigger.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = !popover.classList.contains('hidden');
+      if (isOpen) {
+        closePopover();
+      } else {
+        openPopover();
+      }
+    });
+
+    popover.addEventListener('click', e => {
+      const optBtn = e.target.closest('.chronos-custom-select-opt');
+      if (!optBtn) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const val = optBtn.dataset.value;
+      if (sel.value !== val) {
+        sel.value = val;
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      sync();
+      closePopover();
+      trigger.focus();
+    });
+
+    const mo = new MutationObserver(() => sync());
+    mo.observe(sel, { childList: true, subtree: true, attributes: true, attributeFilter: ['selected', 'value'] });
+
+    customSelectRegistry.set(selectId, { wrap, trigger, popover, sync, open: openPopover, close: closePopover });
+    sync();
+  }
+
+  function closeAllChronosCustomSelects() {
+    customSelectRegistry.forEach(entry => entry.close());
+  }
+  window.closeAllChronosCustomSelects = closeAllChronosCustomSelects;
+
+  window.initChronosCustomSelects = function() {
+    CUSTOM_SELECT_IDS.forEach(initSingleCustomSelect);
+  };
+
+  window.syncChronosCustomSelect = function(id) {
+    if (!customSelectRegistry.has(id)) {
+      initSingleCustomSelect(id);
+    }
+    const entry = customSelectRegistry.get(id);
+    if (entry) entry.sync();
+  };
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.chronos-custom-select-wrap')) {
+      closeAllChronosCustomSelects();
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeAllChronosCustomSelects();
+    }
+  });
+
+  initChronosCustomSelects();
+
   // Hook into openTask to dynamically update subtitle and project accent stripe
   const baseOpenTaskWithUI = (typeof openTask === 'function') ? openTask : null;
   window.openTask = function(id = null, defaultDate = null) {
@@ -37360,11 +37726,18 @@ window.openShowcaseProject = function() {
         advPane.classList.add('collapsed');
       }
     }
+
+    // Sync all glassmorphic custom selects in task modal
+    CUSTOM_SELECT_IDS.forEach(id => {
+      if (typeof syncChronosCustomSelect === 'function') syncChronosCustomSelect(id);
+    });
+
     if (typeof syncModalScrollLock === 'function') syncModalScrollLock();
   };
 
   const baseCloseTask = (typeof closeTask === 'function') ? closeTask : null;
   window.closeTask = function() {
+    if (typeof closeAllChronosCustomSelects === 'function') closeAllChronosCustomSelects();
     if (baseCloseTask) baseCloseTask();
     else $('taskBackdrop')?.classList.add('hidden');
     if (typeof syncModalScrollLock === 'function') syncModalScrollLock();
