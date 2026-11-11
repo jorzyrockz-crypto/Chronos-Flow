@@ -4231,6 +4231,239 @@ html[data-theme="dark"] .journey-spine-ribbon-up {
   text-transform: uppercase;
   color: var(--muted);
 }
+.note-side-section-title strong {
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* Note Preview Attachments & Expanded Comments Styling */
+.note-side-comments-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.preview-note-comments-expanded {
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.note-side-attachments-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.note-attachments-count-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 750;
+  padding: 1.5px 7px;
+  border-radius: 999px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.note-preview-attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-attachment-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  transition: all 0.15s ease;
+}
+
+.note-attachment-row:hover {
+  background: color-mix(in srgb, var(--surface2) 85%, var(--accent));
+  border-color: color-mix(in srgb, var(--line) 80%, var(--accent));
+}
+
+.note-attachment-row.note-attachment-voice {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.note-attachment-icon-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.note-attachment-icon-badge.voice {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.note-attachment-icon-badge.file {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.note-attachment-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  cursor: zoom-in;
+}
+
+.note-attachment-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.note-attachment-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.note-attachment-name {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-attachment-meta {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.note-attachment-audio-wrap {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.note-attachment-audio-wrap audio {
+  width: 100%;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.note-attachment-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.note-attachment-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.note-attachment-action-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.note-attachments-empty {
+  padding: 16px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-radius: 10px;
+  border: 1px dashed var(--line);
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.note-attachments-empty-icon {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.note-attachments-empty-text {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.note-attachments-empty-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  opacity: 0.8;
+  max-width: 240px;
+}
+
+.note-attachments-loading {
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+html[data-theme="dark"] .note-attachment-row {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+html[data-theme="dark"] .note-attachment-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+html[data-theme="dark"] .note-attachment-thumb {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+html[data-theme="dark"] .note-attachment-action-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+html[data-theme="dark"] .note-attachment-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+html[data-theme="dark"] .note-attachments-empty {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
 
 /* Reading Mode & Edge-to-Edge Full Screen Systems */
 #itemPreviewBackdrop.is-reading-mode,
@@ -4408,32 +4641,69 @@ html[data-theme="dark"] .item-preview-modal.is-reading-mode .note-preview-col-fo
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-/* Responsive Breakpoints for Tablet & Mobile */
-@media (max-width: 840px) {
+/* Responsive Breakpoints for Tablet & Mobile (Portrait & Narrow Screens) */
+@media (max-width: 840px), (orientation: portrait) {
   .item-preview-modal.is-note-modal {
-    width: calc(100vw - 20px) !important;
-    height: calc(100dvh - 20px) !important;
-    max-height: calc(100dvh - 20px) !important;
+    width: min(100vw - 16px, 680px) !important;
+    max-width: 100vw !important;
+    height: min(94vh, 920px) !important;
+    max-height: min(94vh, 920px) !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
   .note-preview-2col-layout {
-    grid-template-columns: 1fr;
-    overflow-y: auto;
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
   }
   .note-preview-col-main {
-    border-right: none;
-    border-bottom: 1px solid var(--line);
-    overflow: visible;
+    border-right: none !important;
+    border-bottom: 1px solid var(--line) !important;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
   }
   .note-preview-main-scroll {
-    overflow: visible;
-    padding: 18px 20px;
+    overflow: visible !important;
+    padding: 20px 22px !important;
+    gap: 14px !important;
+  }
+  .note-preview-title {
+    font-size: clamp(20px, 4.5vw, 24px) !important;
+  }
+  .note-preview-desc-box {
+    padding: 16px 18px !important;
+    font-size: 14px !important;
+    line-height: 1.65 !important;
   }
   .note-preview-col-side {
-    overflow: visible;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
+    background: transparent !important;
   }
   .note-preview-side-scroll {
-    overflow: visible;
-    padding: 16px 20px 24px;
+    overflow: visible !important;
+    padding: 16px 20px 24px !important;
+    gap: 14px !important;
+  }
+  .note-preview-modal-footer,
+  .note-preview-col-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 10 !important;
+    background: var(--surface) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-top: 1px solid var(--line) !important;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.06) !important;
+    padding: 12px 18px !important;
   }
 }
 
@@ -4444,6 +4714,32 @@ html[data-theme="dark"] .item-preview-modal.is-reading-mode .note-preview-col-fo
     height: 100dvh !important;
     max-height: 100dvh !important;
     border-radius: 0 !important;
+  }
+  .preview-modal-head.note-preview-head {
+    padding: 12px 16px !important;
+  }
+  .preview-modal-head-left {
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+  .note-head-type-chip {
+    font-size: 10.5px !important;
+  }
+  .note-preview-main-scroll {
+    padding: 14px 16px !important;
+  }
+  .note-preview-desc-box {
+    padding: 14px 15px !important;
+  }
+  .note-preview-side-scroll {
+    padding: 14px 16px 20px !important;
+  }
+  .note-preview-col-footer {
+    padding: 10px 14px !important;
+  }
+  .note-preview-footer-left .btn {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
   }
   .item-preview-modal.is-reading-mode .note-preview-main-scroll {
     padding: 24px 16px 80px !important;
@@ -17872,6 +18168,9 @@ function openItemPreview(type, id, extraMeta){
   modal.innerHTML = html;
   backdrop.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
+  if(type === 'note'){
+    loadNotePreviewAttachments(id);
+  }
   if(typeof playInterfaceSound === 'function') playInterfaceSound();
 }
 
@@ -17895,13 +18194,16 @@ function refreshItemPreviewInPlace(){
   if(!currentPreviewConfig) return;
   const modal = document.getElementById('itemPreviewModal');
   if(!modal) return;
-  const body = modal.querySelector('.task-preview-body, .modal-body');
+  const body = modal.querySelector('.task-preview-body, .modal-body, .note-preview-side-scroll, .note-preview-2col-layout');
   const scrollY = body ? body.scrollTop : 0;
   try {
     const html = renderPreviewHTML(currentPreviewConfig.type, currentPreviewConfig.id, currentPreviewConfig.extraMeta);
     if(html){
       modal.innerHTML = html;
-      const newBody = modal.querySelector('.task-preview-body, .modal-body');
+      if(currentPreviewConfig.type === 'note'){
+        loadNotePreviewAttachments(currentPreviewConfig.id);
+      }
+      const newBody = modal.querySelector('.task-preview-body, .modal-body, .note-preview-side-scroll, .note-preview-2col-layout');
       if(newBody && scrollY) newBody.scrollTop = scrollY;
     } else {
       closeItemPreview();
@@ -18697,32 +18999,7 @@ function renderNotePreviewHTML(id){
     commentsListHtml = `<div class="no-comments">No comments yet. Start the conversation below.</div>`;
   }
 
-  const commentsSectionHtml = `
-    <div class="note-comments-section" style="margin:6px 0 0">
-      <div class="note-comments-head">
-        <div class="note-comments-title">
-          <span style="display:inline-flex">${getLucideSvg('message-square', 14)}</span>
-          <strong>Comments</strong>
-          <span class="note-comments-badge">${comments.length}</span>
-        </div>
-        <span class="note-comments-sub">Collaborators and viewers can leave thoughts here</span>
-      </div>
-      <div class="note-comments-list" style="max-height:180px;overflow-y:auto">
-        ${commentsListHtml}
-      </div>
-      <div class="note-comment-box" style="margin-top:8px">
-        <div id="noteCommentReplyBannerContainer"></div>
-        <div class="note-comment-input-wrap">
-          <textarea class="note-comment-input preview-note-comment-input" rows="2" placeholder="Write a comment or feedback… (Press Enter to post, Shift+Enter for newline)" data-preview-comment-input="${esc(n.id)}" maxlength="1000"></textarea>
-          <button type="button" class="btn primary note-comment-send-btn" data-preview-comment-submit="${esc(n.id)}" title="Post comment">
-            <span>Comment</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-
-const noteColorTintMap = {
+  const noteColorTintMap = {
     coral: '#f43f5e',
     peach: '#f97316',
     sand: '#eab308',
@@ -18773,23 +19050,18 @@ const noteColorTintMap = {
             ${typeof renderMarkdown === 'function' ? renderMarkdown(n.body || 'Empty note content.', n.id) : `<p style="white-space:pre-wrap;margin:0">${esc(n.body || '')}</p>`}
           </div>
         </div>
-
-        <div class="note-preview-col-footer">
-          <div class="note-preview-footer-left">
-            <button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button>
-            <button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>
-          </div>
-          <button type="button" class="btn" data-preview-close>Close</button>
-        </div>
       </div>
 
-      <!-- COLUMN 2: Collaborators, Engagement, Deliverables & Comments Sidebar -->
+      <!-- COLUMN 2: Collaborators, Engagement, Deliverables, Comments & Attachments Sidebar -->
       <aside class="note-preview-col-side">
         <div class="note-preview-side-scroll">
           <!-- Team & Engagement -->
-          <div class="note-side-card">
+          <div class="note-side-card note-side-collab-card">
             <div class="note-side-section-title">
-              <span>${getLucideSvg('users', 12)} Collaborators &amp; Teams</span>
+              <span style="display:inline-flex;align-items:center;gap:6px">
+                ${getLucideSvg('users', 12)}
+                <strong>Collaborators &amp; Teams</strong>
+              </span>
             </div>
             <div class="preview-meta-chips" style="margin-top:2px">
               ${collabChipsHtml}
@@ -18809,19 +19081,259 @@ const noteColorTintMap = {
 
           <!-- Linked Deliverables & Plan -->
           ${planHtml ? `
-            <div class="note-side-card">
+            <div class="note-side-card note-side-plan-card">
               ${planHtml}
             </div>
           ` : ''}
 
-          <!-- Comments & Discussion Thread -->
+          <!-- Comments & Discussion Thread (Expanded naturally, no extra nested scroll container) -->
           <div class="note-side-card note-side-comments-card">
-            ${commentsSectionHtml}
+            <div class="note-side-section-title">
+              <span style="display:inline-flex;align-items:center;gap:6px">
+                ${getLucideSvg('message-square', 13)}
+                <strong>Comments &amp; Discussion</strong>
+              </span>
+              <span class="note-comments-badge">${comments.length}</span>
+            </div>
+            <div class="note-comments-list preview-note-comments-expanded">
+              ${commentsListHtml}
+            </div>
+            <div class="note-comment-box" style="margin-top:8px">
+              <div id="noteCommentReplyBannerContainer"></div>
+              <div class="note-comment-input-wrap">
+                <textarea class="note-comment-input preview-note-comment-input" rows="2" placeholder="Write a comment or feedback… (Press Enter to post, Shift+Enter for newline)" data-preview-comment-input="${esc(n.id)}" maxlength="1000"></textarea>
+                <button type="button" class="btn primary note-comment-send-btn" data-preview-comment-submit="${esc(n.id)}" title="Post comment">
+                  <span>Comment</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments & Media (Container directly below Comments) -->
+          <div class="note-side-card note-side-attachments-card" id="notePreviewAttachmentsCard">
+            <div class="note-side-section-title">
+              <span style="display:inline-flex;align-items:center;gap:6px">
+                ${getLucideSvg('paperclip', 13)}
+                <strong>Attachments &amp; Files</strong>
+              </span>
+              <span class="note-attachments-count-badge" id="notePreviewAttachmentsCount">0</span>
+            </div>
+            <div class="note-preview-attachments-list" id="notePreviewAttachmentsList">
+              <div class="note-attachments-loading">
+                <span class="note-attachments-spinner"></span> Loading attachments…
+              </div>
+            </div>
           </div>
         </div>
       </aside>
     </div>
+
+    <!-- Pinned Modal Action Footer (Docked at base of modal in both portrait and landscape) -->
+    <div class="note-preview-col-footer note-preview-modal-footer">
+      <div class="note-preview-footer-left">
+        <button type="button" class="btn primary" data-preview-jump-note="${esc(n.id)}">${getLucideSvg('pencil', 12)} Open in Notes Studio ${getLucideSvg('external-link', 11)}</button>
+        <button type="button" class="btn" data-preview-add-task-to-note="${esc(n.id)}">${getLucideSvg('plus', 12)} Link Task</button>
+      </div>
+      <button type="button" class="btn" data-preview-close>Close</button>
+    </div>
   `;
+}
+
+// Universal Note Preview Attachments Hydrator
+async function loadNotePreviewAttachments(noteId) {
+  const container = document.getElementById('notePreviewAttachmentsList');
+  const countBadge = document.getElementById('notePreviewAttachmentsCount');
+  if (!container) return;
+
+  const n = (typeof findNoteById === 'function') ? findNoteById(noteId) : null;
+  if (!n) {
+    if (countBadge) countBadge.textContent = '0';
+    container.innerHTML = '<div class="note-attachments-empty"><div class="note-attachments-empty-text">Note details unavailable</div></div>';
+    return;
+  }
+
+  let mediaItems = [];
+  try {
+    if (typeof getNoteMedia === 'function') {
+      mediaItems = await getNoteMedia(noteId);
+    }
+  } catch (err) {
+    console.warn('Could not load note media for preview:', err);
+  }
+
+  const formatSize = (typeof prettyBytes === 'function') ? prettyBytes : (b => b ? Math.round(b / 1024) + ' KB' : '');
+  const attachmentNames = Array.isArray(n.attachmentNames) ? n.attachmentNames : [];
+  const recordingNames = Array.isArray(n.recordingNames) ? n.recordingNames : [];
+
+  // Extract inline images from markdown body
+  const rawBody = n.body || '';
+  const inlineImages = [];
+  const mdImgRegex = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+|\/[^\s)]+|data:image\/[^\s)]+)\)/gi;
+  let match;
+  while ((match = mdImgRegex.exec(rawBody)) !== null) {
+    inlineImages.push({ alt: match[1] || 'Embedded Image', url: match[2] });
+  }
+
+  const seenKeys = new Set();
+  const renderedItems = [];
+
+  // 1. IndexedDB Blobs (highest fidelity: images, audio, docs)
+  if (Array.isArray(mediaItems) && mediaItems.length > 0) {
+    mediaItems.forEach(item => {
+      const name = item.name || 'Attachment';
+      seenKeys.add(name);
+      const isVoice = item.kind === 'voice' || (item.blob && item.blob.type && item.blob.type.startsWith('audio/'));
+      const isImage = item.kind === 'attachment' && ((item.blob && item.blob.type && item.blob.type.startsWith('image/')) || /\.(png|jpe?g|webp|gif|svg)$/i.test(name));
+      let blobUrl = '';
+      try {
+        if (item.blob) blobUrl = URL.createObjectURL(item.blob);
+      } catch (_) {}
+      const sizeStr = item.blob && item.blob.size ? formatSize(item.blob.size) : '';
+
+      renderedItems.push({
+        key: item.key,
+        name: name,
+        type: isVoice ? 'voice' : (isImage ? 'image' : 'file'),
+        url: blobUrl,
+        size: sizeStr,
+        duration: item.duration,
+        created: item.created
+      });
+    });
+  }
+
+  // 2. Named attachments from note metadata (if not already represented)
+  attachmentNames.forEach(name => {
+    if (!seenKeys.has(name)) {
+      seenKeys.add(name);
+      const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(name);
+      renderedItems.push({
+        name,
+        type: isImage ? 'image' : 'file',
+        size: 'Local file'
+      });
+    }
+  });
+
+  recordingNames.forEach(name => {
+    if (!seenKeys.has(name)) {
+      seenKeys.add(name);
+      renderedItems.push({
+        name,
+        type: 'voice',
+        size: 'Voice recording'
+      });
+    }
+  });
+
+  // 3. Embedded images from markdown body
+  inlineImages.forEach(img => {
+    if (!seenKeys.has(img.url)) {
+      seenKeys.add(img.url);
+      renderedItems.push({
+        name: img.alt || 'Inline Image',
+        type: 'image',
+        url: img.url,
+        size: 'Embedded image'
+      });
+    }
+  });
+
+  if (countBadge) {
+    countBadge.textContent = String(renderedItems.length);
+  }
+
+  if (renderedItems.length === 0) {
+    container.innerHTML = `
+      <div class="note-attachments-empty">
+        <span class="note-attachments-empty-icon">${getLucideSvg('paperclip', 16)}</span>
+        <div class="note-attachments-empty-text">No attachments or voice recordings</div>
+        <small class="note-attachments-empty-sub">Files, photos, and voice memos added in Notes Studio appear here.</small>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = renderedItems.map(item => {
+    if (item.type === 'voice') {
+      return `
+        <div class="note-attachment-row note-attachment-voice">
+          <div class="note-attachment-icon-badge voice">
+            ${getLucideSvg('mic', 14)}
+          </div>
+          <div class="note-attachment-details">
+            <strong class="note-attachment-name" title="${esc(item.name)}">${esc(item.name)}</strong>
+            <span class="note-attachment-meta">${item.duration ? `${Math.floor(item.duration / 60)}:${String(item.duration % 60).padStart(2, '0')} • ` : ''}${esc(item.size || 'Voice Note')}</span>
+            ${item.url ? `
+              <div class="note-attachment-audio-wrap">
+                <audio controls preload="metadata" src="${esc(item.url)}"></audio>
+              </div>
+            ` : ''}
+          </div>
+          ${item.key ? `
+            <div class="note-attachment-actions">
+              <button type="button" class="note-attachment-action-btn" data-media-download="${esc(item.key)}" title="Download recording">
+                ${getLucideSvg('download', 13)}
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    if (item.type === 'image') {
+      const clickAttr = item.key ? `data-media-preview="${esc(item.key)}"` : (item.url ? `onclick="window.open('${esc(item.url)}','_blank')"` : '');
+      return `
+        <div class="note-attachment-row note-attachment-image">
+          <div class="note-attachment-thumb" ${clickAttr} title="Click to view image">
+            ${item.url ? `<img src="${esc(item.url)}" alt="${esc(item.name)}" loading="lazy">` : getLucideSvg('image', 16)}
+          </div>
+          <div class="note-attachment-details">
+            <strong class="note-attachment-name" title="${esc(item.name)}">${esc(item.name)}</strong>
+            <span class="note-attachment-meta">${esc(item.size || 'Image')}</span>
+          </div>
+          <div class="note-attachment-actions">
+            ${item.key ? `
+              <button type="button" class="note-attachment-action-btn" data-media-preview="${esc(item.key)}" title="View full image">
+                ${getLucideSvg('eye', 13)}
+              </button>
+              <button type="button" class="note-attachment-action-btn" data-media-download="${esc(item.key)}" title="Download image">
+                ${getLucideSvg('download', 13)}
+              </button>
+            ` : (item.url ? `
+              <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" class="note-attachment-action-btn" title="Open image in new tab">
+                ${getLucideSvg('external-link', 13)}
+              </a>
+            ` : '')}
+          </div>
+        </div>
+      `;
+    }
+
+    const ext = (item.name.split('.').pop() || 'FILE').toUpperCase();
+    return `
+      <div class="note-attachment-row note-attachment-file">
+        <div class="note-attachment-icon-badge file">
+          <span>${esc(ext.slice(0, 4))}</span>
+        </div>
+        <div class="note-attachment-details">
+          <strong class="note-attachment-name" title="${esc(item.name)}">${esc(item.name)}</strong>
+          <span class="note-attachment-meta">${esc(item.size || 'Attachment')}</span>
+        </div>
+        <div class="note-attachment-actions">
+          ${item.key ? `
+            <button type="button" class="note-attachment-action-btn" data-media-download="${esc(item.key)}" title="Download file">
+              ${getLucideSvg('download', 13)}
+            </button>
+          ` : (item.url ? `
+            <a href="${esc(item.url)}" download="${esc(item.name)}" class="note-attachment-action-btn" title="Download file">
+              ${getLucideSvg('download', 13)}
+            </a>
+          ` : '')}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderProfilePreviewHTML(uid, extraMeta){
