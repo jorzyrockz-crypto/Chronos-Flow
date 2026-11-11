@@ -25248,7 +25248,7 @@ function projectTone(p){if(p?.color)return p.color;return p?.status==='completed
 function renderProjectManager(){const root=$('projectViewContent');if(!root)return;const todayKey=iso(today);$('pmActive').textContent=chronosProjects.filter(p=>!['completed','archived'].includes(p.status)).length;$('pmOpen').textContent=tasks.filter(t=>!t.done&&t.status!=='done').length+((teamAssignedTasks||[]).filter(t=>!t.done&&t.status!=='done').length);$('pmOverdue').textContent=tasks.filter(t=>!t.done&&t.due&&t.due<todayKey).length;$('pmDone').textContent=tasks.filter(t=>t.done||t.status==='done').length;const search=($('projectSearch')?.value||'').trim().toLowerCase(),filter=$('projectStatusFilter')?.value||'active';let list=chronosProjects.filter(p=>{if(filter==='mine'){const meUid=firebaseUser?.uid,meName=(firebaseUser?.displayName||firebaseUser?.email||'You').toLowerCase();const isOwner=(meUid&&p.ownerUid===meUid)||(p.owner&&p.owner.toLowerCase().includes(meName))||(!firebaseUser&&(p.owner==='You'||!p.owner));const isLead=Array.isArray(p.leads)&&p.leads.some(l=>(meUid&&l.uid===meUid)||(l.name&&l.name.toLowerCase().includes(meName)));if(!isOwner&&!isLead)return false;}else if(filter!=='all'){if(filter==='active'){if(['completed','archived'].includes(p.status))return false;}else if(p.status!==filter){return false;}}return (!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search));});list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);if(selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));if(!p){selectedProjectId='';detail.classList.add('hidden')}else{const rawLinked=projectTaskList(p),done=rawLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
     const allLinked=rawLinked.filter(t=>!t.isDeliverableSubmission);
     const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;detail.innerHTML=`${renderProjectHeroCard(p, done, linked, progress)}<div class="project-inline-tasks"><h4>Project tasks</h4><form id="projectTaskCreateForm" class="project-task-create project-task-composer"><div class="composer-title-wrap"><input id="projectTaskTitle" required maxlength="160" placeholder="What needs to be done?" autocomplete="off" /></div><div class="composer-controls-wrap"><div class="composer-control-pill composer-assignee-pill" title="Assign task to person"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><select id="projectTaskAssignee"><option value="">Unassigned</option></select></div><div class="composer-control-pill composer-date-pill" title="Start date"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><input id="projectTaskStart" type="date" aria-label="Start date" /></div><span class="composer-date-sep">→</span><div class="composer-control-pill composer-date-pill" title="Due date"><input id="projectTaskDue" type="date" aria-label="Due date" /></div><button class="btn primary btn-task-submit composer-add-btn" type="submit"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add</span></button></div></form><div class="project-linked-task-list">${linked.length?linked.map(t=>projectTaskMarkup(t, p)).join(''):'<div class="project-tasks-empty project-empty-state-clickable" data-project-add-task="" style="text-align:center;padding:26px 16px;border:1px dashed var(--line,rgba(255,255,255,0.12));border-radius:14px;margin:10px 0;background:var(--surface2,rgba(255,255,255,0.02));cursor:pointer;" title="Click to create your first task"><div style="font-size:24px;margin-bottom:6px;">📋</div><strong style="display:block;font-size:13px;color:var(--text,#1e293b);margin-bottom:4px;">No tasks linked to this project yet</strong><p style="font-size:12px;color:var(--muted,#64748b);margin:0;">Use the quick-add form above to assign your first task.</p></div>'}</div></div>`}}
-if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null;const all=p?projectTaskList(p):tasks.filter(t=>t.projectId);const stages=[['open','To do'],['in_progress','In progress'],['review','In review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>`<article class="project-task">${projectEsc(t.title)}<small>${projectEsc(t.due?'Due '+t.due:'No deadline')}</small><select data-project-task-status="${projectEsc(t.id)}" aria-label="Change status for ${projectEsc(t.title)}"><option value="open" ${(!t.status||t.status==='open')&&!t.done?'selected':''}>To do</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${t.status==='review'?'selected':''}>In review</option><option value="done" ${t.done||t.status==='done'?'selected':''}>Done</option></select></article>`).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Board includes personal tasks linked to projects. Team tasks remain managed in the Team workspace.</p>`;return}
+if(projectView==='board'){const p=selectedProjectId?chronosProjects.find(x=>String(x.id)===String(selectedProjectId)):null;const all=p?projectTaskList(p):tasks.filter(t=>t.projectId);const stages=[['open','To do'],['in_progress','In progress'],['review','In review'],['done','Done']];root.innerHTML=`<div class="project-board">${stages.map(([key,label])=>{const group=all.filter(t=>key==='done'?(t.done||t.status==='done'):!t.done&&(t.status||'open')===key);return `<section class="project-lane"><h4>${label}<span>${group.length}</span></h4>${group.map(t=>`<article class="project-task">${projectEsc(t.title)}<small>${projectEsc(t.due?'Due '+t.due:'No deadline')}</small><select class="compact-status-select status-${(!t.status||t.status==='open')&&!t.done?'open':t.status||'open'}" data-project-task-status="${projectEsc(t.id)}" aria-label="Change status for ${projectEsc(t.title)}"><option value="open" ${(!t.status||t.status==='open')&&!t.done?'selected':''}>To do</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${t.status==='review'?'selected':''}>In review</option><option value="done" ${t.done||t.status==='done'?'selected':''}>Done</option></select></article>`).join('')||'<div class="muted-label">No tasks</div>'}</section>`}).join('')}</div><p class="muted-label" style="margin-top:10px">Board includes personal tasks linked to projects. Team tasks remain managed in the Team workspace.</p>`;return}
 if(projectView==='timeline'){root.innerHTML=list.length?list.map(p=>{const start=p.startDate||p.createdDate||todayKey,end=p.dueDate||start,span=Math.max(1,(new Date(end+'T12:00:00')-new Date(start+'T12:00:00'))/86400000),elapsed=Math.max(0,Math.min(1,(new Date(todayKey+'T12:00:00')-new Date(start+'T12:00:00'))/span));return `<div class="project-timeline-row"><strong>${projectEsc(p.name)}</strong><div class="project-timeline-track" aria-label="Schedule progress"><span style="width:${Math.round(elapsed*100)}%"></span></div><small>${projectEsc(start)} → ${projectEsc(end)}</small></div>`}).join(''):'<div class="project-empty">No projects match this view. Create a project to begin.</div>';return}
 root.innerHTML=list.length?`<div class="project-grid">${list.map(p=>{const allLinked=projectTaskList(p),done=allLinked.filter(t=>t.done||t.status==='done').length,progress=projectProgress(p);
     const linked=(typeof activeProjectMilestoneFilter!=='undefined'&&activeProjectMilestoneFilter!=='all')?allLinked.filter(t=>(t.phase||'Phase 1: Planning')===activeProjectMilestoneFilter):allLinked;return `<article class="project-card" tabindex="0" role="button" data-project-open="${projectEsc(p.id)}" aria-label="Open project ${projectEsc(p.name)}"><div class="project-card-head"><h3>${projectEsc(p.name)}</h3><span class="project-pill">${projectStatusLabel(p.status)}</span></div><p>${projectEsc(p.description||'No description added.')}</p><div class="project-progress-row"><span>${done}/${linked.length} tasks complete</span><strong>${progress}%</strong></div><div class="project-progress"><span style="width:${progress}%"></span></div><div class="project-card-foot"><span>${projectEsc(p.owner||'No owner')}</span><span>${p.dueDate?'Target '+projectEsc(p.dueDate):'No target date'}</span></div></article>`}).join('')}</div>`:`<div class="project-empty"><strong>No projects here yet</strong><p>Create a project to organize tasks, deadlines, and deliverables. Your existing tasks remain below and are not changed.</p><button class="btn primary" type="button" id="projectEmptyCreate" style="display:inline-flex;align-items:center;gap:6px">${getLucideSvg('plus', 14)} Create your first project</button></div>`}
@@ -25655,7 +25655,7 @@ function projectTaskMarkup(task, project) {
 
 function projectBoardTaskMarkup(task,project){
  const person=projectTaskPerson(task,project),done=!!task.done||task.status==='done';
- return `<article class="project-task" data-project-task-card="${projectEsc(task.id)}"><div class="project-board-task-head" data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer" role="button" tabindex="0">${projectAvatar(person,'xs')}<strong>${projectEsc(task.title||'Untitled task')}</strong></div><small data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer">${projectEsc(person.name||'Unassigned')} · ${projectEsc(task.due?'Due '+task.due:'No deadline')}</small><div class="project-board-task-actions"><button type="button" class="project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true">Edit</button><select data-project-task-status="${projectEsc(task.id)}" aria-label="Change status for ${projectEsc(task.title||'task')}"><option value="open" ${(!task.status||task.status==='open')&&!done?'selected':''}>To do</option><option value="in_progress" ${task.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${task.status==='review'?'selected':''}>In review</option><option value="done" ${done?'selected':''}>Done</option></select></div></article>`;
+ return `<article class="project-task" data-project-task-card="${projectEsc(task.id)}"><div class="project-board-task-head" data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer" role="button" tabindex="0">${projectAvatar(person,'xs')}<strong>${projectEsc(task.title||'Untitled task')}</strong></div><small data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer">${projectEsc(person.name||'Unassigned')} · ${projectEsc(task.due?'Due '+task.due:'No deadline')}</small><div class="project-board-task-actions"><button type="button" class="project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true">Edit</button><select class="compact-status-select status-${task.status || (done ? 'done' : 'open')}" data-project-task-status="${projectEsc(task.id)}" aria-label="Change status for ${projectEsc(task.title||'task')}"><option value="open" ${(!task.status||task.status==='open')&&!done?'selected':''}>To do</option><option value="in_progress" ${task.status==='in_progress'?'selected':''}>In progress</option><option value="review" ${task.status==='review'?'selected':''}>In review</option><option value="done" ${done?'selected':''}>Done</option></select></div></article>`;
 }
 const baseProjectPeopleDirectory=projectEligibleUsers;
 projectEligibleUsers=function(){
@@ -28281,7 +28281,7 @@ html[data-theme=dark] .btn-act-compact {
    `;
  }
  projectTaskMarkup=projectTaskMarkupShared;
- projectBoardTaskMarkup=function(task,project){const done=!!task.done||normalizeStatus(task.status)==='done',status=normalizeStatus(task.status),person=projectTaskPerson(task,project),editable=canManageProject(project),assignedToMe=!!firebaseUser&&((task.assigneeUid&&String(task.assigneeUid)===String(firebaseUser.uid))||(Array.isArray(task.assigneeUids)&&task.assigneeUids.some(uid=>String(uid)===String(firebaseUser.uid)))),canUpdate=editable||assignedToMe,statusControl=canUpdate?`<select data-project-task-status="${projectEsc(task.id)}" data-project-task-team="${projectEsc(task.teamId||project?.teamId||'')}" aria-label="Change status for ${projectEsc(task.title||'task')}"><option value="open" ${status==='open'&&!done?'selected':''}>To do</option><option value="in_progress" ${status==='in_progress'?'selected':''}>In progress</option><option value="review" ${status==='review'?'selected':''}>In review</option><option value="done" ${done?'selected':''}>Done</option></select>`:`<span class="project-readonly-label">${done?'Completed':status==='in_progress'?'In progress':status==='review'?'In review':'To do'}</span>`;return `<article class="project-task ${done?'is-complete':''} ${task.teamShared?'is-shared-project-task':''}" data-project-task-card="${projectEsc(task.id)}"><div class="project-board-task-head" data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer" role="button" tabindex="0">${projectAvatar(person,'xs')}<strong>${projectEsc(task.title||'Untitled task')}</strong></div><small data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer">${projectEsc(person.name||'Unassigned')} · ${projectEsc(task.due?'Due '+task.due:'No deadline')}${task.teamShared?' · Shared project task':''}</small><div class="project-board-task-actions">${editable?`<button type="button" class="project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true">Edit</button>`:'<span class="project-readonly-label">Assigned user</span>'}${statusControl}</div></article>`};
+ projectBoardTaskMarkup=function(task,project){const done=!!task.done||normalizeStatus(task.status)==='done',status=normalizeStatus(task.status),person=projectTaskPerson(task,project),editable=canManageProject(project),assignedToMe=!!firebaseUser&&((task.assigneeUid&&String(task.assigneeUid)===String(firebaseUser.uid))||(Array.isArray(task.assigneeUids)&&task.assigneeUids.some(uid=>String(uid)===String(firebaseUser.uid)))),canUpdate=editable||assignedToMe,statusControl=canUpdate?`<select class="compact-status-select status-${status}" data-project-task-status="${projectEsc(task.id)}" data-project-task-team="${projectEsc(task.teamId||project?.teamId||'')}" aria-label="Change status for ${projectEsc(task.title||'task')}"><option value="open" ${status==='open'&&!done?'selected':''}>To do</option><option value="in_progress" ${status==='in_progress'?'selected':''}>In progress</option><option value="review" ${status==='review'?'selected':''}>In review</option><option value="done" ${done?'selected':''}>Done</option></select>`:`<span class="project-readonly-label">${done?'Completed':status==='in_progress'?'In progress':status==='review'?'In review':'To do'}</span>`;return `<article class="project-task ${done?'is-complete':''} ${task.teamShared?'is-shared-project-task':''}" data-project-task-card="${projectEsc(task.id)}"><div class="project-board-task-head" data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer" role="button" tabindex="0">${projectAvatar(person,'xs')}<strong>${projectEsc(task.title||'Untitled task')}</strong></div><small data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer">${projectEsc(person.name||'Unassigned')} · ${projectEsc(task.due?'Due '+task.due:'No deadline')}${task.teamShared?' · Shared project task':''}</small><div class="project-board-task-actions">${editable?`<button type="button" class="project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true">Edit</button>`:'<span class="project-readonly-label">Assigned user</span>'}${statusControl}</div></article>`};
  $('projectCreateForm')?.addEventListener('submit',e=>{const editId=e.currentTarget.dataset.editId;setTimeout(async()=>{const project=chronosProjects.find(p=>String(p.id)===String(editId||selectedProjectId));if(!project||(!activeTeamId&&!project.teamId))return;if(!project.teamId)project.teamId=activeTeamId;if(!project.teamName)project.teamName=activeTeam?.name||'Team';try{await syncSharedProject(project);await syncAllSharedProjects();await syncAllSharedProjectTasks();mergeSharedProjects();renderProjectManager();notify('Project shared with the team. Assigned members can now see and update task progress.')}catch(err){notify('Project saved locally, but team sharing failed: '+(err.message||'Check team permissions.'))}},80)},true);
  async function updateSharedProjectTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update this shared task.');if(!teamId)throw Error('This task is missing its team.');const normalized=normalizeStatus(status),remoteStatus=normalized==='in_progress'?'in-progress':normalized,patch={status:remoteStatus,done:normalized==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(id)).update(patch);Object.values(teamLiveData||{}).forEach(data=>{data?.tasks?.forEach(task=>{if(String(task.id)===String(id))Object.assign(task,patch)})});teamAssignedTasks=(teamAssignedTasks||[]).map(task=>String(task.id)===String(id)&&String(task.teamId)===String(teamId)?{...task,...patch,status:normalizeStatus(patch.status),done:patch.done}:task);applyTeamLiveData();renderProjectManager();renderAssignedProjectNotes();notify(normalized==='done'?'Task marked complete.':'Task progress updated.')}catch(err){notify('Could not update shared task: '+(err.message||'Check your connection.'));if(typeof refreshTeamWorkspace==='function')refreshTeamWorkspace()}}
  document.addEventListener('change',e=>{const select=e.target.closest('[data-project-task-status]');if(!select)return;const local=tasks.find(task=>String(task.id)===String(select.dataset.projectTaskStatus));if(local)return;const shared=sharedTaskEntries().find(task=>String(task.id)===String(select.dataset.projectTaskStatus));if(!shared)return;e.preventDefault();e.stopImmediatePropagation();updateSharedProjectTaskStatus(select.dataset.projectTaskTeam||shared.teamId,shared.id,select.value)},true);
@@ -31234,60 +31234,233 @@ html[data-theme=dark] .compact-deliv-badge {
   flex: 0 0 auto !important;
 }
 
-.compact-status-select {
-  height: 30px !important;
-  padding: 0 10px !important;
+.compact-status-select,
+.project-board-task-actions select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  min-width: 104px !important;
+  padding: 0 24px 0 12px !important;
   border-radius: 9999px !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background: rgba(255, 255, 255, 0.85) !important;
-  color: #334155 !important;
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
   cursor: pointer !important;
   outline: none !important;
-  transition: all 0.15s ease !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-align: left !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 11px 11px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  color: #334155 !important;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  box-sizing: border-box !important;
+  user-select: none !important;
+}
+.compact-status-select:hover,
+.project-board-task-actions select:hover {
+  transform: translateY(-0.5px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+}
+.compact-status-select:focus-visible,
+.project-board-task-actions select:focus-visible {
+  outline: 2px solid var(--accent, #4f46e5) !important;
+  outline-offset: 1px !important;
+}
+.compact-status-select.status-open,
+.compact-status-select:not(.status-in_progress):not(.status-in-progress):not(.status-review):not(.status-done) {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+  color: #475569 !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 .compact-status-select.status-in_progress,
 .compact-status-select.status-in-progress {
-  background: rgba(238, 242, 255, 0.9) !important;
+  background-color: rgba(238, 242, 255, 0.95) !important;
   color: #4f46e5 !important;
-  border-color: rgba(99, 102, 241, 0.25) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 .compact-status-select.status-done {
-  background: rgba(236, 253, 245, 0.9) !important;
+  background-color: rgba(236, 253, 245, 0.95) !important;
   color: #059669 !important;
-  border-color: rgba(16, 185, 129, 0.25) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 .compact-status-select.status-review {
-  background: rgba(254, 243, 199, 0.9) !important;
+  background-color: rgba(254, 243, 199, 0.95) !important;
   color: #d97706 !important;
-  border-color: rgba(245, 158, 11, 0.25) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
-html[data-theme=dark] .compact-status-select {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: #f8fafc !important;
+
+/* Dark Theme Pill Status Select */
+html[data-theme=dark] .compact-status-select,
+html[data-theme=dark] .project-board-task-actions select {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+html[data-theme=dark] .compact-status-select:hover,
+html[data-theme=dark] .project-board-task-actions select:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+html[data-theme=dark] .compact-status-select.status-open,
+html[data-theme=dark] .compact-status-select:not(.status-in_progress):not(.status-in-progress):not(.status-review):not(.status-done) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 html[data-theme=dark] .compact-status-select.status-in_progress,
 html[data-theme=dark] .compact-status-select.status-in-progress {
-  background: rgba(99, 102, 241, 0.2) !important;
+  background-color: rgba(99, 102, 241, 0.2) !important;
   color: #a5b4fc !important;
-  border-color: rgba(99, 102, 241, 0.35) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 html[data-theme=dark] .compact-status-select.status-done {
-  background: rgba(16, 185, 129, 0.2) !important;
+  background-color: rgba(16, 185, 129, 0.2) !important;
   color: #6ee7b7 !important;
-  border-color: rgba(16, 185, 129, 0.35) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236ee7b7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
 html[data-theme=dark] .compact-status-select.status-review {
-  background: rgba(245, 158, 11, 0.2) !important;
+  background-color: rgba(245, 158, 11, 0.2) !important;
   color: #fcd34d !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23fcd34d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
-html[data-theme=dark] .compact-status-select option {
+html[data-theme=dark] .compact-status-select option,
+html[data-theme=dark] .project-board-task-actions select option {
   background: #1e293b !important;
   color: #f8fafc !important;
+}
+
+/* Floating Task Status Popover */
+.task-status-popover {
+  position: fixed;
+  z-index: 99999;
+  min-width: 148px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 5px;
+  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: taskStatusPopoverIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top center;
+}
+@keyframes taskStatusPopoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.task-status-popover.hidden {
+  display: none !important;
+}
+.task-status-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 550;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+.task-status-popover-item:hover {
+  background: rgba(241, 245, 249, 0.9);
+  color: #0f172a;
+}
+.task-status-popover-item.selected {
+  background: rgba(99, 102, 241, 0.09);
+  font-weight: 650;
+  color: #4338ca;
+}
+.status-popover-dot {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  flex: 0 0 7.5px;
+}
+.status-dot-open {
+  background: #94a3b8;
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.25);
+}
+.status-dot-in_progress {
+  background: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+.status-dot-review {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+.status-dot-done {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+.status-popover-label {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+.status-popover-check {
+  margin-left: auto;
+  color: #4f46e5;
+  flex: 0 0 auto;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.task-status-popover-item.selected .status-popover-check {
+  opacity: 1;
+}
+
+/* Dark mode for popover */
+html[data-theme=dark] .task-status-popover {
+  background: rgba(22, 27, 38, 0.96);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.6), 0 6px 16px -2px rgba(0, 0, 0, 0.35);
+}
+html[data-theme=dark] .task-status-popover-item {
+  color: #e2e8f0;
+}
+html[data-theme=dark] .task-status-popover-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+html[data-theme=dark] .task-status-popover-item.selected {
+  background: rgba(99, 102, 241, 0.22);
+  color: #c7d2fe;
+}
+html[data-theme=dark] .status-popover-check {
+  color: #a5b4fc;
 }
 
 .btn-compact-ghost-edit {
@@ -36213,6 +36386,176 @@ window.openShowcaseProject = function() {
     if (taskDoneSummary) taskDoneSummary.textContent = String(doneCountTotal);
   }
 
+  // --- CHRONOS 5.2 TASK STATUS FLOATING POPOVER ENGINE ---
+  function getTaskStatusPopoverMenu() {
+    let menu = document.getElementById('taskStatusGlobalMenu');
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.id = 'taskStatusGlobalMenu';
+      menu.className = 'task-status-popover hidden';
+      menu.setAttribute('role', 'listbox');
+      menu.setAttribute('aria-label', 'Select task status');
+      document.body.appendChild(menu);
+    }
+    return menu;
+  }
+
+  function openTaskStatusPopover(select) {
+    if (!select) return;
+    const menu = getTaskStatusPopoverMenu();
+    const currentVal = select.value || 'open';
+    const options = [
+      { value: 'open', label: 'To do', dotClass: 'status-dot-open' },
+      { value: 'in_progress', label: 'In progress', dotClass: 'status-dot-in_progress' },
+      { value: 'review', label: 'In review', dotClass: 'status-dot-review' },
+      { value: 'done', label: 'Done', dotClass: 'status-dot-done' }
+    ];
+
+    menu.innerHTML = options.map(opt => `
+      <button type="button" class="task-status-popover-item ${opt.value === currentVal ? 'selected' : ''}" data-status-val="${opt.value}" role="option" aria-selected="${opt.value === currentVal}">
+        <span class="status-popover-dot ${opt.dotClass}"></span>
+        <span class="status-popover-label">${opt.label}</span>
+        <svg class="status-popover-check" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </button>
+    `).join('');
+
+    // Calculate position
+    const rect = select.getBoundingClientRect();
+    menu.classList.remove('hidden');
+
+    const menuWidth = 148;
+    const menuHeight = 150;
+
+    let left = rect.left;
+    if (left + menuWidth > window.innerWidth - 12) {
+      left = window.innerWidth - menuWidth - 12;
+    }
+    if (left < 12) left = 12;
+
+    let top = rect.bottom + 4;
+    if (top + menuHeight > window.innerHeight - 12 && rect.top - menuHeight - 4 > 12) {
+      top = rect.top - menuHeight - 4;
+    }
+
+    menu.style.left = `${Math.round(left)}px`;
+    menu.style.top = `${Math.round(top)}px`;
+    menu._targetSelect = select;
+
+    const selectedBtn = menu.querySelector('.task-status-popover-item.selected') || menu.querySelector('.task-status-popover-item');
+    if (selectedBtn) selectedBtn.focus();
+  }
+
+  function closeTaskStatusPopover() {
+    const menu = document.getElementById('taskStatusGlobalMenu');
+    if (menu && !menu.classList.contains('hidden')) {
+      menu.classList.add('hidden');
+      if (menu._targetSelect) {
+        try { menu._targetSelect.focus(); } catch (e) {}
+        menu._targetSelect = null;
+      }
+    }
+  }
+
+  // Intercept pointer down / mousedown on task status selects to show custom popover
+  document.addEventListener('mousedown', e => {
+    const select = e.target.closest('.compact-status-select, [data-project-task-status]');
+    if (!select) {
+      if (!e.target.closest('#taskStatusGlobalMenu')) {
+        closeTaskStatusPopover();
+      }
+      return;
+    }
+    e.preventDefault();
+    const menu = document.getElementById('taskStatusGlobalMenu');
+    if (menu && !menu.classList.contains('hidden') && menu._targetSelect === select) {
+      closeTaskStatusPopover();
+      return;
+    }
+    openTaskStatusPopover(select);
+  }, true);
+
+  // Intercept touchstart on task status selects for mobile
+  document.addEventListener('touchstart', e => {
+    const select = e.target.closest('.compact-status-select, [data-project-task-status]');
+    if (!select) {
+      if (!e.target.closest('#taskStatusGlobalMenu')) {
+        closeTaskStatusPopover();
+      }
+      return;
+    }
+    e.preventDefault();
+    const menu = document.getElementById('taskStatusGlobalMenu');
+    if (menu && !menu.classList.contains('hidden') && menu._targetSelect === select) {
+      closeTaskStatusPopover();
+      return;
+    }
+    openTaskStatusPopover(select);
+  }, { passive: false, capture: true });
+
+  // Handle click on popover item
+  document.addEventListener('click', e => {
+    const item = e.target.closest('#taskStatusGlobalMenu .task-status-popover-item');
+    if (item) {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = document.getElementById('taskStatusGlobalMenu');
+      const select = menu?._targetSelect;
+      const newVal = item.dataset.statusVal;
+      if (select && newVal) {
+        select.value = newVal;
+        select.className = `compact-status-select status-${newVal}`;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      closeTaskStatusPopover();
+      return;
+    }
+  }, true);
+
+  // Keyboard navigation & dismissal
+  document.addEventListener('keydown', e => {
+    const select = e.target.closest('.compact-status-select, [data-project-task-status]');
+    if (select && (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      openTaskStatusPopover(select);
+      return;
+    }
+
+    const menu = document.getElementById('taskStatusGlobalMenu');
+    if (!menu || menu.classList.contains('hidden')) return;
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeTaskStatusPopover();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const items = Array.from(menu.querySelectorAll('.task-status-popover-item'));
+      const idx = items.indexOf(document.activeElement);
+      if (idx === -1) {
+        items[0]?.focus();
+      } else {
+        const nextIdx = e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+        items[nextIdx]?.focus();
+      }
+    }
+  });
+
+  // Auto-close on scroll or resize
+  window.addEventListener('scroll', () => {
+    const menu = document.getElementById('taskStatusGlobalMenu');
+    if (menu && !menu.classList.contains('hidden')) {
+      closeTaskStatusPopover();
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    const menu = document.getElementById('taskStatusGlobalMenu');
+    if (menu && !menu.classList.contains('hidden')) {
+      closeTaskStatusPopover();
+    }
+  }, { passive: true });
+
   // 1. Task Status Dropdown Change (In-place status update without scroll jump)
   document.addEventListener('change', e => {
     const sel = e.target.closest('[data-project-task-status]');
@@ -36221,6 +36564,7 @@ window.openShowcaseProject = function() {
     const t = (tasks || []).find(x => String(x.id) === String(taskId)) ||
               ((typeof teamAssignedTasks !== 'undefined' ? teamAssignedTasks : []).find(x => String(x.id) === String(taskId)));
     if (t) {
+      e.stopPropagation();
       const newStatus = sel.value;
       t.status = newStatus;
       t.done = (newStatus === 'done');
