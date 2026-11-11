@@ -26202,6 +26202,70 @@ html[data-theme=dark] .team-danger-body p {
   z-index: 10301 !important;
 }
 
+/* Custom App Metadata Auto-Fetch & Live Preview Styling */
+.btn-fetch-metadata {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 4px 11px !important;
+  border-radius: 9999px !important;
+  border: 1px solid var(--line, #cbd5e1) !important;
+  background: var(--surface-2, #f8fafc) !important;
+  color: var(--accent, #4f46e5) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.btn-fetch-metadata:hover {
+  background: var(--surface, #ffffff) !important;
+  border-color: var(--accent, #4f46e5) !important;
+  box-shadow: 0 1px 4px rgba(79, 70, 229, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.cat-chip-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 9px !important;
+  border-radius: 9999px !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  background: var(--surface, #ffffff) !important;
+  color: var(--muted, #64748b) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.12s ease !important;
+}
+.cat-chip-btn:hover {
+  border-color: var(--accent, #4f46e5) !important;
+  color: var(--accent, #4f46e5) !important;
+  background: color-mix(in srgb, var(--accent, #4f46e5) 8%, transparent) !important;
+}
+
+.team-app-icon-wrap img,
+.team-tool-modal-icon img {
+  width: 24px !important;
+  height: 24px !important;
+  object-fit: contain !important;
+  border-radius: 6px !important;
+}
+
+html[data-theme=dark] .btn-fetch-metadata {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #818cf8 !important;
+}
+html[data-theme=dark] .cat-chip-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+html[data-theme=dark] .custom-app-preview-wrap {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
 html[data-theme=dark] .team-tool-modal-item {
   background: #1e293b !important;
   border-color: #334155 !important;
@@ -34281,8 +34345,31 @@ html[data-theme=dark] .btn-act-compact:hover {
       const modal = $('teamAddAppModalBackdrop');
       if (modal) {
         modal.hidden = false;
-        $('customAppName')?.focus();
+        $('customAppUrl')?.focus();
+        if (typeof updateCustomAppLivePreview === 'function') updateCustomAppLivePreview();
       }
+      return;
+    }
+
+    // Category Suggestion Chips
+    const catChip = e.target.closest('.cat-chip-btn');
+    if (catChip) {
+      e.preventDefault();
+      const cat = catChip.dataset.cat || catChip.textContent.trim();
+      const inp = $('customAppCategory');
+      if (inp) {
+        inp.value = cat;
+        inp.dataset.autoFilled = 'false';
+      }
+      if (typeof updateCustomAppLivePreview === 'function') updateCustomAppLivePreview();
+      return;
+    }
+
+    // Auto-fetch button click
+    if (e.target.closest('#fetchAppMetadataBtn')) {
+      e.preventDefault();
+      const url = $('customAppUrl')?.value || '';
+      if (typeof fetchCustomToolMetadata === 'function') fetchCustomToolMetadata(url, true);
       return;
     }
 
@@ -34331,24 +34418,338 @@ html[data-theme=dark] .btn-act-compact:hover {
     }
   });
 
+  // Live Preview Updater for Add Custom Tool modal
+  function updateCustomAppLivePreview() {
+    const previewWrap = $('customAppLivePreview');
+    if (!previewWrap) return;
+
+    const name = ($('customAppName')?.value || '').trim() || 'New Member Tool';
+    const cat = ($('customAppCategory')?.value || '').trim() || 'Custom Tool';
+    const desc = ($('customAppDesc')?.value || '').trim() || 'Connected productivity tool for team members.';
+    const gradient = $('customAppGradient')?.value || 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)';
+    const iconHtml = $('customAppIconSvg')?.value || '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+    const tone = $('customAppBadgeTone')?.value || 'indigo';
+
+    const iconBox = $('previewAppIcon');
+    if (iconBox) {
+      iconBox.style.background = gradient;
+      iconBox.innerHTML = iconHtml;
+    }
+    const titleEl = $('previewAppTitle');
+    if (titleEl) titleEl.textContent = name;
+    const badgeEl = $('previewAppBadge');
+    if (badgeEl) {
+      badgeEl.textContent = cat;
+      badgeEl.className = 'team-app-badge badge-' + tone;
+    }
+    const descEl = $('previewAppDesc');
+    if (descEl) descEl.textContent = desc;
+  }
+  window.updateCustomAppLivePreview = updateCustomAppLivePreview;
+
+  // Auto-fetch metadata from app URL
+  async function fetchCustomToolMetadata(rawUrl, force = false) {
+    if (!rawUrl) return;
+    let urlStr = String(rawUrl).trim();
+    if (!urlStr) return;
+    if (!/^https?:\/\//i.test(urlStr)) {
+      urlStr = 'https://' + urlStr;
+      const urlInput = $('customAppUrl');
+      if (urlInput) urlInput.value = urlStr;
+    }
+
+    const statusEl = $('customAppFetchStatus');
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> <span>Detecting app details…</span>`;
+    }
+
+    let parsed = null;
+    try {
+      parsed = new URL(urlStr);
+    } catch(err) {
+      if (statusEl) statusEl.innerHTML = `<span style="color:#ef4444;">⚠️ Please enter a valid URL</span>`;
+      return;
+    }
+
+    const host = parsed.hostname.toLowerCase();
+    const path = parsed.pathname.toLowerCase();
+
+    // 1. Instant Preset Matching
+    let detected = null;
+    if (host.includes('drive.google.com')) {
+      detected = {
+        name: 'Google Drive Folder',
+        category: 'Cloud Storage',
+        desc: 'Shared cloud storage repository, file uploads, and collaborative team folders.',
+        badgeTone: 'emerald',
+        gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11 12 18 5 11M12 2v16"/><path d="m2 11 5-9h10l5 9"/></svg>'
+      };
+    } else if (host.includes('docs.google.com')) {
+      if (path.includes('/document')) {
+        detected = {
+          name: 'Google Docs Document',
+          category: 'Documents',
+          desc: 'Collaborative word processing, documentation, clearings, and transmittals.',
+          badgeTone: 'sky',
+          gradient: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+          iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>'
+        };
+      } else if (path.includes('/spreadsheets')) {
+        detected = {
+          name: 'Google Sheets Table',
+          category: 'Spreadsheets',
+          desc: 'Collaborative spreadsheet tables, attendance records, inventory, and budgets.',
+          badgeTone: 'emerald',
+          gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+          iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>'
+        };
+      } else if (path.includes('/presentation')) {
+        detected = {
+          name: 'Google Slides Presentation',
+          category: 'Presentations',
+          desc: 'Collaborative slide deck presentations, training modules, and instructional aids.',
+          badgeTone: 'amber',
+          gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+          iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="14" x="3" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></svg>'
+        };
+      } else if (path.includes('/forms')) {
+        detected = {
+          name: 'Google Form Survey',
+          category: 'Surveys & Forms',
+          desc: 'Online registration, student surveys, evaluations, and questionnaires.',
+          badgeTone: 'purple',
+          gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+          iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'
+        };
+      } else {
+        detected = {
+          name: 'Google Workspace',
+          category: 'Documents',
+          desc: 'Shared Google Workspace files and collaborative office records.',
+          badgeTone: 'sky',
+          gradient: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)'
+        };
+      }
+    } else if (host.includes('canva.com')) {
+      detected = {
+        name: 'Canva Workspace',
+        category: 'Design & Media',
+        desc: 'Collaborative graphic design, posters, infographics, and certificates.',
+        badgeTone: 'sky',
+        gradient: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)'
+      };
+    } else if (host.includes('figma.com')) {
+      detected = {
+        name: 'Figma Board',
+        category: 'UI & Diagramming',
+        desc: 'Collaborative UI mockups, interactive prototypes, and FigJam boards.',
+        badgeTone: 'purple',
+        gradient: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)'
+      };
+    } else if (host.includes('commons.deped.gov.ph')) {
+      detected = {
+        name: 'DepEd Commons',
+        category: 'Curriculum & LMS',
+        desc: 'Open educational resources, DepEd lesson exemplars, and classroom learning materials.',
+        badgeTone: 'purple',
+        gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)'
+      };
+    } else if (host.includes('lis.deped.gov.ph')) {
+      detected = {
+        name: 'DepEd LIS Portal',
+        category: 'Official Enterprise',
+        desc: 'Learner Information System registry for enrollment tracking and student records.',
+        badgeTone: 'indigo',
+        gradient: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'
+      };
+    } else if (host.includes('beis.deped.gov.ph')) {
+      detected = {
+        name: 'DepEd BEIS Portal',
+        category: 'Official Enterprise',
+        desc: 'Basic Education Information System school statistics, facility profile, and staffing.',
+        badgeTone: 'indigo',
+        gradient: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)'
+      };
+    } else if (host.includes('github.com')) {
+      detected = {
+        name: 'GitHub Repository',
+        category: 'Development',
+        desc: 'Source code repository, version control, release binaries, and issue tracking.',
+        badgeTone: 'slate',
+        gradient: 'linear-gradient(135deg, #334155 0%, #0f172a 100%)'
+      };
+    } else if (host.includes('notion.so') || host.includes('notion.site')) {
+      detected = {
+        name: 'Notion Workspace',
+        category: 'Knowledge Base',
+        desc: 'Team wiki, project documentation, meeting minutes, and operational trackers.',
+        badgeTone: 'slate',
+        gradient: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
+      };
+    } else if (host.includes('trello.com')) {
+      detected = {
+        name: 'Trello Board',
+        category: 'Project Boards',
+        desc: 'Visual Kanban board for task cards, milestone checklists, and sprint progress.',
+        badgeTone: 'sky',
+        gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)'
+      };
+    } else if (host.includes('youtube.com') || host.includes('youtu.be')) {
+      detected = {
+        name: 'YouTube Media',
+        category: 'Video & Media',
+        desc: 'Educational video playlist, recorded webinar, or classroom demonstration.',
+        badgeTone: 'rose',
+        gradient: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)'
+      };
+    } else if (host.includes('padlet.com')) {
+      detected = {
+        name: 'Padlet Wall',
+        category: 'Collaboration',
+        desc: 'Interactive collaborative notice board, feedback wall, and student sharing.',
+        badgeTone: 'rose',
+        gradient: 'linear-gradient(135deg, #f43f5e 0%, #db2777 100%)'
+      };
+    }
+
+    if (detected) {
+      if (force || !$('customAppName').value.trim() || $('customAppName').dataset.autoFilled === 'true') {
+        $('customAppName').value = detected.name;
+        $('customAppName').dataset.autoFilled = 'true';
+      }
+      if (force || !$('customAppCategory').value.trim() || $('customAppCategory').dataset.autoFilled === 'true') {
+        $('customAppCategory').value = detected.category;
+        $('customAppCategory').dataset.autoFilled = 'true';
+      }
+      if (force || !$('customAppDesc').value.trim() || $('customAppDesc').dataset.autoFilled === 'true') {
+        $('customAppDesc').value = detected.desc;
+        $('customAppDesc').dataset.autoFilled = 'true';
+      }
+      if (detected.gradient) $('customAppGradient').value = detected.gradient;
+      if (detected.badgeTone) $('customAppBadgeTone').value = detected.badgeTone;
+      if (detected.iconSvg) $('customAppIconSvg').value = detected.iconSvg;
+      updateCustomAppLivePreview();
+    }
+
+    // 2. Fetch Live Rich Metadata from Microlink API
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(urlStr)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const json = await res.json();
+        const data = json.data;
+        if (data) {
+          const rawTitle = (data.title || data.publisher || '').trim();
+          let cleanTitle = rawTitle.replace(/\s+([|\-—–•·]\s*[^|\-—–•·]+)$/i, '').trim() || rawTitle;
+          if (cleanTitle && (force || !$('customAppName').value.trim() || $('customAppName').dataset.autoFilled === 'true')) {
+            $('customAppName').value = cleanTitle.slice(0, 80);
+            $('customAppName').dataset.autoFilled = 'true';
+          }
+          if (data.description && (force || !$('customAppDesc').value.trim() || $('customAppDesc').dataset.autoFilled === 'true')) {
+            $('customAppDesc').value = data.description.slice(0, 240);
+            $('customAppDesc').dataset.autoFilled = 'true';
+          }
+          if (data.publisher && (force || !$('customAppCategory').value.trim() || $('customAppCategory').dataset.autoFilled === 'true')) {
+            if (!detected) {
+              $('customAppCategory').value = data.publisher.slice(0, 30);
+              $('customAppCategory').dataset.autoFilled = 'true';
+            }
+          }
+          const logoUrl = data.logo?.url || data.image?.url;
+          if (logoUrl) {
+            $('customAppIconSvg').value = `<img src="${safeEsc(logoUrl)}" alt="Logo" style="width:24px;height:24px;object-fit:contain;border-radius:6px;" onerror="this.onerror=null;this.src='https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128';">`;
+          } else if (!detected?.iconSvg) {
+            $('customAppIconSvg').value = `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128" alt="Icon" style="width:24px;height:24px;object-fit:contain;border-radius:6px;">`;
+          }
+        }
+      }
+    } catch(err) {
+      if (!detected) {
+        const domainName = host.replace(/^www\./, '').split('.')[0];
+        const capName = domainName.charAt(0).toUpperCase() + domainName.slice(1);
+        if (force || !$('customAppName').value.trim() || $('customAppName').dataset.autoFilled === 'true') {
+          $('customAppName').value = capName + ' Portal';
+          $('customAppName').dataset.autoFilled = 'true';
+        }
+        if (force || !$('customAppCategory').value.trim() || $('customAppCategory').dataset.autoFilled === 'true') {
+          $('customAppCategory').value = 'Web Portal';
+          $('customAppCategory').dataset.autoFilled = 'true';
+        }
+        if (force || !$('customAppDesc').value.trim() || $('customAppDesc').dataset.autoFilled === 'true') {
+          $('customAppDesc').value = `Connected web tool for ${host}.`;
+          $('customAppDesc').dataset.autoFilled = 'true';
+        }
+        $('customAppIconSvg').value = `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128" alt="Icon" style="width:24px;height:24px;object-fit:contain;border-radius:6px;">`;
+      }
+    }
+
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="color:#10b981;font-weight:700;">✓ Details auto-filled!</span>`;
+      setTimeout(() => { if (statusEl) statusEl.innerHTML = ''; }, 3200);
+    }
+    updateCustomAppLivePreview();
+  }
+  window.fetchCustomToolMetadata = fetchCustomToolMetadata;
+
+  // Listen for changes in form fields to update live preview
+  document.addEventListener('input', e => {
+    if (['customAppName', 'customAppCategory', 'customAppDesc'].includes(e.target.id)) {
+      e.target.dataset.autoFilled = 'false';
+      updateCustomAppLivePreview();
+    }
+  });
+
+  // Debounced auto-fetch on URL change or paste
+  let urlFetchTimeout = null;
+  document.addEventListener('input', e => {
+    if (e.target.id === 'customAppUrl') {
+      clearTimeout(urlFetchTimeout);
+      urlFetchTimeout = setTimeout(() => {
+        const val = e.target.value.trim();
+        if (val.length > 8 && val.includes('.')) {
+          fetchCustomToolMetadata(val, false);
+        }
+      }, 500);
+    }
+  });
+
+  document.addEventListener('change', e => {
+    if (e.target.id === 'customAppUrl') {
+      const val = e.target.value.trim();
+      if (val.length > 8 && val.includes('.')) {
+        fetchCustomToolMetadata(val, false);
+      }
+    }
+  });
+
   // Handle Form Submission for Custom Team App
   document.addEventListener('submit', e => {
     if (e.target.id === 'teamAddCustomAppForm') {
       e.preventDefault();
       const name = $('customAppName')?.value.trim();
-      const url = $('customAppUrl')?.value.trim();
+      let url = $('customAppUrl')?.value.trim();
       const category = $('customAppCategory')?.value.trim() || 'Custom Tool';
       const desc = $('customAppDesc')?.value.trim() || 'Custom app connected by team member.';
 
       if (!name || !url) return;
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+      const gradient = $('customAppGradient')?.value || 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)';
+      const badgeTone = $('customAppBadgeTone')?.value || 'indigo';
+      const iconSvg = $('customAppIconSvg')?.value || '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
 
       const newApp = {
         id: 'custom_' + Date.now(),
         name,
         category,
-        badgeTone: 'indigo',
-        iconSvg: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-        gradient: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+        badgeTone,
+        iconSvg,
+        gradient,
         desc,
         tags: [category, 'Custom'],
         url,
@@ -34363,6 +34764,8 @@ html[data-theme=dark] .btn-act-compact:hover {
 
       $('teamAddAppModalBackdrop').hidden = true;
       $('teamAddCustomAppForm').reset();
+      const statusEl = $('customAppFetchStatus');
+      if (statusEl) statusEl.innerHTML = '';
 
       if (typeof renderTeamApps === 'function') renderTeamApps();
       if (typeof renderTeamAdminPanel3 === 'function') renderTeamAdminPanel3();
@@ -35817,36 +36220,83 @@ window.openShowcaseProject = function() {
 
 <!-- Add Custom Team App Modal -->
 <div class="chronos-repair-backdrop" id="teamAddAppModalBackdrop" hidden>
-  <section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="addAppModalTitle" style="width:min(520px,100%);">
+  <section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="addAppModalTitle" style="width:min(540px,100%);">
     <header class="chronos-repair-head">
       <div>
-        <span class="team-apps-kicker" style="font-size:10px;font-weight:800;color:var(--accent);">ADD TEAM TOOL</span>
+        <span class="team-apps-kicker" style="font-size:10px;font-weight:800;color:var(--accent,#4f46e5);">ADD TEAM TOOL</span>
         <h3 id="addAppModalTitle" style="margin:2px 0 0;font-size:20px;font-weight:800;">Add Member App or Link</h3>
+        <p style="margin:3px 0 0;font-size:12px;color:var(--muted,#64748b);">Paste any link to auto-fetch the app title, badge, and description.</p>
       </div>
       <button class="chronos-repair-close" type="button" id="closeAddAppModalBtn" aria-label="Close dialog">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
     </header>
-    <form id="teamAddCustomAppForm" style="display:flex;flex-direction:column;gap:14px;margin-top:12px;">
+    <form id="teamAddCustomAppForm" style="display:flex;flex-direction:column;gap:13px;margin-top:10px;">
+      <!-- 1. URL input with Auto-fetch Action -->
       <div>
-        <label for="customAppName" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">App / Tool Name</label>
-        <input id="customAppName" type="text" required placeholder="e.g. Shared Google Drive, Canva Team, MOOE Sheet" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          <label for="customAppUrl" style="font-size:12px;font-weight:700;color:var(--text,#0f172a);margin:0;">App / Website URL <span style="color:#ef4444">*</span></label>
+          <button type="button" class="btn-fetch-metadata" id="fetchAppMetadataBtn" title="Auto-detect app details from link">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+            <span>Auto-fetch Details</span>
+          </button>
+        </div>
+        <input id="customAppUrl" type="url" required placeholder="Paste URL (e.g. https://drive.google.com, https://canva.com)..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+        <div id="customAppFetchStatus" style="font-size:11.5px;color:var(--muted);min-height:16px;margin-top:4px;"></div>
       </div>
+
+      <!-- 2. Tool Name -->
       <div>
-        <label for="customAppUrl" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">URL / Link</label>
-        <input id="customAppUrl" type="url" required placeholder="https://..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+        <label for="customAppName" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">App / Tool Name <span style="color:#ef4444">*</span></label>
+        <input id="customAppName" type="text" required placeholder="e.g. Shared Google Drive, MOOE Liquidation Sheet, Canva Team" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
       </div>
+
+      <!-- 3. Category & Preset Suggestions -->
       <div>
         <label for="customAppCategory" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">Category / Badge</label>
-        <input id="customAppCategory" type="text" placeholder="e.g. Documents, Forms, LMS, Design" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+        <div class="custom-app-cat-chips" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;">
+          <button type="button" class="cat-chip-btn" data-cat="Documents">Documents</button>
+          <button type="button" class="cat-chip-btn" data-cat="Spreadsheets">Spreadsheets</button>
+          <button type="button" class="cat-chip-btn" data-cat="Cloud Storage">Cloud Storage</button>
+          <button type="button" class="cat-chip-btn" data-cat="Design &amp; Media">Design &amp; Media</button>
+          <button type="button" class="cat-chip-btn" data-cat="Official Portal">Official Portal</button>
+          <button type="button" class="cat-chip-btn" data-cat="Curriculum &amp; LMS">LMS &amp; Lessons</button>
+        </div>
+        <input id="customAppCategory" type="text" placeholder="e.g. Documents, Spreadsheets, Design, Official Portal" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
       </div>
+
+      <!-- 4. Description -->
       <div>
         <label for="customAppDesc" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">Description</label>
         <textarea id="customAppDesc" rows="2" placeholder="Brief note on how the team uses this tool..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;resize:vertical;"></textarea>
       </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+
+      <!-- 5. Live Card Preview -->
+      <div class="custom-app-preview-wrap" style="border:1px dashed var(--line,#cbd5e1);border-radius:14px;padding:12px 14px;background:var(--surface-2,#f8fafc);">
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.5px;color:var(--muted,#64748b);margin-bottom:6px;text-transform:uppercase;">Live Dashboard Card Preview</div>
+        <div class="team-tool-modal-item" id="customAppLivePreview" style="margin:0;padding:10px 14px;background:var(--surface,#fff);">
+          <div class="team-tool-modal-icon" id="previewAppIcon" style="background:linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <div class="team-tool-modal-info">
+            <div class="team-tool-modal-name-row">
+              <strong class="team-tool-modal-title" id="previewAppTitle">New Member Tool</strong>
+              <span class="team-app-badge badge-indigo" id="previewAppBadge">Custom Tool</span>
+              <span class="team-app-status-chip">Connected</span>
+            </div>
+            <p class="team-tool-modal-desc" id="previewAppDesc" style="margin:2px 0 0;">Connected productivity tool for team members.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Metadata Storage -->
+      <input type="hidden" id="customAppIconSvg" value="" />
+      <input type="hidden" id="customAppGradient" value="" />
+      <input type="hidden" id="customAppBadgeTone" value="indigo" />
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;">
         <button type="button" class="btn" id="cancelAddAppModalBtn" style="border-radius:12px;padding:8px 16px;">Cancel</button>
-        <button type="submit" class="btn primary" style="border-radius:12px;padding:8px 18px;background:var(--accent);color:#fff;font-weight:700;">Save App Link</button>
+        <button type="submit" class="btn primary" style="border-radius:12px;padding:8px 18px;background:var(--accent,#4f46e5);color:#fff;font-weight:700;">Save App Link</button>
       </div>
     </form>
   </section>
