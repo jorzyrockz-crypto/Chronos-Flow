@@ -12,7 +12,9 @@ Open Firestore Database → Rules and publish the included `firestore.rules`. Re
 ## 3. Team management
 - The team owner can promote a member to Admin or demote an Admin to Member.
 - An Admin can remove ordinary members. Only the owner can remove an Admin.
-- The owner cannot be removed from the member list through these controls.
+- The owner cannot be removed from the member list through the member-management controls.
+- The owner can permanently delete a team. Deletion first locks team writes and invitations, then clears shared records, tombstones, invitation and invite-code indexes, active member records, and user-side membership indexes; the owner membership record is removed atomically with the team document. If cleanup is interrupted, retry deletion as owner to finish.
+- Publish the included `firestore.rules` before using team deletion so the owner and team cleanup permissions are active.
 - A removed member loses access enforced by team membership checks; their personal data and other teams are not intentionally deleted.
 - Invitees still sign in with Google and explicitly accept an invitation using the link or code. This version does not add an administrator approval queue before invitation acceptance.
 
@@ -54,6 +56,8 @@ Firebase Functions (2nd gen) and the one-minute scheduled reminder sweep require
 - Sign in as owner, promote a member to Admin, then demote them.
 - Confirm an Admin cannot promote another user to Admin or remove another Admin.
 - Remove an ordinary member and verify that member cannot read team documents after refresh.
+- On a disposable test team with multiple members, invitations, records, and notifications, delete the team as owner; verify the team and membership links are removed while personal data and other teams remain.
+- During team deletion, verify new invitations, joins, and shared writes are blocked; after an interrupted cleanup, retry as owner and confirm it finishes.
 - Share an event and note; verify other team members receive in-app notifications.
 - Assign a task to a member; verify the task appears in their Tasks list and they receive a notification.
 - Mark a notification read and verify its unread badge updates in other open sessions.

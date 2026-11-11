@@ -3,7 +3,13 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function memberPath(teamId, uid) { return /databases/$(database)/documents/teams/$(teamId)/members/$(uid); }
+    function teamMembershipPath(teamId, uid) { return /databases/$(database)/documents/users/$(uid)/teamMemberships/$(teamId); }
     function teamPath(teamId) { return /databases/$(database)/documents/teams/$(teamId); }
+    function teamAllowsWrites(teamId) {
+      return existsAfter(teamPath(teamId))
+        && (!('deleting' in getAfter(teamPath(teamId)).data)
+          || getAfter(teamPath(teamId)).data.deleting != true);
+    }
     function isMember(teamId) { return signedIn() && exists(memberPath(teamId, request.auth.uid)); }
     function role(teamId) { return isMember(teamId) ? get(memberPath(teamId, request.auth.uid)).data.role : ''; }
     function isAdmin(teamId) { return role(teamId) in ['owner', 'admin']; }
@@ -11,10 +17,28 @@ service cloud.firestore {
     function invitePath(teamId, code) { return /databases/$(database)/documents/teams/$(teamId)/invitations/$(code); }
     function validRecordKind(kind) { return kind in ['events', 'tasks', 'notes']; }
     function projectPath(teamId, projectId) { return /databases/$(database)/documents/teams/$(teamId)/projects/$(projectId); }
+    function teamRecordPath(teamId, kind, recordId) { return /databases/$(database)/documents/teams/$(teamId)/$(kind)/$(recordId); }
     function isProjectManager(teamId, projectId) {
       return isAdmin(teamId)
         || (exists(projectPath(teamId, projectId))
-          && get(projectPath(teamId, projectId)).data.ownerUid == request.auth.uid);
+          && (get(projectPath(teamId, projectId)).data.ownerUid == request.auth.uid
+            || ((!('ownerUid' in get(projectPath(teamId, projectId)).data)
+                || get(projectPath(teamId, projectId)).data.ownerUid == null
+                || get(projectPath(teamId, projectId)).data.ownerUid == '')
+              && get(projectPath(teamId, projectId)).data.createdBy == request.auth.uid)));
+    }
+    function canDeleteTeamRecord(teamId, kind, recordId) {
+      return isAdmin(teamId)
+        || (kind == 'projects' && isProjectManager(teamId, recordId))
+        || (kind in ['events', 'tasks', 'notes']
+          && exists(teamRecordPath(teamId, kind, recordId))
+          && (get(teamRecordPath(teamId, kind, recordId)).data.createdBy == request.auth.uid
+            || (kind == 'tasks'
+              && ('sourceType' in get(teamRecordPath(teamId, kind, recordId)).data)
+              && get(teamRecordPath(teamId, kind, recordId)).data.sourceType == 'project'
+              && ('projectId' in get(teamRecordPath(teamId, kind, recordId)).data)
+              && get(teamRecordPath(teamId, kind, recordId)).data.projectId is string
+              && isProjectManager(teamId, get(teamRecordPath(teamId, kind, recordId)).data.projectId))));
     }
     function validEmailRestriction(data) { return !('invitedEmail' in data) || data.invitedEmail == null || data.invitedEmail is string; }
 
@@ -58,13 +82,31 @@ service cloud.firestore {
       }
 
       match /teamMemberships/{teamId} {
-        allow read, write: if signedIn() && request.auth.uid == userId;
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn() && request.auth.uid == userId
+          && teamAllowsWrites(teamId)
+          && request.resource.data.teamId == teamId
+          && existsAfter(memberPath(teamId, userId))
+          && getAfter(memberPath(teamId, userId)).data.uid == userId
+          && request.resource.data.role == getAfter(memberPath(teamId, userId)).data.role;
+        allow update: if signedIn() && request.auth.uid == userId
+          && teamAllowsWrites(teamId)
+          && request.resource.data.teamId == resource.data.teamId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name']);
+        // A user or team administrator may remove a membership index only in the same
+        // atomic operation that removes the matching protected team-member record.
+        allow delete: if signedIn()
+          && (request.auth.uid == userId || isOwner(teamId) || isAdmin(teamId))
+          && !existsAfter(memberPath(teamId, userId));
       }
 
       match /{kind}/{recordId} {
         allow read: if signedIn() && request.auth.uid == userId;
-        allow delete: if signedIn() && request.auth.uid == userId;
+        // Keep membership indexes out of this broad allow: Firestore combines overlapping
+        // match grants with OR, which would otherwise bypass the paired team-member delete.
+        allow delete: if signedIn() && request.auth.uid == userId && kind != 'teamMemberships';
         allow create, update: if signedIn() && request.auth.uid == userId
+          && kind != 'teamMemberships'
           && !isUserTombstoned(userId, kind, recordId);
       }
     }
@@ -74,31 +116,58 @@ service cloud.firestore {
       allow get: if signedIn();
       allow list: if false;
       allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.teamId is string && isAdmin(request.resource.data.teamId);
+        && request.resource.data.teamId is string
+        && teamAllowsWrites(request.resource.data.teamId)
+        && isAdmin(request.resource.data.teamId);
       allow update: if signedIn() && resource.data.createdBy == request.auth.uid
+        && resource.data.teamId is string
+        && teamAllowsWrites(resource.data.teamId)
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.teamId == resource.data.teamId
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'usedBy', 'usedAt']);
-      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+      allow delete: if signedIn() && (resource.data.createdBy == request.auth.uid
+        || (resource.data.teamId is string && isOwner(resource.data.teamId)));
     }
 
     match /teams/{teamId} {
       allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid && request.resource.data.createdBy == request.auth.uid;
       allow get, list: if isMember(teamId);
-      allow update: if isAdmin(teamId) && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow update: if (isAdmin(teamId) || isOwner(teamId))
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['deleting', 'deletionStartedAt'])
+          || isOwner(teamId))
+        && (!('deleting' in resource.data) || resource.data.deleting != true
+          || (isOwner(teamId)
+            && request.resource.data.deleting == true
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deleting', 'deletionStartedAt'])));
       allow delete: if isOwner(teamId);
 
       // Shared Team Tombstones: prevents deleted team records from resurrecting across all members
       match /tombstones/{tombstoneId} {
         allow read: if isMember(teamId);
-        allow create, update: if isMember(teamId)
-          && request.resource.data.deletedBy == request.auth.uid;
+        allow create: if isMember(teamId)
+          && teamAllowsWrites(teamId)
+          && request.resource.data.id is string
+          && request.resource.data.type in ['events', 'tasks', 'notes', 'projects']
+          && request.resource.data.deletedBy == request.auth.uid
+          && canDeleteTeamRecord(teamId, request.resource.data.type, request.resource.data.id);
+        allow update: if isMember(teamId)
+          && teamAllowsWrites(teamId)
+          && request.resource.data.id is string
+          && request.resource.data.type in ['events', 'tasks', 'notes', 'projects']
+          && request.resource.data.deletedBy == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['id', 'type', 'deletedAt', 'deletedBy'])
+          && (canDeleteTeamRecord(teamId, request.resource.data.type, request.resource.data.id)
+            || (resource.data.deletedBy == request.auth.uid
+              && resource.data.id == request.resource.data.id
+              && resource.data.type == request.resource.data.type));
         allow delete: if isAdmin(teamId);
       }
 
       match /members/{memberUid} {
         allow read: if isMember(teamId);
         allow create: if signedIn() && request.auth.uid == memberUid && request.resource.data.uid == request.auth.uid
+          && teamAllowsWrites(teamId)
           && ((getAfter(teamPath(teamId)).data.ownerUid == request.auth.uid && request.resource.data.role == 'owner')
             || (request.resource.data.role == 'member' && request.resource.data.joinedAt is number
               && request.resource.data.email is string && request.auth.token.email is string
@@ -106,20 +175,31 @@ service cloud.firestore {
               && request.resource.data.invitationCode is string
               && getAfter(invitePath(teamId, request.resource.data.invitationCode)).data.status == 'accepted'
               && getAfter(invitePath(teamId, request.resource.data.invitationCode)).data.acceptedBy == request.auth.uid));
-        allow update: if (isOwner(teamId)
-            && request.resource.data.uid == resource.data.uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'displayName', 'photoURL', 'lastSeenAt'])
-            && (memberUid != get(teamPath(teamId)).data.ownerUid || request.resource.data.role == 'owner'))
-          || (isAdmin(teamId) && memberUid != get(teamPath(teamId)).data.ownerUid
-            && resource.data.role != 'admin'
-            && request.resource.data.role == resource.data.role
-            && request.resource.data.uid == resource.data.uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt']))
-          || (signedIn() && request.auth.uid == memberUid
-            && request.resource.data.role == resource.data.role && request.resource.data.uid == resource.data.uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt']));
-        allow delete: if (isOwner(teamId) && memberUid != get(teamPath(teamId)).data.ownerUid)
-          || (isAdmin(teamId) && resource.data.role == 'member' && memberUid != get(teamPath(teamId)).data.ownerUid);
+        allow update: if teamAllowsWrites(teamId) && (
+            (isOwner(teamId)
+              && request.resource.data.uid == resource.data.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'displayName', 'photoURL', 'lastSeenAt'])
+              && (memberUid != get(teamPath(teamId)).data.ownerUid || request.resource.data.role == 'owner'))
+            || (isAdmin(teamId) && memberUid != get(teamPath(teamId)).data.ownerUid
+              && resource.data.role != 'admin'
+              && request.resource.data.role == resource.data.role
+              && request.resource.data.uid == resource.data.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt']))
+            || (signedIn() && request.auth.uid == memberUid
+              && request.resource.data.role == resource.data.role && request.resource.data.uid == resource.data.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'lastSeenAt']))
+          );
+        allow delete: if (
+            (isOwner(teamId) && memberUid != get(teamPath(teamId)).data.ownerUid)
+            || (isAdmin(teamId) && resource.data.role == 'member' && memberUid != get(teamPath(teamId)).data.ownerUid)
+            // A non-owner may leave their own team membership. The owner may remove their
+            // own member record only in the same atomic batch that deletes the team root.
+            || (signedIn() && request.auth.uid == memberUid
+              && memberUid != get(teamPath(teamId)).data.ownerUid)
+            || (isOwner(teamId) && memberUid == request.auth.uid
+              && memberUid == get(teamPath(teamId)).data.ownerUid
+              && !existsAfter(teamPath(teamId)))
+          ) && !existsAfter(teamMembershipPath(teamId, memberUid));
       }
 
       match /invitations/{code} {
@@ -127,28 +207,33 @@ service cloud.firestore {
           && resource.data.expiresAt is timestamp && resource.data.expiresAt > request.time
           && (!('invitedEmail' in resource.data) || resource.data.invitedEmail == null
             || (request.auth.token.email is string && resource.data.invitedEmail == request.auth.token.email))));
-        allow create: if isAdmin(teamId) && request.resource.data.teamId == teamId && request.resource.data.code == code
+        allow create: if teamAllowsWrites(teamId) && isAdmin(teamId)
+          && request.resource.data.teamId == teamId && request.resource.data.code == code
           && request.resource.data.createdBy == request.auth.uid && request.resource.data.status == 'pending'
           && request.resource.data.expiresAt is timestamp && request.resource.data.expiresAt > request.time
           && validEmailRestriction(request.resource.data);
-        allow update: if (isAdmin(teamId)
-            && request.resource.data.teamId == resource.data.teamId
-            && request.resource.data.code == resource.data.code
-            && request.resource.data.createdBy == resource.data.createdBy
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'expiresAt', 'invitedEmail']))
-          || (signedIn() && resource.data.status == 'pending'
-            && resource.data.expiresAt is timestamp && resource.data.expiresAt > request.time
-            && (!('invitedEmail' in resource.data) || resource.data.invitedEmail == null
-              || (request.auth.token.email is string && resource.data.invitedEmail == request.auth.token.email))
-            && request.resource.data.status == 'accepted' && request.resource.data.acceptedBy == request.auth.uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedBy', 'acceptedAt']));
+        allow update: if teamAllowsWrites(teamId) && (
+            (isAdmin(teamId)
+              && request.resource.data.teamId == resource.data.teamId
+              && request.resource.data.code == resource.data.code
+              && request.resource.data.createdBy == resource.data.createdBy
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'expiresAt', 'invitedEmail']))
+            || (signedIn() && resource.data.status == 'pending'
+              && resource.data.expiresAt is timestamp && resource.data.expiresAt > request.time
+              && (!('invitedEmail' in resource.data) || resource.data.invitedEmail == null
+                || (request.auth.token.email is string && resource.data.invitedEmail == request.auth.token.email))
+              && request.resource.data.status == 'accepted' && request.resource.data.acceptedBy == request.auth.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedBy', 'acceptedAt']))
+          );
         allow delete: if isAdmin(teamId);
       }
 
       // Recipient-specific in-app notifications
       match /notifications/{notificationId} {
-        allow get, list: if isMember(teamId) && resource.data.recipientUid == request.auth.uid;
+        allow get, list: if isMember(teamId)
+          && (resource.data.recipientUid == request.auth.uid || isOwner(teamId));
         allow create: if isMember(teamId)
+          && teamAllowsWrites(teamId)
           && request.resource.data.teamId == teamId
           && request.resource.data.recipientUid is string
           && exists(memberPath(teamId, request.resource.data.recipientUid))
@@ -157,6 +242,7 @@ service cloud.firestore {
           && request.resource.data.type in ['events', 'tasks', 'notes', 'member', 'admin']
           && request.resource.data.targetId is string;
         allow update: if isMember(teamId)
+          && teamAllowsWrites(teamId)
           && resource.data.recipientUid == request.auth.uid
           && request.resource.data.recipientUid == resource.data.recipientUid
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']);
@@ -166,7 +252,8 @@ service cloud.firestore {
 
       match /activity/{activityId} {
         allow read: if isAdmin(teamId);
-        allow create: if isAdmin(teamId) && request.resource.data.actorUid == request.auth.uid;
+        allow create: if teamAllowsWrites(teamId)
+          && isAdmin(teamId) && request.resource.data.actorUid == request.auth.uid;
         allow update: if false;
         allow delete: if isOwner(teamId);
       }
@@ -175,12 +262,14 @@ service cloud.firestore {
       match /projects/{projectId} {
         allow read: if isMember(teamId);
         allow create: if isMember(teamId)
+          && teamAllowsWrites(teamId)
           && !isTeamTombstoned(teamId, projectId)
           && request.resource.data.id == projectId
           && request.resource.data.teamId == teamId
           && request.resource.data.createdBy == request.auth.uid
           && (isAdmin(teamId) || request.resource.data.ownerUid == request.auth.uid);
-        allow update: if isProjectManager(teamId, projectId)
+        allow update: if teamAllowsWrites(teamId)
+          && isProjectManager(teamId, projectId)
           && !isTeamTombstoned(teamId, projectId)
           && request.resource.data.id == resource.data.id
           && request.resource.data.teamId == teamId;
@@ -190,11 +279,11 @@ service cloud.firestore {
       // Team Events, Tasks, and Notes with Anti-Resurrection check
       match /{kind}/{recordId} {
         allow read: if isMember(teamId) && validRecordKind(kind);
-        allow create: if isMember(teamId) && validRecordKind(kind)
+        allow create: if isMember(teamId) && teamAllowsWrites(teamId) && validRecordKind(kind)
           && !isTeamTombstoned(teamId, recordId)
           && request.resource.data.createdBy == request.auth.uid && request.resource.data.id == recordId
           && (!('assigneeUids' in request.resource.data) || request.resource.data.assigneeUids is list);
-        allow update: if isMember(teamId) && validRecordKind(kind)
+        allow update: if isMember(teamId) && teamAllowsWrites(teamId) && validRecordKind(kind)
           && !isTeamTombstoned(teamId, recordId)
           && (isAdmin(teamId) || resource.data.createdBy == request.auth.uid
             || (kind == 'tasks'
@@ -216,6 +305,7 @@ service cloud.firestore {
               && ('sourceType' in resource.data)
               && resource.data.sourceType == 'project'
               && ('projectId' in resource.data)
+              && resource.data.projectId is string
               && isProjectManager(teamId, resource.data.projectId)
             )
           );
