@@ -9986,25 +9986,40 @@ html[data-theme="dark"] .note-card .md-card-preview {
                 </svg>
               </button>
               <div class="task-accordion-pane collapsed" id="taskAdvancedPane">
-                <!-- Task Brand Icon Selection -->
+                <!-- Task Brand Icon Selection (Simplified Dropdown Left + Accent Icon Right) -->
                 <div class="task-field-group">
-                  <span class="task-field-label">Task Brand Icon</span>
-                  <span id="taskIconBadge" style="display:none;" aria-hidden="true">Auto</span>
-                  <input type="hidden" id="taskIcon" value="">
-                  <div class="task-icon-picker-container">
-                    <div class="task-icon-live-badge-wrap">
-                      <div id="taskIconLivePreview" class="card-brand-mark task-modal-brand-preview" title="Live Icon Preview">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
-                      </div>
-                      <div class="task-icon-badge-desc">
-                        <strong id="taskIconNameLabel">Auto (Contextual)</strong>
-                        <small id="taskIconSubLabel">Automatically selects a relevant Lucide icon from title or project</small>
-                      </div>
+                  <label for="taskIcon" class="task-field-label">Task Brand Icon</label>
+                  <div class="task-icon-row">
+                    <div class="task-icon-select-wrap">
+                      <select id="taskIcon" class="project-form-input task-icon-select" aria-label="Task Brand Icon">
+                        <option value="">✨ Auto (smart matching)</option>
+                        <option value="layout">⊞ UI / Design</option>
+                        <option value="check-square">☑ Checklist / Audit</option>
+                        <option value="book-open">📖 Education / School</option>
+                        <option value="code">&lt;/&gt; Code / Tech</option>
+                        <option value="file-text">📄 Doc / Report</option>
+                        <option value="users">👥 Team / Meeting</option>
+                        <option value="target">🎯 Goal / Target</option>
+                        <option value="zap">⚡ Sprint / Fast</option>
+                        <option value="calendar">📅 Event / Date</option>
+                        <option value="folder">📁 Folder / Files</option>
+                        <option value="briefcase">💼 Work / Business</option>
+                        <option value="bookmark">🔖 Bookmark</option>
+                        <option value="flag">🚩 Milestone / Flag</option>
+                        <option value="star">⭐ Priority / Star</option>
+                        <option value="alert-circle">⚠️ Urgent / Alert</option>
+                      </select>
+                      <span class="task-icon-select-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </span>
                     </div>
-                    <div class="task-icon-picker-grid" id="taskIconPickerGrid">
-                      <!-- Populated by JS -->
+                    <div class="task-icon-preview-wrap">
+                      <div id="taskIconLivePreview" class="task-icon-accent-badge" title="Live Accent Brand Icon">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+                      </div>
                     </div>
                   </div>
+                  <small id="taskIconSubLabel" class="task-field-hint-sub">Smartly matches title or project theme.</small>
                 </div>
 
                 <!-- Linked Note -->
@@ -31874,6 +31889,89 @@ html[data-theme="dark"] #taskBackdrop .project-segment-btn.active {
   display: none !important;
 }
 
+/* Simplified Task Brand Icon Row (Dropdown Left + Accent Icon Badge Right) */
+.task-icon-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+}
+
+.task-icon-select-wrap {
+  flex: 1 1 auto !important;
+  position: relative !important;
+  min-width: 0 !important;
+}
+
+.task-icon-select {
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 10px 36px 10px 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text, #f8fafc) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+}
+
+:root:not([data-theme="dark"]) .task-icon-select {
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+  color: #0f172a !important;
+}
+
+.task-icon-select:focus {
+  border-color: var(--accent, #4f46e5) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #4f46e5) 20%, transparent) !important;
+}
+
+.task-icon-select-chevron {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+  color: var(--muted, #94a3b8) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.task-icon-preview-wrap {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.task-icon-accent-badge {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  background: linear-gradient(135deg, var(--accent, #4f46e5) 0%, #8b5cf6 100%) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent, #4f46e5) 35%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+}
+
+.task-icon-accent-badge svg {
+  stroke: #ffffff !important;
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 2.2px !important;
+  fill: none !important;
+}
+
 /* Sticky Actions Footer Bar (Permanently Docked at Bottom of Dialog) */
 #taskBackdrop .task-modal-actions {
   flex: 0 0 auto !important;
@@ -37159,30 +37257,18 @@ window.openShowcaseProject = function() {
   ];
 
   window.syncTaskIconUI = function(iconId = '', t = null) {
-    const iconInput = $('taskIcon');
-    if (iconInput) iconInput.value = iconId;
+    const iconSelect = $('taskIcon');
+    if (iconSelect && iconSelect.value !== iconId) {
+      iconSelect.value = iconId;
+    }
 
     const currentTitle = $('taskTitle')?.value || t?.title || '';
     const currentPrio = $('taskPriority')?.value || t?.priority || 'medium';
     const effectiveTask = { ...(t || {}), title: currentTitle, priority: currentPrio, icon: iconId };
     const effectiveIcon = typeof resolveTaskIcon === 'function' ? resolveTaskIcon(effectiveTask) : (iconId || 'check-square');
 
-    // Update buttons active class
-    document.querySelectorAll('#taskIconPickerGrid .task-icon-opt-btn').forEach(btn => {
-      const matches = (btn.dataset.taskIconOpt === iconId);
-      btn.classList.toggle('active', matches);
-    });
-
-    // Update badge label
-    const badge = $('taskIconBadge');
-    const found = TASK_ICON_CATALOG.find(x => x.id === iconId);
-    if (badge) {
-      badge.textContent = iconId ? (found?.label.split('/')[0].trim() || iconId) : 'Auto';
-    }
-
-    // Update live preview badge
+    // Update live accent preview badge on the right
     const preview = $('taskIconLivePreview');
-    const nameLabel = $('taskIconNameLabel');
     const subLabel = $('taskIconSubLabel');
 
     if (typeof getTaskBrandMark === 'function') {
@@ -37193,32 +37279,20 @@ window.openShowcaseProject = function() {
         preview.title = brand.title;
       }
     }
-    if (nameLabel) {
-      nameLabel.textContent = iconId ? (found?.label || iconId) : `Auto (${effectiveIcon})`;
-    }
     if (subLabel) {
+      const found = TASK_ICON_CATALOG.find(x => x.id === iconId);
       subLabel.textContent = iconId 
-        ? `Custom task icon chosen: "${iconId}"` 
+        ? `Brand icon: ${found?.label || iconId}` 
         : `Smartly matches title "${currentTitle || 'Untitled'}" → Lucide "${effectiveIcon}"`;
     }
   };
 
   function initTaskIconPicker() {
-    const grid = $('taskIconPickerGrid');
-    if (!grid) return;
-    grid.innerHTML = TASK_ICON_CATALOG.map(item => `
-      <button type="button" class="task-icon-opt-btn ${!item.id ? 'active' : ''}" data-task-icon-opt="${item.id}" title="${esc(item.label)}">
-        <span class="task-icon-preview">${typeof getLucideSvg === 'function' ? getLucideSvg(item.icon, 15) : ''}</span>
-        <span class="task-icon-opt-label">${esc(item.label.split('/')[0].trim())}</span>
-      </button>
-    `).join('');
+    const iconSelect = $('taskIcon');
+    if (!iconSelect) return;
 
-    grid.addEventListener('click', e => {
-      const btn = e.target.closest('[data-task-icon-opt]');
-      if (!btn) return;
-      e.preventDefault();
-      const optId = btn.dataset.taskIconOpt;
-      if ($('taskIcon')) $('taskIcon').value = optId;
+    iconSelect.addEventListener('change', e => {
+      const optId = e.target.value;
       const currentTaskId = $('taskId')?.value;
       const t = (tasks || []).find(x => String(x.id) === String(currentTaskId));
       syncTaskIconUI(optId, t);
