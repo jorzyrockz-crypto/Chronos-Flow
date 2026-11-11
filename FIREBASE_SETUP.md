@@ -19,9 +19,38 @@ Open Firestore Database → Rules and publish the included `firestore.rules`. Re
 ## 4. Notification 2.0
 Notifications are stored at `teams/{teamId}/notifications/{notificationId}` and include `recipientUid`. The app queries each team using `where('recipientUid', '==', currentUid)`. The included rules permit recipients to read their own notifications and update only `readAt`. Team members may create notification records only for existing members of that team and only with themselves as actor.
 
-The app attempts to notify other team members when an event or note is shared with a team, and assigned users when a task is assigned. Notifications are written from the browser; there is no Cloud Function or guaranteed background delivery.
+The app attempts to notify other team members when an event or note is shared with a team, and assigned users when a task is assigned. Notifications are recorded in Firestore by the browser. The included `functions/` package adds optional Web Push delivery for those records; recipients must opt in on each browser/device. In-app notifications remain available if push is not configured.
 
-## 5. Validation checklist
+## 5. Browser push notifications
+
+Chronos uses standards-based Web Push (VAPID). The app stores each opted-in browser subscription at `users/{uid}/pushSubscriptions/{subscriptionId}`. The VAPID public key is served by `getWebPushConfig`; the private key is only used by Firebase Functions and must never be placed in the app or Git.
+
+1. Select the same Firebase project used by Chronos and ensure Firebase CLI is installed/logged in. From the repository root, install the function dependencies:
+   ```bash
+   npm --prefix functions install
+   ```
+2. Generate a VAPID key pair:
+   ```bash
+   node -e "console.log(require('./functions/node_modules/web-push').generateVAPIDKeys())"
+   ```
+   Keep the `privateKey` private. Set it through the Firebase secret prompt (do not put it in a command argument or source file):
+   ```bash
+   firebase functions:secrets:set VAPID_PRIVATE_KEY --project YOUR_PROJECT_ID
+   ```
+3. Deploy the functions and rules from the repository root:
+   ```bash
+   firebase deploy --project YOUR_PROJECT_ID --only functions,firestore:rules
+   ```
+   On first deploy, Firebase CLI prompts for `VAPID_PUBLIC_KEY` and `VAPID_SUBJECT`. Enter the matching generated public key and a valid contact such as `mailto:you@example.com`. The `.env.<project-id>` parameter file is ignored by Git.
+4. In Chronos, sign in with Google, open **Settings → Notifications**, and choose **Enable push notifications** in each browser/device. Allow the browser permission. **HTTPS is required** (localhost is suitable for development).
+5. Complete **Settings → Data & Cloud Sync → Merge & sync data** on devices that have not yet synced their local calendar/tasks. Scheduled reminders are sent from the Firestore copies of personal events and tasks. Team activity push is triggered by the existing team notification records.
+
+Firebase Functions (2nd gen) and the one-minute scheduled reminder sweep require a Firebase project with billing enabled (Blaze) and the applicable Cloud Scheduler/Functions APIs. Reminder timing uses each browser subscription's saved timezone and the app's reminder/quiet-hours preferences. Browser and operating-system support varies; iOS/iPadOS generally requires Chronos to be installed to the Home Screen. Disabling push in Chronos removes that browser's subscription; revoking notification permission in browser settings also stops delivery.
+
+## 6. Validation checklist
+- Enable push on a recipient browser, close/minimize Chronos, then share a team event/note or assign a task and confirm a system notification arrives.
+- Add a future personal event with a reminder and a task with a due-date reminder; confirm each push is delivered once and quiet hours are respected.
+- Disable push on a browser and verify its subscription is removed while in-app notifications still work.
 - Sign in as owner, promote a member to Admin, then demote them.
 - Confirm an Admin cannot promote another user to Admin or remove another Admin.
 - Remove an ordinary member and verify that member cannot read team documents after refresh.

@@ -35,6 +35,7 @@ Built with an offline-first architecture, Chronos Flow pairs instant local respo
 ### ⚡ Local-First Engine & Cloud Synchronization
 - **Offline-First PWA:** Full service worker caching enables complete offline functionality with instant boot times.
 - **Firebase Firestore Integration:** Real-time bi-directional synchronization across multiple devices with Google OAuth authentication.
+- **Browser Push Notifications:** Opt-in Web Push for team activity and scheduled event/task reminders, including while Chronos is closed. Requires the included Firebase Cloud Functions and VAPID setup.
 - **Anti-Resurrection Overhaul:** Guaranteed tombstone synchronization preventing deleted items from reappearing during cross-device reconciliations.
 
 ### 🎨 3D Infinity Flow Brand System
@@ -48,8 +49,8 @@ Built with an offline-first architecture, Chronos Flow pairs instant local respo
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | Semantic HTML5, Modern CSS3 (Variables, Grid, Flexbox, Glassmorphism), Vanilla JavaScript |
-| **PWA & Offline** | Service Worker API (`sw.js`), Web App Manifest (`manifest.webmanifest`), IndexedDB & LocalStorage |
-| **Backend & Sync** | Google Firebase Authentication, Cloud Firestore Realtime Database |
+| **PWA & Offline** | Service Worker API (`sw.js`), Web App Manifest (`manifest.webmanifest`), Push API, IndexedDB & LocalStorage |
+| **Backend & Sync** | Google Firebase Authentication, Cloud Firestore, Firebase Cloud Functions, Web Push (VAPID) |
 | **Design System** | Lucide Vector Icons, Adaptive Light/Dark Mode, Dynamic Accent Palettes |
 
 ---

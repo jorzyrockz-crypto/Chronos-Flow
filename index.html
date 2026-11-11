@@ -10433,7 +10433,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
 <div class="modal-backdrop hidden" id="settingsBackdrop" role="presentation"><section class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal-head"><div><h3 id="settingsTitle">Settings</h3><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Make Chronos work your way</p></div><button class="close" id="settingsClose" aria-label="Close settings"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div class="settings-content"><nav class="settings-tabs" aria-label="Settings categories"><button class="active" data-settings-tab="appearance">Appearance</button><button data-settings-tab="notifications">Notifications</button><button data-settings-tab="sounds">Sounds</button><button data-settings-tab="calendar">Calendar</button><button data-settings-tab="projects">Projects &amp; Workspaces</button><button data-settings-tab="data">Data & sync</button>
 <button data-settings-tab="about">About Chronos</button></nav><div class="settings-pane">
 <section class="settings-section" data-settings-pane="appearance"><h4>Appearance</h4><p>Choose the look and feel of your workspace.</p><div class="settings-field"><label for="settingMode">Color mode</label><select id="settingMode"><option value="dark">Dark</option><option value="light">Light</option><option value="system">Follow device</option></select></div><div style="margin-top:14px" class="settings-field"><span class="settings-label">Accent theme</span><div class="theme-swatches"><button class="theme-swatch" data-accent-choice="ocean" title="Ocean Blue (Atlantis)" style="background:linear-gradient(135deg,#0284c7 0%,#38bdf8 50%,#2dd4bf 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="forest" title="Forest (Emerald Sage)" style="background:linear-gradient(135deg,#059669 0%,#34d399 50%,#a3e635 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="sunset" title="Sunset (Golden Twilight)" style="background:linear-gradient(135deg,#ea580c 0%,#fb923c 50%,#facc15 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="lavender" title="Lavender (Lilac Dream)" style="background:linear-gradient(135deg,#7c3aed 0%,#c084fc 50%,#f472b6 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="mono" title="Monochrome (Titanium Slate)" style="background:linear-gradient(135deg,#1e293b 0%,#64748b 50%,#cbd5e1 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="cloud_pastel" title="Cloud Pastel (Kumoverse)" style="background:linear-gradient(135deg,#4f46e5 0%,#ec4899 50%,#facc15 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button></div><span id="accentName" style="font-size:11px;color:var(--muted)">Ocean Blue</span></div><div class="settings-grid" style="margin-top:14px"><div class="settings-field"><label for="settingDensity">Interface density</label><select id="settingDensity"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div><div class="settings-field"><label for="settingMotion">Motion effects</label><select id="settingMotion"><option value="full">Full</option><option value="reduced">Reduced</option><option value="off">Off</option></select></div></div><div class="settings-field" style="margin-top:14px"><label for="settingHomePage">Default home screen</label><select id="settingHomePage"><option value="dashboard">Flow</option><option value="calendar">Calendar</option><option value="tasks">Projects</option><option value="notes">Notes</option><option value="team">Team</option></select></div><label class="settings-toggle" style="margin-top:14px"><span><strong>Chronos Flow Sticky Utility Bar</strong><small>Display the compact sticky bar with search, month navigation, team filter, and quick event creation above the timeline.</small></span><input type="checkbox" id="settingFlowStickyBar"></label><div class="settings-preview" style="margin-top:14px"><span class="preview-dot"></span><div><strong style="font-size:12px">Ocean Blue workspace</strong><small style="display:block;color:var(--muted);font-size:10px;margin-top:3px">Your selection is saved on this device.</small></div></div></section>
-<section class="settings-section hidden" data-settings-pane="notifications"><h4>Notifications</h4><p>Manage event and task reminders. Chronos uses custom in-app notifications and sound alerts.</p><label class="settings-toggle"><span><strong>Enable reminders</strong><small>Show reminders for upcoming events and due tasks.</small></span><input type="checkbox" id="settingNotifications"></label><label class="settings-toggle"><span><strong>Custom in-app notifications</strong><small>Display interactive floating cards and sound cues; system browser alerts are disabled.</small></span><span class="note-chip" style="color:var(--accent);font-weight:750">In-app only</span></label><div class="settings-grid"><div class="settings-field"><label for="settingLeadTime">Remind me before</label><select id="settingLeadTime"><option value="0">At start time</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="1440">1 day</option></select></div><div class="settings-field"><label for="settingQuietStart">Quiet hours start</label><input id="settingQuietStart" type="time" value="22:00"></div><div class="settings-field"><label for="settingQuietEnd">Quiet hours end</label><input id="settingQuietEnd" type="time" value="07:00"></div></div><label class="settings-toggle"><span><strong>Quiet hours</strong><small>Silence reminder sounds and in-app alerts during selected hours.</small></span><input type="checkbox" id="settingQuietHours"></label><div class="settings-note" id="notificationPermissionNote">Custom in-app notifications and audio cues are active. Operating system browser popups are disabled.</div></section>
+<section class="settings-section hidden" data-settings-pane="notifications"><h4>Notifications</h4><p>Manage event and task reminders. Chronos uses custom in-app notifications and sound alerts.</p><label class="settings-toggle"><span><strong>Enable reminders</strong><small>Show reminders for upcoming events and due tasks.</small></span><input type="checkbox" id="settingNotifications"></label><label class="settings-toggle"><span><strong>Custom in-app notifications</strong><small>Display interactive floating cards and sound cues; browser push is controlled separately below.</small></span><span class="note-chip" style="color:var(--accent);font-weight:750">In-app</span></label><div class="settings-field" id="pushNotificationSettings" style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--surface2)"><strong>Browser push notifications</strong><p style="margin:5px 0 10px;color:var(--muted);font-size:11px;line-height:1.55">Receive team activity and scheduled event/task reminders, including when Chronos is closed. Requires browser permission and the Firebase push service to be deployed.</p><div id="pushNotificationStatus" class="settings-note" role="status" aria-live="polite">Checking push support…</div><div class="settings-actions" style="margin-top:10px"><button class="btn primary" id="enablePushNotifications" type="button">Enable push notifications</button><button class="btn hidden" id="disablePushNotifications" type="button">Disable on this browser</button></div></div><div class="settings-grid"><div class="settings-field"><label for="settingLeadTime">Remind me before</label><select id="settingLeadTime"><option value="0">At start time</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="1440">1 day</option></select></div><div class="settings-field"><label for="settingQuietStart">Quiet hours start</label><input id="settingQuietStart" type="time" value="22:00"></div><div class="settings-field"><label for="settingQuietEnd">Quiet hours end</label><input id="settingQuietEnd" type="time" value="07:00"></div></div><label class="settings-toggle"><span><strong>Quiet hours</strong><small>Silence reminder sounds and in-app alerts during selected hours.</small></span><input type="checkbox" id="settingQuietHours"></label><div class="settings-note" id="notificationPermissionNote">In-app reminders and sounds remain available. Browser push requires separate permission and server setup.</div></section>
 <section class="settings-section hidden" data-settings-pane="sounds"><h4>Sounds</h4><p>Keep audio feedback useful and under your control.</p><label class="settings-toggle"><span><strong>App sounds</strong><small>Play optional sound cues for reminders and task completion.</small></span><input type="checkbox" id="settingSounds"></label><div class="settings-grid"><div class="settings-field"><label for="settingVolume">Volume</label><input id="settingVolume" type="range" min="0" max="100" step="10" value="50" style="width:100%;accent-color:var(--accent)"></div><div class="settings-field"><label for="settingSoundProfile">Sound profile</label><select id="settingSoundProfile"><option value="gentle">Gentle glass chime</option><option value="bright">Bright double tone</option><option value="soft">Soft pulse</option><option value="premium">Premium arpeggio</option></select></div></div><label class="settings-toggle"><span><strong>Interface sounds</strong><small>Subtle taps and navigation cues; reminder sounds remain controlled above.</small></span><input type="checkbox" id="settingInterfaceSounds"></label><div class="settings-actions"><button class="btn" id="previewSound" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" class="lucide-icon" data-lucide="play"><polygon points="5 3 19 12 5 21 5 3"/></svg> Preview sound</button><button class="btn" id="previewSuccess" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" class="lucide-icon" data-lucide="check"><polyline points="20 6 9 17 4 12"/></svg> Preview success</button></div><div class="settings-note">Sound effects are generated locally with Web Audio. No audio files are downloaded or streamed.</div></section>
 <section class="settings-section hidden" data-settings-pane="calendar"><h4>Calendar preferences</h4><p>Set the defaults that fit your planning habits.</p><div class="settings-grid"><div class="settings-field"><label for="settingWeekStart">Week starts on</label><select id="settingWeekStart"><option value="monday">Monday</option><option value="sunday">Sunday</option></select></div><div class="settings-field"><label for="settingTimeFormat">Time format</label><select id="settingTimeFormat"><option value="24">24-hour</option><option value="12">12-hour</option></select></div><div class="settings-field"><label for="settingDuration">Default event duration</label><select id="settingDuration"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select></div></div></section>
 <!-- Projects & Workspaces Settings Pane -->
@@ -11177,7 +11177,7 @@ function removeLegacySampleNotes(){const legacyNoteIds=new Set(['n1','n2','n3'])
 function saveSettings(){try{localStorage.setItem('chronos50.settings',JSON.stringify(settings));localStorage.setItem('chronos20.theme',document.documentElement.dataset.theme||'dark');localStorage.setItem('chronos60.settingsUpdatedAt',String(Date.now()));scheduleFirebaseSync()}catch{notify('Could not save preferences in this browser.')} }
 function applySettings(showToast=true){const systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=settings.mode==='system'?(systemDark?'dark':'light'):settings.mode;document.documentElement.dataset.accent=settings.accent||'cloud_pastel';document.documentElement.dataset.density=settings.density||'comfortable';document.documentElement.dataset.motion=(settings.motion==='on'?'full':settings.motion)||'full';const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=document.documentElement.dataset.theme==='dark'?'#10131b':'#f5f7fb';if(showToast){saveSettings();render();notify('Preferences saved.')}}
 
-function settingsFormFill(){const map={settingMode:settings.mode,settingDensity:settings.density,settingMotion:settings.motion,settingHomePage:settings.homePage||'dashboard',settingNotifications:settings.notifications,settingLeadTime:String(settings.leadTime),settingQuietStart:settings.quietStart,settingQuietEnd:settings.quietEnd,settingQuietHours:settings.quietHours,settingSounds:settings.sounds,settingInterfaceSounds:settings.interfaceSounds!==false,settingVolume:settings.volume,settingSoundProfile:settings.soundProfile,settingWeekStart:settings.weekStart,settingTimeFormat:settings.timeFormat,settingDuration:String(settings.duration),settingFlowStickyBar:settings.flowStickyBarEnabled!==false,settingProjectWorkspaceSize:settings.projectWorkspaceSize||'card',settingProjectDefaultTab:settings.projectDefaultTab||'tasks',settingProjectCutoffTime:settings.projectCutoffTime||'17:00',settingProjectGracePeriod:String(settings.projectGracePeriod??0),settingProjectSupervisorTitle:settings.projectSupervisorTitle||'Master Teacher / Department Head',settingProjectSchoolDivision:settings.projectSchoolDivision||'Department of Education',settingProjectSchoolName:settings.projectSchoolName||'Main Academic Office',settingProjectApprovingAuthority:settings.projectApprovingAuthority||'School Head / Principal'};for(const [id,val] of Object.entries(map)){const el=$(id);if(el){if(el.type==='checkbox')el.checked=!!val;else el.value=val}}if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';document.querySelectorAll('[data-accent-choice]').forEach(b=>b.classList.toggle('selected',b.dataset.accentChoice===settings.accent));$('accentName').textContent=({ocean:'Ocean Blue (Atlantis)',forest:'Forest (Emerald Sage)',sunset:'Sunset (Golden Twilight)',lavender:'Lavender (Lilac Dream)',mono:'Monochrome (Titanium Slate)',cloud_pastel:'Cloud Pastel (Kumoverse)'})[settings.accent]||'Ocean Blue';const previewTitle=document.querySelector('.settings-preview strong');if(previewTitle)previewTitle.textContent=($('accentName').textContent||'Ocean Blue')+' workspace';const themeGradients={ocean:'linear-gradient(135deg,#0284c7 0%,#38bdf8 50%,#2dd4bf 100%)',forest:'linear-gradient(135deg,#059669 0%,#34d399 50%,#a3e635 100%)',sunset:'linear-gradient(135deg,#ea580c 0%,#fb923c 50%,#facc15 100%)',lavender:'linear-gradient(135deg,#7c3aed 0%,#c084fc 50%,#f472b6 100%)',mono:'linear-gradient(135deg,#1e293b 0%,#64748b 50%,#cbd5e1 100%)',cloud_pastel:'linear-gradient(135deg,#4f46e5 0%,#ec4899 50%,#facc15 100%)'};const previewDot=document.querySelector('.settings-preview .preview-dot');if(previewDot){previewDot.style.background=themeGradients[settings.accent]||'var(--accent)';previewDot.style.boxShadow='0 0 12px var(--accent-glow)'}const saveState=$('settingsSaveState');if(saveState)saveState.textContent='Saved preferences load automatically on this device.';$('notificationPermissionNote').textContent='Custom in-app notifications and audio cues are active. Operating system browser popups are disabled.'}
+function settingsFormFill(){const map={settingMode:settings.mode,settingDensity:settings.density,settingMotion:settings.motion,settingHomePage:settings.homePage||'dashboard',settingNotifications:settings.notifications,settingLeadTime:String(settings.leadTime),settingQuietStart:settings.quietStart,settingQuietEnd:settings.quietEnd,settingQuietHours:settings.quietHours,settingSounds:settings.sounds,settingInterfaceSounds:settings.interfaceSounds!==false,settingVolume:settings.volume,settingSoundProfile:settings.soundProfile,settingWeekStart:settings.weekStart,settingTimeFormat:settings.timeFormat,settingDuration:String(settings.duration),settingFlowStickyBar:settings.flowStickyBarEnabled!==false,settingProjectWorkspaceSize:settings.projectWorkspaceSize||'card',settingProjectDefaultTab:settings.projectDefaultTab||'tasks',settingProjectCutoffTime:settings.projectCutoffTime||'17:00',settingProjectGracePeriod:String(settings.projectGracePeriod??0),settingProjectSupervisorTitle:settings.projectSupervisorTitle||'Master Teacher / Department Head',settingProjectSchoolDivision:settings.projectSchoolDivision||'Department of Education',settingProjectSchoolName:settings.projectSchoolName||'Main Academic Office',settingProjectApprovingAuthority:settings.projectApprovingAuthority||'School Head / Principal'};for(const [id,val] of Object.entries(map)){const el=$(id);if(el){if(el.type==='checkbox')el.checked=!!val;else el.value=val}}if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';document.querySelectorAll('[data-accent-choice]').forEach(b=>b.classList.toggle('selected',b.dataset.accentChoice===settings.accent));$('accentName').textContent=({ocean:'Ocean Blue (Atlantis)',forest:'Forest (Emerald Sage)',sunset:'Sunset (Golden Twilight)',lavender:'Lavender (Lilac Dream)',mono:'Monochrome (Titanium Slate)',cloud_pastel:'Cloud Pastel (Kumoverse)'})[settings.accent]||'Ocean Blue';const previewTitle=document.querySelector('.settings-preview strong');if(previewTitle)previewTitle.textContent=($('accentName').textContent||'Ocean Blue')+' workspace';const themeGradients={ocean:'linear-gradient(135deg,#0284c7 0%,#38bdf8 50%,#2dd4bf 100%)',forest:'linear-gradient(135deg,#059669 0%,#34d399 50%,#a3e635 100%)',sunset:'linear-gradient(135deg,#ea580c 0%,#fb923c 50%,#facc15 100%)',lavender:'linear-gradient(135deg,#7c3aed 0%,#c084fc 50%,#f472b6 100%)',mono:'linear-gradient(135deg,#1e293b 0%,#64748b 50%,#cbd5e1 100%)',cloud_pastel:'linear-gradient(135deg,#4f46e5 0%,#ec4899 50%,#facc15 100%)'};const previewDot=document.querySelector('.settings-preview .preview-dot');if(previewDot){previewDot.style.background=themeGradients[settings.accent]||'var(--accent)';previewDot.style.boxShadow='0 0 12px var(--accent-glow)'}const saveState=$('settingsSaveState');if(saveState)saveState.textContent='Saved preferences load automatically on this device.';$('notificationPermissionNote').textContent='In-app reminders and sounds remain available. Browser push requires separate permission and server setup.'}
 function openSettings(tab='appearance'){settingsFormFill();$('settingsBackdrop').classList.remove('hidden');selectSettingsTab(tab);if(tab==='data')fillFirebaseConfig()}
 function closeSettings(){$('settingsBackdrop').classList.add('hidden')}
 function selectSettingsTab(tab){document.querySelectorAll('[data-settings-tab]').forEach(b=>b.classList.toggle('active',b.dataset.settingsTab===tab));document.querySelectorAll('[data-settings-pane]').forEach(p=>p.classList.toggle('hidden',p.dataset.settingsPane!==tab))}
@@ -38715,6 +38715,273 @@ window.openShowcaseProject = function() {
   } else {
     syncModalScrollLock();
   }
+})();
+</script>
+<script id="chronosWebPushClient">
+(() => {
+  const PUSH_REGION = 'us-central1';
+  const pushStatus = () => document.getElementById('pushNotificationStatus');
+  const enableButton = () => document.getElementById('enablePushNotifications');
+  const disableButton = () => document.getElementById('disablePushNotifications');
+  let vapidKeyPromise = null;
+  let vapidProjectId = '';
+
+  function currentUid() { return window.firebaseUser?.uid || ''; }
+  function currentDb() { return window.firebaseDb || null; }
+  function localSubscriptionKey(uid) { return `chronosFlow.pushSubscriptionId.${uid}`; }
+
+  function setStatus(message, isError = false) {
+    const status = pushStatus();
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle('error', isError);
+  }
+
+  async function getVapidPublicKey(forceRefresh = false) {
+    const projectId = window.firebaseConfig?.projectId || '';
+    if (forceRefresh || vapidProjectId !== projectId) {
+      vapidKeyPromise = null;
+      vapidProjectId = projectId;
+    }
+    if (!vapidKeyPromise) {
+      vapidKeyPromise = (async () => {
+        if (!projectId) throw new Error('Save a Firebase project configuration first.');
+        const url = `https://${PUSH_REGION}-${encodeURIComponent(projectId)}.cloudfunctions.net/getWebPushConfig`;
+        const response = await fetch(url, { cache: 'no-store', mode: 'cors' });
+        if (!response.ok) throw new Error(`Firebase push service is unavailable (${response.status}). Deploy the push functions first.`);
+        const config = await response.json();
+        if (!config.vapidPublicKey) throw new Error('The push service has no VAPID public key configured.');
+        return String(config.vapidPublicKey);
+      })().catch(error => {
+        vapidKeyPromise = null;
+        throw error;
+      });
+    }
+    return vapidKeyPromise;
+  }
+
+  function decodeVapidKey(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from(raw, character => character.charCodeAt(0));
+  }
+
+  async function subscriptionDocId(endpoint) {
+    const bytes = new TextEncoder().encode(String(endpoint));
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function savePushSubscription(uid, subscription) {
+    const db = currentDb();
+    if (!db || !uid) throw new Error('Sign in to Chronos before enabling push.');
+    const json = subscription.toJSON();
+    if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+      throw new Error('The browser returned an incomplete push subscription.');
+    }
+    const id = await subscriptionDocId(json.endpoint);
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    await db.collection('users').doc(uid).collection('pushSubscriptions').doc(id).set({
+      id,
+      endpoint: json.endpoint,
+      expirationTime: subscription.expirationTime || null,
+      keys: json.keys,
+      timeZone: timezone,
+      enabled: true,
+      updatedAt: Date.now()
+    }, { merge: true });
+    localStorage.setItem(localSubscriptionKey(uid), id);
+    return id;
+  }
+
+  async function getRegistration() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      throw new Error('This browser does not support Web Push.');
+    }
+    if (!window.isSecureContext) throw new Error('Push notifications require HTTPS or localhost.');
+    return navigator.serviceWorker.ready;
+  }
+
+  async function removePushSubscription(uid, quiet = false) {
+    const db = currentDb();
+    let subscription = null;
+    try {
+      const registration = await getRegistration();
+      subscription = await registration.pushManager.getSubscription();
+    } catch (error) {
+      if (!quiet) throw error;
+    }
+
+    let id = localStorage.getItem(localSubscriptionKey(uid)) || '';
+    if (subscription?.endpoint) {
+      try { id = await subscriptionDocId(subscription.endpoint); } catch {}
+    }
+
+    let deleteError = null;
+    if (db && uid && id) {
+      try { await db.collection('users').doc(uid).collection('pushSubscriptions').doc(id).delete(); }
+      catch (error) { deleteError = error; }
+    }
+    if (subscription) {
+      try { await subscription.unsubscribe(); }
+      catch (error) { if (!deleteError) deleteError = error; }
+    }
+    localStorage.removeItem(localSubscriptionKey(uid));
+    if (deleteError && !quiet) throw deleteError;
+  }
+
+  async function updatePushSettingsUI() {
+    const enable = enableButton();
+    const disable = disableButton();
+    if (!enable || !disable) return;
+    enable.classList.remove('hidden');
+    disable.classList.add('hidden');
+    enable.disabled = false;
+
+    if (!currentUid() || !currentDb()) {
+      setStatus('Sign in with Google to enable push notifications.');
+      enable.disabled = true;
+      return;
+    }
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setStatus('This browser does not support Web Push notifications.', true);
+      enable.disabled = true;
+      return;
+    }
+    if (!window.isSecureContext) {
+      setStatus('Push notifications require an HTTPS site (or localhost).', true);
+      enable.disabled = true;
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      setStatus('Notifications are blocked by this browser. Allow them in the site settings, then reload Chronos.', true);
+      enable.disabled = true;
+      return;
+    }
+
+    setStatus('Checking the Firebase push service…');
+    enable.disabled = true;
+    try {
+      await getVapidPublicKey();
+      const registration = await getRegistration();
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await savePushSubscription(currentUid(), subscription);
+        enable.classList.add('hidden');
+        disable.classList.remove('hidden');
+        setStatus('Push is enabled on this browser. Team updates and configured reminders can arrive when Chronos is closed.');
+      } else {
+        enable.disabled = false;
+        setStatus('Push is ready to enable on this browser.');
+      }
+    } catch (error) {
+      enable.disabled = true;
+      setStatus(error.message || 'Could not check push notification setup.', true);
+    }
+  }
+
+  async function enablePushNotifications() {
+    const uid = currentUid();
+    const db = currentDb();
+    if (!uid || !db) throw new Error('Sign in with Google before enabling push notifications.');
+    if (!('Notification' in window)) throw new Error('This browser does not support Web Push notifications.');
+    if (!window.isSecureContext) throw new Error('Push notifications require HTTPS or localhost.');
+
+    // Request permission directly from the click gesture.
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') throw new Error('Browser notification permission was not granted.');
+
+    const publicKey = await getVapidPublicKey();
+    const registration = await getRegistration();
+    let subscription = await registration.pushManager.getSubscription();
+    if (subscription?.options?.applicationServerKey) {
+      const existingKey = new Uint8Array(subscription.options.applicationServerKey);
+      const wantedKey = decodeVapidKey(publicKey);
+      const sameKey = existingKey.length === wantedKey.length && existingKey.every((value, index) => value === wantedKey[index]);
+      if (!sameKey) {
+        await subscription.unsubscribe();
+        subscription = null;
+      }
+    }
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: decodeVapidKey(publicKey)
+      });
+    }
+    await savePushSubscription(uid, subscription);
+    setStatus('Push is enabled on this browser. Team updates and configured reminders can arrive when Chronos is closed.');
+    window.notify?.('Browser push notifications enabled.');
+    await updatePushSettingsUI();
+  }
+
+  document.getElementById('enablePushNotifications')?.addEventListener('click', async () => {
+    const button = enableButton();
+    if (button) button.disabled = true;
+    setStatus('Requesting browser permission…');
+    try { await enablePushNotifications(); }
+    catch (error) {
+      setStatus(error.message || 'Could not enable browser push notifications.', true);
+      window.notify?.(error.message || 'Could not enable push notifications.');
+    } finally { await updatePushSettingsUI(); }
+  });
+
+  document.getElementById('disablePushNotifications')?.addEventListener('click', async () => {
+    const uid = currentUid();
+    try {
+      await removePushSubscription(uid);
+      setStatus('Push notifications are disabled on this browser.');
+      window.notify?.('Push notifications disabled on this browser.');
+    } catch (error) {
+      setStatus(error.message || 'Could not disable push notifications.', true);
+    } finally { await updatePushSettingsUI(); }
+  });
+
+  // Remove the device subscription before Firebase auth is cleared on sign-out.
+  function installSignOutCleanup(buttonId) {
+    const button = document.getElementById(buttonId);
+    if (!button || button.dataset.pushSignoutCleanup) return;
+    button.dataset.pushSignoutCleanup = 'true';
+    button.addEventListener('click', async event => {
+      const uid = currentUid();
+      if (!uid) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (buttonId === 'accountMenuSignOut') document.getElementById('accountMenu')?.classList.add('hidden');
+      try { await removePushSubscription(uid, true); }
+      catch (error) { console.warn('Could not remove push subscription before sign-out', error); }
+      try {
+        await window.firebaseAuth?.signOut();
+        window.firebaseUser = null;
+        window.updateSyncStatus?.('Signed out on this device');
+        window.updateFirebaseLoginUI?.();
+        window.showFirebaseLogin?.();
+      } catch (error) { window.notify?.(error.message || 'Could not sign out.'); }
+    }, true);
+  }
+
+  installSignOutCleanup('accountMenuSignOut');
+  installSignOutCleanup('firebaseSignOut');
+  document.querySelector('[data-settings-tab="notifications"]')?.addEventListener('click', () => {
+    setTimeout(updatePushSettingsUI, 0);
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') updatePushSettingsUI();
+  });
+
+  if (typeof window.updateFirebaseLoginUI === 'function' && !window.updateFirebaseLoginUI.__pushWrapped) {
+    const originalUpdateLoginUI = window.updateFirebaseLoginUI;
+    const wrappedUpdateLoginUI = function (...args) {
+      const result = originalUpdateLoginUI.apply(this, args);
+      setTimeout(updatePushSettingsUI, 0);
+      return result;
+    };
+    wrappedUpdateLoginUI.__pushWrapped = true;
+    window.updateFirebaseLoginUI = wrappedUpdateLoginUI;
+  }
+
+  updatePushSettingsUI();
 })();
 </script>
 </body>
