@@ -9944,7 +9944,8 @@ html[data-theme="dark"] .note-card .md-card-preview {
       <form class="project-create task-modal-create" id="taskForm">
         <input type="hidden" id="taskId">
         
-        <div class="task-layout-grid">
+        <div class="task-modal-body" id="taskModalBody">
+          <div class="task-layout-grid">
           <!-- LEFT COLUMN: Content (Task Title, Details & Notes, Checklist / Subtasks, and Collapsible Advanced Options) -->
           <div class="task-col-content">
             <!-- 1. Task Title (Prominent with simple red asterisk) -->
@@ -10107,16 +10108,11 @@ html[data-theme="dark"] .note-card .md-card-preview {
           </div>
         </div>
 
-        <!-- Sticky Bottom Actions Bar (Matching Project Modal) -->
+        <!-- Sticky Bottom Actions Bar (Permanently Docked) -->
         <div class="project-form-actions task-modal-actions">
           <button type="button" class="btn danger hidden" id="deleteTask" style="margin-right:auto;">Delete task</button>
           <button type="button" class="btn" id="cancelTask">Cancel</button>
           <button class="btn primary" type="submit" id="saveTaskBtn">Save task</button>
-        </div>
-
-        <!-- Creator Credit -->
-        <div class="task-modal-footer-credit">
-          <span>Made by: Johny Gu 2026</span>
         </div>
       </form>
     </div>
@@ -25719,6 +25715,7 @@ body.has-modal-open {
 .note-modal-wide,
 .task-modal-repair-dialog,
 .task-modal-mount,
+.task-modal-body,
 .team-modal-panes-body,
 .project-workspace-modal-card,
 .project-workspace-modal-body,
@@ -31546,11 +31543,30 @@ html[data-theme=dark] .status-popover-check {
 
 #taskBackdrop .task-modal-mount {
   flex: 1 1 auto !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+#taskBackdrop #taskForm {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+#taskBackdrop .task-modal-body {
+  flex: 1 1 auto !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   overscroll-behavior: contain !important;
-  padding: 24px 28px 10px !important;
   -webkit-overflow-scrolling: touch !important;
+  padding: 24px 28px !important;
+  min-height: 0 !important;
 }
 
 /* Asymmetric 2-Column Grid (60 / 40) */
@@ -31858,43 +31874,44 @@ html[data-theme="dark"] #taskBackdrop .project-segment-btn.active {
   display: none !important;
 }
 
-/* Actions Footer Bar */
+/* Sticky Actions Footer Bar (Permanently Docked at Bottom of Dialog) */
 #taskBackdrop .task-modal-actions {
   flex: 0 0 auto !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 10px !important;
+  gap: 12px !important;
   padding: 16px 28px !important;
-  margin: 16px -28px 0 !important;
-  background: rgba(15, 23, 42, 0.8) !important;
+  margin: 0 !important;
+  background: rgba(15, 23, 42, 0.95) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  position: sticky !important;
-  bottom: 0 !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25) !important;
   z-index: 20 !important;
 }
 
 :root:not([data-theme="dark"]) #taskBackdrop .task-modal-actions {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06) !important;
 }
 
-/* Creator Credit in Bottom Right */
-.task-modal-footer-credit {
-  display: flex;
-  justify-content: flex-end;
-  padding: 4px 28px 14px;
-  font-size: 11px;
-  font-weight: 550;
-  letter-spacing: 0.02em;
-  color: #94a3b8;
-  opacity: 0.75;
-  user-select: none;
-  background: transparent;
+#taskBackdrop .task-modal-actions .btn {
+  min-height: 40px !important;
+  padding: 8px 18px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
 }
 
-:root:not([data-theme="dark"]) .task-modal-footer-credit {
-  color: #64748b;
+@media (max-width: 640px) {
+  #taskBackdrop .task-modal-body {
+    padding: 16px 18px !important;
+  }
+  #taskBackdrop .task-modal-actions {
+    padding: 12px 18px !important;
+  }
 }
 
 .btn-compact-ghost-edit {
