@@ -10100,7 +10100,6 @@ html[data-theme="dark"] .note-card .md-card-preview {
 
               <div class="task-field-group">
                 <label for="taskShareTeams" class="task-prop-sublabel">Share with Teams</label>
-                <div class="task-team-chips-wrap" id="taskTeamQuickChips" style="margin-bottom:8px"></div>
                 <select id="taskShareTeams" multiple size="2" aria-describedby="taskShareHelp" class="project-form-input" style="width:100%;"></select>
                 <small id="taskShareHelp" class="task-field-hint-sub">Choose teams that should receive this task.</small>
               </div>
@@ -12814,7 +12813,6 @@ function renderTeamShareChips(containerId, selectId){
 
 function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeams','taskShareTeams'];for(const id of selects){const el=$(id);if(!el)continue;const prior=selectedMulti(id);el.innerHTML=chronosTeams.map(t=>`<option value="${teamEsc(t.id)}">${teamEsc(t.name||'Team')}</option>`).join('');setMulti(id,prior)}const a=$('taskAssignees');if(a){const prior=selectedMulti('taskAssignees');const rows=[];chronosTeams.forEach(t=>(t.members||[]).forEach(m=>rows.push({teamId:t.id,...m})));a.innerHTML=rows.map(m=>`<option value="${teamEsc(m.teamId+'|'+m.uid)}">${teamEsc(m.displayName||m.email||m.uid)} · ${teamEsc(chronosTeams.find(t=>t.id===m.teamId)?.name||'Team')}</option>`).join('');setMulti('taskAssignees',prior)}syncModernPickers();
   renderTeamShareChips('eventTeamQuickChips', 'eventShareTeams');
-  renderTeamShareChips('taskTeamQuickChips', 'taskShareTeams');
   renderTeamShareChips('noteTeamQuickChips', 'noteShareTeams');
 }async function publishToTeams(type,record,teamIds,assignees=[]){
   const assignedTeamIds=(type==='tasks'?(assignees||[]).map(a=>a.teamId):[]);
