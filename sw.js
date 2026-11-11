@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chronos-flow-5.10-v175';
+const CACHE_NAME = 'chronos-flow-5.10-v176';
 const APP_SHELL = [
   './',
   './index.html',
@@ -73,6 +73,33 @@ self.addEventListener('fetch', event => {
       });
     })
   );
+});
+
+self.addEventListener('push', event => {
+  const rawPayload = event.data ? event.data.text() : '';
+  let payload = {};
+  try { payload = rawPayload ? JSON.parse(rawPayload) : {}; }
+  catch { payload = { body: rawPayload }; }
+
+  const data = payload.data && typeof payload.data === 'object' ? payload.data : {};
+  const rawUrl = payload.url || data.url || './';
+  let targetUrl = new URL('./', self.location.origin).href;
+  try {
+    const parsed = new URL(rawUrl, self.location.origin);
+    if (parsed.origin === self.location.origin) targetUrl = parsed.href;
+  } catch {}
+
+  const title = String(payload.title || 'Chronos Flow').slice(0, 120);
+  const body = String(payload.body || 'You have a new Chronos update.').slice(0, 300);
+  const options = {
+    body,
+    icon: './icons/chronos-192.png',
+    badge: './icons/chronos-192.png',
+    tag: String(payload.tag || data.tag || 'chronos-push').slice(0, 120),
+    renotify: false,
+    data: { ...data, url: targetUrl }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', event => {
