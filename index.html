@@ -4855,6 +4855,202 @@ html[data-theme="dark"] .project-view-tabs button:hover{color:#f1f5f9;background
 .project-tools select{flex:0 0 auto;min-width:160px;cursor:pointer}
 .project-tools input:focus,.project-tools select:focus{border-color:rgba(99,102,241,0.45);background:#ffffff;box-shadow:0 6px 20px rgba(99,102,241,0.12),0 0 0 3px rgba(99,102,241,0.08)}
 html[data-theme="dark"] .project-tools input,html[data-theme="dark"] .project-tools select{background:rgba(30,41,59,0.65);border-color:rgba(255,255,255,0.08);color:#f8fafc;box-shadow:0 4px 14px rgba(0,0,0,0.3)}
+
+/* Custom Project Status Filter Dropdown */
+.project-filter-custom-dropdown {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  min-width: 170px !important;
+}
+
+.sr-only-select {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  border: 0 !important;
+}
+
+.project-filter-trigger {
+  height: 42px !important;
+  min-height: 42px !important;
+  width: 100% !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  padding: 0 16px 0 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  outline: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  user-select: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.project-filter-trigger:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12) !important;
+}
+
+.project-filter-trigger.is-open,
+.project-filter-trigger:focus-visible {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  background: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.14), 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+.project-filter-chevron {
+  flex-shrink: 0 !important;
+  color: #64748b !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease !important;
+}
+
+.project-filter-trigger.is-open .project-filter-chevron {
+  transform: rotate(180deg) !important;
+  color: var(--accent, #4f46e5) !important;
+}
+
+.project-filter-menu {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  right: 0 !important;
+  min-width: 190px !important;
+  background: var(--surface, #ffffff) !important;
+  border: 1px solid var(--line, #e2e8f0) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+  box-shadow: 0 18px 40px -4px rgba(15, 23, 42, 0.16), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  z-index: 1000 !important;
+  animation: projectFilterMenuIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform-origin: top right !important;
+}
+
+.project-filter-menu.hidden {
+  display: none !important;
+}
+
+@keyframes projectFilterMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.project-filter-option {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text, #0f172a) !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  user-select: none !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.project-filter-option:hover {
+  background: var(--surface-2, rgba(99, 102, 241, 0.07)) !important;
+  color: var(--accent, #4f46e5) !important;
+}
+
+.project-filter-option.selected {
+  background: rgba(79, 70, 229, 0.09) !important;
+  color: var(--accent, #4f46e5) !important;
+  font-weight: 700 !important;
+}
+
+.project-filter-check {
+  flex-shrink: 0 !important;
+  color: var(--accent, #4f46e5) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.15s ease !important;
+}
+
+.project-filter-option.selected .project-filter-check {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html[data-theme="dark"] .project-filter-trigger {
+  background: rgba(30, 41, 59, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme="dark"] .project-filter-trigger:hover {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-color: rgba(129, 140, 248, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .project-filter-trigger.is-open,
+html[data-theme="dark"] .project-filter-trigger:focus-visible {
+  border-color: rgba(129, 140, 248, 0.5) !important;
+  background: #1e293b !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(129, 140, 248, 0.15) !important;
+}
+
+html[data-theme="dark"] .project-filter-chevron {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .project-filter-menu {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme="dark"] .project-filter-option {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .project-filter-option:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #818cf8 !important;
+}
+
+html[data-theme="dark"] .project-filter-option.selected {
+  background: rgba(129, 140, 248, 0.15) !important;
+  color: #818cf8 !important;
+}
+
+html[data-theme="dark"] .project-filter-check {
+  color: #818cf8 !important;
+}
+
+@media(max-width: 560px) {
+  .project-filter-custom-dropdown {
+    width: 100% !important;
+    flex: auto !important;
+  }
+}
 .project-create{padding:16px;margin:0 0 16px;border:1px solid var(--line);border-radius:15px;background:var(--surface2)}
 .project-create-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .project-create label{display:grid;gap:6px;font-size:12px;color:var(--muted,#6b7a90);font-weight:650}
@@ -7661,7 +7857,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
     </div>
   </section>
   <section id="tasksPage" class="hidden"><div class="page-heading"><div><div class="eyebrow">PLAN · TRACK · DELIVER</div><h2>Projects</h2><p class="subheading">Turn priorities into projects, milestones, and manageable work.</p></div><div class="heading-actions"><button class="btn" id="newTaskTop" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New task</button><button class="btn primary" id="projectNewBtn" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> New project</button></div></div><div class="project-command" id="projectCommand"><div class="project-metrics"><article><span>Active projects</span><strong id="pmActive">0</strong></article><article><span>Open tasks</span><strong id="pmOpen">0</strong></article><article><span>Overdue tasks</span><strong id="pmOverdue">0</strong></article><article><span>Completed tasks</span><strong id="pmDone">0</strong></article></div>
-<div class="project-tools"><div class="project-view-tabs" role="tablist" aria-label="Project views"><button type="button" class="active" data-project-view="overview">Overview</button><button type="button" data-project-view="board">Board</button><button type="button" data-project-view="timeline">Timeline</button><button type="button" data-project-view="deliverables">Deliverables &amp; TA</button></div><input id="projectSearch" type="search" placeholder="Search projects…" aria-label="Search projects"><select id="projectStatusFilter" aria-label="Filter projects"><option value="active">Active projects</option><option value="all">All projects</option><option value="mine">Led by me</option><option value="planning">Planning</option><option value="completed">Completed</option><option value="archived">Archived</option></select></div><form id="projectCreateForm" class="project-create hidden">
+<div class="project-tools"><div class="project-view-tabs" role="tablist" aria-label="Project views"><button type="button" class="active" data-project-view="overview">Overview</button><button type="button" data-project-view="board">Board</button><button type="button" data-project-view="timeline">Timeline</button><button type="button" data-project-view="deliverables">Deliverables &amp; TA</button></div><input id="projectSearch" type="search" placeholder="Search projects…" aria-label="Search projects"><div class="project-filter-custom-dropdown" id="projectFilterDropdownWrap"><select id="projectStatusFilter" aria-label="Filter projects" class="sr-only-select" tabindex="-1"><option value="active" selected>Active projects</option><option value="all">All projects</option><option value="mine">Led by me</option><option value="planning">Planning</option><option value="completed">Completed</option><option value="archived">Archived</option></select><button type="button" class="project-filter-trigger" id="projectFilterTrigger" aria-haspopup="listbox" aria-expanded="false" title="Filter projects by status"><span class="project-filter-trigger-text" id="projectFilterCurrentText">Active projects</span><svg class="project-filter-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><div class="project-filter-menu hidden" id="projectFilterMenu" role="listbox"><button type="button" class="project-filter-option selected" data-value="active" role="option" aria-selected="true"><span class="project-filter-opt-label">Active projects</span><svg class="project-filter-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button><button type="button" class="project-filter-option" data-value="all" role="option" aria-selected="false"><span class="project-filter-opt-label">All projects</span><svg class="project-filter-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button><button type="button" class="project-filter-option" data-value="mine" role="option" aria-selected="false"><span class="project-filter-opt-label">Led by me</span><svg class="project-filter-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button><button type="button" class="project-filter-option" data-value="planning" role="option" aria-selected="false"><span class="project-filter-opt-label">Planning</span><svg class="project-filter-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button><button type="button" class="project-filter-option" data-value="completed" role="option" aria-selected="false"><span class="project-filter-opt-label">Completed</span><svg class="project-filter-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button><button type="button" class="project-filter-option" data-value="archived" role="option" aria-selected="false"><span class="project-filter-opt-label">Archived</span><svg class="project-filter-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button></div></div></div><form id="projectCreateForm" class="project-create hidden">
   <div class="project-modal-layout-container">
     
     <!-- LEFT COLUMN: Identity & People (7 cols on landscape) -->
@@ -25135,7 +25331,78 @@ function saveProjectForm(e){
   notify(old ? 'Project updated locally.' : 'Project created! You can assign an owner and members anytime.');
   return;
 }
-$('projectNewBtn')?.addEventListener('click',()=>showProjectForm());$('projectCancelBtn')?.addEventListener('click',()=>$('projectCreateForm').classList.add('hidden'));$('projectCreateForm')?.addEventListener('submit',saveProjectForm);$('projectSearch')?.addEventListener('input',renderProjectManager);$('projectStatusFilter')?.addEventListener('change',renderProjectManager);document.querySelectorAll('[data-project-view]').forEach(b=>b.addEventListener('click',()=>{projectView=b.dataset.projectView;renderProjectManager()}));$('projectViewContent')?.addEventListener('click',e=>{const open=e.target.closest('[data-project-open]');if(open){selectedProjectId=open.dataset.projectOpen;renderProjectManager();return}if(e.target.closest('#projectEmptyCreate')){showProjectForm();return}const edit=e.target.closest('[data-project-edit]');if(edit){showProjectForm(chronosProjects.find(p=>String(p.id)===String(edit.dataset.projectEdit)));return}const show=e.target.closest('[data-project-tasks]');if(show){selectedProjectId=show.dataset.projectTasks;renderProjectManager();renderTasks();$('selectedProjectLabel').textContent='Showing tasks for '+(chronosProjects.find(p=>String(p.id)===String(selectedProjectId))?.name||'selected project');$('clearProjectSelection').classList.remove('hidden');return}const archive=e.target.closest('[data-project-archive]');if(archive){const p=chronosProjects.find(x=>String(x.id)===String(archive.dataset.projectArchive));if(p){p.status=p.status==='archived'?'active':'archived';p.updatedAt=Date.now();saveChronosProjects();renderProjectManager();notify(p.status==='archived'?'Project archived.':'Project restored.')}return}});$('projectViewContent')?.addEventListener('keydown',e=>{const card=e.target.closest('[data-project-open]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();selectedProjectId=card.dataset.projectOpen;renderProjectManager()}});$('projectViewContent')?.addEventListener('change',e=>{const sel=e.target.closest('[data-project-task-status]');if(!sel)return;const t=tasks.find(x=>String(x.id)===String(sel.dataset.projectTaskStatus));if(t){t.status=sel.value;t.done=sel.value==='done';t.updated=Date.now();persist();renderTasks();renderProjectManager();notify('Task status updated.')}});$('clearProjectSelection')?.addEventListener('click',()=>{selectedProjectId='';$('selectedProjectLabel').textContent='All personal tasks and team assignments';$('clearProjectSelection').classList.add('hidden');renderProjectManager();renderTasks()});
+$('projectNewBtn')?.addEventListener('click',()=>showProjectForm());$('projectCancelBtn')?.addEventListener('click',()=>$('projectCreateForm').classList.add('hidden'));$('projectCreateForm')?.addEventListener('submit',saveProjectForm);$('projectSearch')?.addEventListener('input',renderProjectManager);$('projectStatusFilter')?.addEventListener('change',()=>{syncProjectFilterDropdown();renderProjectManager();});document.querySelectorAll('[data-project-view]').forEach(b=>b.addEventListener('click',()=>{projectView=b.dataset.projectView;renderProjectManager()}));
+
+// Project Status Custom Dropdown Controller
+function syncProjectFilterDropdown() {
+  const sel = $('projectStatusFilter');
+  if (!sel) return;
+  const val = sel.value || 'active';
+  const optBtn = document.querySelector(`.project-filter-option[data-value="${val}"]`);
+  if (optBtn) {
+    const label = optBtn.querySelector('.project-filter-opt-label')?.textContent || optBtn.textContent.trim();
+    const textEl = $('projectFilterCurrentText');
+    if (textEl) textEl.textContent = label;
+    document.querySelectorAll('.project-filter-option').forEach(b => {
+      const isMatch = b.dataset.value === val;
+      b.classList.toggle('selected', isMatch);
+      b.setAttribute('aria-selected', String(isMatch));
+    });
+  }
+}
+window.syncProjectFilterDropdown = syncProjectFilterDropdown;
+
+document.addEventListener('click', e => {
+  const trigger = e.target.closest('#projectFilterTrigger');
+  const menu = $('projectFilterMenu');
+  if (trigger) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (menu) {
+      const isClosed = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', !isClosed);
+      trigger.classList.toggle('is-open', isClosed);
+      trigger.setAttribute('aria-expanded', String(isClosed));
+    }
+    return;
+  }
+
+  const optBtn = e.target.closest('.project-filter-option');
+  if (optBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const val = optBtn.dataset.value;
+    const sel = $('projectStatusFilter');
+    if (sel) {
+      sel.value = val;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    syncProjectFilterDropdown();
+    if (menu) {
+      menu.classList.add('hidden');
+      $('projectFilterTrigger')?.classList.remove('is-open');
+      $('projectFilterTrigger')?.setAttribute('aria-expanded', 'false');
+    }
+    return;
+  }
+
+  if (menu && !menu.classList.contains('hidden') && !e.target.closest('#projectFilterDropdownWrap')) {
+    menu.classList.add('hidden');
+    $('projectFilterTrigger')?.classList.remove('is-open');
+    $('projectFilterTrigger')?.setAttribute('aria-expanded', 'false');
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const menu = $('projectFilterMenu');
+    if (menu && !menu.classList.contains('hidden')) {
+      menu.classList.add('hidden');
+      $('projectFilterTrigger')?.classList.remove('is-open');
+      $('projectFilterTrigger')?.setAttribute('aria-expanded', 'false');
+    }
+  }
+});$('projectViewContent')?.addEventListener('click',e=>{const open=e.target.closest('[data-project-open]');if(open){selectedProjectId=open.dataset.projectOpen;renderProjectManager();return}if(e.target.closest('#projectEmptyCreate')){showProjectForm();return}const edit=e.target.closest('[data-project-edit]');if(edit){showProjectForm(chronosProjects.find(p=>String(p.id)===String(edit.dataset.projectEdit)));return}const show=e.target.closest('[data-project-tasks]');if(show){selectedProjectId=show.dataset.projectTasks;renderProjectManager();renderTasks();$('selectedProjectLabel').textContent='Showing tasks for '+(chronosProjects.find(p=>String(p.id)===String(selectedProjectId))?.name||'selected project');$('clearProjectSelection').classList.remove('hidden');return}const archive=e.target.closest('[data-project-archive]');if(archive){const p=chronosProjects.find(x=>String(x.id)===String(archive.dataset.projectArchive));if(p){p.status=p.status==='archived'?'active':'archived';p.updatedAt=Date.now();saveChronosProjects();renderProjectManager();notify(p.status==='archived'?'Project archived.':'Project restored.')}return}});$('projectViewContent')?.addEventListener('keydown',e=>{const card=e.target.closest('[data-project-open]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();selectedProjectId=card.dataset.projectOpen;renderProjectManager()}});$('projectViewContent')?.addEventListener('change',e=>{const sel=e.target.closest('[data-project-task-status]');if(!sel)return;const t=tasks.find(x=>String(x.id)===String(sel.dataset.projectTaskStatus));if(t){t.status=sel.value;t.done=sel.value==='done';t.updated=Date.now();persist();renderTasks();renderProjectManager();notify('Task status updated.')}});$('clearProjectSelection')?.addEventListener('click',()=>{selectedProjectId='';$('selectedProjectLabel').textContent='All personal tasks and team assignments';$('clearProjectSelection').classList.add('hidden');renderProjectManager();renderTasks()});
 $('projectDetail')?.addEventListener('submit',e=>{if(e.target.id!=='projectTaskCreateForm')return;e.preventDefault();const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));const title=$('projectTaskTitle').value.trim();if(!p||!title)return;const uid=$('projectTaskAssignee').value,user=projectEligibleUsers().find(u=>u.uid===uid);const task={id:`t${Date.now()}${Math.random().toString(36).slice(2,5)}`,title,details:'',due:$('projectTaskDue').value, startDate:$('projectTaskStart').value,priority:'medium',status:'open',done:false,recurrence:'none',reminder:'none',subtasks:[],projectId:p.id,assigneeUid:uid||'',assigneeName:user?.name||'',assigneeEmail:user?.email||'',createdBy:firebaseUser?firebaseUser.uid:'local',createdByName:firebaseUser?(firebaseUser.displayName||firebaseUser.email||'You'):'You',createdByPhotoURL:firebaseUser?(firebaseUser.photoURL||''):'',updated:Date.now()};tasks.push(task);persist();e.target.reset();renderTasks();renderProjectManager();notify('Project task saved locally.')});
 const originalProjectQuickAdd=$('taskQuickAddBtn');originalProjectQuickAdd?.addEventListener('click',()=>{if(!selectedProjectId)return;const title=$('taskQuickTitle').value.trim();if(!title)return;const newest=tasks.slice().sort((a,b)=>Number(b.updated||0)-Number(a.updated||0))[0];if(newest&&Date.now()-Number(newest.updated||0)<2500&&newest.title===title&&!newest.projectId){newest.projectId=selectedProjectId;newest.updated=Date.now();persist();renderProjectManager()}},{capture:false});
 const originalRenderTasks=renderTasks;renderTasks=function(){originalRenderTasks();const label=$('selectedProjectLabel');if(label&&selectedProjectId){const p=chronosProjects.find(x=>String(x.id)===String(selectedProjectId));label.textContent=p?'Selected project: '+p.name:'All personal tasks and team assignments';}renderProjectManager()};
@@ -25398,7 +25665,7 @@ projectEligibleUsers=function(){
 };
 const baseProjectRender=renderProjectManager;
 renderProjectManager=function(){
- const root=$('projectViewContent');if(!root)return;const todayKey=iso(today),search=($('projectSearch')?.value||'').trim().toLowerCase(),filter=$('projectStatusFilter')?.value||'active';
+ const root=$('projectViewContent');if(!root)return;const todayKey=iso(today),search=($('projectSearch')?.value||'').trim().toLowerCase(),filter=$('projectStatusFilter')?.value||'active';if(typeof syncProjectFilterDropdown==='function')syncProjectFilterDropdown();
  $('pmActive').textContent=chronosProjects.filter(p=>!['completed','archived'].includes(p.status)).length;$('pmOpen').textContent=tasks.filter(t=>!t.done&&t.status!=='done').length+((teamAssignedTasks||[]).filter(t=>!t.done&&t.status!=='done').length);$('pmOverdue').textContent=tasks.filter(t=>!t.done&&t.due&&t.due<todayKey).length;$('pmDone').textContent=tasks.filter(t=>t.done||t.status==='done').length;
  let list=chronosProjects.filter(p=>(filter==='all'||p.status===filter||(filter==='active'&&!['completed','archived'].includes(p.status)))&&(!search||`${p.name} ${p.description||''} ${p.owner||''}`.toLowerCase().includes(search)));list.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));document.querySelectorAll('[data-project-view]').forEach(b=>{b.classList.toggle('active',b.dataset.projectView===projectView);b.setAttribute('aria-selected',String(b.dataset.projectView===projectView))});
  const detail=$('projectDetail');detail.classList.toggle('hidden',!selectedProjectId);
