@@ -9950,9 +9950,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
           <div class="task-col-content">
             <!-- 1. Task Title (Prominent with simple red asterisk) -->
             <div class="task-field-group">
-              <label for="taskTitle" class="task-field-label">
-                Task Title <span class="task-req-star">*</span>
-              </label>
+              <label for="taskTitle" class="task-field-label">Task Title <span class="task-req-star" aria-hidden="true">*</span></label>
               <input id="taskTitle" required maxlength="160" placeholder="What needs to get done?" class="project-form-input task-input-prominent">
             </div>
 
@@ -31821,23 +31819,34 @@ html[data-theme=dark] .status-popover-check {
   position: relative;
 }
 
+#taskBackdrop .task-field-label,
 .task-field-label {
-  font-size: 13px;
-  font-weight: 650;
-  color: #f1f5f9;
-  letter-spacing: -0.01em;
-  display: flex;
-  align-items: center;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  color: #f1f5f9 !important;
+  letter-spacing: -0.01em !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  gap: 3px !important;
+  margin-bottom: 0 !important;
 }
 
+:root:not([data-theme="dark"]) #taskBackdrop .task-field-label,
 :root:not([data-theme="dark"]) .task-field-label {
-  color: #1e293b;
+  color: #1e293b !important;
 }
 
+#taskBackdrop .task-req-star,
 .task-req-star {
-  color: #ef4444;
-  font-weight: 700;
-  margin-left: 3px;
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  margin-left: 2px !important;
+  vertical-align: baseline !important;
 }
 
 .task-field-label-row {
