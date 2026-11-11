@@ -37,7 +37,8 @@ html[data-density="compact"] .stat-card,html[data-density="compact"] .dash-card,
 [data-lucide]{width:16px;height:16px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 /* Overlay stack: every dialog sits above the floating navigation/FAB (z-index:40).
    Keep secondary overlays ordered so media and settings can cover the Notes Studio. */
-.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:2147482000;isolation:isolate;display:grid;place-items:center;padding:18px;backdrop-filter:blur(5px)}
+html.has-modal-open,body.has-modal-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;height:100%!important}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:2147482000;isolation:isolate;display:grid;place-items:center;padding:18px;backdrop-filter:blur(5px);overscroll-behavior:contain!important}
 .modal-backdrop#settingsBackdrop{z-index:2147483200}
 #mediaViewer.media-viewer,#storageManager.media-viewer{z-index:2147483300}
 /* Notes Studio overlay must always cover the floating navigation/FAB.
@@ -25701,7 +25702,39 @@ renderProjectManager();
 
 
 <style id="chronosModalRepairStyles">
-.chronos-repair-backdrop{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.48);backdrop-filter:blur(5px)}
+.chronos-repair-backdrop{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.48);backdrop-filter:blur(5px);overscroll-behavior:contain!important;touch-action:pan-y pinch-zoom}
+
+/* Universal Modal Scroll-Locking & Boundary Containment */
+html.has-modal-open,
+body.has-modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  touch-action: none !important;
+  height: 100% !important;
+}
+
+.modal-backdrop,
+.chronos-repair-backdrop,
+.chronos-repair-dialog,
+.modal,
+.settings-modal,
+.note-modal-wide,
+.task-modal-repair-dialog,
+.task-modal-mount,
+.team-modal-panes-body,
+.project-workspace-modal-card,
+.project-workspace-modal-body,
+.project-create,
+#projectFormMount,
+#teamPanelMount,
+#taskFormMount,
+.custom-app-cat-chips,
+.media-viewer,
+.item-preview-modal,
+[data-modal-scrollable] {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
 
 /* Universal Stacking Context: Detail & Edit Modals MUST render above Project Workspace (z-index 10050) */
 #projectModalRepair,
@@ -25861,6 +25894,8 @@ renderProjectManager();
 .team-modal-panes-body {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
   min-height: 0 !important;
   padding: 24px !important;
 }
@@ -31477,6 +31512,7 @@ html[data-theme=dark] .status-popover-check {
   max-height: min(92vh, 920px) !important;
   padding: 0 !important;
   overflow: hidden !important;
+  overscroll-behavior: contain !important;
   display: flex !important;
   flex-direction: column !important;
   border-radius: 24px !important;
@@ -31514,6 +31550,7 @@ html[data-theme=dark] .status-popover-check {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
   padding: 24px 28px 10px !important;
   -webkit-overflow-scrolling: touch !important;
 }
@@ -37234,6 +37271,14 @@ window.openShowcaseProject = function() {
         advPane.classList.add('collapsed');
       }
     }
+    if (typeof syncModalScrollLock === 'function') syncModalScrollLock();
+  };
+
+  const baseCloseTask = (typeof closeTask === 'function') ? closeTask : null;
+  window.closeTask = function() {
+    if (baseCloseTask) baseCloseTask();
+    else $('taskBackdrop')?.classList.add('hidden');
+    if (typeof syncModalScrollLock === 'function') syncModalScrollLock();
   };
 
   // Progressive Disclosure: Task Modal Advanced Options Accordion Toggle
@@ -37340,5 +37385,215 @@ window.openShowcaseProject = function() {
   </section>
 </div>
 
+<!-- Chronos Flow Universal Modal Scroll-Lock Engine -->
+<script id="chronosModalScrollLockScript">
+(function() {
+  'use strict';
+
+  // Comprehensive selectors covering all modal backdrops and overlay dialogs
+  const MODAL_SELECTORS = [
+    '.modal-backdrop:not(.hidden)',
+    '.chronos-repair-backdrop:not([hidden]):not(.hidden)',
+    '.media-viewer:not(.hidden)',
+    '.item-preview-backdrop:not(.hidden)',
+    'dialog[open]',
+    '#imageCropperModal:not(.hidden):not([hidden])',
+    '#taskBackdrop:not(.hidden)',
+    '#modalBackdrop:not(.hidden)',
+    '#noteBackdrop:not(.hidden)',
+    '#settingsBackdrop:not(.hidden)',
+    '#teamModalRepair:not([hidden]):not(.hidden)',
+    '#projectModalRepair:not([hidden]):not(.hidden)',
+    '#projectWorkspaceModalBackdrop:not([hidden]):not(.hidden)',
+    '#teamAddAppModalBackdrop:not([hidden]):not(.hidden)',
+    '#deliverableDistributeModalBackdrop:not([hidden]):not(.hidden)',
+    '#deliverableSubmitModalBackdrop:not([hidden]):not(.hidden)',
+    '#deliverableTAModalBackdrop:not([hidden]):not(.hidden)',
+    '#deliverableTransmittalModalBackdrop:not([hidden]):not(.hidden)',
+    '#teamTaskEditBackdrop:not(.hidden)',
+    '#teamRecordEditBackdrop:not(.hidden)',
+    '#teamCreateModalBackdrop:not(.hidden)',
+    '#teamShareModalBackdrop:not(.hidden)',
+    '#teamJoinModalBackdrop:not(.hidden)',
+    '#chronosConfirmBackdrop:not(.hidden)',
+    '#chronosPromptBackdrop:not(.hidden)',
+    '#noteLikesModalBackdrop:not(.hidden)'
+  ];
+
+  function getActiveModals() {
+    try {
+      const candidates = document.querySelectorAll(MODAL_SELECTORS.join(','));
+      const active = [];
+      for (let i = 0; i < candidates.length; i++) {
+        const el = candidates[i];
+        if (el.hidden || el.classList.contains('hidden')) continue;
+        const style = window.getComputedStyle(el);
+        if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
+          active.push(el);
+        }
+      }
+      return active;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function isAnyModalOpen() {
+    return getActiveModals().length > 0;
+  }
+
+  let isLocked = false;
+
+  function syncModalScrollLock() {
+    const hasModals = isAnyModalOpen();
+    if (hasModals && !isLocked) {
+      isLocked = true;
+      document.documentElement.classList.add('has-modal-open');
+      document.body.classList.add('has-modal-open');
+      document.body.style.overflow = 'hidden';
+    } else if (!hasModals && isLocked) {
+      isLocked = false;
+      document.documentElement.classList.remove('has-modal-open');
+      document.body.classList.remove('has-modal-open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function getTopmostActiveModal() {
+    const modals = getActiveModals();
+    return modals.length ? modals[modals.length - 1] : null;
+  }
+
+  // Helper to determine if target or any ancestor within the modal is scrollable in the given direction
+  function findScrollableModalAncestor(target, modalContainer, deltaY) {
+    if (!target || !modalContainer) return null;
+    let curr = target;
+    while (curr && curr !== document.body && curr !== document.documentElement) {
+      const style = window.getComputedStyle(curr);
+      const overflowY = style.overflowY;
+      const canScrollY = (overflowY === 'auto' || overflowY === 'scroll');
+
+      if (canScrollY && curr.scrollHeight > curr.clientHeight) {
+        if (deltaY < 0) {
+          // Scrolling UP - check if there is room to scroll up
+          if (curr.scrollTop > 0) return curr;
+        } else if (deltaY > 0) {
+          // Scrolling DOWN - check if there is room to scroll down
+          const maxScroll = curr.scrollHeight - curr.clientHeight;
+          if (curr.scrollTop < maxScroll - 1) return curr;
+        } else {
+          return curr;
+        }
+      }
+
+      if (curr === modalContainer) break;
+      curr = curr.parentElement;
+    }
+    return null;
+  }
+
+  // 1. Wheel event listener: prevent wheel events from chaining to the background behind modals
+  window.addEventListener('wheel', function(e) {
+    if (!isLocked) return;
+    const activeModal = getTopmostActiveModal();
+    if (!activeModal) return;
+
+    // Check if target is inside the active modal
+    if (!activeModal.contains(e.target) && activeModal !== e.target) {
+      e.preventDefault();
+      return;
+    }
+
+    // Target is inside active modal or is the backdrop.
+    // Check if it has a scrollable container in the direction of the wheel
+    const scrollable = findScrollableModalAncestor(e.target, activeModal, e.deltaY);
+    if (!scrollable) {
+      // At boundary or on a non-scrollable area (header, footer, backdrop padding)
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // 2. Touch event listeners: prevent mobile swipe/touch drags from scrolling behind modals
+  let touchStartY = 0;
+  window.addEventListener('touchstart', function(e) {
+    if (!isLocked) return;
+    if (e.touches && e.touches.length > 0) {
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchmove', function(e) {
+    if (!isLocked) return;
+    const activeModal = getTopmostActiveModal();
+    if (!activeModal) return;
+
+    if (!activeModal.contains(e.target) && activeModal !== e.target) {
+      e.preventDefault();
+      return;
+    }
+
+    const currentY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : touchStartY;
+    const deltaY = touchStartY - currentY; // positive = scroll down, negative = scroll up
+
+    const scrollable = findScrollableModalAncestor(e.target, activeModal, deltaY);
+    if (!scrollable) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // 3. Keydown listener: prevent space/pageUp/pageDown/arrow keys from scrolling background
+  window.addEventListener('keydown', function(e) {
+    if (!isLocked) return;
+    const scrollKeys = ['Space', ' ', 'PageUp', 'PageDown', 'End', 'Home', 'ArrowUp', 'ArrowDown'];
+    if (!scrollKeys.includes(e.key) && !scrollKeys.includes(e.code)) return;
+
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) {
+      return;
+    }
+
+    const activeModal = getTopmostActiveModal();
+    if (!activeModal) return;
+
+    const isDown = e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ' || e.code === 'Space';
+    const scrollable = findScrollableModalAncestor(e.target, activeModal, isDown ? 1 : -1);
+    if (!scrollable) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // 4. MutationObserver: automatically detects when any modal opens, closes, or toggles
+  let rafId = null;
+  function scheduleSync() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => {
+      syncModalScrollLock();
+      rafId = null;
+    });
+  }
+
+  const observer = new MutationObserver(function() {
+    scheduleSync();
+  });
+
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class', 'hidden', 'style'],
+    childList: true,
+    subtree: true
+  });
+
+  // 5. Expose sync helper globally so any modal script can trigger it immediately
+  window.syncModalScrollLock = syncModalScrollLock;
+  window.chronosSyncModalScrollLock = syncModalScrollLock;
+
+  // Run initial sync
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncModalScrollLock);
+  } else {
+    syncModalScrollLock();
+  }
+})();
+</script>
 </body>
 </html>
