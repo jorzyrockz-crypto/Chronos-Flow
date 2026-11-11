@@ -9943,24 +9943,88 @@ html[data-theme="dark"] .note-card .md-card-preview {
       <form class="project-create task-modal-create" id="taskForm">
         <input type="hidden" id="taskId">
         
-        <div class="project-modal-layout-container">
-          <!-- LEFT COLUMN: Identity, Priority, People & Checklist -->
-          <div class="project-modal-col-left">
-            <!-- 1. Task Title -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <label for="taskTitle" class="project-field-label-title">Task Title</label>
-                <span class="project-field-badge badge-required">Required</span>
-              </div>
-              <input id="taskTitle" required maxlength="160" placeholder="What needs to get done?" class="project-form-input">
+        <div class="task-layout-grid">
+          <!-- LEFT COLUMN: Content (Task Title, Details & Notes, Checklist / Subtasks, and Collapsible Advanced Options) -->
+          <div class="task-col-content">
+            <!-- 1. Task Title (Prominent with simple red asterisk) -->
+            <div class="task-field-group">
+              <label for="taskTitle" class="task-field-label">
+                Task Title <span class="task-req-star">*</span>
+              </label>
+              <input id="taskTitle" required maxlength="160" placeholder="What needs to get done?" class="project-form-input task-input-prominent">
             </div>
 
-            <!-- 2. Priority Segmented Control (Matching Edit Project Modal) -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <span class="project-field-label-title">Priority Level</span>
-                <span id="taskPriorityBadge" class="project-field-badge badge-optional">Medium</span>
+            <!-- 2. Details & Notes (Prominent) -->
+            <div class="task-field-group">
+              <label for="taskDetails" class="task-field-label">
+                Details &amp; Notes
+              </label>
+              <textarea id="taskDetails" rows="4" maxlength="1500" placeholder="Helpful details, instructions, links, or next steps…" class="project-form-input task-textarea-details"></textarea>
+            </div>
+
+            <!-- 3. Checklist / Subtasks (Prominent) -->
+            <div class="task-field-group">
+              <div class="task-field-label-row">
+                <label for="taskSubtasks" class="task-field-label">Checklist / Subtasks</label>
+                <span class="task-field-hint">1 item per line</span>
               </div>
+              <textarea id="taskSubtasks" rows="3" maxlength="3000" placeholder="Prepare materials&#10;Review draft&#10;Send final copy" class="project-form-input task-textarea-subtasks"></textarea>
+            </div>
+
+            <!-- 4. Progressive Disclosure: Collapsible "Advanced Options" Accordion -->
+            <div class="task-accordion-wrap">
+              <button type="button" class="task-accordion-header" id="taskAdvancedToggle" aria-expanded="false" aria-controls="taskAdvancedPane">
+                <div class="task-accordion-title-wrap">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="task-accordion-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  <span class="task-accordion-title">Advanced Options</span>
+                  <small class="task-accordion-sub">Brand mark icon &amp; linked note</small>
+                </div>
+                <svg class="task-accordion-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+              <div class="task-accordion-pane collapsed" id="taskAdvancedPane">
+                <!-- Task Brand Icon Selection -->
+                <div class="task-field-group">
+                  <span class="task-field-label">Task Brand Icon</span>
+                  <span id="taskIconBadge" style="display:none;" aria-hidden="true">Auto</span>
+                  <input type="hidden" id="taskIcon" value="">
+                  <div class="task-icon-picker-container">
+                    <div class="task-icon-live-badge-wrap">
+                      <div id="taskIconLivePreview" class="card-brand-mark task-modal-brand-preview" title="Live Icon Preview">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
+                      </div>
+                      <div class="task-icon-badge-desc">
+                        <strong id="taskIconNameLabel">Auto (Contextual)</strong>
+                        <small id="taskIconSubLabel">Automatically selects a relevant Lucide icon from title or project</small>
+                      </div>
+                    </div>
+                    <div class="task-icon-picker-grid" id="taskIconPickerGrid">
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Linked Note -->
+                <div class="task-field-group">
+                  <label for="taskLinkedNote" class="task-field-label">Linked Note</label>
+                  <select id="taskLinkedNote" class="project-form-input" style="width:100%;">
+                    <option value="">No linked note</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Properties (Priority Level, Scheduling, Collaboration) -->
+          <div class="task-col-properties">
+            <!-- 1. Priority Level -->
+            <div class="task-prop-card">
+              <div class="task-prop-heading">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Priority Level</span>
+              </div>
+              <span id="taskPriorityBadge" style="display:none;" aria-hidden="true">Medium</span>
               <!-- Native select preserved for JS form data compatibility -->
               <select id="taskPriority" style="display:none;" aria-hidden="true">
                 <option value="urgent">Urgent</option>
@@ -9984,75 +10048,24 @@ html[data-theme="dark"] .note-card .md-card-preview {
               </div>
             </div>
 
-            <!-- Task Brand Icon Selection -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <span class="project-field-label-title">Task Brand Icon</span>
-                <span id="taskIconBadge" class="project-field-badge badge-optional">Auto</span>
+            <!-- 2. Scheduling (Due Date, Time, Repeat, Reminder) -->
+            <div class="task-prop-card">
+              <div class="task-prop-heading">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Scheduling</span>
               </div>
-              <input type="hidden" id="taskIcon" value="">
-              <div class="task-icon-picker-container">
-                <div class="task-icon-live-badge-wrap">
-                  <div id="taskIconLivePreview" class="card-brand-mark task-modal-brand-preview" title="Live Icon Preview">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></svg>
-                  </div>
-                  <div class="task-icon-badge-desc">
-                    <strong id="taskIconNameLabel">Auto (Contextual)</strong>
-                    <small id="taskIconSubLabel">Automatically selects a relevant Lucide icon from title or project</small>
-                  </div>
-                </div>
-                <div class="task-icon-picker-grid" id="taskIconPickerGrid">
-                  <!-- Populated by JS -->
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. Assignees / Team Members -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <label for="taskAssignees" class="project-field-label-title">Assign To</label>
-                <span class="project-field-badge badge-optional">Optional</span>
-              </div>
-              <select id="taskAssignees" multiple size="3" aria-describedby="taskAssigneesHelp" class="project-form-input" style="width:100%;"></select>
-              <small id="taskAssigneesHelp" class="project-field-hint" style="font-size:11px;color:var(--muted,#64748b);margin-top:4px;display:block;">Search and choose assigned teammates. No key combination required.</small>
-            </div>
-
-            <!-- 4. Checklist / Subtasks -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <label for="taskSubtasks" class="project-field-label-title">Checklist / Subtasks</label>
-                <span class="project-field-badge badge-optional">1 item per line</span>
-              </div>
-              <textarea id="taskSubtasks" rows="3" maxlength="3000" placeholder="Prepare materials&#10;Review draft&#10;Send final copy" class="project-form-input" style="font-family:inherit;line-height:1.5;"></textarea>
-            </div>
-          </div>
-
-          <!-- RIGHT COLUMN: Timeline, Recurrence, Reminder & Details -->
-          <div class="project-modal-col-right">
-            <!-- 5. Due Date & Due Time -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <span class="project-field-label-title">Deadline &amp; Time</span>
-                <span class="project-field-badge badge-optional">Optional</span>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <label style="display:grid;gap:4px;font-size:11px;font-weight:700;color:var(--muted,#64748b);">
-                  Due date
-                  <input id="taskDue" type="date" class="project-form-input" style="padding:10px 11px;">
+              <div class="task-prop-subgrid">
+                <label class="task-prop-subfield">
+                  <span>Due date</span>
+                  <input id="taskDue" type="date" class="project-form-input">
                 </label>
-                <label style="display:grid;gap:4px;font-size:11px;font-weight:700;color:var(--muted,#64748b);">
-                  Due time
-                  <input id="taskDueTime" type="time" class="project-form-input" style="padding:10px 11px;">
+                <label class="task-prop-subfield">
+                  <span>Due time</span>
+                  <input id="taskDueTime" type="time" class="project-form-input">
                 </label>
-              </div>
-            </div>
-
-            <!-- 6. Repeat / Recurrence & Reminder -->
-            <div class="project-field-group">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <label style="display:grid;gap:4px;font-size:11px;font-weight:700;color:var(--muted,#64748b);">
-                  Repeat
-                  <select id="taskRecurrence" class="project-form-input" style="padding:10px 11px;">
+                <label class="task-prop-subfield">
+                  <span>Repeat</span>
+                  <select id="taskRecurrence" class="project-form-input">
                     <option value="none">Does not repeat</option>
                     <option value="daily">Daily</option>
                     <option value="weekdays">Weekdays</option>
@@ -10060,9 +10073,9 @@ html[data-theme="dark"] .note-card .md-card-preview {
                     <option value="monthly">Monthly</option>
                   </select>
                 </label>
-                <label style="display:grid;gap:4px;font-size:11px;font-weight:700;color:var(--muted,#64748b);">
-                  Reminder
-                  <select id="taskReminder" class="project-form-input" style="padding:10px 11px;">
+                <label class="task-prop-subfield">
+                  <span>Reminder</span>
+                  <select id="taskReminder" class="project-form-input">
                     <option value="none">No reminder</option>
                     <option value="atDue">On due date</option>
                     <option value="dayBefore">1 day before</option>
@@ -10072,38 +10085,24 @@ html[data-theme="dark"] .note-card .md-card-preview {
               </div>
             </div>
 
-            <!-- 7. Linked Note -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <label for="taskLinkedNote" class="project-field-label-title">Linked Note</label>
-                <span class="project-field-badge badge-optional">Optional</span>
+            <!-- 3. Collaboration (Assign To, Share with Teams) -->
+            <div class="task-prop-card" id="taskTeamShareTier">
+              <div class="task-prop-heading">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Collaboration</span>
               </div>
-              <select id="taskLinkedNote" class="project-form-input" style="width:100%;">
-                <option value="">No linked note</option>
-              </select>
-            </div>
+              <div class="task-field-group" style="margin-bottom:10px;">
+                <label for="taskAssignees" class="task-prop-sublabel">Assign To</label>
+                <select id="taskAssignees" multiple size="3" aria-describedby="taskAssigneesHelp" class="project-form-input" style="width:100%;"></select>
+                <small id="taskAssigneesHelp" class="task-field-hint-sub">Search and choose assigned teammates.</small>
+              </div>
 
-            <!-- 8. Details / Notes -->
-            <div class="project-field-group">
-              <div class="project-field-label-bar">
-                <label for="taskDetails" class="project-field-label-title">Details &amp; Notes</label>
-                <span class="project-field-badge badge-optional">Optional</span>
+              <div class="task-field-group">
+                <label for="taskShareTeams" class="task-prop-sublabel">Share with Teams</label>
+                <div class="task-team-chips-wrap" id="taskTeamQuickChips" style="margin-bottom:8px"></div>
+                <select id="taskShareTeams" multiple size="2" aria-describedby="taskShareHelp" class="project-form-input" style="width:100%;"></select>
+                <small id="taskShareHelp" class="task-field-hint-sub">Choose teams that should receive this task.</small>
               </div>
-              <textarea id="taskDetails" rows="2" maxlength="1500" placeholder="Helpful details, instructions, or next steps…" class="project-form-input" style="font-family:inherit;line-height:1.5;"></textarea>
-            </div>
-
-            <!-- 9. Share with Teams Tier -->
-            <div class="project-field-group event-team-share-tier" id="taskTeamShareTier" style="margin-top:2px;">
-              <div class="project-field-label-bar">
-                <label for="taskShareTeams" class="project-field-label-title">
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:4px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Share with Teams
-                </label>
-                <span class="muted-label" style="font-size:10px">1-tap toggle</span>
-              </div>
-              <div class="task-team-chips-wrap" id="taskTeamQuickChips" style="margin-bottom:8px"></div>
-              <select id="taskShareTeams" multiple size="2" aria-describedby="taskShareHelp" class="project-form-input" style="width:100%;"></select>
-              <small id="taskShareHelp" class="muted-label" style="font-size:10.5px;color:var(--muted);display:block;margin-top:4px;">Search and choose teams that should receive this task.</small>
             </div>
           </div>
         </div>
@@ -10113,6 +10112,11 @@ html[data-theme="dark"] .note-card .md-card-preview {
           <button type="button" class="btn danger hidden" id="deleteTask" style="margin-right:auto;">Delete task</button>
           <button type="button" class="btn" id="cancelTask">Cancel</button>
           <button class="btn primary" type="submit" id="saveTaskBtn">Save task</button>
+        </div>
+
+        <!-- Creator Credit -->
+        <div class="task-modal-footer-credit">
+          <span>Made by: Johny Gu 2026</span>
         </div>
       </form>
     </div>
@@ -31463,6 +31467,401 @@ html[data-theme=dark] .status-popover-check {
   color: #a5b4fc;
 }
 
+/* ==========================================================================
+   CHRONOS 5.2 - REFACTORED EDIT TASK MODAL (CONTENT VS. PROPERTIES LAYOUT)
+   ========================================================================== */
+
+#taskBackdrop .task-modal-repair-dialog {
+  width: min(880px, 95vw) !important;
+  max-width: 880px !important;
+  max-height: min(92vh, 920px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: 4px solid var(--task-accent-tone, var(--accent, #4f46e5)) !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+:root:not([data-theme="dark"]) #taskBackdrop .task-modal-repair-dialog {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-top: 4px solid var(--task-accent-tone, var(--accent, #4f46e5)) !important;
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+#taskBackdrop .task-modal-head {
+  flex: 0 0 auto !important;
+  padding: 22px 28px 18px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+}
+
+:root:not([data-theme="dark"]) #taskBackdrop .task-modal-head {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07) !important;
+}
+
+#taskBackdrop .task-modal-mount {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 24px 28px 10px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Asymmetric 2-Column Grid (60 / 40) */
+.task-layout-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .task-layout-grid {
+    display: grid !important;
+    grid-template-columns: 1.45fr 1fr !important;
+    column-gap: 28px !important;
+    row-gap: 20px !important;
+    align-items: start !important;
+  }
+}
+
+.task-col-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.task-col-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Field Group & Labels (Noise-free) */
+.task-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.task-field-label {
+  font-size: 13px;
+  font-weight: 650;
+  color: #f1f5f9;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+}
+
+:root:not([data-theme="dark"]) .task-field-label {
+  color: #1e293b;
+}
+
+.task-req-star {
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 3px;
+}
+
+.task-field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-field-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+:root:not([data-theme="dark"]) .task-field-hint {
+  color: #64748b;
+}
+
+.task-field-hint-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  display: block;
+}
+
+:root:not([data-theme="dark"]) .task-field-hint-sub {
+  color: #64748b;
+}
+
+/* Prominent Inputs (Left Column) */
+.task-input-prominent {
+  font-size: 15.5px !important;
+  font-weight: 600 !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+}
+
+.task-textarea-details {
+  min-height: 125px !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+}
+
+.task-textarea-subtasks {
+  min-height: 100px !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  font-family: inherit !important;
+}
+
+/* Properties Cards (Right Column) */
+.task-prop-card {
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+:root:not([data-theme="dark"]) .task-prop-card {
+  background: rgba(248, 250, 252, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.task-prop-heading {
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--accent, #818cf8);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+}
+
+:root:not([data-theme="dark"]) .task-prop-heading {
+  color: var(--accent, #4f46e5);
+}
+
+.task-prop-subgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.task-prop-subfield {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: #cbd5e1;
+}
+
+:root:not([data-theme="dark"]) .task-prop-subfield {
+  color: #475569;
+}
+
+.task-prop-subfield input,
+.task-prop-subfield select {
+  font-size: 12.5px !important;
+  height: 38px !important;
+  padding: 6px 10px !important;
+  border-radius: 10px !important;
+}
+
+.task-prop-sublabel {
+  font-size: 12px;
+  font-weight: 650;
+  color: #cbd5e1;
+  display: block;
+}
+
+:root:not([data-theme="dark"]) .task-prop-sublabel {
+  color: #475569;
+}
+
+/* Translucent Input Styling in Dark Mode */
+html[data-theme="dark"] #taskBackdrop .project-form-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  color: #f8fafc !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  transition: all 0.15s ease !important;
+}
+
+html[data-theme="dark"] #taskBackdrop .project-form-input:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+html[data-theme="dark"] #taskBackdrop .project-form-input:focus {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: var(--accent, #6366f1) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+html[data-theme="dark"] #taskBackdrop .project-segmented-control {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] #taskBackdrop .project-segment-btn.active {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Progressive Disclosure: Advanced Options Accordion */
+.task-accordion-wrap {
+  margin-top: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .task-accordion-wrap {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.task-accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.task-accordion-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:root:not([data-theme="dark"]) .task-accordion-header:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.task-accordion-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.task-accordion-icon {
+  color: var(--accent, #818cf8);
+  flex-shrink: 0;
+}
+
+:root:not([data-theme="dark"]) .task-accordion-icon {
+  color: var(--accent, #4f46e5);
+}
+
+.task-accordion-title {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: #f1f5f9;
+}
+
+:root:not([data-theme="dark"]) .task-accordion-title {
+  color: #1e293b;
+}
+
+.task-accordion-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 450;
+  margin-left: 4px;
+}
+
+:root:not([data-theme="dark"]) .task-accordion-sub {
+  color: #64748b;
+}
+
+.task-accordion-chevron {
+  color: #94a3b8;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.task-accordion-header[aria-expanded="true"] .task-accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.task-accordion-pane {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.task-accordion-pane.collapsed {
+  display: none !important;
+}
+
+/* Actions Footer Bar */
+#taskBackdrop .task-modal-actions {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding: 16px 28px !important;
+  margin: 16px -28px 0 !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 20 !important;
+}
+
+:root:not([data-theme="dark"]) #taskBackdrop .task-modal-actions {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Creator Credit in Bottom Right */
+.task-modal-footer-credit {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 28px 14px;
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  opacity: 0.75;
+  user-select: none;
+  background: transparent;
+}
+
+:root:not([data-theme="dark"]) .task-modal-footer-credit {
+  color: #64748b;
+}
+
 .btn-compact-ghost-edit {
   display: inline-flex !important;
   align-items: center !important;
@@ -36807,6 +37206,15 @@ window.openShowcaseProject = function() {
       }
       syncTaskPriorityUI(t.priority || 'medium');
       syncTaskIconUI(t.icon || '', t);
+
+      // Advanced Options Accordion state: open if custom icon or linked note exists, otherwise collapsed
+      const advToggle = $('taskAdvancedToggle');
+      const advPane = $('taskAdvancedPane');
+      if (advToggle && advPane) {
+        const hasAdvanced = !!(t.icon || t.linkedNoteId);
+        advToggle.setAttribute('aria-expanded', String(hasAdvanced));
+        advPane.classList.toggle('collapsed', !hasAdvanced);
+      }
     } else {
       if (titleEl) titleEl.textContent = 'New task';
       const curP = (typeof selectedProjectId !== 'undefined' && selectedProjectId) ? (chronosProjects || []).find(proj => String(proj.id) === String(selectedProjectId)) : null;
@@ -36817,8 +37225,29 @@ window.openShowcaseProject = function() {
       }
       syncTaskPriorityUI('medium');
       syncTaskIconUI('', null);
+
+      // Reset Advanced Options Accordion to clean collapsed state
+      const advToggle = $('taskAdvancedToggle');
+      const advPane = $('taskAdvancedPane');
+      if (advToggle && advPane) {
+        advToggle.setAttribute('aria-expanded', 'false');
+        advPane.classList.add('collapsed');
+      }
     }
   };
+
+  // Progressive Disclosure: Task Modal Advanced Options Accordion Toggle
+  document.addEventListener('click', e => {
+    const toggle = e.target.closest('#taskAdvancedToggle');
+    if (toggle) {
+      e.preventDefault();
+      const pane = document.getElementById('taskAdvancedPane');
+      if (!pane) return;
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isExpanded));
+      pane.classList.toggle('collapsed', isExpanded);
+    }
+  });
 
   console.log('Chronos 5.2 Advanced Projects & Tasks Suite initialized.');
 
