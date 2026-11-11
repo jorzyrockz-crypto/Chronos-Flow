@@ -25264,7 +25264,8 @@ function projectTaskMarkup(task, project) {
               </span>
             ` : ''}
             ${task.phase ? `<span class="compact-meta-dot">·</span><span class="compact-phase-tag">${projectEsc(task.phase)}</span>` : ''}
-            ${task.priority ? `<span class="compact-prio-tag prio-${task.priority.toLowerCase()}">${projectEsc(task.priority)}</span>` : ''}
+            ${task.priority ? `<span class="compact-prio-tag prio-${(task.priority || 'medium').toLowerCase()}">${projectEsc(task.priority)}</span>` : ''}
+            ${task.teamShared ? `<span class="compact-meta-dot">·</span><span class="compact-shared-tag">Shared</span>` : ''}
             ${task.isDeliverable ? `<span class="compact-deliv-badge" title="Deliverable requirement">📋 Doc</span>` : ''}
           </div>
         </div>
@@ -25279,7 +25280,7 @@ function projectTaskMarkup(task, project) {
           <option value="done" ${done || task.status === 'done' ? 'selected' : ''}>Done</option>
         </select>
         <button type="button" class="btn-compact-ghost-edit project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true" title="Edit task details">
-          Edit
+          ${typeof getLucideSvg === 'function' ? getLucideSvg('edit-3', 12) : ''} Edit
         </button>
       </div>
     </article>
@@ -27628,7 +27629,64 @@ html[data-theme=dark] .btn-act-compact {
  async function syncAllSharedProjects(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;const currentTeamId=activeTeamId;if(!currentTeamId)return;const memberIds=new Set((teamMembers||[]).map(member=>String(member.uid||member.id||'')));const candidates=chronosProjects.filter(project=>{if(project.teamId)return true;const people=[project.ownerUid,...(project.memberUids||project.officerUids||[])].filter(Boolean).map(String);return people.some(uid=>memberIds.has(uid))});if(!candidates.length)return;sharedProjectSyncBusy=true;try{for(const project of candidates){if(!project.teamId)project.teamId=currentTeamId;await syncSharedProject(project)}}catch(err){console.warn('Project sharing backfill failed:',err)}finally{sharedProjectSyncBusy=false}}
  async function syncAllSharedProjectTasks(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;sharedProjectSyncBusy=true;try{for(const task of tasks.filter(t=>t.projectId)){const project=projectFor(task.projectId);if(project?.teamId)await syncSharedProjectTask(task)}}catch(err){console.warn('Project task sharing failed:',err)}finally{sharedProjectSyncBusy=false}}
  const basePersistForProjects=window.persist;if(typeof basePersistForProjects==='function'&&!window.chronosSharedProjectPersist){window.chronosSharedProjectPersist=true;window.persist=function(){const result=basePersistForProjects.apply(this,arguments);setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},0);return result};persist=window.persist}
- function projectTaskMarkupShared(task,project){const done=!!task.done||normalizeStatus(task.status)==='done',status=normalizeStatus(task.status),person=projectTaskPerson(task,project),due=task.due||task.date||'No due date',editable=canManageProject(project),assignedToMe=!!firebaseUser&&((task.assigneeUid&&String(task.assigneeUid)===String(firebaseUser.uid))||(Array.isArray(task.assigneeUids)&&task.assigneeUids.some(uid=>String(uid)===String(firebaseUser.uid)))),canUpdate=editable||assignedToMe,statusControl=canUpdate?`<select data-project-task-status="${projectEsc(task.id)}" data-project-task-team="${projectEsc(task.teamId||project?.teamId||'')}" aria-label="Change status for ${projectEsc(task.title||'task')}"><option value="open" ${status==='open'&&!done?'selected':''}>To do</option><option value="in_progress" ${status==='in_progress'?'selected':''}>In progress</option><option value="review" ${status==='review'?'selected':''}>In review</option><option value="done" ${done?'selected':''}>Done</option></select>`:`<span class="project-readonly-label">${done?'Completed':status==='in_progress'?'In progress':status==='review'?'In review':'To do'}</span>`;return `<article class="project-linked-task ${done?'is-complete':''} ${task.teamShared?'is-shared-project-task':''}" data-project-task-card="${projectEsc(task.id)}"><div class="project-task-person" ${editable?`data-project-task-edit="${projectEsc(task.id)}" role="button" tabindex="0" aria-label="Edit task ${projectEsc(task.title)}"`:''}>${projectAvatar(person,'sm')}<span><strong>${projectEsc(task.title||'Untitled task')}</strong><small>${projectEsc(person.name||'Unassigned')} · ${projectEsc(due)}${task.priority?` · ${projectEsc(task.priority)}`:''}${task.teamShared?' · Shared project task':''}</small></span></div><div class="project-task-actions">${editable?`<button type="button" class="project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true">Edit</button>`:'<span class="project-readonly-label">Assigned user</span>'}${statusControl}</div></article>`}
+ function projectTaskMarkupShared(task,project){
+   const done=!!task.done||(typeof normalizeStatus==='function'?normalizeStatus(task.status)==='done':task.status==='done');
+   const status=typeof normalizeStatus==='function'?normalizeStatus(task.status):(task.status||'open');
+   const person=typeof projectTaskPerson==='function'?projectTaskPerson(task,project):{name:task.assigneeName||'Unassigned'};
+   const due=task.due||task.date||'';
+   const todayStr=(typeof iso==='function'?iso(new Date()):new Date().toISOString().slice(0,10));
+   const isOverdue=!done&&due&&due<todayStr;
+   const editable=typeof canManageProject==='function'?canManageProject(project):true;
+   const assignedToMe=!!firebaseUser&&((task.assigneeUid&&String(task.assigneeUid)===String(firebaseUser.uid))||(Array.isArray(task.assigneeUids)&&task.assigneeUids.some(uid=>String(uid)===String(firebaseUser.uid))));
+   const canUpdate=editable||assignedToMe;
+
+   const statusControl=canUpdate?`
+     <select class="compact-status-select status-${status}" data-project-task-status="${projectEsc(task.id)}" data-project-task-team="${projectEsc(task.teamId||project?.teamId||'')}" aria-label="Change status for ${projectEsc(task.title||'task')}">
+       <option value="open" ${status==='open'&&!done?'selected':''}>To do</option>
+       <option value="in_progress" ${status==='in_progress'?'selected':''}>In progress</option>
+       <option value="review" ${status==='review'?'selected':''}>In review</option>
+       <option value="done" ${done?'selected':''}>Done</option>
+     </select>
+   `:`<span class="project-readonly-label">${done?'Completed':status==='in_progress'?'In progress':status==='review'?'In review':'To do'}</span>`;
+
+   return `
+     <article class="project-compact-task-row ${done?'is-complete':''} ${task.teamShared?'is-shared-project-task':''} status-${status}" data-project-task-card="${projectEsc(task.id)}">
+       <div class="compact-task-left-cluster">
+         <!-- 1-Tap Done Checkbox -->
+         <label class="compact-task-check-wrap" title="${done?'Mark task as open':'Mark task complete'}">
+           <input type="checkbox" class="compact-task-checkbox" data-project-task-check="${projectEsc(task.id)}" ${done?'checked':''} ${canUpdate?'':'disabled'} />
+         </label>
+
+         <!-- Main Details (Click to Edit) -->
+         <div class="compact-task-main" data-project-task-edit="${projectEsc(task.id)}" ${editable?'data-force-edit="true"':''} role="button" tabindex="0" title="Click to view/edit task details">
+           <strong class="compact-task-title ${done?'line-through':''}">${projectEsc(task.title||'Untitled task')}</strong>
+           <div class="compact-task-meta">
+             <span class="compact-assignee" title="Assigned Person">
+               ${typeof projectAvatar==='function'?projectAvatar(person,'xs'):''}
+               <span>${projectEsc(person.name||task.assigneeName||'Unassigned')}</span>
+             </span>
+             ${due?`
+               <span class="compact-meta-dot">·</span>
+               <span class="compact-due ${isOverdue?'is-overdue':''}">
+                 ${typeof getLucideSvg==='function'?getLucideSvg('calendar',11):'📅'} ${projectEsc(due)}
+               </span>
+             `:''}
+             ${task.phase?`<span class="compact-meta-dot">·</span><span class="compact-phase-tag">${projectEsc(task.phase)}</span>`:''}
+             ${task.priority?`<span class="compact-prio-tag prio-${(task.priority||'medium').toLowerCase()}">${projectEsc(task.priority)}</span>`:''}
+             ${task.teamShared?`<span class="compact-meta-dot">·</span><span class="compact-shared-tag">Shared</span>`:''}
+             ${task.isDeliverable?`<span class="compact-deliv-badge" title="Deliverable requirement">📋 Doc</span>`:''}
+           </div>
+         </div>
+       </div>
+
+       <!-- Right Actions: Status Select + Edit Button -->
+       <div class="compact-task-right">
+         ${statusControl}
+         ${editable?`<button type="button" class="btn-compact-ghost-edit project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true" title="Edit task details">${typeof getLucideSvg==='function'?getLucideSvg('edit-3',12):''} Edit</button>`:''}
+       </div>
+     </article>
+   `;
+ }
  projectTaskMarkup=projectTaskMarkupShared;
  projectBoardTaskMarkup=function(task,project){const done=!!task.done||normalizeStatus(task.status)==='done',status=normalizeStatus(task.status),person=projectTaskPerson(task,project),editable=canManageProject(project),assignedToMe=!!firebaseUser&&((task.assigneeUid&&String(task.assigneeUid)===String(firebaseUser.uid))||(Array.isArray(task.assigneeUids)&&task.assigneeUids.some(uid=>String(uid)===String(firebaseUser.uid)))),canUpdate=editable||assignedToMe,statusControl=canUpdate?`<select data-project-task-status="${projectEsc(task.id)}" data-project-task-team="${projectEsc(task.teamId||project?.teamId||'')}" aria-label="Change status for ${projectEsc(task.title||'task')}"><option value="open" ${status==='open'&&!done?'selected':''}>To do</option><option value="in_progress" ${status==='in_progress'?'selected':''}>In progress</option><option value="review" ${status==='review'?'selected':''}>In review</option><option value="done" ${done?'selected':''}>Done</option></select>`:`<span class="project-readonly-label">${done?'Completed':status==='in_progress'?'In progress':status==='review'?'In review':'To do'}</span>`;return `<article class="project-task ${done?'is-complete':''} ${task.teamShared?'is-shared-project-task':''}" data-project-task-card="${projectEsc(task.id)}"><div class="project-board-task-head" data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer" role="button" tabindex="0">${projectAvatar(person,'xs')}<strong>${projectEsc(task.title||'Untitled task')}</strong></div><small data-project-task-edit="${projectEsc(task.id)}" style="cursor:pointer">${projectEsc(person.name||'Unassigned')} · ${projectEsc(task.due?'Due '+task.due:'No deadline')}${task.teamShared?' · Shared project task':''}</small><div class="project-board-task-actions">${editable?`<button type="button" class="project-task-edit" data-project-task-edit="${projectEsc(task.id)}" data-force-edit="true">Edit</button>`:'<span class="project-readonly-label">Assigned user</span>'}${statusControl}</div></article>`};
  $('projectCreateForm')?.addEventListener('submit',e=>{const editId=e.currentTarget.dataset.editId;setTimeout(async()=>{const project=chronosProjects.find(p=>String(p.id)===String(editId||selectedProjectId));if(!project||(!activeTeamId&&!project.teamId))return;if(!project.teamId)project.teamId=activeTeamId;if(!project.teamName)project.teamName=activeTeam?.name||'Team';try{await syncSharedProject(project);await syncAllSharedProjects();await syncAllSharedProjectTasks();mergeSharedProjects();renderProjectManager();notify('Project shared with the team. Assigned members can now see and update task progress.')}catch(err){notify('Project saved locally, but team sharing failed: '+(err.message||'Check team permissions.'))}},80)},true);
@@ -30350,6 +30408,71 @@ html[data-theme=dark] .project-compact-task-row:hover {
   min-width: 0 !important;
 }
 
+.compact-task-check-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  width: 22px !important;
+  height: 22px !important;
+  user-select: none !important;
+}
+.compact-task-checkbox {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(148, 163, 184, 0.45) !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  display: inline-block !important;
+}
+.compact-task-checkbox:hover {
+  border-color: #6366f1 !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+  transform: scale(1.06) !important;
+}
+.compact-task-checkbox:checked {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35) !important;
+}
+.compact-task-checkbox:checked::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 6px !important;
+  top: 2.5px !important;
+  width: 5px !important;
+  height: 9px !important;
+  border: solid #ffffff !important;
+  border-width: 0 2px 2px 0 !important;
+  transform: rotate(45deg) !important;
+  display: block !important;
+}
+.compact-task-checkbox:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+html[data-theme=dark] .compact-task-checkbox {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+html[data-theme=dark] .compact-task-checkbox:hover {
+  border-color: #818cf8 !important;
+  background: rgba(129, 140, 248, 0.15) !important;
+}
+html[data-theme=dark] .compact-task-checkbox:checked {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
 .compact-task-avatar-wrap {
   flex-shrink: 0 !important;
 }
@@ -30393,26 +30516,121 @@ html[data-theme=dark] .compact-task-title {
   flex-wrap: wrap !important;
 }
 .compact-assignee {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
   font-weight: 500 !important;
   color: #475569 !important;
 }
+.compact-assignee .project-card-avatar {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+  font-size: 8px !important;
+  border-radius: 50% !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+}
+.compact-assignee .project-card-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+html[data-theme=dark] .compact-assignee {
+  color: #94a3b8 !important;
+}
+
 .compact-due {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
   color: #64748b !important;
 }
 .compact-due.is-overdue {
   color: #ef4444 !important;
   font-weight: 700 !important;
 }
+html[data-theme=dark] .compact-due {
+  color: #94a3b8 !important;
+}
 .compact-meta-dot {
   color: #cbd5e1 !important;
 }
-.compact-phase-tag, .compact-prio-tag, .compact-deliv-badge {
+html[data-theme=dark] .compact-meta-dot {
+  color: #475569 !important;
+}
+
+.compact-phase-tag, .compact-prio-tag, .compact-deliv-badge, .compact-shared-tag {
+  display: inline-flex !important;
+  align-items: center !important;
   padding: 1px 7px !important;
   border-radius: 9999px !important;
   font-size: 10px !important;
   font-weight: 750 !important;
   background: rgba(0, 0, 0, 0.05) !important;
   color: #64748b !important;
+}
+.compact-phase-tag {
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #6366f1 !important;
+  border: 1px solid rgba(99, 102, 241, 0.18) !important;
+}
+html[data-theme=dark] .compact-phase-tag {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+.compact-prio-tag.prio-high {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+}
+.compact-prio-tag.prio-medium {
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+.compact-prio-tag.prio-low {
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+html[data-theme=dark] .compact-prio-tag.prio-high {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+html[data-theme=dark] .compact-prio-tag.prio-medium {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+html[data-theme=dark] .compact-prio-tag.prio-low {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+.compact-shared-tag {
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #2563eb !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+html[data-theme=dark] .compact-shared-tag {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #93c5fd !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+.compact-deliv-badge {
+  background: rgba(168, 85, 247, 0.1) !important;
+  color: #9333ea !important;
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+}
+html[data-theme=dark] .compact-deliv-badge {
+  background: rgba(168, 85, 247, 0.2) !important;
+  color: #d8b4fe !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
 }
 
 /* Right Actions: Soft Pill Status Select + Edit Ghost Button */
@@ -30425,11 +30643,11 @@ html[data-theme=dark] .compact-task-title {
 
 .compact-status-select {
   height: 30px !important;
-  padding: 0 12px !important;
+  padding: 0 10px !important;
   border-radius: 9999px !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
   background: rgba(255, 255, 255, 0.85) !important;
   color: #334155 !important;
   cursor: pointer !important;
@@ -30437,7 +30655,8 @@ html[data-theme=dark] .compact-task-title {
   transition: all 0.15s ease !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
 }
-.compact-status-select.status-in_progress {
+.compact-status-select.status-in_progress,
+.compact-status-select.status-in-progress {
   background: rgba(238, 242, 255, 0.9) !important;
   color: #4f46e5 !important;
   border-color: rgba(99, 102, 241, 0.25) !important;
@@ -30457,20 +30676,44 @@ html[data-theme=dark] .compact-status-select {
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f8fafc !important;
 }
+html[data-theme=dark] .compact-status-select.status-in_progress,
+html[data-theme=dark] .compact-status-select.status-in-progress {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+html[data-theme=dark] .compact-status-select.status-done {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+html[data-theme=dark] .compact-status-select.status-review {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+html[data-theme=dark] .compact-status-select option {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
 
 .btn-compact-ghost-edit {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   color: #475569 !important;
-  padding: 6px 14px !important;
+  padding: 6px 12px !important;
   border-radius: 9999px !important;
   background: transparent !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
 }
 .btn-compact-ghost-edit:hover {
   background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
   color: #0f172a !important;
 }
 html[data-theme=dark] .btn-compact-ghost-edit {
@@ -30478,7 +30721,25 @@ html[data-theme=dark] .btn-compact-ghost-edit {
 }
 html[data-theme=dark] .btn-compact-ghost-edit:hover {
   background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
   color: #f8fafc !important;
+}
+
+@media (max-width: 600px) {
+  .project-compact-task-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+  .compact-task-right {
+    justify-content: flex-end !important;
+    padding-top: 8px !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  }
+  html[data-theme=dark] .compact-task-right {
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+  }
 }
 
 
@@ -35073,6 +35334,13 @@ window.openShowcaseProject = function() {
         if (typeof playInterfaceSound === 'function') playInterfaceSound();
       }
       if (typeof notify === 'function') notify(t.done ? 'Task marked complete.' : 'Task reopened.');
+    } else {
+      const shared = typeof sharedTaskEntries === 'function' ? sharedTaskEntries().find(task => String(task.id) === String(taskId)) : null;
+      if (shared && typeof updateSharedProjectTaskStatus === 'function') {
+        const teamId = chk.closest('[data-project-task-card]')?.querySelector('[data-project-task-team]')?.dataset.projectTaskTeam || shared.teamId;
+        updateSharedProjectTaskStatus(teamId, shared.id, chk.checked ? 'done' : 'open');
+        syncProjectTaskUIInPlace(taskId, { ...shared, done: chk.checked, status: chk.checked ? 'done' : 'open' }, chk);
+      }
     }
   }, true);
 
