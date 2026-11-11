@@ -27746,6 +27746,39 @@ html[data-theme=dark] .team-app-card:hover {
 .team-app-card:hover .team-app-icon-wrap {
   transform: scale(1.08);
 }
+
+.team-app-delete-btn {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: var(--muted, #64748b) !important;
+  cursor: pointer !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  transition: all 0.16s ease !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+}
+.team-app-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  transform: scale(1.08) !important;
+}
+html[data-theme="dark"] .team-app-delete-btn {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+}
+html[data-theme="dark"] .team-app-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
 .team-app-badge {
   font-size: 10.5px;
   font-weight: 750;
@@ -33300,12 +33333,46 @@ html[data-theme=dark] .btn-act-compact:hover {
     } catch(err) {}
   }
 
+  function getHiddenTeamApps() {
+    try {
+      return JSON.parse(localStorage.getItem('chronos90.hiddenTeamApps') || '[]');
+    } catch(err) {
+      return [];
+    }
+  }
+
+  function saveHiddenTeamApps(ids) {
+    try {
+      localStorage.setItem('chronos90.hiddenTeamApps', JSON.stringify(ids));
+    } catch(err) {}
+  }
+
   window.renderTeamApps = function() {
     const grid = $('teamAppsGrid');
     if (!grid) return;
 
-    const customApps = getCustomTeamApps();
-    const allApps = [...DEFAULT_MEMBER_APPS, ...customApps];
+    const hiddenIds = getHiddenTeamApps();
+    const visibleDefaults = DEFAULT_MEMBER_APPS.filter(app => !hiddenIds.includes(app.id));
+    const customApps = getCustomTeamApps().filter(app => !hiddenIds.includes(app.id));
+    const allApps = [...visibleDefaults, ...customApps];
+
+    // Update Header Actions to include Restore button if default apps were removed
+    const actionsContainer = document.querySelector('.team-apps-actions');
+    if (actionsContainer) {
+      const hasHiddenDefaults = hiddenIds.some(id => DEFAULT_MEMBER_APPS.some(d => d.id === id));
+      actionsContainer.innerHTML = `
+        ${hasHiddenDefaults ? `
+          <button class="btn team-action-btn" id="teamResetDefaultAppsBtn" type="button" title="Restore all original default apps">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+            <span>Restore original apps</span>
+          </button>
+        ` : ''}
+        <button class="btn team-action-btn" id="teamAddCustomAppBtn" type="button" title="Add custom tool or link for this team">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="plus"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Add tool link</span>
+        </button>
+      `;
+    }
 
     const cardsHtml = allApps.map(app => {
       const isCustom = !!app.isCustom;
@@ -33320,11 +33387,9 @@ html[data-theme=dark] .btn-act-compact:hover {
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
               <span class="team-app-badge ${badgeToneClass}">${esc(app.category || 'Member Tool')}</span>
-              ${isCustom ? `
-                <button type="button" class="deliv-more-icon-btn" data-delete-custom-app="${esc(app.id)}" title="Remove custom tool link" style="width:24px;height:24px;border-radius:50%;border:none;background:rgba(239,68,68,0.1);color:#dc2626;cursor:pointer;display:inline-grid;place-items:center;">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </button>
-              ` : ''}
+              <button type="button" class="team-app-delete-btn" data-delete-team-app="${esc(app.id)}" title="Delete ${esc(app.name)} from team view" aria-label="Delete ${esc(app.name)}">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
           </div>
           <div class="team-app-body">
@@ -33360,7 +33425,7 @@ html[data-theme=dark] .btn-act-compact:hover {
     grid.innerHTML = cardsHtml + addCardHtml;
   };
 
-  // Wire up Custom Team App Handlers
+  // Wire up Team App Handlers (Add, Delete & Restore)
   document.addEventListener('click', e => {
     // Open Add Tool Modal
     if (e.target.closest('#teamAddCustomAppBtn') || e.target.closest('#teamAppsCardAdd')) {
@@ -33381,17 +33446,39 @@ html[data-theme=dark] .btn-act-compact:hover {
       return;
     }
 
-    // Delete Custom Tool Link
-    const delBtn = e.target.closest('[data-delete-custom-app]');
+    // Restore Original Apps
+    if (e.target.closest('#teamResetDefaultAppsBtn')) {
+      e.preventDefault();
+      saveHiddenTeamApps([]);
+      if (typeof renderTeamApps === 'function') renderTeamApps();
+      if (typeof notify === 'function') notify('Restored original team apps.');
+      return;
+    }
+
+    // Delete Team App (Both Default and Custom)
+    const delBtn = e.target.closest('[data-delete-team-app]') || e.target.closest('[data-delete-custom-app]');
     if (delBtn) {
       e.preventDefault();
       e.stopPropagation();
-      const id = delBtn.dataset.deleteCustomApp;
+      const id = delBtn.dataset.deleteTeamApp || delBtn.dataset.deleteCustomApp;
+
+      // Check if it's a custom app
       let customApps = getCustomTeamApps();
-      customApps = customApps.filter(a => a.id !== id);
-      saveCustomTeamApps(customApps);
+      const isCustom = customApps.some(a => a.id === id);
+      if (isCustom) {
+        customApps = customApps.filter(a => a.id !== id);
+        saveCustomTeamApps(customApps);
+      } else {
+        // Default app: add to hidden list
+        let hidden = getHiddenTeamApps();
+        if (!hidden.includes(id)) {
+          hidden.push(id);
+          saveHiddenTeamApps(hidden);
+        }
+      }
+
       if (typeof renderTeamApps === 'function') renderTeamApps();
-      if (typeof notify === 'function') notify('App link removed.');
+      if (typeof notify === 'function') notify('App removed from team view.');
       return;
     }
   });
