@@ -5160,7 +5160,7 @@ html[data-theme="dark"] .project-card-foot{color:#94a3b8}
 .audio-name{font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
 
 /* Global Floating Voice Recorder HUD Dock - Aesthetic Dynamic Island */
-.global-voice-dock{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);z-index:10005;display:flex;align-items:center;gap:12px;padding:8px 14px 8px 10px;border-radius:9999px;background:color-mix(in srgb,var(--surface,#121622) 88%,#0a0f1d);border:1px solid rgba(255,255,255,0.14);box-shadow:0 16px 44px -6px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.06),0 0 24px rgba(239,68,68,0.22);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);color:var(--text);animation:dockSlideUp .3s cubic-bezier(0.16,1,0.3,1);cursor:grab;user-select:none;touch-action:none;transition:all .25s cubic-bezier(0.16,1,0.3,1)}
+.global-voice-dock{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);z-index:2147483000!important;display:flex;align-items:center;gap:12px;padding:8px 14px 8px 10px;border-radius:9999px;background:color-mix(in srgb,var(--surface,#121622) 88%,#0a0f1d);border:1px solid rgba(255,255,255,0.14);box-shadow:0 16px 44px -6px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.06),0 0 24px rgba(239,68,68,0.22);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);color:var(--text);animation:dockSlideUp .3s cubic-bezier(0.16,1,0.3,1);cursor:grab;user-select:none;touch-action:none;transition:all .25s cubic-bezier(0.16,1,0.3,1)}
 .global-voice-dock.hidden{display:none!important}
 .global-voice-dock.is-dragging{cursor:grabbing!important;transform:scale(1.025)!important;box-shadow:0 24px 60px rgba(0,0,0,0.85),0 0 35px rgba(239,68,68,0.45)!important}
 .global-voice-dock.is-paused{border-color:rgba(245,158,11,0.5);box-shadow:0 16px 44px -6px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.25)}
@@ -14203,6 +14203,18 @@ function openNote(id=null){
   const n=(typeof findNoteById==='function'?findNoteById(id):null)||notes.find(x=>String(x.id)===String(id));
   $('noteForm').reset();
   $('noteOptionsDrawer')?.classList.add('hidden');
+  const tbRecordBtn = $('noteToolbarRecordBtn');
+  if (tbRecordBtn) {
+    const isRec = typeof activeRecorder !== 'undefined' && activeRecorder && activeRecorder.state !== 'inactive';
+    tbRecordBtn.classList.toggle('is-recording', !!isRec);
+    if (isRec) {
+      tbRecordBtn.innerHTML = '<span class="note-tb-rec-dot"></span><span>Recording…</span>';
+      tbRecordBtn.title = 'Recording voice memo… Click to stop and save.';
+    } else {
+      tbRecordBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="lucide-icon"><circle cx="12" cy="12" r="8"/></svg><span>Record</span>';
+      tbRecordBtn.title = 'Record voice memo (continues in background while navigating)';
+    }
+  }
   const noteModalWide = document.querySelector('#noteBackdrop .note-modal-wide');
   if(noteModalWide) noteModalWide.classList.remove('is-reading-mode');
   $('noteBackdrop')?.classList.remove('is-reading-mode');
@@ -16250,6 +16262,10 @@ let isVoiceDockMinimized = false;
 
 async function startVoiceRecording(targetNoteId=null, targetNoteTitle=null){
   try{
+    if(activeRecorder && activeRecorder.state !== 'inactive'){
+      stopVoiceRecording();
+      return;
+    }
     if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
       notify('Voice recording is not supported in this browser context.');
       return;
@@ -16278,6 +16294,19 @@ async function startVoiceRecording(targetNoteId=null, targetNoteTitle=null){
       $('recordVoiceBtn')?.classList.add('hidden');
       $('stopVoiceBtn')?.classList.remove('hidden');
       $('discardVoiceBtn')?.classList.remove('hidden');
+
+      // Update Toolbar Record Button UI
+      const tbRecordBtn = $('noteToolbarRecordBtn');
+      if (tbRecordBtn) {
+        tbRecordBtn.classList.add('is-recording');
+        tbRecordBtn.innerHTML = '<span class="note-tb-rec-dot"></span><span>Recording…</span>';
+        tbRecordBtn.title = 'Recording voice memo… Click to stop and save.';
+      }
+      const drawerRecBtn = $('drawerRecordVoiceBtn');
+      if (drawerRecBtn) {
+        drawerRecBtn.classList.add('is-recording');
+        drawerRecBtn.innerHTML = '<span class="note-tb-rec-dot"></span><span>Recording…</span>';
+      }
 
       const dock = $('globalVoiceRecorderDock');
       if(dock){
@@ -16429,6 +16458,17 @@ async function stopVoiceRecording(){
       $('recordVoiceBtn')?.classList.remove('hidden');
       $('stopVoiceBtn')?.classList.add('hidden');
       $('discardVoiceBtn')?.classList.add('hidden');
+      const tbRecordBtn = $('noteToolbarRecordBtn');
+      if (tbRecordBtn) {
+        tbRecordBtn.classList.remove('is-recording');
+        tbRecordBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="lucide-icon"><circle cx="12" cy="12" r="8"/></svg><span>Record</span>';
+        tbRecordBtn.title = 'Record voice memo (continues in background while navigating)';
+      }
+      const drawerRecBtn = $('drawerRecordVoiceBtn');
+      if (drawerRecBtn) {
+        drawerRecBtn.classList.remove('is-recording');
+        drawerRecBtn.innerHTML = 'Record voice memo';
+      }
       if($('voiceStatus')) $('voiceStatus').textContent = 'Use your device microphone to capture a thought.';
     }
   };
@@ -16473,6 +16513,17 @@ function discardVoiceRecording(){
     $('recordVoiceBtn')?.classList.remove('hidden');
     $('stopVoiceBtn')?.classList.add('hidden');
     $('discardVoiceBtn')?.classList.add('hidden');
+    const tbRecordBtn = $('noteToolbarRecordBtn');
+    if (tbRecordBtn) {
+      tbRecordBtn.classList.remove('is-recording');
+      tbRecordBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="lucide-icon"><circle cx="12" cy="12" r="8"/></svg><span>Record</span>';
+      tbRecordBtn.title = 'Record voice memo (continues in background while navigating)';
+    }
+    const drawerRecBtn = $('drawerRecordVoiceBtn');
+    if (drawerRecBtn) {
+      drawerRecBtn.classList.remove('is-recording');
+      drawerRecBtn.innerHTML = 'Record voice memo';
+    }
     notify('Recording discarded.');
   };
 
@@ -25986,6 +26037,33 @@ body.has-modal-open {
 #deliverableTAModalBackdrop,
 #deliverableTransmittalModalBackdrop {
   z-index: 10150 !important;
+}
+
+/* Universal Floating Recording Dock: MUST float above all modals, backdrops, and dialogs */
+#globalVoiceRecorderDock,
+.global-voice-dock {
+  z-index: 2147483000 !important;
+}
+
+#noteToolbarRecordBtn.is-recording,
+#drawerRecordVoiceBtn.is-recording {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.3) !important;
+}
+
+.note-tb-rec-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  box-shadow: 0 0 8px #ef4444 !important;
+  animation: dockPulse 1.2s infinite ease-in-out !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  margin-right: 4px !important;
+  vertical-align: middle !important;
 }
 .chronos-repair-backdrop[hidden]{display:none!important}.chronos-repair-dialog{width:min(760px,100%);max-height:min(88vh,900px);overflow:auto;background:var(--surface,#fff);color:var(--text,#172033);border:1px solid var(--line,#dce4ef);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.24);padding:22px}.chronos-repair-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.chronos-repair-head h3{margin:0;font-size:22px}.chronos-repair-close{width:42px;height:42px;border:1px solid var(--line,#dce4ef);border-radius:12px;background:var(--surface-2,#f8faff);color:inherit;font-size:24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.chronos-repair-dialog .project-create{display:block!important;margin:0;border:0;padding:0;background:transparent}.chronos-repair-dialog #teamAdminPanel{display:block!important}.chronos-repair-dialog #teamAdminPanel.hidden{display:block!important}.chronos-repair-dialog .team-admin-panel{max-height:none}.chronos-repair-dialog .project-create-grid{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:560px){.chronos-repair-backdrop{padding:8px}.chronos-repair-dialog{padding:16px;border-radius:15px}.chronos-repair-dialog .project-create-grid{grid-template-columns:1fr}}
 
@@ -37966,6 +38044,7 @@ window.openShowcaseProject = function() {
   // 1. Wheel event listener: prevent wheel events from chaining to the background behind modals
   window.addEventListener('wheel', function(e) {
     if (!isLocked) return;
+    if (e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
     const activeModal = getTopmostActiveModal();
     if (!activeModal) return;
 
@@ -37988,6 +38067,7 @@ window.openShowcaseProject = function() {
   let touchStartY = 0;
   window.addEventListener('touchstart', function(e) {
     if (!isLocked) return;
+    if (e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
     if (e.touches && e.touches.length > 0) {
       touchStartY = e.touches[0].clientY;
     }
@@ -37995,6 +38075,7 @@ window.openShowcaseProject = function() {
 
   window.addEventListener('touchmove', function(e) {
     if (!isLocked) return;
+    if (e.target.closest('#globalVoiceRecorderDock, .global-voice-dock, .chronos-inapp-alert, .task-status-popover')) return;
     const activeModal = getTopmostActiveModal();
     if (!activeModal) return;
 
