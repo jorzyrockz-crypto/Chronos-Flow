@@ -16659,44 +16659,7 @@ $('exportNoteHtmlBtn')?.addEventListener('click', () => {
   const title = $('noteTitle')?.value?.trim() || 'Untitled note';
   const wy = $('noteWysiwygEditor');
   const bodyHtml = (noteEditorMode === 'wysiwyg' && wy) ? wy.innerHTML : renderMarkdown($('noteBody')?.value || '');
-  const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6;color:#1e293b}h1{border-bottom:1px solid #e2e8f0;padding-bottom:8px}blockquote{border-left:3px solid #3b82f6;margin:1em 0;padding-left:1em;color:#64748b}table{border-collapse:collapse;width:100%;margin:1em 0}th,td{border:1px solid #cbd5e1;padding:8px 12px;text-align:left}th{background:#f8fafc}</style></head><body><h1>${esc(title)}</h1>${bodyHtml}
-<!-- Add Custom Team App Modal -->
-<div class="chronos-repair-backdrop" id="teamAddAppModalBackdrop" hidden>
-  <section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="addAppModalTitle" style="width:min(520px,100%);">
-    <header class="chronos-repair-head">
-      <div>
-        <span class="team-apps-kicker" style="font-size:10px;font-weight:800;color:var(--accent);">ADD TEAM TOOL</span>
-        <h3 id="addAppModalTitle" style="margin:2px 0 0;font-size:20px;font-weight:800;">Add Member App or Link</h3>
-      </div>
-      <button class="chronos-repair-close" type="button" id="closeAddAppModalBtn" aria-label="Close dialog">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </header>
-    <form id="teamAddCustomAppForm" style="display:flex;flex-direction:column;gap:14px;margin-top:12px;">
-      <div>
-        <label for="customAppName" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">App / Tool Name</label>
-        <input id="customAppName" type="text" required placeholder="e.g. Shared Google Drive, Canva Team, MOOE Sheet" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
-      </div>
-      <div>
-        <label for="customAppUrl" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">URL / Link</label>
-        <input id="customAppUrl" type="url" required placeholder="https://..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
-      </div>
-      <div>
-        <label for="customAppCategory" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">Category / Badge</label>
-        <input id="customAppCategory" type="text" placeholder="e.g. Documents, Forms, LMS, Design" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
-      </div>
-      <div>
-        <label for="customAppDesc" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">Description</label>
-        <textarea id="customAppDesc" rows="2" placeholder="Brief note on how the team uses this tool..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;resize:vertical;"></textarea>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
-        <button type="button" class="btn" id="cancelAddAppModalBtn" style="border-radius:12px;padding:8px 16px;">Cancel</button>
-        <button type="submit" class="btn primary" style="border-radius:12px;padding:8px 18px;background:var(--accent);color:#fff;font-weight:700;">Save App Link</button>
-      </div>
-    </form>
-  </section>
-</div>
-</body></html>`;
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6;color:#1e293b}h1{border-bottom:1px solid #e2e8f0;padding-bottom:8px}blockquote{border-left:3px solid #3b82f6;margin:1em 0;padding-left:1em;color:#64748b}table{border-collapse:collapse;width:100%;margin:1em 0}th,td{border:1px solid #cbd5e1;padding:8px 12px;text-align:left}th{background:#f8fafc}</style></head><body><h1>${esc(title)}</h1>${bodyHtml}</body></html>`;
   downloadFile((title.replace(/[^a-z0-9-_]+/gi, '-').replace(/^-|-$/g, '') || 'chronos-note') + '.html', fullHtml, 'text/html;charset=utf-8');
   notify('HTML document exported.');
 });
@@ -27673,6 +27636,8 @@ html[data-theme=dark] .btn-act-compact {
 
 
 
+
+<style id="chronosTeamAppsAndDirectoryStyles">
 /* =========================================================
    TEAM APPS & MEMBER ECOSYSTEM SECTION (CHRONOS 5.2)
    ========================================================= */
@@ -28345,6 +28310,7 @@ html[data-theme="dark"] .team-member-credit {
   background: rgba(99, 102, 241, 0.08) !important;
   border: 1px solid rgba(99, 102, 241, 0.16) !important;
 }
+</style>
 
 <style id="chronosProjectRebuildStyles">#projectCreateForm label,#projectTaskCreateForm label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:650;color:var(--text,#263247)}#projectOfficersInput{min-height:92px}#projectOfficerHelp{font-size:11px;font-weight:400;color:var(--muted,#697586)}.project-inline-tasks{margin-top:18px;padding-top:16px;border-top:1px solid var(--line,#e3e8ef)}.project-inline-tasks h4{margin:0 0 12px}.project-task-create{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:14px}.project-task-create input,.project-task-create select{min-width:0;width:100%;padding:10px;border:1px solid var(--line,#dce2eb);border-radius:10px;background:var(--surface,#fff);color:inherit}.project-linked-task-list{display:grid;gap:8px}.project-linked-task{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line,#e3e8ef);border-radius:10px}.project-linked-task>div{display:grid;gap:4px;min-width:0}.project-linked-task small{color:var(--muted,#697586)}.project-linked-task select{padding:7px;border:1px solid var(--line,#dce2eb);border-radius:8px;background:var(--surface,#fff);color:inherit}@media(max-width:760px){.project-task-create{grid-template-columns:1fr 1fr}.project-task-create label:first-child{grid-column:1/-1}.project-task-create button{grid-column:1/-1}.project-linked-task{align-items:flex-start;flex-direction:column}}
 </style>
@@ -34898,6 +34864,44 @@ window.openShowcaseProject = function() {
 })();
 
 </script>
+
+
+<!-- Add Custom Team App Modal -->
+<div class="chronos-repair-backdrop" id="teamAddAppModalBackdrop" hidden>
+  <section class="chronos-repair-dialog" role="dialog" aria-modal="true" aria-labelledby="addAppModalTitle" style="width:min(520px,100%);">
+    <header class="chronos-repair-head">
+      <div>
+        <span class="team-apps-kicker" style="font-size:10px;font-weight:800;color:var(--accent);">ADD TEAM TOOL</span>
+        <h3 id="addAppModalTitle" style="margin:2px 0 0;font-size:20px;font-weight:800;">Add Member App or Link</h3>
+      </div>
+      <button class="chronos-repair-close" type="button" id="closeAddAppModalBtn" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </header>
+    <form id="teamAddCustomAppForm" style="display:flex;flex-direction:column;gap:14px;margin-top:12px;">
+      <div>
+        <label for="customAppName" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">App / Tool Name</label>
+        <input id="customAppName" type="text" required placeholder="e.g. Shared Google Drive, Canva Team, MOOE Sheet" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+      </div>
+      <div>
+        <label for="customAppUrl" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">URL / Link</label>
+        <input id="customAppUrl" type="url" required placeholder="https://..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+      </div>
+      <div>
+        <label for="customAppCategory" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">Category / Badge</label>
+        <input id="customAppCategory" type="text" placeholder="e.g. Documents, Forms, LMS, Design" class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;" />
+      </div>
+      <div>
+        <label for="customAppDesc" style="display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:var(--text,#0f172a);">Description</label>
+        <textarea id="customAppDesc" rows="2" placeholder="Brief note on how the team uses this tool..." class="project-form-input" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+        <button type="button" class="btn" id="cancelAddAppModalBtn" style="border-radius:12px;padding:8px 16px;">Cancel</button>
+        <button type="submit" class="btn primary" style="border-radius:12px;padding:8px 18px;background:var(--accent);color:#fff;font-weight:700;">Save App Link</button>
+      </div>
+    </form>
+  </section>
+</div>
 
 </body>
 </html>
