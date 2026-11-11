@@ -11654,6 +11654,7 @@ function applyLocalTeamRemoval(teamId){
   tasks=detachOrRemove(tasks);
   if(typeof chronosProjects!=='undefined'){
     chronosProjects=detachOrRemove(chronosProjects);
+    if(typeof selectedProjectId!=='undefined'&&selectedProjectId&&!chronosProjects.some(p=>String(p.id)===String(selectedProjectId)))selectedProjectId='';
     if(typeof saveChronosProjects==='function')saveChronosProjects();
   }
   if(typeof window.removeSharedProjectsForTeam==='function')window.removeSharedProjectsForTeam(key);
@@ -11670,12 +11671,17 @@ function applyLocalTeamRemoval(teamId){
   if(typeof stopTeamRealtimeSync==='function')stopTeamRealtimeSync();
   if(typeof saveTeamCache==='function')saveTeamCache();
   if(typeof persist==='function')persist();
+  if(typeof updateActiveTeamIndicators==='function')updateActiveTeamIndicators();
+  if(typeof populateTeamSelectors==='function')populateTeamSelectors();
   if(typeof renderTeamWorkspace==='function')renderTeamWorkspace();
+  if(typeof renderOverviewTeam==='function')renderOverviewTeam();
   if(typeof renderTasks==='function')renderTasks();
   if(typeof renderNotes==='function')renderNotes();
   if(typeof renderCalendar==='function')renderCalendar();
   if(typeof renderProjectManager==='function')renderProjectManager();
   if(typeof renderDashboard==='function')renderDashboard();
+  if(typeof renderNotificationList==='function')renderNotificationList();
+  if(typeof renderNotificationBell==='function')renderNotificationBell();
 }
 function removeTaskFromLocalCollections(id){
   const idKey=String(id);
@@ -24716,7 +24722,7 @@ function startTeamRealtimeSync(){
  }}
 }
 async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>(String(t.teamId)===String(teamId)&&String(t.id)===String(id))?{...t,...patch}:t);const local=(tasks||[]).find(t=>String(t.id)===String(id));if(local){local.done=patch.done;local.status=patch.status;persist();}applyTeamLiveData();renderTasks();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
-async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists)return null;return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
+async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists){d.ref.delete().catch(()=>{});return null}return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);const validTeamIds=new Set(chronosTeams.map(t=>String(t.id)));if(teamLiveData&&typeof teamLiveData==='object'){Object.keys(teamLiveData).forEach(tid=>{if(!validTeamIds.has(String(tid)))delete teamLiveData[tid]})}teamAssignedTasks=(teamAssignedTasks||[]).filter(t=>validTeamIds.has(String(t.teamId||'')));if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};saveTeamCache();teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();if(typeof populateTeamSelectors==='function')populateTeamSelectors();if(typeof updateActiveTeamIndicators==='function')updateActiveTeamIndicators();if(typeof renderOverviewTeam==='function')renderOverviewTeam();if(typeof renderTasks==='function')renderTasks();if(typeof renderCalendar==='function')renderCalendar();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
   // Ensure active team has a verified cloud invite code ready
   if (activeTeam && (isTeamAdmin() || activeTeam.ownerUid === firebaseUser.uid)) {
     ensureTeamInviteCode(activeTeam).catch(e => console.warn('Background invite ensure:', e));
@@ -28198,6 +28204,7 @@ html[data-theme=dark] .about-emblem-wrap img {
   }
 }
  window.chronosOpenManageTeam=openTeam;
+ window.chronosCloseManageTeam=closeTeam;
  window.openTeam=openTeam;
 
   // --- CHRONOS 5.2 TEAM CUSTOMIZATION & MODAL HANDLERS ---
@@ -28450,7 +28457,7 @@ html[data-theme=dark] .about-emblem-wrap img {
     }
   });
 
- function closeTeam(){if(teamModal)teamModal.hidden=true;document.body.style.overflow='';if(teamPanel&&teamHome?.parent){teamPanel.style.removeProperty('display');teamHome.parent.insertBefore(teamPanel,teamHome.next&&teamHome.next.parentNode===teamHome.parent?teamHome.next:null);teamPanel.classList.add('hidden')}if(typeof renderTeamWorkspace==='function'&&activeTeam){teamTab='members';renderTeamWorkspace()}}
+ function closeTeam(){if(teamModal)teamModal.hidden=true;document.body.style.overflow='';if(teamPanel&&teamHome?.parent){teamPanel.style.removeProperty('display');teamHome.parent.insertBefore(teamPanel,teamHome.next&&teamHome.next.parentNode===teamHome.parent?teamHome.next:null);teamPanel.classList.add('hidden')}teamTab='members';window._teamModalActiveTab='customization';if(typeof renderTeamWorkspace==='function'&&activeTeam){renderTeamWorkspace()}}
  document.addEventListener('click',e=>{if(e.target.closest('#projectNewBtn')){e.preventDefault();openProject(null);return}const edit=e.target.closest('[data-project-edit]');if(edit){e.preventDefault();const p=(chronosProjects||[]).find(x=>String(x.id)===String(edit.dataset.projectEdit));openProject(p||null);return}if(e.target.closest('#teamSettingsBtn')){e.preventDefault();e.stopPropagation();openTeam();return}const close=e.target.closest('[data-repair-close]');if(close){close.dataset.repairClose==='project'?closeProject():closeTeam();return}if(e.target===projectModal)closeProject();if(e.target===teamModal)closeTeam() },true);
  projectForm?.addEventListener('submit',e=>{if(projectModal&&!projectModal.hidden){setTimeout(()=>{if(projectForm.classList.contains('hidden'))closeProject()},0)}},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!projectModal.hidden)closeProject();if(!teamModal.hidden)closeTeam()}});
@@ -29849,20 +29856,8 @@ html[data-theme=dark] .btn-act-compact {
   const team=teamSnapshot.data()||{};
   if(String(team.ownerUid)!==String(firebaseUser.uid))throw Error('Only the team owner can delete the entire team.');
 
-  // Lock shared writes before enumerating collections so joins or new records cannot race cleanup.
-  await teamRef.update({deleting:true,deletionStartedAt:Date.now()});
-  const [membersSnapshot,invitationsSnapshot]=await Promise.all([
-   teamRef.collection('members').get(),
-   teamRef.collection('invitations').get()
-  ]);
-  const inviteCodes=new Set([
-   team.activeInviteCode,
-   ...invitationsSnapshot.docs.flatMap(doc=>[doc.id,doc.data()?.code])
-  ].filter(code=>typeof code==='string'&&code.trim()).map(code=>code.trim()));
-  const inviteIndexRefs=(await Promise.all([...inviteCodes].map(async code=>{
-   const ref=firebaseDb.collection('teamInviteCodes').doc(code),snapshot=await ref.get();
-   return snapshot.exists&&String(snapshot.data()?.teamId)===teamKey?ref:null;
-  }))).filter(Boolean);
+  // Pause live listeners before Firestore deletes so partial snapshots cannot rewrite local caches.
+  if(typeof stopTeamRealtimeSync==='function')stopTeamRealtimeSync();
   const deleteRefsInBatches=async refs=>{
    for(let i=0;i<refs.length;i+=400){
     const batch=firebaseDb.batch();
@@ -29871,43 +29866,107 @@ html[data-theme=dark] .btn-act-compact {
    }
   };
 
-  // Remove discoverable public code indexes first; retries can still find invitation documents.
-  await deleteRefsInBatches(inviteIndexRefs);
-  // Keep the owner membership intact until every protected team collection is cleared.
-  for(const kind of ['events','tasks','notes','projects','tombstones','invitations','notifications','activity']){
-   const snapshot=await teamRef.collection(kind).get();
-   await deleteRefsInBatches(snapshot.docs.map(doc=>doc.ref));
-  }
+  try{
+   // Lock shared writes before enumerating collections so joins or new records cannot race cleanup.
+   try{
+    await teamRef.update({deleting:true,deletionStartedAt:Date.now()});
+   }catch(err){
+    if(err?.code!=='permission-denied')throw err;
+   }
+   const [membersSnapshot,invitationsSnapshot]=await Promise.all([
+    teamRef.collection('members').get(),
+    teamRef.collection('invitations').get()
+   ]);
+   const inviteCodes=new Set([
+    team.activeInviteCode,
+    ...invitationsSnapshot.docs.flatMap(doc=>[doc.id,doc.data()?.code])
+   ].filter(code=>typeof code==='string'&&code.trim()).map(code=>code.trim()));
+   const inviteIndexRefs=(await Promise.all([...inviteCodes].map(async code=>{
+    const ref=firebaseDb.collection('teamInviteCodes').doc(code),snapshot=await ref.get();
+    return snapshot.exists&&String(snapshot.data()?.teamId)===teamKey?ref:null;
+   }))).filter(Boolean);
 
-  // Keep the owner's team index until the final atomic commit so a partial cleanup
-  // remains visible and can be retried from the workspace.
-  const otherMembers=membersSnapshot.docs.filter(doc=>doc.id!==firebaseUser.uid);
-  // Keep member records and their user-side indexes consistent in each small atomic batch.
-  // Nine member/index pairs keep distinct cross-document rule lookups below Firestore's 20-call batch limit.
-  for(let i=0;i<otherMembers.length;i+=9){
-   const batch=firebaseDb.batch();
-   otherMembers.slice(i,i+9).forEach(memberDoc=>{
-    batch.delete(memberDoc.ref);
-    batch.delete(firebaseDb.collection('users').doc(memberDoc.id).collection('teamMemberships').doc(teamKey));
-   });
-   await batch.commit();
-  }
+   // Remove discoverable public code indexes first; retries can still find invitation documents.
+   try{
+    await deleteRefsInBatches(inviteIndexRefs);
+   }catch(err){
+    if(err?.code!=='permission-denied')throw err;
+    for(const ref of inviteIndexRefs){
+     try{await ref.delete()}catch(e){if(e?.code!=='permission-denied'&&e?.code!=='not-found')throw e}
+    }
+   }
 
-  // Firestore rules only permit removing the owner's member record atomically with the team.
-  const finalBatch=firebaseDb.batch();
-  const ownerMember=membersSnapshot.docs.find(doc=>doc.id===firebaseUser.uid);
-  if(ownerMember)finalBatch.delete(ownerMember.ref);
-  finalBatch.delete(firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamKey));
-  finalBatch.delete(teamRef);
-  await finalBatch.commit();
+   // Keep the owner membership intact until every protected team collection is cleared.
+   for(const kind of ['events','tasks','notes','projects','tombstones','invitations','activity']){
+    const snapshot=await teamRef.collection(kind).get();
+    await deleteRefsInBatches(snapshot.docs.map(doc=>doc.ref));
+   }
+   let notificationDocs=[];
+   try{
+    notificationDocs=(await teamRef.collection('notifications').get()).docs;
+   }catch(err){
+    if(err?.code==='permission-denied'){
+     const ownSnap=await teamRef.collection('notifications').where('recipientUid','==',firebaseUser.uid).get().catch(()=>null);
+     notificationDocs=ownSnap?ownSnap.docs:[];
+    }else throw err;
+   }
+   await deleteRefsInBatches(notificationDocs.map(doc=>doc.ref));
+
+   // Keep the owner's team index until the final atomic commit so a partial cleanup
+   // remains visible and can be retried from the workspace.
+   const otherMembers=membersSnapshot.docs.filter(doc=>doc.id!==firebaseUser.uid);
+   // Keep member records and their user-side indexes consistent in each small atomic batch.
+   // Nine member/index pairs keep distinct cross-document rule lookups below Firestore's 20-call batch limit.
+   for(let i=0;i<otherMembers.length;i+=9){
+    const chunk=otherMembers.slice(i,i+9);
+    const batch=firebaseDb.batch();
+    chunk.forEach(memberDoc=>{
+     batch.delete(memberDoc.ref);
+     batch.delete(firebaseDb.collection('users').doc(memberDoc.id).collection('teamMemberships').doc(teamKey));
+    });
+    try{
+     await batch.commit();
+    }catch(err){
+     if(err?.code!=='permission-denied')throw err;
+     await deleteRefsInBatches(chunk.map(doc=>doc.ref));
+    }
+   }
+
+   // Firestore rules only permit removing the owner's member record atomically with the team.
+   const ownerMember=membersSnapshot.docs.find(doc=>doc.id===firebaseUser.uid);
+   const ownerMembershipRef=firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamKey);
+   const finalBatch=firebaseDb.batch();
+   if(ownerMember)finalBatch.delete(ownerMember.ref);
+   finalBatch.delete(ownerMembershipRef);
+   finalBatch.delete(teamRef);
+   try{
+    await finalBatch.commit();
+   }catch(err){
+    if(err?.code!=='permission-denied')throw err;
+    await teamRef.delete();
+    await ownerMembershipRef.delete();
+   }
+  }catch(err){
+   if(chronosTeams.length&&typeof startTeamRealtimeSync==='function'){
+    try{startTeamRealtimeSync()}catch{}
+   }
+   throw err;
+  }
 
   clearPendingTeamDeletesForTeam(teamKey);
+  teamTab='members';
+  window._teamModalActiveTab='customization';
   applyLocalTeamRemoval(teamKey);
-  try{await refreshTeamWorkspace()}catch(error){console.warn('Team was deleted, but workspace refresh failed:',error)}
+  if(typeof window.chronosCloseManageTeam==='function')window.chronosCloseManageTeam();
+  if(chronosTeams.length>0&&typeof refreshTeamWorkspace==='function'){
+   try{await refreshTeamWorkspace()}catch(error){console.warn('Team was deleted, but workspace refresh failed:',error)}
+  }else{
+   teamStatus('No teams yet. Create one or accept an invitation code.');
+  }
   saveTeamCache();
   renderTasks();
   renderCalendar();
-  notify('Team deleted.');
+  notify('Team deleted permanently.');
  }
  function renderTeamDeleteControl(){
   // Danger zone is seamlessly integrated into Tab 3 of renderTeamAdminPanel3()
@@ -30034,7 +30093,7 @@ function decorateTeamRecordActions(){
  const baseTeamRenderRecordsWithActions=renderTeamRecords;renderTeamRecords=function(){baseTeamRenderRecordsWithActions.apply(this,arguments);decorateTeamRecordActions()};
  document.addEventListener('click',async e=>{const editBtn=e.target.closest('[data-team-record-edit]');if(editBtn){e.preventDefault();e.stopImmediatePropagation();const type=editBtn.dataset.teamRecordType||(teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes'),record=(teamRecords[type]||[]).find(item=>String(item.id)===String(editBtn.dataset.teamRecordEdit));if(record)openTeamRecordEditModal(record,type);return}const button=e.target.closest('[data-team-record-delete]');if(!button)return;e.preventDefault();e.stopImmediatePropagation();const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',record=(teamRecords[type]||[]).find(item=>String(item.id)===String(button.dataset.teamRecordDelete));if(!record)return;const ok=await confirmCustomInApp(`Delete shared ${type.slice(0,-1)} "${record.title||'Untitled'}"? This cannot be undone.`,{title:'Delete Shared Item',confirmText:'Delete item',danger:true});if(!ok)return;try{await deleteSharedTeamRecord(record,type)}catch(err){notify(err.localDeleted?'Shared item removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete shared item: '+(err.message||'Check your connection and permissions.'))}},true);
  const baseTeamRenderWithDeletion=renderTeamWorkspace;renderTeamWorkspace=function(){baseTeamRenderWithDeletion.apply(this,arguments);renderTeamDeleteControl()};
- document.addEventListener('click',async e=>{const projectDelete=e.target.closest('[data-project-delete]');if(projectDelete){e.preventDefault();e.stopImmediatePropagation();const pid=projectDelete.dataset.projectDelete;const project=(typeof projectFor==='function'?projectFor(pid):null)||(chronosProjects||[]).find(p=>String(p.id)===String(pid))||((typeof sharedProjects!=='undefined'&&sharedProjects)||[]).find(p=>String(p.id)===String(pid));if(!project)return;const okProj=await confirmCustomInApp(`Delete project "${project.name||'Untitled project'}" and all of its linked tasks? This cannot be undone.`,{title:'Delete Project',confirmText:'Delete project',danger:true});if(!okProj)return;try{const result=await deleteProjectRecord(project);notify(deletionOutcomeMessage('Project and linked tasks',result))}catch(err){notify(err.taskCleanupQueued?'Project deletion paused; linked-task cleanup is queued. Wait for it to finish, then retry.':err.localDeleted?'Project removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete project: '+(err.message||'Check your connection and permissions.'))}return}const taskDelete=e.target.closest('#deleteTask');if(taskDelete){const id=$('taskId')?.value,task=typeof findTaskRecordForDelete==='function'?findTaskRecordForDelete(id):(typeof findTaskById==='function'?findTaskById(id):tasks.find(item=>String(item.id)===String(id)));if(!task?.projectId||!projectFor(task.projectId))return;e.preventDefault();e.stopImmediatePropagation();const okTask=await confirmCustomInApp(`Delete project task "${task.title||'Untitled task'}"? This cannot be undone.`,{title:'Delete Project Task',confirmText:'Delete task',danger:true});if(!okTask)return;try{const result=await deleteProjectTaskRecord(task);notify(deletionOutcomeMessage('Project task',result))}catch(err){notify(err.taskCleanupQueued?'Showcase deletion paused; linked-task cleanup is queued. Wait for it to finish, then retry.':err.localDeleted?'Project task removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete project task: '+(err.message||'Check your connection and permissions.'))}return}const teamDelete=e.target.closest('[data-team-delete]');if(teamDelete){e.preventDefault();e.stopImmediatePropagation();const team=chronosTeams.find(item=>String(item.id)===String(teamDelete.dataset.teamDelete))||activeTeam;if(!team)return;const okTeam=await confirmCustomInApp(`Permanently delete team "${team.name||'this team'}" and all shared content? This cannot be undone.`,{title:'Permanently Delete Team',confirmText:'Delete team',danger:true});if(!okTeam)return;const originalDeleteLabel=teamDelete.innerHTML;teamDelete.disabled=true;teamDelete.setAttribute('aria-busy','true');teamDelete.textContent='Deleting team…';notify('Deleting the team and its shared content…');try{await deleteTeamRecord(team.id)}catch(err){teamDelete.disabled=false;teamDelete.removeAttribute('aria-busy');teamDelete.innerHTML=originalDeleteLabel;notify('Team deletion did not finish; some cloud records may already have been removed. Retry when connected or check Firestore permissions: '+(err.message||'unknown error.'))}}},true);
+ document.addEventListener('click',async e=>{const projectDelete=e.target.closest('[data-project-delete]');if(projectDelete){e.preventDefault();e.stopImmediatePropagation();const pid=projectDelete.dataset.projectDelete;const project=(typeof projectFor==='function'?projectFor(pid):null)||(chronosProjects||[]).find(p=>String(p.id)===String(pid))||((typeof sharedProjects!=='undefined'&&sharedProjects)||[]).find(p=>String(p.id)===String(pid));if(!project)return;const okProj=await confirmCustomInApp(`Delete project "${project.name||'Untitled project'}" and all of its linked tasks? This cannot be undone.`,{title:'Delete Project',confirmText:'Delete project',danger:true});if(!okProj)return;try{const result=await deleteProjectRecord(project);notify(deletionOutcomeMessage('Project and linked tasks',result))}catch(err){notify(err.taskCleanupQueued?'Project deletion paused; linked-task cleanup is queued. Wait for it to finish, then retry.':err.localDeleted?'Project removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete project: '+(err.message||'Check your connection and permissions.'))}return}const taskDelete=e.target.closest('#deleteTask');if(taskDelete){const id=$('taskId')?.value,task=typeof findTaskRecordForDelete==='function'?findTaskRecordForDelete(id):(typeof findTaskById==='function'?findTaskById(id):tasks.find(item=>String(item.id)===String(id)));if(!task?.projectId||!projectFor(task.projectId))return;e.preventDefault();e.stopImmediatePropagation();const okTask=await confirmCustomInApp(`Delete project task "${task.title||'Untitled task'}"? This cannot be undone.`,{title:'Delete Project Task',confirmText:'Delete task',danger:true});if(!okTask)return;try{const result=await deleteProjectTaskRecord(task);notify(deletionOutcomeMessage('Project task',result))}catch(err){notify(err.taskCleanupQueued?'Showcase deletion paused; linked-task cleanup is queued. Wait for it to finish, then retry.':err.localDeleted?'Project task removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete project task: '+(err.message||'Check your connection and permissions.'))}return}const teamDelete=e.target.closest('[data-team-delete]');if(teamDelete){e.preventDefault();e.stopImmediatePropagation();const team=chronosTeams.find(item=>String(item.id)===String(teamDelete.dataset.teamDelete))||activeTeam;if(!team)return;const okTeam=await confirmCustomInApp(`Permanently delete team "${team.name||'this team'}" and all shared content? This cannot be undone.`,{title:'Permanently Delete Team',confirmText:'Delete team',danger:true});if(!okTeam)return;const originalDeleteLabel=teamDelete.innerHTML;teamDelete.disabled=true;teamDelete.setAttribute('aria-busy','true');teamDelete.textContent='Deleting team…';notify('Deleting the team and its shared content…');try{await deleteTeamRecord(team.id)}catch(err){notify('Team deletion did not finish; some cloud records may already have been removed. Retry when connected or check Firestore permissions: '+(err.message||'unknown error.'))}finally{if(teamDelete.isConnected){teamDelete.disabled=false;teamDelete.removeAttribute('aria-busy');teamDelete.innerHTML=originalDeleteLabel}}}},true);
  const baseStopProjectSync=stopTeamRealtimeSync;stopTeamRealtimeSync=function(){sharedProjects.splice(0,sharedProjects.length);return baseStopProjectSync.apply(this,arguments)};
  const baseApplyTeamLiveDataWithProjects=applyTeamLiveData;applyTeamLiveData=function(){preserveScrollRun(()=>{baseApplyTeamLiveDataWithProjects.apply(this,arguments);collectSharedProjects();renderProjectManager();renderAssignedProjectNotes()})};
  const baseStartProjectSync=startTeamRealtimeSync;startTeamRealtimeSync=function(){const result=baseStartProjectSync.apply(this,arguments);if(!firebaseUser||!firebaseDb||!navigator.onLine||!chronosTeams.length)return result;chronosTeams.forEach(team=>{if(teamLiveData[team.id])teamLiveData[team.id].projects=[];const unsubscribe=firebaseDb.collection('teams').doc(team.id).collection('projects').onSnapshot(snapshot=>{if(!teamLiveData[team.id])teamLiveData[team.id]={events:[],tasks:[],notes:[],projects:[]};teamLiveData[team.id].projects=snapshot.docs.map(doc=>({...doc.data(),id:doc.id,teamId:team.id,teamName:team.name||'Team'}));applyTeamLiveData()},err=>console.warn('Live team projects sync failed for '+team.id,err));teamLiveUnsubs.push(unsubscribe)});setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},250);return result};
