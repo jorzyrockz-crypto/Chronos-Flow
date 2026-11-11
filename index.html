@@ -11478,7 +11478,7 @@ function trackDeletedRecords(){
   try { localStorage.setItem('chronos60.localTombstones', JSON.stringify(localTombs)); } catch(e){}
   try { localStorage.setItem(uKey, JSON.stringify(uTombs)); } catch(e){}
 }
-function persist(){try{trackDeletedRecords();safeStorageSet('chronos20.events',JSON.stringify(events));safeStorageSet('chronos20.notes',JSON.stringify(notes));safeStorageSet('chronos40.tasks',JSON.stringify(tasks));scheduleFirebaseSync()}catch(err){notify('Could not save locally. Export a backup if possible.')}}
+function persist(){try{trackDeletedRecords();safeStorageSet('chronos20.events',JSON.stringify(events));safeStorageSet('chronos20.notes',JSON.stringify(notes));safeStorageSet('chronos40.tasks',JSON.stringify(tasks));if(typeof chronosSyncChannel!=='undefined'&&chronosSyncChannel){try{chronosSyncChannel.postMessage({type:'records_updated',sender:window._chronosTabId,timestamp:Date.now()})}catch(e){}}scheduleFirebaseSync()}catch(err){notify('Could not save locally. Export a backup if possible.')}}
 function notify(s, type){
   const el=$('status');
   if(!el) return;
@@ -16322,6 +16322,7 @@ $('noteForm')?.addEventListener('submit',async e=>{
   saveNoteDraft(false);
   const saved=notes.find(x=>x.id===id);
   try{await publishToTeams('notes',saved,saved?.sharedTeamIds||[],[])}catch(err){notify('Note saved locally, but team sharing failed: '+err.message)}
+  if(firebaseUser&&firebaseDb&&navigator.onLine){clearTimeout(firebaseSyncTimer);firebaseBackgroundSync().catch(e=>console.warn('Immediate note push failed:',e))}
   $('noteAutosaveStatus').textContent='Saved locally';
   $('noteBackdrop').classList.add('hidden');
   renderNotes();
@@ -23822,7 +23823,7 @@ document.addEventListener('dblclick', e => {
 // Firebase cloud sync. User owns/configures their project; never store server credentials here.
 function updateSyncStatus(message){const el=$('syncStatus');if(!el)return;const configured=!!(firebaseConfig&&firebaseConfig.apiKey&&firebaseConfig.projectId);el.classList.toggle('connected',!!firebaseUser);el.classList.toggle('pending',!!message);const label=message||(firebaseUser?'Signed in · '+(firebaseUser.displayName||firebaseUser.email||firebaseUser.uid):configured?'Configured · sign in with Google':'Firebase not configured');el.innerHTML=`<span class="status-dot"></span><span>${esc(label)}</span>`}
 function fillFirebaseConfig(){const input=$('firebaseConfigJson');if(input&&firebaseConfig&&Object.keys(firebaseConfig).length)input.value=JSON.stringify(firebaseConfig,null,2);updateSyncStatus()}
-let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(e){}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}refreshTeamWorkspace()}else{stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
+let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(e){}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync().finally(()=>startPersonalRealtimeSync());}else{stopPersonalRealtimeSync();stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
 $('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=parsed;localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
 async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent='Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent='Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}if(status){status.classList.add('error');status.textContent=err.message||'Google sign-in failed. Check your Firebase Authentication settings and authorized domain.'}notify(err.message||'Google sign-in failed.')}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
 $('firebaseGoogleSignIn').addEventListener('click',()=>startFirebaseGoogleSignIn('settings'));
@@ -24446,8 +24447,111 @@ events=mergedEvents;notes=mergedNotes;tasks=mergedTasks;settings=mergedSettings;
   writeTombstones(tombs)
 ]);await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});updateSyncStatus('Media remains local · finishing sync…');await userRef.set({lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);render();settingsFormFill();notify(`Sync complete: ${events.length} events, ${tasks.length} tasks, ${notes.length} notes.`);updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));}catch(err){console.error(err);notify('Firebase sync failed: '+(err.message||'Unknown error'));updateSyncStatus('Sync needs attention')}finally{firebaseSyncBusy=false;if(btn){btn.disabled=false;btn.textContent='Merge & sync data'}}}
 $('firebaseSyncNow').addEventListener('click',firebaseMergeSync);
+let personalLiveUnsubs=[];
+function stopPersonalRealtimeSync(){while(personalLiveUnsubs.length){try{personalLiveUnsubs.pop()()}catch(e){}}}
+function startPersonalRealtimeSync(){
+  stopPersonalRealtimeSync();
+  if(!firebaseUser||!firebaseDb||!navigator.onLine)return;
+  const userDoc=firebaseDb.collection('users').doc(firebaseUser.uid);
+  const unsubNotes=userDoc.collection('notes').onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites||firebaseApplyingRemote||firebaseSyncBusy)return;
+    try{
+      const cloudNotes=snap.docs.map(d=>({...d.data(),id:d.data()._chronosId||d.id}));
+      const tombs=(typeof localTombstones==='function')?localTombstones():{};
+      const merged=withoutTombstones(mergeById(notes,cloudNotes),'notes',tombs);
+      const currK=notes.map(n=>`${n.id}_${itemTime(n)}_${n.title}`).join('|');
+      const newK=merged.map(n=>`${n.id}_${itemTime(n)}_${n.title}`).join('|');
+      if(currK!==newK){
+        notes=merged;
+        safeStorageSet('chronos20.notes',JSON.stringify(notes));
+        renderNotes();
+        renderDashboard();
+        updateSyncStatus('Notes synced · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+      }
+    }catch(err){console.warn('Realtime note sync err:',err)}
+  },err=>console.warn('Personal notes live sync failed:',err));
+  personalLiveUnsubs.push(unsubNotes);
+
+  const unsubTasks=userDoc.collection('tasks').onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites||firebaseApplyingRemote||firebaseSyncBusy)return;
+    try{
+      const cloudTasks=snap.docs.map(d=>({...d.data(),id:d.data()._chronosId||d.id}));
+      const tombs=(typeof localTombstones==='function')?localTombstones():{};
+      const merged=withoutTombstones(mergeById(tasks,cloudTasks),'tasks',tombs);
+      const currK=tasks.map(t=>`${t.id}_${itemTime(t)}_${t.done}_${t.title}`).join('|');
+      const newK=merged.map(t=>`${t.id}_${itemTime(t)}_${t.done}_${t.title}`).join('|');
+      if(currK!==newK){
+        tasks=merged;
+        safeStorageSet('chronos40.tasks',JSON.stringify(tasks));
+        renderTasks();
+        renderDashboard();
+        if(typeof renderCalendar==='function')renderCalendar();
+      }
+    }catch(err){console.warn('Realtime task sync err:',err)}
+  },err=>console.warn('Personal tasks live sync failed:',err));
+  personalLiveUnsubs.push(unsubTasks);
+
+  const unsubEvents=userDoc.collection('events').onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites||firebaseApplyingRemote||firebaseSyncBusy)return;
+    try{
+      const cloudEvents=snap.docs.map(d=>({...d.data(),id:d.data()._chronosId||d.id}));
+      const tombs=(typeof localTombstones==='function')?localTombstones():{};
+      const merged=withoutTombstones(mergeById(events,cloudEvents),'events',tombs);
+      const currK=events.map(e=>`${e.id}_${itemTime(e)}_${e.date}_${e.title}`).join('|');
+      const newK=merged.map(e=>`${e.id}_${itemTime(e)}_${e.date}_${e.title}`).join('|');
+      if(currK!==newK){
+        events=merged;
+        safeStorageSet('chronos20.events',JSON.stringify(events));
+        render();
+        if(typeof renderCalendar==='function')renderCalendar();
+      }
+    }catch(err){console.warn('Realtime event sync err:',err)}
+  },err=>console.warn('Personal events live sync failed:',err));
+  personalLiveUnsubs.push(unsubEvents);
+
+  const unsubTombs=userDoc.collection('tombstones').onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites||firebaseApplyingRemote||firebaseSyncBusy)return;
+    try{
+      const cloudTombs=snap.docs.map(d=>d.data());
+      const localT=(typeof localTombstones==='function')?localTombstones():{};
+      const mergedTombs=mergeTombstones(localT,cloudTombs);
+      if(Object.keys(mergedTombs).length>Object.keys(localT).length){
+        localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(mergedTombs));
+        try{localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...mergedTombs}))}catch(e){}
+        const fn=withoutTombstones(notes,'notes',mergedTombs);
+        const ft=withoutTombstones(tasks,'tasks',mergedTombs);
+        const fe=withoutTombstones(events,'events',mergedTombs);
+        let chg=false;
+        if(fn.length!==notes.length){notes=fn;safeStorageSet('chronos20.notes',JSON.stringify(notes));renderNotes();chg=true}
+        if(ft.length!==tasks.length){tasks=ft;safeStorageSet('chronos40.tasks',JSON.stringify(tasks));renderTasks();chg=true}
+        if(fe.length!==events.length){events=fe;safeStorageSet('chronos20.events',JSON.stringify(events));render();chg=true}
+        if(chg)renderDashboard();
+      }
+    }catch(err){console.warn('Realtime tombstone sync err:',err)}
+  },err=>console.warn('Personal tombstones live sync failed:',err));
+  personalLiveUnsubs.push(unsubTombs);
+}
+
+// Cross-tab broadcast channel & storage listener for same-browser multi-tab sync
+window._chronosTabId=window._chronosTabId||('tab_'+Math.random().toString(36).slice(2,9));
+const chronosSyncChannel=(typeof BroadcastChannel!=='undefined')?new BroadcastChannel('chronos_records_channel'):null;
+if(chronosSyncChannel){
+  chronosSyncChannel.onmessage=e=>{
+    if(!e.data||e.data.sender===window._chronosTabId)return;
+    if(e.data.type==='records_updated'){
+      load();render();renderTasks();renderNotes();renderDashboard();
+    }
+  };
+}
+window.addEventListener('storage',e=>{
+  if(e.key&&(e.key.startsWith('chronos20.')||e.key.startsWith('chronos40.')||e.key.startsWith('chronos70.'))){
+    load();render();renderTasks();renderNotes();renderDashboard();
+  }
+});
+
 async function firebaseBackgroundSync(){
-  if(firebaseSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;
+  if(firebaseSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;
+  localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);
   firebaseSyncBusy=true;
   firebaseApplyingRemote=true;
   try{
@@ -24465,8 +24569,15 @@ async function firebaseBackgroundSync(){
       localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}));
     }catch(e){}
     await purgeCloudZombieDocs(tombs,ce,cn,ct,cp);
-    events=withoutTombstones(mergeById(withoutTombstones(events,'events',tombs),withoutTombstones(ce,'events',tombs)),'events',tombs);
-    notes=withoutTombstones(mergeById(withoutTombstones(notes,'notes',tombs),withoutTombstones(cn,'notes',tombs)),'notes',tombs);
+
+    // If local notes/events are just fresh fallback samples and cloud has user data, don't pollute cloud with samples
+    const hasRealLocalNotes=localStorage.getItem('chronos20.notes')!==null;
+    const localNotes=(!hasRealLocalNotes&&cn.length>0)?[]:notes;
+    const hasRealLocalEvents=localStorage.getItem('chronos20.events')!==null;
+    const localEvents=(!hasRealLocalEvents&&ce.length>0)?[]:events;
+
+    events=withoutTombstones(mergeById(withoutTombstones(localEvents,'events',tombs),withoutTombstones(ce,'events',tombs)),'events',tombs);
+    notes=withoutTombstones(mergeById(withoutTombstones(localNotes,'notes',tombs),withoutTombstones(cn,'notes',tombs)),'notes',tombs);
     tasks=withoutTombstones(mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(ct,'tasks',tombs)),'tasks',tombs);
     if(typeof chronosProjects !== 'undefined'){
       chronosProjects=withoutTombstones(mergeById(withoutTombstones(chronosProjects,'projects',tombs),withoutTombstones(cp,'projects',tombs)),'projects',tombs);
@@ -24485,6 +24596,8 @@ async function firebaseBackgroundSync(){
     ]);
     await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});
     render();
+    renderTasks();
+    renderNotes();
     updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
   }catch(err){
     console.warn('Background Firebase sync failed',err);
@@ -24494,8 +24607,8 @@ async function firebaseBackgroundSync(){
     firebaseSyncBusy=false;
   }
 }
-function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine||localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)return;clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),5000)}
-window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace()}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine)refreshTeamWorkspace()});
+function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),1500)}
+window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace();startPersonalRealtimeSync()}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){refreshTeamWorkspace();firebaseBackgroundSync().catch(()=>{})}});
 // Restore saved config without blocking standalone startup. Firebase SDK is loaded only
 // on a secure origin when the user chooses to connect; file:// stays local-first and usable.
 try{firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG};if(firebaseConfig.apiKey&&firebaseConfig.projectId){$('firebaseConfigJson').value=JSON.stringify(firebaseConfig,null,2);if(location.protocol==='file:'){updateSyncStatus('Standalone mode · local workspace ready')}else{initFirebase(firebaseConfig).catch(err=>{console.warn('Firebase configuration not initialized:',err);updateSyncStatus('Firebase unavailable · local mode remains active')})}}}catch(err){console.warn('Firebase configuration not initialized:',err)}
@@ -24529,7 +24642,7 @@ function showChronosStartupFailure(err){console.error('Chronos startup failed:',
 try{load();loadTeamCache();removeLegacySampleActivities();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
  const expose=(name,get,set)=>{try{Object.defineProperty(window,name,{configurable:true,enumerable:false,get,set})}catch{try{window[name]=get()}catch{}}};
- [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v]].forEach(([name,get,set])=>expose(name,get,set));
+ [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v],['startPersonalRealtimeSync',()=>startPersonalRealtimeSync,v=>startPersonalRealtimeSync=v],['stopPersonalRealtimeSync',()=>stopPersonalRealtimeSync,v=>stopPersonalRealtimeSync=v]].forEach(([name,get,set])=>expose(name,get,set));
  
 </script>
 
