@@ -12084,7 +12084,7 @@ const modernPickerIds=['eventShareTeams','noteShareTeams','taskShareTeams','task
 function pickerInitials(label){return String(label||'?').trim().split(/[\s@._-]+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'?'}
 function pickerMeta(select,opt){if(select.id==='taskAssignees'){const parts=opt.value.split('|'),team=chronosTeams.find(t=>t.id===parts[0]);return team?.name||'Team member'}return 'Team'}
 function ensureModernPicker(id){const sel=$(id);if(!sel)return null;let wrap=document.querySelector('[data-modern-picker="'+id+'"]');if(wrap)return wrap;sel.classList.add('multi-select-native');wrap=document.createElement('div');wrap.className='modern-picker';wrap.dataset.modernPicker=id;wrap.innerHTML='<button type="button" class="picker-summary" aria-haspopup="listbox" aria-expanded="false"><span class="picker-placeholder">Choose '+(id==='taskAssignees'?'people':'teams')+'…</span><span class="picker-chevron">⌄</span></button><div class="picker-popover hidden"><input class="picker-search" type="search" placeholder="Search '+(id==='taskAssignees'?'name or team…':'teams…')+'" aria-label="Search options"><div class="picker-options" role="listbox" aria-multiselectable="true"></div><div class="picker-footer"><span class="picker-count">Nothing selected</span><button type="button" class="picker-done">Done</button></div></div>';sel.insertAdjacentElement('afterend',wrap);return wrap}
-function renderModernPicker(id){const sel=$(id);if(!sel)return;const wrap=ensureModernPicker(id);if(!wrap)return;const selected=[...sel.selectedOptions],summary=wrap.querySelector('.picker-summary'),placeholder=wrap.querySelector('.picker-placeholder');summary.querySelectorAll('.picker-chip').forEach(n=>n.remove());if(!selected.length){if(!placeholder){const ph=document.createElement('span');ph.className='picker-placeholder';ph.textContent='Choose '+(id==='taskAssignees'?'people':'teams')+'…';summary.insertBefore(ph,summary.querySelector('.picker-chevron'))}else placeholder.textContent='Choose '+(id==='taskAssignees'?'people':'teams')+'…'}else{if(placeholder)placeholder.remove();selected.forEach(opt=>{const chip=document.createElement('span');chip.className='picker-chip';const text=document.createElement('span');text.className='picker-chip-text';text.textContent=opt.textContent;const rm=document.createElement('button');rm.type='button';rm.className='picker-chip-remove';rm.setAttribute('aria-label','Remove '+opt.textContent);rm.textContent='×';rm.dataset.pickerRemove=opt.value;chip.append(text,rm);summary.insertBefore(chip,summary.querySelector('.picker-chevron'))})}const search=wrap.querySelector('.picker-search'),query=(search.value||'').trim().toLowerCase(),list=wrap.querySelector('.picker-options');const opts=[...sel.options].filter(o=>!query||o.textContent.toLowerCase().includes(query));list.innerHTML=opts.map(o=>{const is= o.selected, label=o.textContent, meta=pickerMeta(sel,o);return '<button type="button" role="option" aria-selected="'+is+'" class="picker-option '+(is?'selected':'')+'" data-picker-value="'+teamEsc(o.value)+'"><span class="picker-avatar">'+teamEsc(pickerInitials(label))+'</span><span class="picker-option-copy"><strong>'+teamEsc(label)+'</strong><small>'+teamEsc(meta)+'</small></span><span class="picker-check">'+(is?'✓':'')+'</span></button>'}).join('')||'<div class="picker-empty">No matching options.</div>';wrap.querySelector('.picker-count').textContent=selected.length?selected.length+' selected':'Nothing selected';summary.setAttribute('aria-expanded',String(!wrap.querySelector('.picker-popover').classList.contains('hidden')))}
+function renderModernPicker(id){const sel=$(id);if(!sel)return;const wrap=ensureModernPicker(id);if(!wrap)return;const selected=[...sel.selectedOptions],summary=wrap.querySelector('.picker-summary'),placeholder=wrap.querySelector('.picker-placeholder');if(!summary)return;summary.querySelectorAll('.picker-chip').forEach(n=>n.remove());if(!selected.length){if(!placeholder){const ph=document.createElement('span');ph.className='picker-placeholder';ph.textContent='Choose '+(id==='taskAssignees'?'people':'teams')+'…';summary.insertBefore(ph,summary.querySelector('.picker-chevron'))}else placeholder.textContent='Choose '+(id==='taskAssignees'?'people':'teams')+'…'}else{if(placeholder)placeholder.remove();selected.forEach(opt=>{const chip=document.createElement('span');chip.className='picker-chip';const text=document.createElement('span');text.className='picker-chip-text';text.textContent=opt.textContent;const rm=document.createElement('button');rm.type='button';rm.className='picker-chip-remove';rm.setAttribute('aria-label','Remove '+opt.textContent);rm.textContent='×';rm.dataset.pickerRemove=opt.value;chip.append(text,rm);summary.insertBefore(chip,summary.querySelector('.picker-chevron'))})}const search=wrap.querySelector('.picker-search'),query=(search.value||'').trim().toLowerCase(),list=wrap.querySelector('.picker-options');const opts=[...sel.options].filter(o=>!query||o.textContent.toLowerCase().includes(query));list.innerHTML=opts.map(o=>{const is= o.selected, label=o.textContent, meta=pickerMeta(sel,o);return '<button type="button" role="option" aria-selected="'+is+'" class="picker-option '+(is?'selected':'')+'" data-picker-value="'+teamEsc(o.value)+'"><span class="picker-avatar">'+teamEsc(pickerInitials(label))+'</span><span class="picker-option-copy"><strong>'+teamEsc(label)+'</strong><small>'+teamEsc(meta)+'</small></span><span class="picker-check">'+(is?'✓':'')+'</span></button>'}).join('')||'<div class="picker-empty">No matching options.</div>';wrap.querySelector('.picker-count').textContent=selected.length?selected.length+' selected':'Nothing selected';summary.setAttribute('aria-expanded',String(!wrap.querySelector('.picker-popover').classList.contains('hidden')))}
 function syncModernPickers(){modernPickerIds.forEach(renderModernPicker)}
 function togglePicker(wrap,open){const pop=wrap.querySelector('.picker-popover'),summary=wrap.querySelector('.picker-summary');pop.classList.toggle('hidden',!open);summary.setAttribute('aria-expanded',String(open));if(open){document.querySelectorAll('.modern-picker .picker-popover').forEach(p=>{if(p!==pop){p.classList.add('hidden');p.closest('.modern-picker').querySelector('.picker-summary').setAttribute('aria-expanded','false')}});const input=wrap.querySelector('.picker-search');input.value='';renderModernPicker(wrap.dataset.modernPicker);input.focus()}}
 document.addEventListener('click',e=>{const wrap=e.target.closest('.modern-picker');if(!wrap){document.querySelectorAll('.modern-picker .picker-popover:not(.hidden)').forEach(p=>togglePicker(p.closest('.modern-picker'),false));return}const id=wrap.dataset.modernPicker,sel=$(id);if(e.target.closest('.picker-summary')){togglePicker(wrap,wrap.querySelector('.picker-popover').classList.contains('hidden'));return}const remove=e.target.closest('[data-picker-remove]');if(remove){const opt=[...sel.options].find(o=>o.value===remove.dataset.pickerRemove);if(opt)opt.selected=false;renderModernPicker(id);return}const option=e.target.closest('[data-picker-value]');if(option){const opt=[...sel.options].find(o=>o.value===option.dataset.pickerValue);if(opt)opt.selected=!opt.selected;renderModernPicker(id);return}if(e.target.closest('.picker-done')){togglePicker(wrap,false);return}});
@@ -19475,7 +19475,11 @@ document.addEventListener('submit', e => {
     if(!listEl && checklistSection){
       listEl = document.createElement('div');
       listEl.className = 'task-preview-subtask-list';
-      form.parentNode.insertBefore(listEl, form);
+      if(form && form.parentNode){
+        form.parentNode.insertBefore(listEl, form);
+      } else {
+        checklistSection.appendChild(listEl);
+      }
     }
 
     if(listEl){
@@ -34613,9 +34617,11 @@ html[data-theme=dark] .btn-act-compact:hover {
           subPill.type = 'button';
           subPill.className = 'task-subtasks-pill' + (isAllDone ? ' all-done' : '');
           subPill.dataset.toggleSubtasks = taskId;
-          const dueWrap = card.querySelector('.task-due');
-          if (dueWrap && dueWrap.parentNode) {
-            dueWrap.parentNode.insertBefore(subPill, dueWrap.nextSibling);
+          const anchor = card.querySelector('.card-bottom-group') || card.querySelector('.card-mid-row') || card.querySelector('.task-main') || card.lastElementChild;
+          if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(subPill, anchor);
+          } else {
+            card.appendChild(subPill);
           }
         }
         subPill.innerHTML = `
@@ -34628,7 +34634,11 @@ html[data-theme=dark] .btn-act-compact:hover {
           subWrap = document.createElement('div');
           subWrap.className = 'task-subtasks-wrapper hidden';
           subWrap.id = 'subtaskWrap_' + taskId;
-          subPill.parentNode.insertBefore(subWrap, subPill.nextSibling);
+          if (subPill && subPill.parentNode) {
+            subPill.parentNode.insertBefore(subWrap, subPill.nextSibling);
+          } else {
+            card.appendChild(subWrap);
+          }
         }
 
         subWrap.innerHTML = `
