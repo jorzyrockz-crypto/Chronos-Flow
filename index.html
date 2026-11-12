@@ -11225,13 +11225,15 @@ const schoolCalendarActivities=[
 ];
 const sampleNotes=[];
 const DEFAULT_FIREBASE_CONFIG={apiKey:'AIzaSyBdNL_udNXm2VODCw7tgFuMNeBTEA8LSZU',authDomain:'russapps-chronosflow.firebaseapp.com',projectId:'russapps-chronosflow',storageBucket:'russapps-chronosflow.firebasestorage.app',messagingSenderId:'608075235564',appId:'1:608075235564:web:47a47344742b22563aa5c9',measurementId:'G-41JJRBJRQ6'};
+const CHRONOS_DEPLOYMENT_HOST='chronos-flow-chi.vercel.app';
+function adaptChronosFirebaseConfig(config){const value={...(config||{})};if(location.hostname.toLowerCase()===CHRONOS_DEPLOYMENT_HOST)value.authDomain=CHRONOS_DEPLOYMENT_HOST;return value}
 function resolveChronosFirebaseConfig(){
   try{
     const saved=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null');
-    if(saved&&saved.apiKey&&saved.projectId&&saved.projectId!=='paperuss-2')return saved;
+    if(saved&&saved.apiKey&&saved.projectId&&saved.projectId!=='paperuss-2')return adaptChronosFirebaseConfig(saved);
     if(saved&&saved.projectId==='paperuss-2')localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(DEFAULT_FIREBASE_CONFIG));
   }catch{}
-  return {...DEFAULT_FIREBASE_CONFIG};
+  return adaptChronosFirebaseConfig(DEFAULT_FIREBASE_CONFIG);
 }
 let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig=resolveChronosFirebaseConfig();let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
 const defaultSettings={homePage:'dashboard',mode:'dark',accent:'cloud_pastel',density:'comfortable',motion:'full',notifications:true,dailyDigest:true,browserNotifications:false,leadTime:10,quietHours:true,quietStart:'22:00',quietEnd:'07:00',sounds:true,interfaceSounds:true,volume:50,soundProfile:'gentle',weekStart:'monday',timeFormat:'24',duration:60,flowStickyBarEnabled:true,projectWorkspaceSize:'card',projectDefaultTab:'tasks',projectCutoffTime:'17:00',projectGracePeriod:0,projectSupervisorTitle:'Master Teacher / Department Head',projectSchoolDivision:'Department of Education',projectSchoolName:'Main Academic Office',projectApprovingAuthority:'School Head / Principal'};let settings={...defaultSettings},notifiedReminders=new Set(),reminderTimer=null;
@@ -17158,7 +17160,7 @@ $('noteForm')?.addEventListener('submit',async e=>{
   saveNoteDraft(false);
   const saved=notes.find(x=>x.id===id);
   try{await publishToTeams('notes',saved,saved?.sharedTeamIds||[],[])}catch(err){notify('Note saved locally, but team sharing failed: '+err.message)}
-  if(firebaseUser&&firebaseDb&&navigator.onLine){clearTimeout(firebaseSyncTimer);firebaseBackgroundSync().catch(e=>console.warn('Immediate note push failed:',e))}
+  if(firebaseUser&&firebaseDb&&navigator.onLine){clearTimeout(firebaseSyncTimer);firebaseBackgroundSync({pull:_chronosInitialPersonalPullUid!==firebaseUser.uid}).catch(e=>console.warn('Immediate note push failed:',e))}
   $('noteAutosaveStatus').textContent='Saved locally';
   $('noteBackdrop').classList.add('hidden');
   renderNotes();
@@ -19053,29 +19055,48 @@ function buildFlowJourneyPreviewQueue(){
   return out;
 }
 
-function buildPreviewCarouselHudHtml(idx, total){
+function buildCalendarPreviewQueue(){
+  const seen = new Set();
+  const out = [];
+  const pushItem = (type, id) => {
+    if(!type || !id) return;
+    const key = `${type}|${id}`;
+    if(seen.has(key)) return;
+    seen.add(key);
+    out.push({ type, id: String(id) });
+  };
+  const roots = [
+    document.getElementById('selectedAgenda'),
+    document.getElementById('selectedTasksList'),
+    document.getElementById('calendarCanvas')
+  ].filter(Boolean);
+  roots.forEach(root => {
+    root.querySelectorAll('[data-preview-event], [data-preview-task], [data-edit-event], [data-calendar-task]').forEach(el => {
+      if(el.dataset.previewEvent) pushItem('event', el.dataset.previewEvent);
+      else if(el.dataset.editEvent) pushItem('event', el.dataset.editEvent);
+      else if(el.dataset.previewTask) pushItem('task', el.dataset.previewTask);
+      else if(el.dataset.calendarTask) pushItem('task', el.dataset.calendarTask);
+    });
+  });
+  return out;
+}
+
+function getPreviewCanopyCountPillHtml(){
+  const total = Array.isArray(currentPreviewCarouselQueue) ? currentPreviewCarouselQueue.length : 0;
+  const idx = currentPreviewCarouselIndex;
   if(total <= 1 || idx < 0) return '';
-  const maxDots = 7;
-  const dotCount = Math.min(total, maxDots);
-  const activeDot = total <= maxDots ? idx : Math.round((idx / Math.max(1, total - 1)) * (maxDots - 1));
-  let dotsHtml = '';
-  for(let i = 0; i < dotCount; i++){
-    dotsHtml += `<span class="preview-carousel-dot${i === activeDot ? ' is-active' : ''}"></span>`;
-  }
+  return `<span class="preview-canopy-count-pill" id="previewCanopyCountPill" aria-live="polite">${idx + 1} / ${total}</span>`;
+}
+
+function buildPreviewEdgeChevronsHtml(idx, total){
+  if(total <= 1 || idx < 0) return '';
   return `
-    <div class="preview-carousel-hud" id="previewCarouselHud" role="navigation" aria-label="Journey cards carousel">
-      <button type="button" class="preview-carousel-nav-btn" data-preview-nav="-1" aria-label="Previous journey card" title="Previous card (Swipe right)">
-        ${getLucideSvg('chevron-left', 16)}
-      </button>
-      <div class="preview-carousel-meta">
-        <span class="preview-carousel-count">${idx + 1} / ${total}</span>
-        <span class="preview-carousel-dots" aria-hidden="true">${dotsHtml}</span>
-        <span class="preview-carousel-hint">Swipe card</span>
-      </div>
-      <button type="button" class="preview-carousel-nav-btn" data-preview-nav="1" aria-label="Next journey card" title="Next card (Swipe left)">
-        ${getLucideSvg('chevron-right', 16)}
-      </button>
-    </div>
+    <button type="button" class="preview-carousel-edge-btn is-prev" data-preview-nav="-1" aria-label="Previous card (${idx + 1} of ${total})" title="Previous card">
+      ${getLucideSvg('chevron-left', 18)}
+    </button>
+    <button type="button" class="preview-carousel-edge-btn is-next" data-preview-nav="1" aria-label="Next card (${idx + 1} of ${total})" title="Next card">
+      ${getLucideSvg('chevron-right', 18)}
+    </button>
   `;
 }
 
@@ -19118,6 +19139,16 @@ function openItemPreview(type, id, extraMeta){
       currentPreviewCarouselQueue = [];
       currentPreviewCarouselIndex = -1;
     }
+  } else if((type === 'event' || type === 'task') && (extraMeta?.fromCalendar || (typeof page !== 'undefined' && page === 'calendar'))){
+    const q = buildCalendarPreviewQueue();
+    const idx = q.findIndex(x => x.type === type && String(x.id) === String(id));
+    if(q.length > 1 && idx >= 0){
+      currentPreviewCarouselQueue = q;
+      currentPreviewCarouselIndex = idx;
+    } else {
+      currentPreviewCarouselQueue = [];
+      currentPreviewCarouselIndex = -1;
+    }
   } else {
     currentPreviewCarouselQueue = [];
     currentPreviewCarouselIndex = -1;
@@ -19147,11 +19178,11 @@ function openItemPreview(type, id, extraMeta){
     return;
   }
 
-  const hudHtml = (type !== 'note') ? buildPreviewCarouselHudHtml(currentPreviewCarouselIndex, currentPreviewCarouselQueue.length) : '';
+  const chevronsHtml = (type !== 'note') ? buildPreviewEdgeChevronsHtml(currentPreviewCarouselIndex, currentPreviewCarouselQueue.length) : '';
   modal.style.transform = '';
   modal.style.transition = '';
   modal.classList.remove('is-carousel-slide-next', 'is-carousel-slide-prev');
-  modal.innerHTML = html + hudHtml;
+  modal.innerHTML = html + chevronsHtml;
   if(extraMeta?.slideDir === 'next'){
     void modal.offsetWidth;
     modal.classList.add('is-carousel-slide-next');
@@ -19202,8 +19233,8 @@ function refreshItemPreviewInPlace(){
   try {
     const html = renderPreviewHTML(currentPreviewConfig.type, currentPreviewConfig.id, currentPreviewConfig.extraMeta);
     if(html){
-      const hudHtml = (currentPreviewConfig.type !== 'note') ? buildPreviewCarouselHudHtml(currentPreviewCarouselIndex, currentPreviewCarouselQueue.length) : '';
-      modal.innerHTML = html + hudHtml;
+      const chevronsHtml = (currentPreviewConfig.type !== 'note') ? buildPreviewEdgeChevronsHtml(currentPreviewCarouselIndex, currentPreviewCarouselQueue.length) : '';
+      modal.innerHTML = html + chevronsHtml;
       if(currentPreviewConfig.type === 'note'){
         loadNotePreviewAttachments(currentPreviewConfig.id);
       }
@@ -19589,17 +19620,38 @@ function renderEventPreviewHTML(id){
 
   return `
     <div class="event-preview-modal-v2">
-      <!-- Ambient Canopy with Layered Vector Art -->
+      <!-- Ambient Canopy with Layered Vector Art & Upper-Right Actions -->
       <div class="event-preview-canopy" style="background:${canopyBg}">
-        <span class="event-preview-canopy-badge">
-          ${getLucideSvg(canopyIcon, 14)} ${esc(categoryLabel)}
-        </span>
+        <div class="event-canopy-left">
+          <span class="event-preview-canopy-badge">
+            ${getLucideSvg(canopyIcon, 14)} ${esc(categoryLabel)}
+          </span>
+          ${getPreviewCanopyCountPillHtml()}
+        </div>
         ${!ev.coverImage && flair.svg ? `<div class="event-canopy-art-wrap">${flair.svg}</div>` : ''}
+        <div class="preview-canopy-actions">
+          <button type="button" class="preview-canopy-icon-btn" id="previewMoreBtn" data-preview-more-toggle aria-haspopup="menu" aria-expanded="false" aria-label="More actions" title="More actions">
+            ${getLucideSvg('more-horizontal', 16)}
+          </button>
+          <button type="button" class="preview-canopy-icon-btn" data-preview-close aria-label="Close" title="Close (Esc)">
+            ${getLucideSvg('x', 16)}
+          </button>
+        </div>
+      </div>
+
+      <!-- Upper-Right Contextual More Menu -->
+      <div class="preview-more-menu hidden" id="previewMoreMenu" role="menu" aria-label="Event actions">
+        ${canEdit ? `<button type="button" class="preview-more-item" role="menuitem" data-preview-edit-event="${esc(ev.id)}">${getLucideSvg('edit-3', 14)} <span>Edit Event</span></button>` : ''}
+        <a href="${buildGoogleCalendarUrl({ title: ev.title, date: ev.date, start: ev.start, end: ev.end, allDay: ev.allDay, details: ev.description, location: ev.location })}" target="_blank" rel="noopener noreferrer" class="preview-more-item" role="menuitem">
+          ${getLucideSvg('calendar', 14)} <span>Add to Google Cal</span>
+        </a>
+        <button type="button" class="preview-more-item" role="menuitem" data-share-event="${esc(ev.id)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> <span>Share</span></button>
+        ${canDelete ? `<button type="button" class="preview-more-item is-danger" role="menuitem" data-preview-delete-event="${esc(ev.id)}">${getLucideSvg('trash-2', 14)} <span>Delete</span></button>` : ''}
       </div>
 
       <!-- Main Content Container -->
       <div class="event-preview-content">
-        <!-- Type Tag & Close Button -->
+        <!-- Type & Team Tag Row -->
         <div class="event-preview-topbar">
           <div class="event-preview-tags">
             <span class="event-preview-type-tag" style="background:color-mix(in srgb, ${accent} 12%, transparent);color:${accent};border-color:color-mix(in srgb, ${accent} 30%, transparent)">
@@ -19613,9 +19665,6 @@ function renderEventPreviewHTML(id){
             ${statusBadge}
             ${ev.teamShared ? `<span class="event-preview-team-tag">${getLucideSvg('users', 12)} ${esc(ev.teamName || 'Team Shared')}</span>` : ''}
           </div>
-          <button type="button" class="event-preview-close-btn" data-preview-close title="Close (Esc)">
-            ${getLucideSvg('x', 20)}
-          </button>
         </div>
 
         <!-- Title -->
@@ -19649,28 +19698,68 @@ function renderEventPreviewHTML(id){
             <p class="event-preview-notes-body">${esc(ev.description)}</p>
           </div>
         ` : ''}
-
-        <!-- Action Footer Hierarchy -->
-        <div class="event-preview-footer">
-          ${canDelete?`<button type="button" class="event-preview-btn-delete" data-preview-delete-event="${esc(ev.id)}">${getLucideSvg('trash-2',16)} Delete</button>`:''}
-          <div class="event-preview-footer-right">
-            <button type="button" class="event-preview-btn-share" data-share-event="${esc(ev.id)}" title="Share event outside Chronos (Messenger, WhatsApp, Viber, Copy invitation)">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              <span>Share</span>
-            </button>
-            <a href="${buildGoogleCalendarUrl({ title: ev.title, date: ev.date, start: ev.start, end: ev.end, allDay: ev.allDay, details: ev.description, location: ev.location })}" target="_blank" rel="noopener noreferrer" class="event-preview-btn-gcal" title="Add this event to Google Calendar">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-              <span>Add to Google Cal</span>
-            </a>
-            ${canEdit?`<button type="button" class="event-preview-btn-edit" data-preview-edit-event="${esc(ev.id)}">${getLucideSvg('edit-3',16)} Edit</button>`:''}
-            <button type="button" class="event-preview-btn-done" data-preview-close>
-              Done
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   `;
+}
+
+function resolveTaskFlair(t){
+  const isDone = !!t?.done;
+  const pri = String(t?.priority || '').toLowerCase();
+  const isHigh = pri === 'high' || pri === 'urgent';
+  const isLow = pri === 'low';
+  if(isDone){
+    return {
+      badge: 'COMPLETED',
+      icon: 'check-circle',
+      gradient: 'linear-gradient(135deg, #064e3b 0%, #059669 52%, #10b981 100%)',
+      svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g class="anim-ph-sun">
+          <circle cx="420" cy="60" r="24" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
+          <path d="M409 61 l8 8 l15 -16" stroke="#a7f3d0" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <polygon class="anim-sparkle-1" points="366,34 368,39 373,39 369,42 371,47 366,44 361,47 363,42 359,39 364,39" fill="#fef08a"/>
+        <polygon class="anim-sparkle-2" points="470,32 472,37 477,37 473,40 475,45 470,42 465,45 467,40 463,37 468,37" fill="#d1fae5"/>
+      </svg>`
+    };
+  }
+  if(isHigh){
+    return {
+      badge: 'HIGH PRIORITY',
+      icon: 'zap',
+      gradient: 'linear-gradient(135deg, #450a0a 0%, #991b1b 48%, #d97706 100%)',
+      svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon class="anim-sparkle-1" points="424,18 404,64 422,64 414,102 448,52 428,52" fill="#fde68a" opacity="0.92"/>
+        <circle cx="378" cy="40" r="3" fill="#fecaca" class="anim-sparkle-2"/>
+        <circle cx="468" cy="36" r="2.5" fill="#fef08a" class="anim-sparkle-3"/>
+      </svg>`
+    };
+  }
+  if(isLow){
+    return {
+      badge: 'LOW PRIORITY',
+      icon: 'bookmark',
+      gradient: 'linear-gradient(135deg, #0f172a 0%, #334155 52%, #475569 100%)',
+      svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="394" y="24" width="54" height="70" rx="10" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.34)" stroke-width="2"/>
+        <line x1="406" y1="46" x2="436" y2="46" stroke="rgba(255,255,255,0.65)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="406" y1="62" x2="428" y2="62" stroke="rgba(255,255,255,0.45)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="370" cy="42" r="2.5" fill="#cbd5e1" class="anim-sparkle-1"/>
+      </svg>`
+    };
+  }
+  return {
+    badge: 'TASK',
+    icon: 'check-square',
+    gradient: 'linear-gradient(135deg, #064e3b 0%, #0f766e 50%, #0284c7 100%)',
+    svg: `<svg viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="396" y="22" width="56" height="74" rx="10" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.42)" stroke-width="2"/>
+      <path d="M410 48 l6 6 l14 -14" stroke="#6ee7b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="410" y1="70" x2="438" y2="70" stroke="rgba(255,255,255,0.72)" stroke-width="3" stroke-linecap="round"/>
+      <polygon class="anim-sparkle-1" points="370,34 372,39 377,39 373,42 375,47 370,44 365,47 367,42 363,39 368,39" fill="#a7f3d0"/>
+      <polygon class="anim-sparkle-2" points="472,30 474,35 479,35 475,38 477,43 472,40 467,43 469,38 465,35 470,35" fill="#bae6fd"/>
+    </svg>`
+  };
 }
 
 function renderTaskPreviewHTML(id){
@@ -19753,11 +19842,60 @@ function renderTaskPreviewHTML(id){
     }
   }
 
+  const taskFlair = resolveTaskFlair(t);
+  const isReadingMode = !!document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode');
+  const taskShareSvg = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
+
   return `
     <div class="task-preview-modal-v2">
-      <!-- 1. Header Bar: Refined Surface & Badges -->
-      <div class="task-preview-header">
-        <div class="task-preview-badges">
+      <!-- 1. Compact Animated Canopy (Matches Event Cards) -->
+      <div class="event-preview-canopy is-task-canopy" style="background:${taskFlair.gradient}">
+        <div class="event-canopy-left">
+          <span class="event-preview-canopy-badge">
+            ${getLucideSvg(taskFlair.icon, 14)} ${esc(taskFlair.badge)}
+          </span>
+          ${getPreviewCanopyCountPillHtml()}
+        </div>
+        <div class="event-canopy-art-wrap">${taskFlair.svg}</div>
+        <div class="preview-canopy-actions">
+          <button type="button" class="preview-canopy-icon-btn" id="previewMoreBtn" data-preview-more-toggle aria-haspopup="menu" aria-expanded="false" aria-label="More actions" title="More actions">
+            ${getLucideSvg('more-horizontal', 16)}
+          </button>
+          <button type="button" class="preview-canopy-icon-btn" data-preview-close aria-label="Close modal" title="Close (Esc)">
+            ${getLucideSvg('x', 16)}
+          </button>
+        </div>
+      </div>
+
+      <!-- Upper-Right Contextual More Menu -->
+      <div class="preview-more-menu hidden" id="previewMoreMenu" role="menu" aria-label="Task actions">
+        <button type="button" class="preview-more-item" role="menuitem" data-preview-edit-task="${esc(t.id)}">
+          ${getLucideSvg('pencil', 14)} <span>Full Edit</span>
+        </button>
+        ${t.due ? `
+          <button type="button" class="preview-more-item" role="menuitem" data-preview-backlog-task="${esc(t.id)}">
+            ${getLucideSvg('folder', 14)} <span>To Backlog</span>
+          </button>
+          <a href="${buildGoogleCalendarUrl({ title: t.title, date: t.due, start: t.dueTime, allDay: !t.dueTime, details: (t.details || '') + (t.subtasks && t.subtasks.length ? '\n\nChecklist:\n' + t.subtasks.map(s => (s.done ? '[x] ' : '[ ] ') + s.title).join('\n') : '') })}" target="_blank" rel="noopener noreferrer" class="preview-more-item" role="menuitem">
+            ${getLucideSvg('calendar', 14)} <span>Add to Google Cal</span>
+          </a>
+          <button type="button" class="preview-more-item" role="menuitem" data-share-task="${esc(t.id)}">
+            ${taskShareSvg} <span>Share</span>
+          </button>
+        ` : ''}
+        <button type="button" class="preview-more-item ${isReadingMode ? 'is-active' : ''}" role="menuitem" data-toggle-reading-mode>
+          ${isReadingMode ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)} <span>${isReadingMode ? 'Exit Reading Mode' : 'Reading Mode'}</span>
+        </button>
+        ${canDeleteTaskRecord(t) ? `
+          <button type="button" class="preview-more-item is-danger" role="menuitem" data-preview-delete-task="${esc(t.id)}">
+            ${getLucideSvg('trash-2', 14)} <span>Delete</span>
+          </button>
+        ` : ''}
+      </div>
+
+      <!-- Scrollable Modal Content -->
+      <div class="task-preview-body">
+        <div class="task-preview-tags-strip">
           ${projectBadgeHtml}
           <span class="task-preview-badge task-preview-badge-priority ${priClass || ''}">
             ${getLucideSvg(icon, 13)}
@@ -19767,19 +19905,7 @@ function renderTaskPreviewHTML(id){
             ${isDone ? `${getLucideSvg('check', 12)} Completed` : 'In Progress'}
           </span>
         </div>
-        <div class="task-preview-header-actions">
-          <button type="button" class="task-preview-reading-btn ${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'is-active' : ''}" data-toggle-reading-mode title="${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen'}" aria-label="Reading mode">
-            ${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}
-            <span class="reading-mode-label">${document.getElementById('itemPreviewModal')?.classList.contains('is-reading-mode') ? 'Exit' : 'Reading Mode'}</span>
-          </button>
-          <button type="button" class="task-preview-close-btn" data-preview-close title="Close (Esc)" aria-label="Close modal">
-            ${getLucideSvg('x', 18)}
-          </button>
-        </div>
-      </div>
 
-      <!-- Scrollable Modal Content -->
-      <div class="task-preview-body">
         <!-- 2. Title & Completion Checkbox -->
         <div class="task-preview-title-row">
           <label class="task-preview-checkbox-btn" title="${isDone ? 'Mark as incomplete' : 'Mark as complete'}">
@@ -19880,32 +20006,6 @@ function renderTaskPreviewHTML(id){
             </div>
           </form>
         </div>
-      </div>
-
-      <!-- 6. De-cluttered Footer Bar -->
-      <div class="task-preview-footer">
-        <div class="task-preview-footer-left">
-          <button type="button" class="task-preview-ghost-btn" data-preview-edit-task="${esc(t.id)}">
-            ${getLucideSvg('pencil', 13)} Full Edit
-          </button>
-          ${t.due ? `
-            <button type="button" class="task-preview-ghost-btn" data-preview-backlog-task="${esc(t.id)}">
-              ${getLucideSvg('folder', 13)} To Backlog
-            </button>
-            <button type="button" class="task-preview-ghost-btn" data-share-task="${esc(t.id)}" title="Share task details outside Chronos">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              <span>Share</span>
-            </button>
-            <a href="${buildGoogleCalendarUrl({ title: t.title, date: t.due, start: t.dueTime, allDay: !t.dueTime, details: (t.details || '') + (t.subtasks && t.subtasks.length ? '\n\nChecklist:\n' + t.subtasks.map(s => (s.done ? '[x] ' : '[ ] ') + s.title).join('\n') : '') })}" target="_blank" rel="noopener noreferrer" class="task-preview-ghost-btn task-preview-ghost-gcal" title="Add this scheduled task to Google Calendar">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-              <span>Google Cal</span>
-            </a>
-          ` : ''}
-          ${canDeleteTaskRecord(t)?`<button type="button" class="task-preview-ghost-btn task-preview-ghost-delete" data-preview-delete-task="${esc(t.id)}">${getLucideSvg('trash-2',13)} Delete</button>`:''}
-        </div>
-        <button type="button" class="task-preview-done-pill" data-preview-close>
-          Done
-        </button>
       </div>
     </div>
   `;
@@ -20686,7 +20786,30 @@ document.addEventListener('click', async e => {
     return;
   }
 
-  // Toggle Reading Mode / Fullscreen for Note Previews
+  // 0a. Toggle Upper-Right More Actions Menu inside Event/Task Preview
+  const moreToggle = e.target.closest('[data-preview-more-toggle]');
+  if(moreToggle){
+    e.preventDefault();
+    e.stopPropagation();
+    const menu = document.getElementById('previewMoreMenu');
+    if(menu){
+      const isNowOpen = !menu.classList.toggle('hidden');
+      moreToggle.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false');
+    }
+    return;
+  }
+
+  // Close More Actions Menu when clicking elsewhere inside backdrop/card
+  const openMoreMenu = document.getElementById('previewMoreMenu');
+  if(openMoreMenu && !openMoreMenu.classList.contains('hidden')){
+    if(!e.target.closest('#previewMoreMenu') || e.target.closest('.preview-more-item')){
+      openMoreMenu.classList.add('hidden');
+      const mb = document.getElementById('previewMoreBtn');
+      if(mb) mb.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  // Toggle Reading Mode / Fullscreen for Note & Task Previews
   const readingToggle = e.target.closest('[data-toggle-reading-mode]');
   if(readingToggle){
     const modal = document.getElementById('itemPreviewModal');
@@ -20696,7 +20819,11 @@ document.addEventListener('click', async e => {
       if(backdrop) backdrop.classList.toggle('is-reading-mode', isNowReading);
       readingToggle.classList.toggle('is-active', isNowReading);
       readingToggle.title = isNowReading ? 'Exit reading mode (Esc)' : 'Reading mode / Fullscreen';
-      readingToggle.innerHTML = `${isNowReading ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}<span class="reading-mode-label">${isNowReading ? 'Exit' : 'Reading Mode'}</span>`;
+      if(readingToggle.classList.contains('preview-more-item')){
+        readingToggle.innerHTML = `${isNowReading ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)} <span>${isNowReading ? 'Exit Reading Mode' : 'Reading Mode'}</span>`;
+      } else {
+        readingToggle.innerHTML = `${isNowReading ? getLucideSvg('minimize-2', 14) : getLucideSvg('maximize-2', 14)}<span class="reading-mode-label">${isNowReading ? 'Exit' : 'Reading Mode'}</span>`;
+      }
       const badge = modal.querySelector('#readingModeActiveBadge');
       if (badge) badge.classList.toggle('hidden', !isNowReading);
       if(typeof playInterfaceSound === 'function') playInterfaceSound();
@@ -24914,9 +25041,13 @@ document.addEventListener('dblclick', e => {
 // Firebase cloud sync. User owns/configures their project; never store server credentials here.
 function updateSyncStatus(message){const el=$('syncStatus');if(!el)return;const configured=!!(firebaseConfig&&firebaseConfig.apiKey&&firebaseConfig.projectId);el.classList.toggle('connected',!!firebaseUser);el.classList.toggle('pending',!!message);const label=message||(firebaseUser?'Signed in · '+(firebaseUser.displayName||firebaseUser.email||firebaseUser.uid):configured?'Configured · sign in with Google':'Firebase not configured');el.innerHTML=`<span class="status-dot"></span><span>${esc(label)}</span>`}
 function fillFirebaseConfig(){const input=$('firebaseConfigJson');if(input&&firebaseConfig&&Object.keys(firebaseConfig).length)input.value=JSON.stringify(firebaseConfig,null,2);updateSyncStatus()}
-let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();let existing=firebase.apps.find(a=>a.name==='chronos');if(existing&&existing.options?.projectId&&config?.projectId&&existing.options.projectId!==config.projectId){try{stopPersonalRealtimeSync();stopTeamRealtimeSync();if(typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.clear();await existing.delete()}catch{}existing=firebase.apps.find(a=>a.name==='chronos')}firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true,experimentalForceLongPolling:true})}catch(e){try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(_){}}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}flushPendingTeamDeletes().catch(err=>console.warn('Queued team deletion flush failed:',err));refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync().finally(()=>startPersonalRealtimeSync());}else{stopPersonalRealtimeSync();stopTeamRealtimeSync();if(typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.clear();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
-$('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=parsed;localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
-async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent='Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent='Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}if(status){status.classList.add('error');status.textContent=err.message||'Google sign-in failed. Check your Firebase Authentication settings and authorized domain.'}notify(err.message||'Google sign-in failed.')}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
+function chronosIsStandalone(){return Boolean(window.matchMedia?.('(display-mode: standalone)').matches||window.navigator.standalone===true||document.referrer.startsWith('android-app://'))}
+function chronosIsMobile(){return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'')}
+function chronosAuthErrorMessage(error){const code=String(error?.code||'unknown');const message=String(error?.message||'Google sign-in failed.');if(code==='auth/web-storage-unsupported')return 'This installed app is blocking the cross-site storage used by Firebase sign-in. Open Chronos in your browser, or configure Firebase Auth on the same origin as this app.';if(code==='auth/unauthorized-domain')return `${message} Add this app domain to Firebase Authentication → Settings → Authorized domains.`;return `${message} (${code})`}
+let firebaseRedirectResultPromise=null;
+let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();let existing=firebase.apps.find(a=>a.name==='chronos');if(existing&&existing.options?.projectId&&config?.projectId&&existing.options.projectId!==config.projectId){try{stopPersonalRealtimeSync();stopTeamRealtimeSync();if(typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.clear();await existing.delete()}catch{}existing=firebase.apps.find(a=>a.name==='chronos')}firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true,experimentalForceLongPolling:true})}catch(e){try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(_){}}if(!firebaseAuth.__chronosAuthListenerAttached){firebaseAuth.__chronosAuthListenerAttached=true;firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}flushPendingTeamDeletes().catch(err=>console.warn('Queued team deletion flush failed:',err));refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync({pull:true}).finally(()=>startPersonalRealtimeSync());}else{_chronosInitialPersonalPullUid='';stopPersonalRealtimeSync();stopTeamRealtimeSync();if(typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.clear();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}firebaseRedirectResultPromise=firebaseAuth.getRedirectResult().then(result=>{if(result?.user)notify('Google sign-in completed.');return result}).catch(error=>{console.warn('Firebase redirect sign-in failed',error);const status=$('firebaseLoginStatus');if(status){status.classList.add('error');status.textContent=chronosAuthErrorMessage(error)}return null});}
+$('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=adaptChronosFirebaseConfig(parsed);localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
+async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent=chronosIsStandalone()?'Opening secure Google sign-in…':'Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent=chronosIsStandalone()?'Opening…':'Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});if(chronosIsStandalone()){await firebaseAuth.signInWithRedirect(provider);return}await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}const message=chronosAuthErrorMessage(err);if(status){status.classList.add('error');status.textContent=message}notify(message)}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
 $('firebaseGoogleSignIn').addEventListener('click',()=>startFirebaseGoogleSignIn('settings'));
 $('firebaseLoginGoogle').addEventListener('click',()=>startFirebaseGoogleSignIn('login'));
 function showFirebaseLogin(){const screen=$('firebaseLoginScreen');if(!screen)return;screen.classList.remove('hidden');document.body.style.overflow='hidden';updateFirebaseLoginUI();setTimeout(()=>$('firebaseLoginGoogle')?.focus(),20)}
@@ -25327,7 +25458,7 @@ function startTeamRealtimeSync(){
  }}
 }
 async function updateAssignedTeamTaskStatus(teamId,id,status){try{if(!firebaseUser||!firebaseDb)throw Error('Sign in to update a team task.');const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid,updatedByName:firebaseUser.displayName||firebaseUser.email||''};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(id).update(patch);teamAssignedTasks=teamAssignedTasks.map(t=>(String(t.teamId)===String(teamId)&&String(t.id)===String(id))?{...t,...patch}:t);const local=(tasks||[]).find(t=>String(t.id)===String(id));if(local){local.done=patch.done;local.status=patch.status;persist();}applyTeamLiveData();renderTasks();}catch(err){notify('Could not update assigned task: '+(err.message||'Check team permissions.'));await refreshTeamWorkspace()}}
-async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists){d.ref.delete().catch(()=>{});return null}return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);const validTeamIds=new Set(chronosTeams.map(t=>String(t.id)));if(teamLiveData&&typeof teamLiveData==='object'){Object.keys(teamLiveData).forEach(tid=>{if(!validTeamIds.has(String(tid)))delete teamLiveData[tid]})}teamAssignedTasks=(teamAssignedTasks||[]).filter(t=>validTeamIds.has(String(t.teamId||'')));if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};saveTeamCache();teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();if(typeof populateTeamSelectors==='function')populateTeamSelectors();if(typeof updateActiveTeamIndicators==='function')updateActiveTeamIndicators();if(typeof renderOverviewTeam==='function')renderOverviewTeam();if(typeof renderTasks==='function')renderTasks();if(typeof renderCalendar==='function')renderCalendar();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();startTeamRealtimeSync();teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
+async function refreshTeamWorkspace(){if(!firebaseUser||!firebaseDb){teamStatus('Sign in with Google to create a team or accept an invitation. Personal Chronos data stays separate.');loadTeamCache();return}if(!navigator.onLine){teamStatus('Offline: showing the last cached team workspace. Changes to shared records require a connection.');loadTeamCache();return}try{teamStatus('Loading your teams…');const membershipSnap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').get();const rows=await Promise.all(membershipSnap.docs.map(async d=>{const membership=d.data();try{const ts=await firebaseDb.collection('teams').doc(d.id).get();if(!ts.exists){d.ref.delete().catch(()=>{});return null}return {id:d.id,...ts.data(),role:membership.role||'member'}}catch{return null}}));chronosTeams=rows.filter(Boolean);const validTeamIds=new Set(chronosTeams.map(t=>String(t.id)));if(teamLiveData&&typeof teamLiveData==='object'){Object.keys(teamLiveData).forEach(tid=>{if(!validTeamIds.has(String(tid)))delete teamLiveData[tid]})}teamAssignedTasks=(teamAssignedTasks||[]).filter(t=>validTeamIds.has(String(t.teamId||'')));if(!chronosTeams.some(t=>t.id===activeTeamId))activeTeamId=chronosTeams[0]?.id||'';localStorage.setItem('chronos70.activeTeamId',activeTeamId);if(!activeTeamId){stopTeamRealtimeSync();teamCalendarEvents=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};saveTeamCache();teamStatus(chronosTeams.length?'Select a team to load its members and plans.':'No teams yet. Create one or accept an invitation code.');renderTeamWorkspace();if(typeof populateTeamSelectors==='function')populateTeamSelectors();if(typeof updateActiveTeamIndicators==='function')updateActiveTeamIndicators();if(typeof renderOverviewTeam==='function')renderOverviewTeam();if(typeof renderTasks==='function')renderTasks();if(typeof renderCalendar==='function')renderCalendar();return}activeTeam=chronosTeams.find(t=>t.id===activeTeamId);teamStatus('Loading '+(activeTeam?.name||'team')+'…');const memberSnap=await firebaseDb.collection('teams').doc(activeTeamId).collection('members').get();teamMembers=memberSnap.docs.map(d=>({uid:d.id,...d.data()}));if(activeTeam)activeTeam.members=teamMembers;const teamMeta=chronosTeams.find(t=>t.id===activeTeamId);if(teamMeta)teamMeta.members=teamMembers;await Promise.all(chronosTeams.filter(t=>t.id!==activeTeamId).map(async t=>{try{const ms=await firebaseDb.collection('teams').doc(t.id).collection('members').get();t.members=ms.docs.map(d=>({uid:d.id,...d.data()}))}catch{t.members=[]}}));if(typeof startTeamRealtimeSync==='function'){applyTeamLiveData();renderTeamWorkspace();populateTeamSelectors();startTeamRealtimeSync();}else{const [ev,ta,no]=await Promise.all([teamReadList('events'),teamReadList('tasks'),teamReadList('notes')]);teamRecords={events:ev,tasks:ta,notes:no};teamLiveData[activeTeamId]={events:ev,tasks:ta,notes:no};renderTeamWorkspace();populateTeamSelectors();await refreshUnifiedTeamCalendar();}teamStatus('Connected · '+teamMembers.length+' member(s) · shared data is live across your teams.');
   // Ensure active team has a verified cloud invite code ready
   if (activeTeam && (isTeamAdmin() || activeTeam.ownerUid === firebaseUser.uid)) {
     ensureTeamInviteCode(activeTeam).catch(e => console.warn('Background invite ensure:', e));
@@ -25376,7 +25507,7 @@ async function acceptTeamInvitation(rawCode){if(!firebaseUser||!firebaseDb)throw
     ensureTeamInviteCode(tObj).catch(()=>{});
   } catch(e){}
   await refreshTeamWorkspace()}
-async function submitTeamRecord(e){e.preventDefault();try{if(!activeTeam||!isTeamAdmin())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value;const member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team',teamShared:true};await firebaseDb.collection('teams').doc(activeTeamId).collection(type).doc(id).set(Object.fromEntries(Object.entries(record).filter(([_, v]) => v !== undefined)));teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='events'){if(!teamLiveData[activeTeamId]) teamLiveData[activeTeamId]={events:[],tasks:[],notes:[]};teamLiveData[activeTeamId].events=[record,...(teamLiveData[activeTeamId].events||[]).filter(x=>x.id!==id)];applyTeamLiveData();if(typeof refreshUnifiedTeamCalendar==='function') refreshUnifiedTeamCalendar();if(typeof renderCalendar==='function') renderCalendar();if(typeof renderOverviewHorizon==='function') renderOverviewHorizon();}renderTeamRecords();renderOverviewTeam();$('teamRecordForm').reset();teamStatus('Published to the team. Members can now read the plan in their Team workspace.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}}
+async function submitTeamRecord(e){e.preventDefault();try{if(!activeTeam||!isTeamAdmin())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes';const title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value;const member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team',teamShared:true};await firebaseDb.collection('teams').doc(activeTeamId).collection(type).doc(id).set(Object.fromEntries(Object.entries(record).filter(([_, v]) => v !== undefined)));teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='events'){if(!teamLiveData[activeTeamId]) teamLiveData[activeTeamId]={events:[],tasks:[],notes:[]};teamLiveData[activeTeamId].events=[record,...(teamLiveData[activeTeamId].events||[]).filter(x=>x.id!==id)];applyTeamLiveData();if(typeof renderCalendar==='function') renderCalendar();if(typeof renderOverviewHorizon==='function') renderOverviewHorizon();}renderTeamRecords();renderOverviewTeam();$('teamRecordForm').reset();teamStatus('Published to the team. Members can now read the plan in their Team workspace.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}}
 async function updateTeamTaskStatus(id,status){try{const ref=firebaseDb.collection('teams').doc(activeTeamId).collection('tasks').doc(id);const patch={status,done:status==='done',updatedAt:Date.now(),updatedBy:firebaseUser.uid};await ref.update(patch);teamRecords.tasks=(teamRecords.tasks||[]).map(t=>t.id===id?{...t,...patch}:t);renderTeamRecords();renderOverviewTeam();teamStatus('Task progress updated.')}catch(err){teamStatus('Could not update task: '+err.message,true);await refreshTeamWorkspace()}}
 $('teamCreateForm').addEventListener('submit',async e=>{e.preventDefault();try{await createTeam($('teamCreateName').value);$('teamCreateName').value='';teamStatus('Team created. You are the owner.')}catch(err){teamStatus(err.message,true)}});
 $('teamInviteForm').addEventListener('submit',async e=>{e.preventDefault();try{await createTeamInvitation($('teamInviteEmail').value);$('teamInviteEmail').value=''}catch(err){teamStatus(err.message,true)}});
@@ -25572,10 +25703,14 @@ events=mergedEvents;notes=mergedNotes;tasks=mergedTasks;settings=mergedSettings;
 ]);await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});updateSyncStatus('Media remains local · finishing sync…');await userRef.set({lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);render();settingsFormFill();notify(`Sync complete: ${events.length} events, ${tasks.length} tasks, ${notes.length} notes.`);updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));}catch(err){console.error(err);notify('Firebase sync failed: '+(err.message||'Unknown error'));updateSyncStatus('Sync needs attention')}finally{firebaseSyncBusy=false;if(btn){btn.disabled=false;btn.textContent='Merge & sync data'}}}
 $('firebaseSyncNow').addEventListener('click',firebaseMergeSync);
 let personalLiveUnsubs=[];
-function stopPersonalRealtimeSync(){while(personalLiveUnsubs.length){try{personalLiveUnsubs.pop()()}catch(e){}}}
-function startPersonalRealtimeSync(){
+let _chronosPersonalSyncActiveUid='';
+let _chronosInitialPersonalPullUid='';
+function stopPersonalRealtimeSync(){_chronosPersonalSyncActiveUid='';while(personalLiveUnsubs.length){try{personalLiveUnsubs.pop()()}catch(e){}}}
+function startPersonalRealtimeSync(force=false){
+  if(!firebaseUser||!firebaseDb||!navigator.onLine){stopPersonalRealtimeSync();return;}
+  if(!force&&_chronosPersonalSyncActiveUid===firebaseUser.uid&&personalLiveUnsubs.length>0)return;
   stopPersonalRealtimeSync();
-  if(!firebaseUser||!firebaseDb||!navigator.onLine)return;
+  _chronosPersonalSyncActiveUid=firebaseUser.uid;
   const userDoc=firebaseDb.collection('users').doc(firebaseUser.uid);
   const unsubNotes=userDoc.collection('notes').onSnapshot(snap=>{
     if(snap.metadata.hasPendingWrites||firebaseApplyingRemote||firebaseSyncBusy)return;
@@ -25675,44 +25810,50 @@ window.addEventListener('storage',e=>{
   }
 });
 
-async function firebaseBackgroundSync(){
+async function firebaseBackgroundSync(options={}){
   if(firebaseSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;
+  const shouldPull=options.pull!==undefined?Boolean(options.pull):(_chronosInitialPersonalPullUid!==firebaseUser.uid||personalLiveUnsubs.length===0);
   localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);
   firebaseSyncBusy=true;
   firebaseApplyingRemote=true;
   try{
-    const [ce,cn,ct,cs,cloudTombstones,cp]=await Promise.all([
-      firestoreReadCollection('events'),
-      firestoreReadCollection('notes'),
-      firestoreReadCollection('tasks'),
-      firestoreReadCollection('settings'),
-      firestoreReadCollection('tombstones'),
-      firestoreReadCollection('projects').catch(()=>[])
-    ]);
-    const tombs=mergeTombstones(localTombstones(),cloudTombstones);
-    localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(tombs));
-    try{
-      localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}));
-    }catch(e){}
-    await purgeCloudZombieDocs(tombs,ce,cn,ct,cp);
+    let tombs=localTombstones();
+    let pref=null;
+    if(shouldPull){
+      const [ce,cn,ct,cs,cloudTombstones,cp]=await Promise.all([
+        firestoreReadCollection('events'),
+        firestoreReadCollection('notes'),
+        firestoreReadCollection('tasks'),
+        firestoreReadCollection('settings'),
+        firestoreReadCollection('tombstones'),
+        firestoreReadCollection('projects').catch(()=>[])
+      ]);
+      tombs=mergeTombstones(localTombstones(),cloudTombstones);
+      localStorage.setItem('chronos60.firebaseTombstones.'+firebaseUser.uid,JSON.stringify(tombs));
+      try{
+        localStorage.setItem('chronos60.localTombstones',JSON.stringify({...JSON.parse(localStorage.getItem('chronos60.localTombstones')||'{}'),...tombs}));
+      }catch(e){}
+      await purgeCloudZombieDocs(tombs,ce,cn,ct,cp);
 
-    // If local notes/events are just fresh fallback samples and cloud has user data, don't pollute cloud with samples
-    const hasRealLocalNotes=localStorage.getItem('chronos20.notes')!==null;
-    const localNotes=(!hasRealLocalNotes&&cn.length>0)?[]:notes;
-    const hasRealLocalEvents=localStorage.getItem('chronos20.events')!==null;
-    const localEvents=(!hasRealLocalEvents&&ce.length>0)?[]:events;
+      // If local notes/events are just fresh fallback samples and cloud has user data, don't pollute cloud with samples
+      const hasRealLocalNotes=localStorage.getItem('chronos20.notes')!==null;
+      const localNotes=(!hasRealLocalNotes&&cn.length>0)?[]:notes;
+      const hasRealLocalEvents=localStorage.getItem('chronos20.events')!==null;
+      const localEvents=(!hasRealLocalEvents&&ce.length>0)?[]:events;
 
-    events=withoutTombstones(mergeById(withoutTombstones(localEvents,'events',tombs),withoutTombstones(ce,'events',tombs)),'events',tombs);
-    notes=withoutTombstones(mergeById(withoutTombstones(localNotes,'notes',tombs),withoutTombstones(cn,'notes',tombs)),'notes',tombs);
-    tasks=withoutTombstones(mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(ct,'tasks',tombs)),'tasks',tombs);
-    if(typeof chronosProjects !== 'undefined'){
-      chronosProjects=withoutTombstones(mergeById(withoutTombstones(chronosProjects,'projects',tombs),withoutTombstones(cp,'projects',tombs)),'projects',tombs);
-      saveChronosProjects();
+      events=withoutTombstones(mergeById(withoutTombstones(localEvents,'events',tombs),withoutTombstones(ce,'events',tombs)),'events',tombs);
+      notes=withoutTombstones(mergeById(withoutTombstones(localNotes,'notes',tombs),withoutTombstones(cn,'notes',tombs)),'notes',tombs);
+      tasks=withoutTombstones(mergeById(withoutTombstones(tasks,'tasks',tombs),withoutTombstones(ct,'tasks',tombs)),'tasks',tombs);
+      if(typeof chronosProjects !== 'undefined'){
+        chronosProjects=withoutTombstones(mergeById(withoutTombstones(chronosProjects,'projects',tombs),withoutTombstones(cp,'projects',tombs)),'projects',tombs);
+        saveChronosProjects();
+      }
+      pref=cs.find(x=>x.id==='preferences');
+      if(pref?.value&&typeof pref.value==='object'&&itemTime(pref)>Number(localStorage.getItem('chronos60.settingsUpdatedAt')||0))settings={...settings,...pref.value};
+      _chronosInitialPersonalPullUid=firebaseUser.uid;
+      persist();
+      saveSettings();
     }
-    const pref=cs.find(x=>x.id==='preferences');
-    if(pref?.value&&typeof pref.value==='object'&&itemTime(pref)>Number(localStorage.getItem('chronos60.settingsUpdatedAt')||0))settings={...settings,...pref.value};
-    persist();
-    saveSettings();
     await Promise.all([
       firestoreWriteCollection('events',events),
       firestoreWriteCollection('notes',notes),
@@ -25728,9 +25869,11 @@ async function firebaseBackgroundSync(){
       await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});
       _chronosSyncedSigs.set(prefKey,nextPrefSig);
     }
-    render();
-    renderTasks();
-    renderNotes();
+    if(shouldPull){
+      render();
+      renderTasks();
+      renderNotes();
+    }
     updateSyncStatus('Synced · '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
   }catch(err){
     console.warn('Background Firebase sync failed',err);
@@ -25740,8 +25883,8 @@ async function firebaseBackgroundSync(){
     firebaseSyncBusy=false;
   }
 }
-function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),1500)}
-window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace();startPersonalRealtimeSync()}});let _chronosLastVisibilitySync=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){const now=Date.now();if(now-_chronosLastVisibilitySync<180000)return;_chronosLastVisibilitySync=now;refreshTeamWorkspace();firebaseBackgroundSync().catch(()=>{})}});
+function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync({pull:_chronosInitialPersonalPullUid!==firebaseUser.uid}),1500)}
+window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();if(!chronosTeams.length||!(typeof teamLiveUnsubs!=='undefined'&&teamLiveUnsubs.length))refreshTeamWorkspace();if(!personalLiveUnsubs.length)startPersonalRealtimeSync()}});let _chronosLastVisibilitySync=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){const now=Date.now();if(now-_chronosLastVisibilitySync<180000)return;_chronosLastVisibilitySync=now;if(!personalLiveUnsubs.length)startPersonalRealtimeSync();if(!chronosTeams.length||!(typeof teamLiveUnsubs!=='undefined'&&teamLiveUnsubs.length))refreshTeamWorkspace();if(_chronosInitialPersonalPullUid!==firebaseUser.uid)firebaseBackgroundSync({pull:true}).catch(()=>{});}});
 // Restore saved config without blocking standalone startup. Firebase SDK is loaded only
 // on a secure origin when the user chooses to connect; file:// stays local-first and usable.
 try{firebaseConfig=resolveChronosFirebaseConfig();if(firebaseConfig.apiKey&&firebaseConfig.projectId){$('firebaseConfigJson').value=JSON.stringify(firebaseConfig,null,2);if(location.protocol==='file:'){updateSyncStatus('Standalone mode · local workspace ready')}else{initFirebase(firebaseConfig).catch(err=>{console.warn('Firebase configuration not initialized:',err);updateSyncStatus('Firebase unavailable · local mode remains active')})}}}catch(err){console.warn('Firebase configuration not initialized:',err)}
@@ -25773,7 +25916,7 @@ $('dictateNoteBtn')?.addEventListener('click',()=>{const SR=window.SpeechRecogni
 
 function showChronosStartupFailure(err){console.error('Chronos startup failed:',err);let panel=$('chronosStartupFailure');if(!panel){panel=document.createElement('section');panel.id='chronosStartupFailure';panel.setAttribute('role','alert');panel.style.cssText='position:fixed;inset:16px;z-index:2147483647;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:clamp(20px,5vw,48px);background:#101827;color:#f5f7fb;border:1px solid #53627a;border-radius:20px;font:16px/1.5 system-ui,sans-serif;box-shadow:0 20px 70px #0008';document.body.appendChild(panel)}panel.replaceChildren();const title=document.createElement('h1');title.textContent='Chronos could not finish loading';title.style.cssText='font-size:clamp(24px,4vw,36px);margin:0';const detail=document.createElement('p');detail.textContent=(err&&err.message?err.message:String(err||'Unknown startup error'))+' Your existing local data has not been intentionally cleared.';detail.style.cssText='max-width:720px;margin:0;color:#d4deee';const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-top:6px';const retry=document.createElement('button');retry.type='button';retry.textContent='Reload & Clear Stale Cache';retry.style.cssText='padding:12px 18px;border:0;border-radius:10px;background:#7da7ff;color:#101827;font-weight:700;cursor:pointer';retry.onclick=async()=>{retry.disabled=true;retry.textContent='Updating Chronos...';try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches' in window){const keys=await caches.keys();for(const k of keys)await caches.delete(k);}}catch(e){}window.location.replace(window.location.pathname+'?reload='+Date.now())};btnRow.appendChild(retry);panel.append(title,detail,btnRow)}
 try{load();loadTeamCache();removeLegacySampleActivities();removeLegacySampleNotes();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
-const CHRONOS_APP_VERSION='chronos-flow-5.10-v194';
+const CHRONOS_APP_VERSION='chronos-flow-5.10-v196';
 const CHRONOS_UPDATE_TITLE_PREFIX='↻ Update ready · ';
 function buildChronosUpdateFaviconHref(){
   const iconDataUri='data:image/png;base64,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';
@@ -26485,10 +26628,9 @@ function renderTeamAdminPanel3(){
  const basePublishToTeams=publishToTeams;
  publishToTeams=async function(type,record,teamIds,assignees=[]){await basePublishToTeams.apply(this,arguments);const assigned=(assignees||[]).map(a=>a.uid);for(const teamId of [...new Set([...(teamIds||[]),...(type==='tasks'?(assignees||[]).map(a=>a.teamId):[])])]){try{await notifyTeamRecipients3(teamId,record,type,assigned)}catch(e){console.warn('Notification creation failed',e)}}};
  // Team workspace record composer now generates notifications for assigned members and team-wide events/notes.
- submitTeamRecord=async function(e){e.preventDefault();try{if(!activeTeam||!isAdmin3())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value,member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeUids:assigneeUid?[assigneeUid]:[],assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team',teamShared:true};await teamRef3(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='tasks'&&assigneeUid)teamAssignedTasks=[...teamAssignedTasks.filter(t=>!(t.teamId===activeTeamId&&t.id===id)),{...record,teamShared:true}];if(type==='events'){if(!teamLiveData[activeTeamId]) teamLiveData[activeTeamId]={events:[],tasks:[],notes:[]};teamLiveData[activeTeamId].events=[record,...(teamLiveData[activeTeamId].events||[]).filter(x=>x.id!==id)];applyTeamLiveData();if(typeof refreshUnifiedTeamCalendar==='function') refreshUnifiedTeamCalendar();if(typeof renderCalendar==='function') renderCalendar();if(typeof renderOverviewHorizon==='function') renderOverviewHorizon();}try{await notifyTeamRecipients3(activeTeamId,record,type,assigneeUid?[assigneeUid]:[])}catch(err){console.warn('Notification creation failed',err)}renderTeamRecords();renderOverviewTeam();renderTasks();$('teamRecordForm').reset();teamStatus('Published. Shared records sync live; eligible members have been notified.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}};
+ submitTeamRecord=async function(e){e.preventDefault();try{if(!activeTeam||!isAdmin3())throw Error('Only team owners and administrators can publish shared records.');if(!navigator.onLine)throw Error('Publishing shared records requires an internet connection.');const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',title=$('teamRecordTitle').value.trim(),body=$('teamRecordBody').value.trim(),date=$('teamRecordDate')?.value||'',assigneeUid=$('teamRecordAssignee').value,member=teamMembers.find(m=>m.uid===assigneeUid);if(!title)throw Error('Enter a title.');const now=Date.now(),id='tr_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);const record={id,type,title,body,date,assigneeUid:assigneeUid||'',assigneeUids:assigneeUid?[assigneeUid]:[],assigneeEmail:member?.email||'',assigneeName:member?.displayName||'',assigneePhotoURL:member?.photoURL||'',createdBy:firebaseUser.uid,createdByName:firebaseUser.displayName||firebaseUser.email||'Team member',createdByPhotoURL:firebaseUser.photoURL||'',createdAt:now,updatedAt:now,updatedBy:firebaseUser.uid,status:'open',done:false,teamId:activeTeamId,teamName:activeTeam.name||'Team',teamShared:true};await teamRef3(activeTeamId).collection(type).doc(id).set(record);teamRecords[type]=[record,...(teamRecords[type]||[])];if(type==='tasks'&&assigneeUid)teamAssignedTasks=[...teamAssignedTasks.filter(t=>!(t.teamId===activeTeamId&&t.id===id)),{...record,teamShared:true}];if(type==='events'){if(!teamLiveData[activeTeamId]) teamLiveData[activeTeamId]={events:[],tasks:[],notes:[]};teamLiveData[activeTeamId].events=[record,...(teamLiveData[activeTeamId].events||[]).filter(x=>x.id!==id)];applyTeamLiveData();if(typeof renderCalendar==='function') renderCalendar();if(typeof renderOverviewHorizon==='function') renderOverviewHorizon();}try{await notifyTeamRecipients3(activeTeamId,record,type,assigneeUid?[assigneeUid]:[])}catch(err){console.warn('Notification creation failed',err)}renderTeamRecords();renderOverviewTeam();renderTasks();$('teamRecordForm').reset();teamStatus('Published. Shared records sync live; eligible members have been notified.');saveTeamCache()}catch(err){teamStatus(err.message||'Could not publish team record.',true)}};
 // Legacy notification capture listener removed in favor of modern card delegation with auto-close
- window.addEventListener('online',()=>{if(firebaseUser&&chronosTeams.length)startTeamRealtimeSync()});
-})();
+ })();
 </script>
 
 
@@ -31223,9 +31365,9 @@ function decorateTeamRecordActions(){
  document.addEventListener('click',async e=>{const editBtn=e.target.closest('[data-team-record-edit]');if(editBtn){e.preventDefault();e.stopImmediatePropagation();const type=editBtn.dataset.teamRecordType||(teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes'),record=(teamRecords[type]||[]).find(item=>String(item.id)===String(editBtn.dataset.teamRecordEdit));if(record)openTeamRecordEditModal(record,type);return}const button=e.target.closest('[data-team-record-delete]');if(!button)return;e.preventDefault();e.stopImmediatePropagation();const type=teamTab==='events'?'events':teamTab==='tasks'?'tasks':'notes',record=(teamRecords[type]||[]).find(item=>String(item.id)===String(button.dataset.teamRecordDelete));if(!record)return;const ok=await confirmCustomInApp(`Delete shared ${type.slice(0,-1)} "${record.title||'Untitled'}"? This cannot be undone.`,{title:'Delete Shared Item',confirmText:'Delete item',danger:true});if(!ok)return;try{await deleteSharedTeamRecord(record,type)}catch(err){notify(err.localDeleted?'Shared item removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete shared item: '+(err.message||'Check your connection and permissions.'))}},true);
  const baseTeamRenderWithDeletion=renderTeamWorkspace;renderTeamWorkspace=function(){baseTeamRenderWithDeletion.apply(this,arguments);renderTeamDeleteControl()};
  document.addEventListener('click',async e=>{const projectDelete=e.target.closest('[data-project-delete]');if(projectDelete){e.preventDefault();e.stopImmediatePropagation();const pid=projectDelete.dataset.projectDelete;const project=(typeof projectFor==='function'?projectFor(pid):null)||(chronosProjects||[]).find(p=>String(p.id)===String(pid))||((typeof sharedProjects!=='undefined'&&sharedProjects)||[]).find(p=>String(p.id)===String(pid));if(!project)return;const okProj=await confirmCustomInApp(`Delete project "${project.name||'Untitled project'}" and all of its linked tasks? This cannot be undone.`,{title:'Delete Project',confirmText:'Delete project',danger:true});if(!okProj)return;try{const result=await deleteProjectRecord(project);notify(deletionOutcomeMessage('Project and linked tasks',result))}catch(err){notify(err.taskCleanupQueued?'Project deletion paused; linked-task cleanup is queued. Wait for it to finish, then retry.':err.localDeleted?'Project removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete project: '+(err.message||'Check your connection and permissions.'))}return}const taskDelete=e.target.closest('#deleteTask');if(taskDelete){const id=$('taskId')?.value,task=typeof findTaskRecordForDelete==='function'?findTaskRecordForDelete(id):(typeof findTaskById==='function'?findTaskById(id):tasks.find(item=>String(item.id)===String(id)));if(!task?.projectId||!projectFor(task.projectId))return;e.preventDefault();e.stopImmediatePropagation();const okTask=await confirmCustomInApp(`Delete project task "${task.title||'Untitled task'}"? This cannot be undone.`,{title:'Delete Project Task',confirmText:'Delete task',danger:true});if(!okTask)return;const closeTaskModal=()=>{if(typeof window!=='undefined'&&typeof window.closeTask==='function')window.closeTask();else $('taskBackdrop')?.classList.add('hidden')};try{const result=await deleteProjectTaskRecord(task);closeTaskModal();notify(deletionOutcomeMessage('Project task',result))}catch(err){if(err.localDeleted&&!err.taskCleanupQueued)closeTaskModal();notify(err.taskCleanupQueued?'Showcase deletion paused; linked-task cleanup is queued. Wait for it to finish, then retry.':err.localDeleted?'Project task removed locally, but cloud cleanup failed: '+(err.message||'Try syncing again.'):'Could not delete project task: '+(err.message||'Check your connection and permissions.'))}return}const teamDelete=e.target.closest('[data-team-delete]');if(teamDelete){e.preventDefault();e.stopImmediatePropagation();if(teamDelete.disabled||teamDelete.dataset.deleting==='1')return;const team=chronosTeams.find(item=>String(item.id)===String(teamDelete.dataset.teamDelete))||activeTeam;if(!team)return;const okTeam=await confirmCustomInApp(`Permanently delete team "${team.name||'this team'}" and all shared content? This cannot be undone.`,{title:'Permanently Delete Team',confirmText:'Delete team',danger:true});if(!okTeam)return;const setDangerFeedback=(message='',isError=false)=>{window._teamDangerFeedback=message?{teamId:team.id,message,isError}:null;const liveRoot=teamDelete.isConnected?teamDelete.parentElement:null;let box=liveRoot?.querySelector('#teamDangerFeedback')||document.getElementById('teamDangerFeedback');if(!box&&liveRoot){box=document.createElement('div');box.id='teamDangerFeedback';box.setAttribute('role','status');box.setAttribute('aria-live','polite');liveRoot.appendChild(box)}if(box){box.className='team-danger-feedback'+(isError?' is-error':'');box.textContent=message||'';box.hidden=!message}};const originalDeleteLabel=teamDelete.innerHTML;teamDelete.dataset.deleting='1';teamDelete.disabled=true;teamDelete.setAttribute('aria-busy','true');teamDelete.textContent='Deleting team…';setDangerFeedback('Starting team deletion…',false);notify('Deleting the team and its shared content…');try{await deleteTeamRecord(team.id,stage=>{if(teamDelete.isConnected)teamDelete.textContent=stage;setDangerFeedback(stage,false)})}catch(err){console.error('Permanent team deletion failed:',err);const msg='Team deletion did not finish: '+(err?.message||'Unknown error. Check connection or Firestore rules.');setDangerFeedback(msg,true);notify(msg,'error')}finally{delete teamDelete.dataset.deleting;if(teamDelete.isConnected){teamDelete.disabled=false;teamDelete.removeAttribute('aria-busy');teamDelete.innerHTML=originalDeleteLabel}}}},true);
- const baseStopProjectSync=stopTeamRealtimeSync;stopTeamRealtimeSync=function(){sharedProjects.splice(0,sharedProjects.length);return baseStopProjectSync.apply(this,arguments)};
+ const baseStopProjectSync=stopTeamRealtimeSync;stopTeamRealtimeSync=function(){window._chronosTeamSyncActiveKey='';sharedProjects.splice(0,sharedProjects.length);return baseStopProjectSync.apply(this,arguments)};
  const baseApplyTeamLiveDataWithProjects=applyTeamLiveData;applyTeamLiveData=function(){preserveScrollRun(()=>{baseApplyTeamLiveDataWithProjects.apply(this,arguments);collectSharedProjects();renderProjectManager();renderAssignedProjectNotes()})};
- const baseStartProjectSync=startTeamRealtimeSync;startTeamRealtimeSync=function(){const result=baseStartProjectSync.apply(this,arguments);if(!firebaseUser||!firebaseDb||!navigator.onLine||!chronosTeams.length)return result;chronosTeams.forEach(team=>{if(teamLiveData[team.id])teamLiveData[team.id].projects=[];const unsubscribe=firebaseDb.collection('teams').doc(team.id).collection('projects').onSnapshot(snapshot=>{if(!teamLiveData[team.id])teamLiveData[team.id]={events:[],tasks:[],notes:[],projects:[]};teamLiveData[team.id].projects=snapshot.docs.map(doc=>({...doc.data(),id:doc.id,teamId:team.id,teamName:team.name||'Team'}));applyTeamLiveData()},err=>console.warn('Live team projects sync failed for '+team.id,err));teamLiveUnsubs.push(unsubscribe)});setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},250);return result};
+ const baseStartProjectSync=startTeamRealtimeSync;startTeamRealtimeSync=function(force=false){const nextTeamKey=(firebaseUser?.uid||'')+'|'+(chronosTeams||[]).map(t=>String(t.id)).sort().join(',');if(!force&&firebaseUser&&firebaseDb&&navigator.onLine&&chronosTeams.length&&window._chronosTeamSyncActiveKey===nextTeamKey&&teamLiveUnsubs.length>0)return;const result=baseStartProjectSync.apply(this,arguments);if(!firebaseUser||!firebaseDb||!navigator.onLine||!chronosTeams.length)return result;chronosTeams.forEach(team=>{if(teamLiveData[team.id])teamLiveData[team.id].projects=[];const unsubscribe=firebaseDb.collection('teams').doc(team.id).collection('projects').onSnapshot(snapshot=>{if(!teamLiveData[team.id])teamLiveData[team.id]={events:[],tasks:[],notes:[],projects:[]};teamLiveData[team.id].projects=snapshot.docs.map(doc=>({...doc.data(),id:doc.id,teamId:team.id,teamName:team.name||'Team'}));applyTeamLiveData()},err=>console.warn('Live team projects sync failed for '+team.id,err));teamLiveUnsubs.push(unsubscribe)});window._chronosTeamSyncActiveKey=nextTeamKey;setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},250);return result};
  function renderAssignedProjectNotes(){const panel=$('assignedProjectNotesPanel');if(panel)panel.remove()}
  document.addEventListener('change',e=>{const select=e.target.closest('[data-assigned-project-status]');if(!select)return;e.preventDefault();e.stopImmediatePropagation();updateSharedProjectTaskStatus(select.dataset.assignedProjectTeam,select.dataset.assignedProjectStatus,select.value)},true);
  document.addEventListener('click',e=>{const open=e.target.closest('[data-open-assigned-project]');if(!open)return;selectedProjectId=open.dataset.openAssignedProject;setPage('tasks');renderProjectManager()});
@@ -40851,6 +40993,7 @@ window.openShowcaseProject = function() {
       updatedAt: Date.now()
     }, { merge: true });
     localStorage.setItem(localSubscriptionKey(uid), id);
+    try { localStorage.setItem(`${localSubscriptionKey(uid)}.meta`, `${id}|${timezone}`); } catch {}
     return id;
   }
 
@@ -40886,7 +41029,10 @@ window.openShowcaseProject = function() {
       try { await subscription.unsubscribe(); }
       catch (error) { if (!deleteError) deleteError = error; }
     }
-    if (uid) localStorage.removeItem(localSubscriptionKey(uid));
+    if (uid) {
+      localStorage.removeItem(localSubscriptionKey(uid));
+      localStorage.removeItem(`${localSubscriptionKey(uid)}.meta`);
+    }
     if (deleteError && !quiet) throw deleteError;
   }
 
@@ -40899,7 +41045,14 @@ window.openShowcaseProject = function() {
       const registration = await getRegistration();
       const subscription = await registration.pushManager.getSubscription();
       if (subscription) {
-        await savePushSubscription(currentUid(), subscription);
+        const uid = currentUid();
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        const subId = subscription.endpoint ? await subscriptionDocId(subscription.endpoint).catch(() => '') : '';
+        let syncedMeta = '';
+        try { syncedMeta = localStorage.getItem(`${localSubscriptionKey(uid)}.meta`) || ''; } catch {}
+        if (!subId || syncedMeta !== `${subId}|${timezone}`) {
+          await savePushSubscription(uid, subscription);
+        }
         return { available: true, subscribed: true };
       }
       return { available: true, subscribed: false };
@@ -42512,11 +42665,6 @@ html, body {
     padding: 0 !important;
     align-items: flex-end !important;
   }
-  #itemPreviewBackdrop:not(:has(.is-note-modal)) {
-    padding: max(10px, var(--chronos-safe-top)) 10px max(12px, var(--chronos-safe-bottom)) !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-  }
   #modalBackdrop .modal,
   #taskBackdrop .chronos-repair-dialog,
   #teamModalRepair .chronos-repair-dialog,
@@ -42541,17 +42689,22 @@ html, body {
   }
 
   /* Compact Floating Event & Task Preview Card (Preserves .is-note-modal) */
+  #itemPreviewBackdrop:not(:has(.is-note-modal)) {
+    padding: max(12px, var(--chronos-safe-top)) 14px max(12px, var(--chronos-safe-bottom)) !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
   #itemPreviewBackdrop .item-preview-modal.is-task-modal,
   #itemPreviewBackdrop .item-preview-modal:not(.is-note-modal) {
-    width: calc(100vw - 20px) !important;
+    width: calc(100vw - 28px) !important;
     max-width: 440px !important;
     max-height: min(86dvh, calc(var(--chronos-vvh, 100dvh) - 24px)) !important;
     border-radius: 22px !important;
-    margin: auto auto 0 auto !important;
+    margin: auto !important;
     padding-bottom: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   #itemPreviewBackdrop .item-preview-modal:not(.is-note-modal) .event-preview-modal-v2,
   #itemPreviewBackdrop .item-preview-modal:not(.is-note-modal) .task-preview-modal-v2 {
@@ -42559,26 +42712,33 @@ html, body {
     min-height: 0 !important;
     height: auto !important;
     max-height: 100% !important;
-  }
-  #itemPreviewBackdrop .item-preview-modal:not(.is-note-modal) .event-preview-modal-v2 {
+    border-radius: 22px !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
   .event-preview-canopy {
-    min-height: 70px !important;
-    height: 70px !important;
-    padding: 10px 14px !important;
+    min-height: 74px !important;
+    height: 74px !important;
+    padding: 12px 12px !important;
     border-radius: 22px 22px 0 0 !important;
   }
   .event-canopy-art-wrap {
-    right: 14px !important;
+    right: 54px !important;
+    width: auto !important;
   }
   .event-canopy-art-wrap svg {
-    width: 46px !important;
-    height: 46px !important;
+    width: auto !important;
+    height: 100% !important;
+    max-width: none !important;
   }
   .event-preview-content {
-    padding: 12px 14px 12px !important;
+    padding: 14px 18px 16px !important;
     gap: 8px !important;
+  }
+  #itemPreviewModal.has-preview-carousel .event-preview-content,
+  #itemPreviewModal.has-preview-carousel .task-preview-body {
+    padding-left: 22px !important;
+    padding-right: 22px !important;
   }
   .event-preview-title {
     font-size: 18px !important;
@@ -42594,76 +42754,27 @@ html, body {
     padding: 10px 12px !important;
     border-radius: 12px !important;
   }
-  .event-preview-footer {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 7px !important;
-    margin-top: 6px !important;
-    padding-top: 10px !important;
-  }
-  .event-preview-footer-right {
-    display: contents !important;
-  }
-  .event-preview-btn-delete,
-  .event-preview-btn-share,
-  .event-preview-btn-gcal,
-  .event-preview-btn-edit {
-    order: 1 !important;
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    white-space: nowrap !important;
-    padding: 7px 10px !important;
-    min-height: 36px !important;
-    font-size: 12px !important;
-    border-radius: 10px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 5px !important;
-    line-height: 1.2 !important;
-  }
-  .event-preview-btn-done {
-    order: 2 !important;
-    flex: 1 0 100% !important;
-    width: 100% !important;
-    min-height: 42px !important;
-    border-radius: 12px !important;
-    font-size: 14px !important;
-    justify-content: center !important;
-    margin-left: 0 !important;
-  }
   .task-preview-body {
-    padding: 12px 14px !important;
+    padding: 14px 18px 16px !important;
+    gap: 10px !important;
   }
-  .task-preview-footer {
-    padding: 10px 14px !important;
+  .task-preview-title {
+    font-size: 17px !important;
+  }
+  .task-preview-metadata-strip {
+    grid-template-columns: 1fr !important;
     gap: 8px !important;
-    flex-wrap: wrap !important;
+    padding: 10px 12px !important;
   }
-  .task-preview-footer-left {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-    flex: 1 1 100% !important;
-    justify-content: flex-start !important;
+  .preview-carousel-edge-btn {
+    width: 34px !important;
+    height: 34px !important;
   }
-  .task-preview-footer-left .task-preview-ghost-btn,
-  .task-preview-footer-left a {
-    flex: 1 1 auto !important;
-    white-space: nowrap !important;
-    min-height: 34px !important;
-    padding: 6px 10px !important;
-    font-size: 11.5px !important;
-    justify-content: center !important;
+  .preview-carousel-edge-btn.is-prev {
+    left: -11px !important;
   }
-  .task-preview-done-pill {
-    flex: 1 0 100% !important;
-    width: 100% !important;
-    min-height: 40px !important;
-    border-radius: 12px !important;
-    justify-content: center !important;
+  .preview-carousel-edge-btn.is-next {
+    right: -11px !important;
   }
 
   /* Mobile Sign-In Screen Compact Layout */
@@ -42869,12 +42980,176 @@ html, body {
   }
 }
 
-/* Preview Carousel HUD & Slide Animations (Flow Journey Cards) */
-#itemPreviewModal.has-preview-carousel .event-preview-modal-v2,
-#itemPreviewModal.has-preview-carousel .task-preview-modal-v2 {
+/* Unified Event & Task Canopy, Upper-Right More Menu & Edge Chevron Carousel */
+#itemPreviewModal:not(.is-note-modal) {
+  position: relative !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+#itemPreviewModal:not(.is-note-modal) .event-preview-modal-v2,
+#itemPreviewModal:not(.is-note-modal) .task-preview-modal-v2 {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   height: auto;
+  max-height: inherit;
+  border-radius: 28px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+.event-preview-canopy {
+  min-height: 84px;
+  height: 84px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.event-canopy-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  z-index: 2;
+  min-width: 0;
+}
+.preview-canopy-count-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.event-canopy-art-wrap {
+  position: absolute;
+  right: 68px;
+  top: 0;
+  bottom: 0;
+  width: auto;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 1;
+  opacity: 0.95;
+}
+.event-canopy-art-wrap svg {
+  width: auto !important;
+  height: 100% !important;
+  max-width: none !important;
+  display: block !important;
+  object-fit: contain;
+}
+.preview-canopy-actions {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.preview-canopy-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(15, 23, 42, 0.36);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.14s ease, transform 0.14s ease;
+}
+.preview-canopy-icon-btn:hover {
+  background: rgba(15, 23, 42, 0.56);
+}
+.preview-canopy-icon-btn:active {
+  transform: scale(0.93);
+}
+.preview-more-menu {
+  position: absolute;
+  top: 52px;
+  right: 14px;
+  z-index: 45;
+  min-width: 196px;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--line, #e2e8f0);
+  box-shadow: 0 18px 40px -10px rgba(15, 23, 42, 0.24), 0 0 0 1px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.preview-more-menu.hidden {
+  display: none !important;
+}
+html[data-theme="dark"] .preview-more-menu {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+}
+.preview-more-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text, #0f172a);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.preview-more-item:hover {
+  background: var(--surface2, #f1f5f9);
+}
+html[data-theme="dark"] .preview-more-item {
+  color: #f1f5f9;
+}
+html[data-theme="dark"] .preview-more-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.preview-more-item.is-active {
+  color: var(--accent, #2563eb);
+  background: color-mix(in srgb, var(--accent, #2563eb) 10%, transparent);
+}
+.preview-more-item.is-danger {
+  color: #e11d48;
+}
+html[data-theme="dark"] .preview-more-item.is-danger {
+  color: #fb7185;
+}
+.preview-more-item.is-danger:hover {
+  background: rgba(225, 29, 72, 0.1);
+}
+.task-preview-tags-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 #itemPreviewModal.is-carousel-slide-next {
   animation: previewCarouselNext 0.22s cubic-bezier(0.22, 1, 0.36, 1);
@@ -42890,87 +43165,48 @@ html, body {
   from { opacity: 0.65; transform: translateX(-28px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.preview-carousel-hud {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 14px;
-  border-top: 1px solid var(--line, #e2e8f0);
-  background: var(--surface2, #f8fafc);
-}
-html[data-theme="dark"] .preview-carousel-hud {
-  border-top-color: rgba(255, 255, 255, 0.08);
-  background: rgba(15, 23, 42, 0.96);
-}
-.preview-carousel-nav-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid var(--line, #e2e8f0);
-  background: var(--surface, #ffffff);
-  color: var(--text, #0f172a);
+.preview-carousel-edge-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 35;
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  color: #0f172a;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  flex: 0 0 auto;
-  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+  padding: 0;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
-.preview-carousel-nav-btn:active {
-  transform: scale(0.93);
+.preview-carousel-edge-btn.is-prev {
+  left: -18px;
 }
-.preview-carousel-nav-btn:hover {
-  border-color: var(--accent, #2563eb);
+.preview-carousel-edge-btn.is-next {
+  right: -18px;
 }
-html[data-theme="dark"] .preview-carousel-nav-btn {
-  background: rgba(30, 41, 59, 0.92);
-  border-color: rgba(255, 255, 255, 0.14);
+.preview-carousel-edge-btn:hover {
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateY(-50%) scale(1.06);
+}
+.preview-carousel-edge-btn:active {
+  transform: translateY(-50%) scale(0.94);
+}
+html[data-theme="dark"] .preview-carousel-edge-btn {
+  background: rgba(30, 41, 59, 0.78);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   color: #f8fafc;
 }
-.preview-carousel-meta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-.preview-carousel-count {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--text, #0f172a);
-  white-space: nowrap;
-}
-html[data-theme="dark"] .preview-carousel-count {
-  color: #f1f5f9;
-}
-.preview-carousel-dots {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.preview-carousel-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(100, 116, 139, 0.35);
-  transition: width 0.16s ease, background 0.16s ease;
-}
-.preview-carousel-dot.is-active {
-  width: 14px;
-  background: var(--accent, #2563eb);
-}
-.preview-carousel-hint {
-  font-size: 11px;
-  color: var(--muted, #64748b);
-  white-space: nowrap;
-}
-@media (max-width: 359px) {
-  .preview-carousel-hint {
-    display: none;
-  }
+html[data-theme="dark"] .preview-carousel-edge-btn:hover {
+  background: rgba(51, 65, 85, 0.92);
 }
 </style>
 

@@ -13,6 +13,9 @@ const { onSchedule } = require('firebase-functions/v2/scheduler');
 initializeApp();
 const db = getFirestore();
 const REGION = 'us-central1';
+const REMINDER_POLL_INTERVAL_MINUTES = 15;
+const REMINDER_GRACE_MS = REMINDER_POLL_INTERVAL_MINUTES * 60 * 1000;
+const MAX_EVENT_OPTION_LEAD_MINUTES = 60;
 const VAPID_PUBLIC_KEY = defineString('VAPID_PUBLIC_KEY');
 const VAPID_PRIVATE_KEY = defineSecret('VAPID_PRIVATE_KEY');
 const VAPID_SUBJECT = defineString('VAPID_SUBJECT');
@@ -108,19 +111,35 @@ async function sendToSubscription(uid, subscriptionDoc, payload, dedupeKey) {
   }
 }
 
-async function getUserPushContext(uid, cache) {
+function isValidSubscriptionData(subscription) {
+  return Boolean(
+    subscription &&
+    subscription.enabled !== false &&
+    subscription.endpoint &&
+    subscription.keys?.p256dh &&
+    subscription.keys?.auth
+  );
+}
+
+async function getUserPushContext(uid, cache, preloadedSubscriptions = null) {
   if (!cache.has(uid)) {
     cache.set(uid, (async () => {
       const userRef = db.collection('users').doc(uid);
-      const [preferencesSnapshot, subscriptionsSnapshot] = await Promise.all([
-        userRef.collection('settings').doc('preferences').get(),
-        userRef.collection('pushSubscriptions').get()
+      const preferencesPromise = userRef.collection('settings').doc('preferences').get();
+      const subscriptionsPromise = preloadedSubscriptions
+        ? Promise.resolve(preloadedSubscriptions)
+        : userRef.collection('pushSubscriptions').get().then(snap =>
+          snap.docs.filter(doc => isValidSubscriptionData(doc.data()))
+        );
+      const [preferencesSnapshot, subscriptions] = await Promise.all([
+        preferencesPromise,
+        subscriptionsPromise
       ]);
       const saved = preferencesSnapshot.exists ? preferencesSnapshot.data() || {} : {};
       const preferences = saved.value || saved.settings || {};
       return {
         preferences: { ...DEFAULT_PREFERENCES, ...preferences },
-        subscriptions: subscriptionsSnapshot.docs.filter(doc => doc.data()?.enabled !== false)
+        subscriptions
       };
     })());
   }
@@ -176,12 +195,11 @@ async function processEventReminder(document, nowUtc, contextCache) {
   const uid = recordOwnerUid(document.ref);
   if (!uid) return;
   const event = document.data() || {};
-  if (!event.date || (!event.allDay && !event.start)) return;
+  if (!event.date || (!event.allDay && !event.start) || event.reminderMinutes === null) return;
 
   const context = await getUserPushContext(uid, contextCache);
   const preferences = context.preferences;
   if (preferences.notifications === false || !context.subscriptions.length) return;
-  if (event.reminderMinutes === null) return;
 
   const rawLead = event.reminderMinutes === undefined ? preferences.leadTime : event.reminderMinutes;
   const lead = Number(rawLead);
@@ -203,7 +221,7 @@ async function processEventReminder(document, nowUtc, contextCache) {
       const dueAt = parseLocalDateTime(String(event.date), time, zone);
       if (!dueAt) return false;
       const diff = dueAt.toMillis() - now.toMillis();
-      return diff >= 0 && diff <= leadWindow && !isQuietHours(userPreferences, now, zone);
+      return diff >= -REMINDER_GRACE_MS && diff <= leadWindow && !isQuietHours(userPreferences, now, zone);
     }
   );
 }
@@ -214,13 +232,14 @@ async function processTaskReminder(document, nowUtc, contextCache) {
   const task = document.data() || {};
   if (!task.due || task.done || task.status === 'done' || !task.reminder || task.reminder === 'none') return;
 
+  const id = String(task.id || task._chronosId || document.id);
+  const reminderKey = `task:${id}:${task.due}:${task.dueTime || '09:00'}:${task.reminder}`;
+  if (task.reminderFiredKey === reminderKey) return;
+
   const context = await getUserPushContext(uid, contextCache);
   const preferences = context.preferences;
   if (preferences.notifications === false || !context.subscriptions.length) return;
 
-  const id = String(task.id || task._chronosId || document.id);
-  const reminderKey = `task:${id}:${task.due}:${task.dueTime || '09:00'}:${task.reminder}`;
-  if (task.reminderFiredKey === reminderKey) return;
   const dueTime = String(task.dueTime || '09:00');
 
   await sendReminderToSubscriptions(
@@ -278,10 +297,37 @@ exports.pushTeamNotification = onDocumentCreated({
   );
 });
 
-// Scan only near-term personal records. Reminders respect each browser subscription's
-// timezone and the user's existing reminder/quiet-hours preferences.
+function computeUserReminderWindow(nowUtc, awakeZones, preferences) {
+  const lead = Number(preferences?.leadTime);
+  const effectiveLeadMinutes = Math.max(Number.isFinite(lead) ? lead : DEFAULT_PREFERENCES.leadTime, MAX_EVENT_OPTION_LEAD_MINUTES);
+  const lookbackInstant = nowUtc.minus({ milliseconds: REMINDER_GRACE_MS });
+  const lookaheadInstant = nowUtc.plus({ minutes: effectiveLeadMinutes });
+
+  let eventFromDate = null;
+  let eventThroughDate = null;
+  let taskFromDate = null;
+  let taskThroughDate = null;
+
+  for (const zone of awakeZones) {
+    const evFrom = lookbackInstant.setZone(zone).toISODate();
+    const evTo = lookaheadInstant.setZone(zone).toISODate();
+    const localNow = nowUtc.setZone(zone);
+    const tFrom = localNow.minus({ days: 1 }).toISODate();
+    const tTo = localNow.plus({ days: 1 }).toISODate();
+
+    if (!eventFromDate || evFrom < eventFromDate) eventFromDate = evFrom;
+    if (!eventThroughDate || evTo > eventThroughDate) eventThroughDate = evTo;
+    if (!taskFromDate || tFrom < taskFromDate) taskFromDate = tFrom;
+    if (!taskThroughDate || tTo > taskThroughDate) taskThroughDate = tTo;
+  }
+
+  return { eventFromDate, eventThroughDate, taskFromDate, taskThroughDate };
+}
+
+// Query only awake Web Push subscribers' own near-term event/task subcollections,
+// avoiding global 7-day collectionGroup scans when idle or during quiet hours.
 exports.dispatchDueReminders = onSchedule({
-  schedule: 'every 1 minutes',
+  schedule: 'every 15 minutes',
   timeZone: 'UTC',
   region: REGION,
   secrets: [VAPID_PRIVATE_KEY],
@@ -289,26 +335,52 @@ exports.dispatchDueReminders = onSchedule({
   timeoutSeconds: 120
 }, async () => {
   const nowUtc = DateTime.utc();
-  const fromDate = nowUtc.minus({ days: 3 }).toISODate();
-  const throughDate = nowUtc.plus({ days: 3 }).toISODate();
-  const [eventsSnapshot, tasksSnapshot] = await Promise.all([
-    db.collectionGroup('events')
-      .where('date', '>=', fromDate)
-      .where('date', '<=', throughDate)
-      .get(),
-    db.collectionGroup('tasks')
-      .where('due', '>=', fromDate)
-      .where('due', '<=', throughDate)
-      .get()
-  ]);
+  const subscriptionsSnapshot = await db.collectionGroup('pushSubscriptions').get();
+  const subscriptionsByUid = new Map();
+
+  for (const subscriptionDoc of subscriptionsSnapshot.docs) {
+    const uid = recordOwnerUid(subscriptionDoc.ref);
+    if (!uid || !isValidSubscriptionData(subscriptionDoc.data())) continue;
+    if (!subscriptionsByUid.has(uid)) subscriptionsByUid.set(uid, []);
+    subscriptionsByUid.get(uid).push(subscriptionDoc);
+  }
+
+  if (subscriptionsByUid.size === 0) return;
 
   const contextCache = new Map();
-  for (const document of eventsSnapshot.docs) {
-    try { await processEventReminder(document, nowUtc, contextCache); }
-    catch (error) { console.warn('Could not process event push reminder', document.ref.path, error); }
-  }
-  for (const document of tasksSnapshot.docs) {
-    try { await processTaskReminder(document, nowUtc, contextCache); }
-    catch (error) { console.warn('Could not process task push reminder', document.ref.path, error); }
+  for (const [uid, userSubscriptions] of subscriptionsByUid.entries()) {
+    const context = await getUserPushContext(uid, contextCache, userSubscriptions);
+    if (context.preferences.notifications === false || !context.subscriptions.length) continue;
+
+    const awakeZones = [...new Set(
+      context.subscriptions
+        .map(doc => safeTimeZone(doc.data()?.timeZone))
+        .filter(zone => !isQuietHours(context.preferences, nowUtc, zone))
+    )];
+    if (!awakeZones.length) continue;
+
+    const { eventFromDate, eventThroughDate, taskFromDate, taskThroughDate } =
+      computeUserReminderWindow(nowUtc, awakeZones, context.preferences);
+    const userRef = db.collection('users').doc(uid);
+
+    const [eventsSnapshot, tasksSnapshot] = await Promise.all([
+      userRef.collection('events')
+        .where('date', '>=', eventFromDate)
+        .where('date', '<=', eventThroughDate)
+        .get(),
+      userRef.collection('tasks')
+        .where('due', '>=', taskFromDate)
+        .where('due', '<=', taskThroughDate)
+        .get()
+    ]);
+
+    for (const document of eventsSnapshot.docs) {
+      try { await processEventReminder(document, nowUtc, contextCache); }
+      catch (error) { console.warn('Could not process event push reminder', document.ref.path, error); }
+    }
+    for (const document of tasksSnapshot.docs) {
+      try { await processTaskReminder(document, nowUtc, contextCache); }
+      catch (error) { console.warn('Could not process task push reminder', document.ref.path, error); }
+    }
   }
 });
