@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chronos-flow-5.10-v182';
+const CACHE_NAME = 'chronos-flow-5.10-v183';
 const APP_SHELL = [
   './',
   './index.html',
@@ -107,9 +107,10 @@ self.addEventListener('notificationclick', event => {
   const target = new URL(event.notification.data?.url || './', self.location.origin).href;
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
-      for (const client of clients) {
-        if (client.url === target && 'focus' in client) return client.focus();
-      }
+      const exact = clients.find(client => client.url === target && 'focus' in client);
+      if (exact) return exact.focus();
+      const anyWindow = clients.find(client => 'focus' in client);
+      if (anyWindow) return anyWindow.focus();
       if (self.clients.openWindow) return self.clients.openWindow(target);
     })
   );

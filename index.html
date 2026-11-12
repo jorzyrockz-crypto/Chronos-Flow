@@ -10433,7 +10433,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
 <div class="modal-backdrop hidden" id="settingsBackdrop" role="presentation"><section class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal-head"><div><h3 id="settingsTitle">Settings</h3><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Make Chronos work your way</p></div><button class="close" id="settingsClose" aria-label="Close settings"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div class="settings-content"><nav class="settings-tabs" aria-label="Settings categories"><button class="active" data-settings-tab="appearance">Appearance</button><button data-settings-tab="notifications">Notifications</button><button data-settings-tab="sounds">Sounds</button><button data-settings-tab="calendar">Calendar</button><button data-settings-tab="projects">Projects &amp; Workspaces</button><button data-settings-tab="data">Data & sync</button>
 <button data-settings-tab="about">About Chronos</button></nav><div class="settings-pane">
 <section class="settings-section" data-settings-pane="appearance"><h4>Appearance</h4><p>Choose the look and feel of your workspace.</p><div class="settings-field"><label for="settingMode">Color mode</label><select id="settingMode"><option value="dark">Dark</option><option value="light">Light</option><option value="system">Follow device</option></select></div><div style="margin-top:14px" class="settings-field"><span class="settings-label">Accent theme</span><div class="theme-swatches"><button class="theme-swatch" data-accent-choice="ocean" title="Ocean Blue (Atlantis)" style="background:linear-gradient(135deg,#0284c7 0%,#38bdf8 50%,#2dd4bf 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="forest" title="Forest (Emerald Sage)" style="background:linear-gradient(135deg,#059669 0%,#34d399 50%,#a3e635 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="sunset" title="Sunset (Golden Twilight)" style="background:linear-gradient(135deg,#ea580c 0%,#fb923c 50%,#facc15 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="lavender" title="Lavender (Lilac Dream)" style="background:linear-gradient(135deg,#7c3aed 0%,#c084fc 50%,#f472b6 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="mono" title="Monochrome (Titanium Slate)" style="background:linear-gradient(135deg,#1e293b 0%,#64748b 50%,#cbd5e1 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button><button class="theme-swatch" data-accent-choice="cloud_pastel" title="Cloud Pastel (Kumoverse)" style="background:linear-gradient(135deg,#4f46e5 0%,#ec4899 50%,#facc15 100%)"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="lucide-icon" data-lucide="check"><path d="M20 6 9 17l-5-5"/></svg></button></div><span id="accentName" style="font-size:11px;color:var(--muted)">Ocean Blue</span></div><div class="settings-grid" style="margin-top:14px"><div class="settings-field"><label for="settingDensity">Interface density</label><select id="settingDensity"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div><div class="settings-field"><label for="settingMotion">Motion effects</label><select id="settingMotion"><option value="full">Full</option><option value="reduced">Reduced</option><option value="off">Off</option></select></div></div><div class="settings-field" style="margin-top:14px"><label for="settingHomePage">Default home screen</label><select id="settingHomePage"><option value="dashboard">Flow</option><option value="calendar">Calendar</option><option value="tasks">Projects</option><option value="notes">Notes</option><option value="team">Team</option></select></div><label class="settings-toggle" style="margin-top:14px"><span><strong>Chronos Flow Sticky Utility Bar</strong><small>Display the compact sticky bar with search, month navigation, team filter, and quick event creation above the timeline.</small></span><input type="checkbox" id="settingFlowStickyBar"></label><div class="settings-preview" style="margin-top:14px"><span class="preview-dot"></span><div><strong style="font-size:12px">Ocean Blue workspace</strong><small style="display:block;color:var(--muted);font-size:10px;margin-top:3px">Your selection is saved on this device.</small></div></div></section>
-<section class="settings-section hidden" data-settings-pane="notifications"><h4>Notifications</h4><p>Manage event and task reminders. Chronos uses custom in-app notifications and sound alerts.</p><label class="settings-toggle"><span><strong>Enable reminders</strong><small>Show reminders for upcoming events and due tasks.</small></span><input type="checkbox" id="settingNotifications"></label><label class="settings-toggle"><span><strong>Custom in-app notifications</strong><small>Display interactive floating cards and sound cues; browser push is controlled separately below.</small></span><span class="note-chip" style="color:var(--accent);font-weight:750">In-app</span></label><div class="settings-field" id="pushNotificationSettings" style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--surface2)"><strong>Browser push notifications</strong><p style="margin:5px 0 10px;color:var(--muted);font-size:11px;line-height:1.55">Receive team activity and scheduled event/task reminders, including when Chronos is closed. Requires browser permission and the Firebase push service to be deployed.</p><div id="pushNotificationStatus" class="settings-note" role="status" aria-live="polite">Checking push support…</div><div class="settings-actions" style="margin-top:10px"><button class="btn primary" id="enablePushNotifications" type="button">Enable push notifications</button><button class="btn hidden" id="disablePushNotifications" type="button">Disable on this browser</button></div></div><div class="settings-grid"><div class="settings-field"><label for="settingLeadTime">Remind me before</label><select id="settingLeadTime"><option value="0">At start time</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="1440">1 day</option></select></div><div class="settings-field"><label for="settingQuietStart">Quiet hours start</label><input id="settingQuietStart" type="time" value="22:00"></div><div class="settings-field"><label for="settingQuietEnd">Quiet hours end</label><input id="settingQuietEnd" type="time" value="07:00"></div></div><label class="settings-toggle"><span><strong>Quiet hours</strong><small>Silence reminder sounds and in-app alerts during selected hours.</small></span><input type="checkbox" id="settingQuietHours"></label><div class="settings-note" id="notificationPermissionNote">In-app reminders and sounds remain available. Browser push requires separate permission and server setup.</div></section>
+<section class="settings-section hidden" data-settings-pane="notifications"><h4>Notifications</h4><p>Manage event, task, and daily schedule reminders. Chronos supports in-app alerts, sound cues, and browser/OS notifications.</p><label class="settings-toggle"><span><strong>Enable reminders</strong><small>Show reminders for upcoming personal and team events, due tasks, and today's schedule.</small></span><input type="checkbox" id="settingNotifications"></label><label class="settings-toggle"><span><strong>Today's schedule briefing</strong><small>Send a once-daily notification summarizing events and tasks scheduled for today.</small></span><input type="checkbox" id="settingDailyDigest"></label><label class="settings-toggle"><span><strong>Browser &amp; OS notifications</strong><small>Show desktop or mobile system notifications while Chronos is open (or via background Web Push if deployed).</small></span><input type="checkbox" id="settingBrowserNotifications"></label><div class="settings-field" id="pushNotificationSettings" style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--surface2)"><strong>Browser &amp; push notifications</strong><p style="margin:5px 0 10px;color:var(--muted);font-size:11px;line-height:1.55">Receive scheduled reminders and team alerts as system notifications when Chronos is open, plus closed-tab Web Push if your Firebase push server is deployed.</p><div id="pushNotificationStatus" class="settings-note" role="status" aria-live="polite">Checking push support…</div><div class="settings-actions" style="margin-top:10px"><button class="btn primary" id="enablePushNotifications" type="button">Enable browser notifications</button><button class="btn hidden" id="disablePushNotifications" type="button">Disable on this browser</button><button class="btn" id="testNotificationBtn" type="button">Test notification</button></div></div><div class="settings-grid"><div class="settings-field"><label for="settingLeadTime">Remind me before</label><select id="settingLeadTime"><option value="0">At start time</option><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="1440">1 day</option></select></div><div class="settings-field"><label for="settingQuietStart">Quiet hours start</label><input id="settingQuietStart" type="time" value="22:00"></div><div class="settings-field"><label for="settingQuietEnd">Quiet hours end</label><input id="settingQuietEnd" type="time" value="07:00"></div></div><label class="settings-toggle"><span><strong>Quiet hours</strong><small>Silence reminder alerts and sounds during selected hours.</small></span><input type="checkbox" id="settingQuietHours"></label><div class="settings-note" id="notificationPermissionNote">In-app reminders and browser notifications work without a Firebase Functions server while Chronos is open.</div></section>
 <section class="settings-section hidden" data-settings-pane="sounds"><h4>Sounds</h4><p>Keep audio feedback useful and under your control.</p><label class="settings-toggle"><span><strong>App sounds</strong><small>Play optional sound cues for reminders and task completion.</small></span><input type="checkbox" id="settingSounds"></label><div class="settings-grid"><div class="settings-field"><label for="settingVolume">Volume</label><input id="settingVolume" type="range" min="0" max="100" step="10" value="50" style="width:100%;accent-color:var(--accent)"></div><div class="settings-field"><label for="settingSoundProfile">Sound profile</label><select id="settingSoundProfile"><option value="gentle">Gentle glass chime</option><option value="bright">Bright double tone</option><option value="soft">Soft pulse</option><option value="premium">Premium arpeggio</option></select></div></div><label class="settings-toggle"><span><strong>Interface sounds</strong><small>Subtle taps and navigation cues; reminder sounds remain controlled above.</small></span><input type="checkbox" id="settingInterfaceSounds"></label><div class="settings-actions"><button class="btn" id="previewSound" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" class="lucide-icon" data-lucide="play"><polygon points="5 3 19 12 5 21 5 3"/></svg> Preview sound</button><button class="btn" id="previewSuccess" type="button" style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" class="lucide-icon" data-lucide="check"><polyline points="20 6 9 17 4 12"/></svg> Preview success</button></div><div class="settings-note">Sound effects are generated locally with Web Audio. No audio files are downloaded or streamed.</div></section>
 <section class="settings-section hidden" data-settings-pane="calendar"><h4>Calendar preferences</h4><p>Set the defaults that fit your planning habits.</p><div class="settings-grid"><div class="settings-field"><label for="settingWeekStart">Week starts on</label><select id="settingWeekStart"><option value="monday">Monday</option><option value="sunday">Sunday</option></select></div><div class="settings-field"><label for="settingTimeFormat">Time format</label><select id="settingTimeFormat"><option value="24">24-hour</option><option value="12">12-hour</option></select></div><div class="settings-field"><label for="settingDuration">Default event duration</label><select id="settingDuration"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select></div></div></section>
 <!-- Projects & Workspaces Settings Pane -->
@@ -11161,8 +11161,8 @@ function resolveChronosFirebaseConfig(){
   return {...DEFAULT_FIREBASE_CONFIG};
 }
 let events=[],notes=[],tasks=[],taskFilter="all",localSettingsPresent=false,firebaseApp=null,firebaseAuth=null,firebaseDb=null,firebaseUser=null,firebaseConfig=resolveChronosFirebaseConfig();let firebaseSyncTimer=null,firebaseSyncBusy=false,firebaseApplyingRemote=false;let chronosTeams=[],activeTeamId=localStorage.getItem('chronos70.activeTeamId')||'',activeTeam=null,teamMembers=[],teamTab='members',teamRecords={events:[],tasks:[],notes:[]};let teamAssignedTasks=[],teamLiveUnsubs=[],teamLiveData={};let teamNotificationRead=new Set();try{teamNotificationRead=new Set(JSON.parse(localStorage.getItem('chronos80.notificationRead.'+(firebaseUser?.uid||'local'))||'[]'))}catch{}
-const defaultSettings={homePage:'dashboard',mode:'dark',accent:'cloud_pastel',density:'comfortable',motion:'full',notifications:true,browserNotifications:false,leadTime:10,quietHours:true,quietStart:'22:00',quietEnd:'07:00',sounds:true,interfaceSounds:true,volume:50,soundProfile:'gentle',weekStart:'monday',timeFormat:'24',duration:60,flowStickyBarEnabled:true,projectWorkspaceSize:'card',projectDefaultTab:'tasks',projectCutoffTime:'17:00',projectGracePeriod:0,projectSupervisorTitle:'Master Teacher / Department Head',projectSchoolDivision:'Department of Education',projectSchoolName:'Main Academic Office',projectApprovingAuthority:'School Head / Principal'};let settings={...defaultSettings},notifiedReminders=new Set(),reminderTimer=null;
-function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStorage.getItem('chronos20.notes');events=e?JSON.parse(e):sampleEvents;notes=n?JSON.parse(n):[];if(!Array.isArray(events)||!Array.isArray(notes))throw Error('bad data');notes=notes.map(x=>({collection:'',trashed:false,archived:false,tags:[],...x}))}catch(err){events=sampleEvents;notes=[];notify('Sample calendar loaded. Local storage was unavailable.')}try{const t=localStorage.getItem('chronos20.theme');if(t)document.documentElement.dataset.theme=t;try{if(document.documentElement.dataset.skin==='ipados-tablet')delete document.documentElement.dataset.skin;localStorage.removeItem('chronos.tabletSkin')}catch{}const savedSettings=JSON.parse(localStorage.getItem('chronos50.settings')||'null');localSettingsPresent=!!savedSettings;settings={...defaultSettings,...(savedSettings&&typeof savedSettings==='object'?savedSettings:{})};applySettings(false);const raw=localStorage.getItem('chronos40.tasks');tasks=raw?JSON.parse(raw):[];if(!Array.isArray(tasks))tasks=[];firebaseConfig=resolveChronosFirebaseConfig()}catch{tasks=[];firebaseConfig={...DEFAULT_FIREBASE_CONFIG}}
+const defaultSettings={homePage:'dashboard',mode:'dark',accent:'cloud_pastel',density:'comfortable',motion:'full',notifications:true,dailyDigest:true,browserNotifications:false,leadTime:10,quietHours:true,quietStart:'22:00',quietEnd:'07:00',sounds:true,interfaceSounds:true,volume:50,soundProfile:'gentle',weekStart:'monday',timeFormat:'24',duration:60,flowStickyBarEnabled:true,projectWorkspaceSize:'card',projectDefaultTab:'tasks',projectCutoffTime:'17:00',projectGracePeriod:0,projectSupervisorTitle:'Master Teacher / Department Head',projectSchoolDivision:'Department of Education',projectSchoolName:'Main Academic Office',projectApprovingAuthority:'School Head / Principal'};let settings={...defaultSettings},notifiedReminders=new Set(),reminderTimer=null;
+function load(){try{const e=localStorage.getItem('chronos20.events'),n=localStorage.getItem('chronos20.notes');events=e?JSON.parse(e):sampleEvents;notes=n?JSON.parse(n):[];if(!Array.isArray(events)||!Array.isArray(notes))throw Error('bad data');notes=notes.map(x=>({collection:'',trashed:false,archived:false,tags:[],...x}))}catch(err){events=sampleEvents;notes=[];notify('Sample calendar loaded. Local storage was unavailable.')}try{const t=localStorage.getItem('chronos20.theme');if(t)document.documentElement.dataset.theme=t;try{if(document.documentElement.dataset.skin==='ipados-tablet')delete document.documentElement.dataset.skin;localStorage.removeItem('chronos.tabletSkin')}catch{}const savedSettings=JSON.parse(localStorage.getItem('chronos50.settings')||'null');localSettingsPresent=!!savedSettings;settings={...defaultSettings,...(savedSettings&&typeof savedSettings==='object'?savedSettings:{})};try{if(typeof Notification!=='undefined'&&Notification.permission==='granted'&&localStorage.getItem('chronos90.browserNotifyPrefExplicit')!=='1')settings.browserNotifications=true;}catch{}applySettings(false);const raw=localStorage.getItem('chronos40.tasks');tasks=raw?JSON.parse(raw):[];if(!Array.isArray(tasks))tasks=[];firebaseConfig=resolveChronosFirebaseConfig()}catch{tasks=[];firebaseConfig={...DEFAULT_FIREBASE_CONFIG}}
   // Anti-Resurrection Guard: Purge tombstoned records on startup
   try{
     const tombs=(typeof localTombstones==='function')?localTombstones():{};
@@ -11185,7 +11185,7 @@ function removeLegacySampleNotes(){const legacyNoteIds=new Set(['n1','n2','n3'])
 function saveSettings(){try{localStorage.setItem('chronos50.settings',JSON.stringify(settings));localStorage.setItem('chronos20.theme',document.documentElement.dataset.theme||'dark');localStorage.setItem('chronos60.settingsUpdatedAt',String(Date.now()));scheduleFirebaseSync()}catch{notify('Could not save preferences in this browser.')} }
 function applySettings(showToast=true){const systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=settings.mode==='system'?(systemDark?'dark':'light'):settings.mode;document.documentElement.dataset.accent=settings.accent||'cloud_pastel';document.documentElement.dataset.density=settings.density||'comfortable';document.documentElement.dataset.motion=(settings.motion==='on'?'full':settings.motion)||'full';const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=document.documentElement.dataset.theme==='dark'?'#10131b':'#f5f7fb';if(showToast){saveSettings();render();notify('Preferences saved.')}}
 
-function settingsFormFill(){const map={settingMode:settings.mode,settingDensity:settings.density,settingMotion:settings.motion,settingHomePage:settings.homePage||'dashboard',settingNotifications:settings.notifications,settingLeadTime:String(settings.leadTime),settingQuietStart:settings.quietStart,settingQuietEnd:settings.quietEnd,settingQuietHours:settings.quietHours,settingSounds:settings.sounds,settingInterfaceSounds:settings.interfaceSounds!==false,settingVolume:settings.volume,settingSoundProfile:settings.soundProfile,settingWeekStart:settings.weekStart,settingTimeFormat:settings.timeFormat,settingDuration:String(settings.duration),settingFlowStickyBar:settings.flowStickyBarEnabled!==false,settingProjectWorkspaceSize:settings.projectWorkspaceSize||'card',settingProjectDefaultTab:settings.projectDefaultTab||'tasks',settingProjectCutoffTime:settings.projectCutoffTime||'17:00',settingProjectGracePeriod:String(settings.projectGracePeriod??0),settingProjectSupervisorTitle:settings.projectSupervisorTitle||'Master Teacher / Department Head',settingProjectSchoolDivision:settings.projectSchoolDivision||'Department of Education',settingProjectSchoolName:settings.projectSchoolName||'Main Academic Office',settingProjectApprovingAuthority:settings.projectApprovingAuthority||'School Head / Principal'};for(const [id,val] of Object.entries(map)){const el=$(id);if(el){if(el.type==='checkbox')el.checked=!!val;else el.value=val}}if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';document.querySelectorAll('[data-accent-choice]').forEach(b=>b.classList.toggle('selected',b.dataset.accentChoice===settings.accent));$('accentName').textContent=({ocean:'Ocean Blue (Atlantis)',forest:'Forest (Emerald Sage)',sunset:'Sunset (Golden Twilight)',lavender:'Lavender (Lilac Dream)',mono:'Monochrome (Titanium Slate)',cloud_pastel:'Cloud Pastel (Kumoverse)'})[settings.accent]||'Ocean Blue';const previewTitle=document.querySelector('.settings-preview strong');if(previewTitle)previewTitle.textContent=($('accentName').textContent||'Ocean Blue')+' workspace';const themeGradients={ocean:'linear-gradient(135deg,#0284c7 0%,#38bdf8 50%,#2dd4bf 100%)',forest:'linear-gradient(135deg,#059669 0%,#34d399 50%,#a3e635 100%)',sunset:'linear-gradient(135deg,#ea580c 0%,#fb923c 50%,#facc15 100%)',lavender:'linear-gradient(135deg,#7c3aed 0%,#c084fc 50%,#f472b6 100%)',mono:'linear-gradient(135deg,#1e293b 0%,#64748b 50%,#cbd5e1 100%)',cloud_pastel:'linear-gradient(135deg,#4f46e5 0%,#ec4899 50%,#facc15 100%)'};const previewDot=document.querySelector('.settings-preview .preview-dot');if(previewDot){previewDot.style.background=themeGradients[settings.accent]||'var(--accent)';previewDot.style.boxShadow='0 0 12px var(--accent-glow)'}const saveState=$('settingsSaveState');if(saveState)saveState.textContent='Saved preferences load automatically on this device.';$('notificationPermissionNote').textContent='In-app reminders and sounds remain available. Browser push requires separate permission and server setup.'}
+function settingsFormFill(){const browserGranted=typeof Notification!=='undefined'&&Notification.permission==='granted';const map={settingMode:settings.mode,settingDensity:settings.density,settingMotion:settings.motion,settingHomePage:settings.homePage||'dashboard',settingNotifications:settings.notifications,settingDailyDigest:settings.dailyDigest!==false,settingBrowserNotifications:!!(settings.browserNotifications&&browserGranted),settingLeadTime:String(settings.leadTime),settingQuietStart:settings.quietStart,settingQuietEnd:settings.quietEnd,settingQuietHours:settings.quietHours,settingSounds:settings.sounds,settingInterfaceSounds:settings.interfaceSounds!==false,settingVolume:settings.volume,settingSoundProfile:settings.soundProfile,settingWeekStart:settings.weekStart,settingTimeFormat:settings.timeFormat,settingDuration:String(settings.duration),settingFlowStickyBar:settings.flowStickyBarEnabled!==false,settingProjectWorkspaceSize:settings.projectWorkspaceSize||'card',settingProjectDefaultTab:settings.projectDefaultTab||'tasks',settingProjectCutoffTime:settings.projectCutoffTime||'17:00',settingProjectGracePeriod:String(settings.projectGracePeriod??0),settingProjectSupervisorTitle:settings.projectSupervisorTitle||'Master Teacher / Department Head',settingProjectSchoolDivision:settings.projectSchoolDivision||'Department of Education',settingProjectSchoolName:settings.projectSchoolName||'Main Academic Office',settingProjectApprovingAuthority:settings.projectApprovingAuthority||'School Head / Principal'};for(const [id,val] of Object.entries(map)){const el=$(id);if(el){if(el.type==='checkbox')el.checked=!!val;else el.value=val}}if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';document.querySelectorAll('[data-accent-choice]').forEach(b=>b.classList.toggle('selected',b.dataset.accentChoice===settings.accent));$('accentName').textContent=({ocean:'Ocean Blue (Atlantis)',forest:'Forest (Emerald Sage)',sunset:'Sunset (Golden Twilight)',lavender:'Lavender (Lilac Dream)',mono:'Monochrome (Titanium Slate)',cloud_pastel:'Cloud Pastel (Kumoverse)'})[settings.accent]||'Ocean Blue';const previewTitle=document.querySelector('.settings-preview strong');if(previewTitle)previewTitle.textContent=($('accentName').textContent||'Ocean Blue')+' workspace';const themeGradients={ocean:'linear-gradient(135deg,#0284c7 0%,#38bdf8 50%,#2dd4bf 100%)',forest:'linear-gradient(135deg,#059669 0%,#34d399 50%,#a3e635 100%)',sunset:'linear-gradient(135deg,#ea580c 0%,#fb923c 50%,#facc15 100%)',lavender:'linear-gradient(135deg,#7c3aed 0%,#c084fc 50%,#f472b6 100%)',mono:'linear-gradient(135deg,#1e293b 0%,#64748b 50%,#cbd5e1 100%)',cloud_pastel:'linear-gradient(135deg,#4f46e5 0%,#ec4899 50%,#facc15 100%)'};const previewDot=document.querySelector('.settings-preview .preview-dot');if(previewDot){previewDot.style.background=themeGradients[settings.accent]||'var(--accent)';previewDot.style.boxShadow='0 0 12px var(--accent-glow)'}const saveState=$('settingsSaveState');if(saveState)saveState.textContent='Saved preferences load automatically on this device.';$('notificationPermissionNote').textContent=browserGranted&&settings.browserNotifications?'Browser & OS notifications and in-app alerts are active while Chronos is open.':'In-app reminders are active. Enable Browser & OS notifications above to receive system alerts when today\'s schedules are due.'}
 function openSettings(tab='appearance'){settingsFormFill();$('settingsBackdrop').classList.remove('hidden');selectSettingsTab(tab);if(tab==='data')fillFirebaseConfig()}
 function closeSettings(){$('settingsBackdrop').classList.add('hidden')}
 function selectSettingsTab(tab){document.querySelectorAll('[data-settings-tab]').forEach(b=>b.classList.toggle('active',b.dataset.settingsTab===tab));document.querySelectorAll('[data-settings-pane]').forEach(p=>p.classList.toggle('hidden',p.dataset.settingsPane!==tab))}
@@ -11283,8 +11283,188 @@ document.addEventListener('keydown',e=>{
 window.confirmCustomInApp=confirmCustomInApp;
 window.promptCustomInApp=promptCustomInApp;
 window.alert=function(msg){notifyCustomInApp('Notice',String(msg||''))};
-function deliverReminder(title,body,key){notify(body);notifyCustomInApp(title,body);playAppSound('reminder')}
-function checkReminders(){if(!settings.notifications)return;const now=new Date(),defaultLead=Number(settings.leadTime)||0;for(const ev of events){if(!ev.date||ev.reminderMinutes===null||(!ev.allDay&&!ev.start))continue;const lead=ev.reminderMinutes===undefined?defaultLead:Number(ev.reminderMinutes),dt=ev.allDay?new Date(`${ev.date}T09:00:00`):new Date(`${ev.date}T${ev.start}:00`),diff=dt.getTime()-now.getTime(),key='event:'+ev.id+':'+ev.date;if(diff<0||diff>Math.max(lead,1)*60000||notifiedReminders.has(key))continue;if(inQuietHours(now))continue;notifiedReminders.add(key);const message=ev.allDay?`${ev.title} is scheduled for ${fmt(parseDate(ev.date),{weekday:'long',month:'short',day:'numeric'})}.`:ev.title+(diff<=60000?' is starting now':` starts in ${Math.max(1,Math.round(diff/60000))} min.`);deliverReminder('Chronos event reminder',message,key)}for(const task of tasks){if(task.done||!task.due||!task.reminder||task.reminder==='none')continue;const dueAt=taskReminderDate(task);if(!dueAt)continue;const key=`task:${task.id}:${task.due}:${task.dueTime||'09:00'}:${task.reminder}`;if(task.reminderFiredKey===key)continue;const diff=dueAt.getTime()-now.getTime();if(diff>0||inQuietHours(now))continue;task.reminderFiredKey=key;task.reminderLastFiredAt=Date.now();persist();const taskActualDue=new Date(`${task.due}T${task.dueTime||'09:00'}:00`),label=taskActualDue.getTime()<now.getTime()?'overdue':task.reminder==='dayBefore'?'due tomorrow':task.reminder==='hourBefore'?'due in about one hour':'due today';deliverReminder('Chronos task reminder',`${task.title} is ${label}. Due ${task.due}${task.dueTime?' at '+task.dueTime:''}.`,key)}}
+function canShowBrowserOsNotification(){
+  try{return typeof Notification!=='undefined'&&Notification.permission==='granted'&&!!settings.browserNotifications}catch{return false}
+}
+async function showChronosOsNotification(title,body,tag,extraData={}){
+  if(typeof Notification==='undefined'||Notification.permission!=='granted'||(!settings.browserNotifications&&!extraData.forceOs))return false;
+  const safeTitle=String(title||'Chronos Flow').slice(0,120);
+  const safeBody=String(body||'').slice(0,300);
+  const options={body:safeBody,icon:'./icons/chronos-192.png',badge:'./icons/chronos-192.png',tag:String(tag||'chronos-reminder').slice(0,120),renotify:Boolean(extraData.renotify),data:{url:'./',...extraData}};
+  try{
+    if(typeof navigator!=='undefined'&&'serviceWorker' in navigator&&typeof window!=='undefined'&&window.isSecureContext){
+      const reg=await Promise.race([
+        navigator.serviceWorker.getRegistration?.('./')||navigator.serviceWorker.getRegistration?.()||Promise.resolve(null),
+        new Promise(resolve=>setTimeout(()=>resolve(null),800))
+      ]).catch(()=>null);
+      if(reg&&typeof reg.showNotification==='function'){
+        await reg.showNotification(safeTitle,options);
+        return true;
+      }
+    }
+  }catch(err){console.warn('ServiceWorker notification fallback:',err)}
+  try{
+    const note=new Notification(safeTitle,options);
+    note.onclick=()=>{try{window.focus()}catch{}try{note.close()}catch{}};
+    return true;
+  }catch(err){
+    console.warn('Browser notification failed:',err);
+    return false;
+  }
+}
+function deliverReminder(title,body,key,extraData={}){
+  if(!extraData?.skipInApp){
+    notify(body);
+    notifyCustomInApp(title,body);
+    playAppSound('reminder');
+  }
+  if(!extraData?.skipOs){
+    return showChronosOsNotification(title,body,key,extraData);
+  }
+  return Promise.resolve(false);
+}
+function readTodayReminderCache(todayKey){
+  try{
+    const raw=JSON.parse(localStorage.getItem('chronos90.notifiedReminders')||'{}');
+    return raw.date===todayKey&&Array.isArray(raw.keys)?new Set(raw.keys):new Set();
+  }catch{return new Set()}
+}
+function saveTodayReminderCache(todayKey,keySet){
+  try{localStorage.setItem('chronos90.notifiedReminders',JSON.stringify({date:todayKey,keys:[...keySet].slice(-200)}))}catch{}
+}
+function clearEventReminderHistory(eventId){
+  const prefix='event:'+String(eventId)+':';
+  for(const k of [...notifiedReminders]){if(k.startsWith(prefix))notifiedReminders.delete(k)}
+  try{
+    const raw=JSON.parse(localStorage.getItem('chronos90.notifiedReminders')||'{}');
+    if(raw.date&&Array.isArray(raw.keys)){
+      saveTodayReminderCache(raw.date,new Set(raw.keys.filter(k=>!String(k).startsWith(prefix))));
+    }
+  }catch{}
+}
+function collectReminderEvents(){
+  const tombs=(typeof localTombstones==='function')?localTombstones():{};
+  const byId=new Map();
+  for(const ev of (events||[])){
+    if(!ev||!ev.date)continue;
+    const idKey=String(ev.id||'');
+    if(idKey&&(tombs['events|'+idKey]||tombs['events_'+idKey]))continue;
+    byId.set(idKey,ev);
+  }
+  for(const te of (typeof teamCalendarEvents!=='undefined'&&Array.isArray(teamCalendarEvents)?teamCalendarEvents:[])){
+    if(!te||!te.date)continue;
+    const baseId=String(te.sourceId||te.id||'');
+    if(!baseId||byId.has(baseId))continue;
+    if(tombs['events|'+baseId]||tombs['events|'+String(te.id||'')])continue;
+    byId.set(baseId,te);
+  }
+  return [...byId.values()];
+}
+function collectReminderTasks(){
+  const tombs=(typeof localTombstones==='function')?localTombstones():{};
+  const byId=new Map();
+  for(const t of (tasks||[])){
+    if(!t)continue;
+    const idKey=String(t.id||'');
+    if(idKey&&(tombs['tasks|'+idKey]||tombs['tasks_'+idKey]))continue;
+    byId.set(idKey,{...t,_isTeamTask:false});
+  }
+  for(const tt of (typeof teamAssignedTasks!=='undefined'&&Array.isArray(teamAssignedTasks)?teamAssignedTasks:[])){
+    if(!tt)continue;
+    const idKey=String(tt.id||'');
+    if(!idKey||byId.has(idKey))continue;
+    if(tombs['tasks|'+idKey]||tombs['tasks_'+idKey])continue;
+    byId.set(idKey,{...tt,due:tt.due||tt.date||'',done:!!tt.done||tt.status==='done',_isTeamTask:true});
+  }
+  return [...byId.values()];
+}
+function getTodayScheduleItems(todayKey){
+  const todayEvents=collectReminderEvents()
+    .filter(ev=>ev.date===todayKey&&ev.reminderMinutes!==null)
+    .sort((a,b)=>(a.allDay||!a.start?'99:99':String(a.start)).localeCompare(b.allDay||!b.start?'99:99':String(b.start)));
+  const todayTasks=collectReminderTasks()
+    .filter(t=>!t.done&&t.status!=='done'&&t.due===todayKey&&t.reminder!=='none');
+  return {todayEvents,todayTasks};
+}
+function buildTodayScheduleBriefing(todayKey,todayEvents,todayTasks){
+  const dateLabel=fmt(parseDate(todayKey),{month:'short',day:'numeric'});
+  const title=`Today's schedule · ${dateLabel}`;
+  const parts=[];
+  if(todayEvents.length)parts.push(`${todayEvents.length} ${todayEvents.length===1?'event':'events'}`);
+  if(todayTasks.length)parts.push(`${todayTasks.length} ${todayTasks.length===1?'task':'tasks'} due`);
+  const previews=[
+    ...todayEvents.map(ev=>ev.allDay||!ev.start?`All day: ${ev.title||'Scheduled event'}`:`${fmtTime(ev.start)} ${ev.title||'Scheduled event'}`),
+    ...todayTasks.map(t=>`Task: ${t.title||'Untitled task'}`)
+  ];
+  const shown=previews.slice(0,3).join(', ');
+  const extra=previews.length>3?`, +${previews.length-3} more`:'';
+  const body=`${parts.join(', ')}: ${shown}${extra}`.slice(0,280);
+  return {title,body,key:`daily-schedule:${todayKey}`};
+}
+function checkTodayScheduleBriefing(now,todayKey){
+  if(settings.dailyDigest===false)return;
+  const {todayEvents,todayTasks}=getTodayScheduleItems(todayKey);
+  if(!todayEvents.length&&!todayTasks.length)return;
+  const storageKey='chronos90.dailyDigest.'+todayKey;
+  let state='';
+  try{state=localStorage.getItem(storageKey)||''}catch{}
+  const osAllowed=canShowBrowserOsNotification();
+  if(state==='os'||(state==='inapp'&&!osAllowed))return;
+  const {title,body,key}=buildTodayScheduleBriefing(todayKey,todayEvents,todayTasks);
+  const skipInApp=state==='inapp';
+  try{localStorage.setItem(storageKey,osAllowed?'os':'inapp')}catch{}
+  deliverReminder(title,body,key,{kind:'daily-schedule',date:todayKey,skipInApp});
+}
+function checkReminders(nowOverride){
+  if(!settings.notifications)return;
+  const now=nowOverride instanceof Date?nowOverride:new Date();
+  if(inQuietHours(now))return;
+  const todayKey=iso(now);
+  const defaultLead=Number(settings.leadTime)||0;
+  const cachedToday=readTodayReminderCache(todayKey);
+  for(const k of cachedToday)notifiedReminders.add(k);
+  let cacheDirty=false;
+  const markFired=key=>{notifiedReminders.add(key);cachedToday.add(key);cacheDirty=true};
+
+  for(const ev of collectReminderEvents()){
+    if(!ev.date||ev.reminderMinutes===null)continue;
+    const lead=ev.reminderMinutes===undefined?defaultLead:Number(ev.reminderMinutes);
+    if(!Number.isFinite(lead))continue;
+    const isUntimed=Boolean(ev.allDay||!ev.start);
+    const dt=isUntimed?new Date(`${ev.date}T09:00:00`):new Date(`${ev.date}T${ev.start}:00`);
+    if(Number.isNaN(dt.getTime()))continue;
+    const diff=dt.getTime()-now.getTime();
+    const key=`event:${ev.id}:${ev.date}:${ev.start||'allday'}:${lead}`;
+    if(diff<-60000||diff>Math.max(lead,1)*60000||notifiedReminders.has(key))continue;
+    markFired(key);
+    const message=isUntimed
+      ?`${ev.title||'Scheduled event'} is scheduled for ${fmt(parseDate(ev.date),{weekday:'long',month:'short',day:'numeric'})}.`
+      :(ev.title||'Scheduled event')+(diff<=60000?' is starting now':` starts in ${Math.max(1,Math.round(diff/60000))} min.`);
+    deliverReminder('Chronos event reminder',message,key,{kind:'event-reminder',recordId:String(ev.id||'')});
+  }
+
+  let tasksDirty=false;
+  for(const task of collectReminderTasks()){
+    if(task.done||!task.due||!task.reminder||task.reminder==='none')continue;
+    const dueAt=taskReminderDate(task);
+    if(!dueAt)continue;
+    const key=`task:${task.id}:${task.due}:${task.dueTime||'09:00'}:${task.reminder}`;
+    if(task.reminderFiredKey===key||notifiedReminders.has(key))continue;
+    const diff=dueAt.getTime()-now.getTime();
+    if(diff>0)continue;
+    markFired(key);
+    if(!task._isTeamTask){
+      const owned=(tasks||[]).find(x=>String(x.id)===String(task.id));
+      if(owned){owned.reminderFiredKey=key;owned.reminderLastFiredAt=Date.now();tasksDirty=true;}
+    }
+    const taskActualDue=new Date(`${task.due}T${task.dueTime||'09:00'}:00`);
+    const label=taskActualDue.getTime()<now.getTime()?'overdue':task.reminder==='dayBefore'?'due tomorrow':task.reminder==='hourBefore'?'due in about one hour':'due today';
+    deliverReminder('Chronos task reminder',`${task.title} is ${label}. Due ${task.due}${task.dueTime?' at '+task.dueTime:''}.`,key,{kind:'task-reminder',recordId:String(task.id||'')});
+  }
+  if(tasksDirty)persist();
+  if(cacheDirty)saveTodayReminderCache(todayKey,cachedToday);
+  checkTodayScheduleBriefing(now,todayKey);
+}
 /* =========================================================
    CHRONOS FLOW 5.2 — UNIVERSAL TOMBSTONES & ANTI-RESURRECTION
    ========================================================= */
@@ -13698,7 +13878,7 @@ function populateTeamSelectors(){const selects=['eventShareTeams','noteShareTeam
   if(!targets.length)return {ok:true,queued:queuedTeamIds.length>0,queuedTeamIds};
   return {ok:true,queued:queuedTeamIds.length>0,queuedTeamIds};
 }
-async function refreshUnifiedTeamCalendar(){if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const tombs=(typeof localTombstones==='function')?localTombstones():{};const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();if(!teamLiveData[team.id]) teamLiveData[team.id]={events:[],tasks:[],notes:[]};teamLiveData[team.id].events=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team'}));return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!tombs['events|'+String(e.id)]&&!tombs['events|'+String(e.sourceId||'')]);}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();saveTeamCache();render()}
+async function refreshUnifiedTeamCalendar(){if(!firebaseUser||!firebaseDb||!chronosTeams.length){render();return}const tombs=(typeof localTombstones==='function')?localTombstones():{};const results=await Promise.all(chronosTeams.map(async team=>{try{const snap=await firebaseDb.collection('teams').doc(team.id).collection('events').get();if(!teamLiveData[team.id]) teamLiveData[team.id]={events:[],tasks:[],notes:[]};teamLiveData[team.id].events=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team'}));return snap.docs.map(d=>({id:'team_'+team.id+'_'+d.id,sourceId:d.id,teamId:team.id,teamShared:true,teamName:team.name||'Team',...d.data(),date:d.data().date||''})).filter(e=>e.date&&!tombs['events|'+String(e.id)]&&!tombs['events|'+String(e.sourceId||'')]);}catch(err){console.warn('Could not load events for team',team.id,err);return []}}));teamCalendarEvents=results.flat();saveTeamCache();render();if(typeof checkReminders==='function')checkReminders()}
 const EVENT_FLAIR_DEFINITIONS = {
   'flair:birthday': {
     key: 'flair:birthday',
@@ -15629,12 +15809,14 @@ $('eventForm')?.addEventListener('submit', async e => {
   }
 
   if(typeof parseDate === 'function') selected = parseDate(item.date);
+  if(typeof clearEventReminderHistory === 'function') clearEventReminderHistory(id);
   if(typeof persist === 'function') persist();
 
   // Close modal and render calendar immediately
   closeEvent();
   if(typeof render === 'function') render();
   notify(i >= 0 || isTeamOnlyEvent ? 'Event updated.' : 'Event added to calendar.');
+  if(typeof checkReminders === 'function') checkReminders();
 
   // Publish all selected copies and tombstone copies removed by unsharing.
   if(item.sharedTeamIds?.length || getRecordTeamIds(oldEv).length || oldEv?.teamShared){
@@ -18333,7 +18515,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-wiki-note]
 
 $('globalSearch').addEventListener('input',e=>{query=e.target.value.toLowerCase().trim();if($('noteSearch'))$('noteSearch').value=query;if(query&&notes.some(n=>`${n.title} ${n.body}`.toLowerCase().includes(query))&& !events.some(v=>`${v.title} ${v.description}`.toLowerCase().includes(query)))setPage('notes');else setPage('calendar');$('noteSearch').value=query;render()});
 $('themeBtn').addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';settings.mode=next;document.documentElement.dataset.theme=next;saveSettings();settingsFormFill()});
-$('settingsBtn').addEventListener('click',()=>openSettings());$('settingsClose').addEventListener('click',closeSettings);$('settingsCancel').addEventListener('click',closeSettings);$('settingsBackdrop').addEventListener('click',e=>{if(e.target===$('settingsBackdrop'))closeSettings()});document.querySelectorAll('[data-settings-tab]').forEach(b=>b.addEventListener('click',()=>{selectSettingsTab(b.dataset.settingsTab);if(b.dataset.settingsTab==='data')fillFirebaseConfig()}));document.querySelectorAll('[data-accent-choice]').forEach(b=>b.addEventListener('click',()=>{settings.accent=b.dataset.accentChoice;applySettings(false);settingsFormFill()}));$('settingMode').addEventListener('change',e=>{settings.mode=e.target.value;applySettings(false)});$('settingDensity').addEventListener('change',e=>{settings.density=e.target.value;applySettings(false)});$('settingMotion').addEventListener('change',e=>{settings.motion=e.target.value;applySettings(false)});$('settingsReset').addEventListener('click',async()=>{const ok=await confirmCustomInApp('Reset appearance, notification, sound, and calendar preferences to Chronos defaults?',{title:'Reset Preferences',confirmText:'Reset defaults',danger:true});if(!ok)return;settings={...defaultSettings};applySettings(false);settingsFormFill();saveSettings();notify('Settings reset to defaults.');$('settingsSaveState').textContent='Default preferences saved.'});$('settingsSave').addEventListener('click',()=>{settings.mode=$('settingMode').value;settings.density=$('settingDensity').value;settings.motion=$('settingMotion').value;settings.notifications=$('settingNotifications').checked;settings.leadTime=Number($('settingLeadTime').value);settings.quietStart=$('settingQuietStart').value||'22:00';settings.quietEnd=$('settingQuietEnd').value||'07:00';settings.quietHours=$('settingQuietHours').checked;settings.sounds=$('settingSounds').checked;settings.interfaceSounds=$('settingInterfaceSounds').checked;settings.volume=Number($('settingVolume').value);settings.soundProfile=$('settingSoundProfile').value;settings.weekStart=$('settingWeekStart').value;settings.timeFormat=$('settingTimeFormat').value;settings.duration=Number($('settingDuration').value);
+$('settingsBtn').addEventListener('click',()=>openSettings());$('settingsClose').addEventListener('click',closeSettings);$('settingsCancel').addEventListener('click',closeSettings);$('settingsBackdrop').addEventListener('click',e=>{if(e.target===$('settingsBackdrop'))closeSettings()});document.querySelectorAll('[data-settings-tab]').forEach(b=>b.addEventListener('click',()=>{selectSettingsTab(b.dataset.settingsTab);if(b.dataset.settingsTab==='data')fillFirebaseConfig()}));document.querySelectorAll('[data-accent-choice]').forEach(b=>b.addEventListener('click',()=>{settings.accent=b.dataset.accentChoice;applySettings(false);settingsFormFill()}));$('settingMode').addEventListener('change',e=>{settings.mode=e.target.value;applySettings(false)});$('settingDensity').addEventListener('change',e=>{settings.density=e.target.value;applySettings(false)});$('settingMotion').addEventListener('change',e=>{settings.motion=e.target.value;applySettings(false)});$('settingsReset').addEventListener('click',async()=>{const ok=await confirmCustomInApp('Reset appearance, notification, sound, and calendar preferences to Chronos defaults?',{title:'Reset Preferences',confirmText:'Reset defaults',danger:true});if(!ok)return;settings={...defaultSettings};applySettings(false);settingsFormFill();saveSettings();notify('Settings reset to defaults.');$('settingsSaveState').textContent='Default preferences saved.'});$('settingsSave').addEventListener('click',()=>{settings.mode=$('settingMode').value;settings.density=$('settingDensity').value;settings.motion=$('settingMotion').value;settings.notifications=$('settingNotifications').checked;if($('settingDailyDigest'))settings.dailyDigest=$('settingDailyDigest').checked;if($('settingBrowserNotifications')){settings.browserNotifications=!!($('settingBrowserNotifications').checked&&typeof Notification!=='undefined'&&Notification.permission==='granted');try{localStorage.setItem('chronos90.browserNotifyPrefExplicit','1')}catch{}}settings.leadTime=Number($('settingLeadTime').value);settings.quietStart=$('settingQuietStart').value||'22:00';settings.quietEnd=$('settingQuietEnd').value||'07:00';settings.quietHours=$('settingQuietHours').checked;settings.sounds=$('settingSounds').checked;settings.interfaceSounds=$('settingInterfaceSounds').checked;settings.volume=Number($('settingVolume').value);settings.soundProfile=$('settingSoundProfile').value;settings.weekStart=$('settingWeekStart').value;settings.timeFormat=$('settingTimeFormat').value;settings.duration=Number($('settingDuration').value);
 if($('settingProjectWorkspaceSize')){
   settings.projectWorkspaceSize = $('settingProjectWorkspaceSize').value;
   try { localStorage.setItem('chronos90.projectWorkspaceFullscreen', settings.projectWorkspaceSize === 'fullscreen' ? 'true' : 'false'); } catch(e){}
@@ -18344,9 +18526,9 @@ if($('settingProjectGracePeriod')) settings.projectGracePeriod = Number($('setti
 if($('settingProjectSupervisorTitle')) settings.projectSupervisorTitle = $('settingProjectSupervisorTitle').value.trim();
 if($('settingProjectSchoolDivision')) settings.projectSchoolDivision = $('settingProjectSchoolDivision').value.trim();
 if($('settingProjectSchoolName')) settings.projectSchoolName = $('settingProjectSchoolName').value.trim();
-if($('settingProjectApprovingAuthority')) settings.projectApprovingAuthority = $('settingProjectApprovingAuthority').value.trim();if($('settingHomePage'))settings.homePage=$('settingHomePage').value;if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';if($('settingFlowStickyBar'))settings.flowStickyBarEnabled=$('settingFlowStickyBar').checked;applySettings(false);saveSettings();render();$('settingsSaveState').textContent='Saved just now.';closeSettings();notify('Preferences saved.')});
+if($('settingProjectApprovingAuthority')) settings.projectApprovingAuthority = $('settingProjectApprovingAuthority').value.trim();if($('settingHomePage'))settings.homePage=$('settingHomePage').value;if($('overviewHomeSelect'))$('overviewHomeSelect').value=settings.homePage||'dashboard';if($('settingFlowStickyBar'))settings.flowStickyBarEnabled=$('settingFlowStickyBar').checked;applySettings(false);saveSettings();render();$('settingsSaveState').textContent='Saved just now.';closeSettings();notify('Preferences saved.');checkReminders();window.chronosUpdatePushSettingsUI?.()});
 $('overviewHomeSelect')?.addEventListener('change',e=>{const val=e.target.value;settings.homePage=val;saveSettings();if($('settingHomePage'))$('settingHomePage').value=val;const label=({dashboard:'Overview',calendar:'Calendar',tasks:'Projects',notes:'Notes',team:'Team'})[val]||'Overview';notify(`Default home screen set to ${label}.`)});
-$('settingHomePage')?.addEventListener('change',e=>{const val=e.target.value;settings.homePage=val;saveSettings();if($('overviewHomeSelect'))$('overviewHomeSelect').value=val;const label=({dashboard:'Overview',calendar:'Calendar',tasks:'Projects',notes:'Notes',team:'Team'})[val]||'Overview';notify(`Default home screen set to ${label}.`)});$('requestNotificationPermission')?.addEventListener('click',()=>{notify('Custom in-app notifications are active. System notifications are disabled.')});$('chronosInAppAlertClose')?.addEventListener('click',()=>{$('chronosInAppAlert')?.classList.add('hidden')});$('previewSound').addEventListener('click',()=>{settings.sounds=$('settingSounds').checked;settings.interfaceSounds=$('settingInterfaceSounds').checked;settings.volume=Number($('settingVolume').value);settings.soundProfile=$('settingSoundProfile').value;if(!settings.sounds){notify('Turn on app sounds to preview.');return}playAppSound();notify('Playing sound preview.')});$('settingsBackup').addEventListener('click',exportBackup);$('settingsImport')?.addEventListener('click',()=> $('importFile')?.click());
+$('settingHomePage')?.addEventListener('change',e=>{const val=e.target.value;settings.homePage=val;saveSettings();if($('overviewHomeSelect'))$('overviewHomeSelect').value=val;const label=({dashboard:'Overview',calendar:'Calendar',tasks:'Projects',notes:'Notes',team:'Team'})[val]||'Overview';notify(`Default home screen set to ${label}.`)});$('settingNotifications')?.addEventListener('change',e=>{settings.notifications=e.target.checked;saveSettings();if(settings.notifications)checkReminders()});$('settingDailyDigest')?.addEventListener('change',e=>{settings.dailyDigest=e.target.checked;saveSettings();if(settings.dailyDigest)checkReminders()});$('settingBrowserNotifications')?.addEventListener('change',async e=>{if(e.target.checked){if(typeof window.chronosEnableBrowserOrPushNotifications==='function')await window.chronosEnableBrowserOrPushNotifications()}else{if(typeof window.chronosDisableBrowserOrPushNotifications==='function')await window.chronosDisableBrowserOrPushNotifications()}});$('chronosInAppAlertClose')?.addEventListener('click',()=>{$('chronosInAppAlert')?.classList.add('hidden')});$('previewSound').addEventListener('click',()=>{settings.sounds=$('settingSounds').checked;settings.interfaceSounds=$('settingInterfaceSounds').checked;settings.volume=Number($('settingVolume').value);settings.soundProfile=$('settingSoundProfile').value;if(!settings.sounds){notify('Turn on app sounds to preview.');return}playAppSound();notify('Playing sound preview.')});$('settingsBackup').addEventListener('click',exportBackup);$('settingsImport')?.addEventListener('click',()=> $('importFile')?.click());
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){
   const nb = $('noteBackdrop');
   if(nb && !nb.classList.contains('hidden')){
@@ -25078,6 +25260,7 @@ function startPersonalRealtimeSync(){
         renderTasks();
         renderDashboard();
         if(typeof renderCalendar==='function')renderCalendar();
+        if(typeof checkReminders==='function')checkReminders();
       }
     }catch(err){console.warn('Realtime task sync err:',err)}
   },err=>console.warn('Personal tasks live sync failed:',err));
@@ -25096,6 +25279,7 @@ function startPersonalRealtimeSync(){
         safeStorageSet('chronos20.events',JSON.stringify(events));
         render();
         if(typeof renderCalendar==='function')renderCalendar();
+        if(typeof checkReminders==='function')checkReminders();
       }
     }catch(err){console.warn('Realtime event sync err:',err)}
   },err=>console.warn('Personal events live sync failed:',err));
@@ -25241,7 +25425,7 @@ function showChronosStartupFailure(err){console.error('Chronos startup failed:',
 try{load();loadTeamCache();removeLegacySampleActivities();removeLegacySampleNotes();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{try{reg.update()}catch(_){}}).catch(()=>{})})}
  const expose=(name,get,set)=>{try{Object.defineProperty(window,name,{configurable:true,enumerable:false,get,set})}catch{try{window[name]=get()}catch{}}};
- [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v],['startPersonalRealtimeSync',()=>startPersonalRealtimeSync,v=>startPersonalRealtimeSync=v],['stopPersonalRealtimeSync',()=>stopPersonalRealtimeSync,v=>stopPersonalRealtimeSync=v],['removeLegacySampleNotes',()=>removeLegacySampleNotes,v=>removeLegacySampleNotes=v]].forEach(([name,get,set])=>expose(name,get,set));
+ [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['checkReminders',()=>checkReminders],['deliverReminder',()=>deliverReminder],['getTodayScheduleItems',()=>getTodayScheduleItems],['buildTodayScheduleBriefing',()=>buildTodayScheduleBriefing],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v],['startPersonalRealtimeSync',()=>startPersonalRealtimeSync,v=>startPersonalRealtimeSync=v],['stopPersonalRealtimeSync',()=>stopPersonalRealtimeSync,v=>stopPersonalRealtimeSync=v],['removeLegacySampleNotes',()=>removeLegacySampleNotes,v=>removeLegacySampleNotes=v]].forEach(([name,get,set])=>expose(name,get,set));
  
 </script>
 
@@ -25338,7 +25522,7 @@ $('notificationBell')?.addEventListener('click',openNotifications);$('notificati
  stopTeamRealtimeSync=function(){stopTeamNoticeListeners3();return oldStop.apply(this,arguments)};
  const oldStart=startTeamRealtimeSync;
  startTeamRealtimeSync=function(){const result=oldStart.apply(this,arguments);stopTeamNoticeListeners3();if(!firebaseUser||!firebaseDb||!navigator.onLine)return result;
-   for(const team of chronosTeams){const unsub=teamRef3(team.id).collection('notifications').where('recipientUid','==',firebaseUser.uid).onSnapshot(snap=>{const incoming=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team',time:time3(d.data().createdAt),unread:!d.data().readAt}));persistentTeamNotifications=persistentTeamNotifications.filter(n=>n.teamId!==team.id).concat(incoming);renderNotificationList();renderNotificationBell();},err=>console.warn('Notification listener failed for '+team.id,err));teamNotificationUnsubs.push(unsub)}return result;
+   for(const team of chronosTeams){let seeded=false;const unsub=teamRef3(team.id).collection('notifications').where('recipientUid','==',firebaseUser.uid).onSnapshot(snap=>{if(seeded&&typeof deliverReminder==='function'&&settings?.notifications&&!inQuietHours(new Date())){for(const change of snap.docChanges()){if(change.type!=='added')continue;const data=change.doc.data()||{};const key='teamNotice:'+team.id+':'+change.doc.id;if(!data.readAt&&!notifiedReminders.has(key)){notifiedReminders.add(key);deliverReminder(data.title||'Chronos team update',data.message||'New update in '+(team.name||'your team')+'.',key,{kind:'team-update',teamId:team.id,notificationId:change.doc.id})}}}seeded=true;const incoming=snap.docs.map(d=>({...d.data(),id:d.id,teamId:team.id,teamName:team.name||'Team',time:time3(d.data().createdAt),unread:!d.data().readAt}));persistentTeamNotifications=persistentTeamNotifications.filter(n=>n.teamId!==team.id).concat(incoming);renderNotificationList();renderNotificationBell();},err=>console.warn('Notification listener failed for '+team.id,err));teamNotificationUnsubs.push(unsub)}return result;
  };
  // Render notification center from persisted, recipient-specific Firestore records.
  teamActivityItems=function(){return persistentTeamNotifications.slice().sort((a,b)=>(b.time||0)-(a.time||0)).map(n=>({...n,key:n.teamId+'|'+n.id,recordTitle:n.targetTitle||n.title,detail:n.message||'',actor:n.actorName||'A teammate',type:n.targetType||n.type||'notes',unread:!n.readAt,teamName:n.teamName||chronosTeams.find(t=>t.id===n.teamId)?.name||'Team'}))};
@@ -39739,6 +39923,8 @@ window.openShowcaseProject = function() {
   const pushStatus = () => document.getElementById('pushNotificationStatus');
   const enableButton = () => document.getElementById('enablePushNotifications');
   const disableButton = () => document.getElementById('disablePushNotifications');
+  const testButton = () => document.getElementById('testNotificationBtn');
+  const browserToggle = () => document.getElementById('settingBrowserNotifications');
   let vapidKeyPromise = null;
   let vapidProjectId = '';
 
@@ -39753,6 +39939,23 @@ window.openShowcaseProject = function() {
     status.classList.toggle('error', isError);
   }
 
+  function syncBrowserToggle(checked, disabled = false) {
+    const toggle = browserToggle();
+    if (!toggle) return;
+    toggle.checked = Boolean(checked);
+    toggle.disabled = Boolean(disabled);
+  }
+
+  function setLocalBrowserNotifications(enabled) {
+    if (window.settings) {
+      window.settings.browserNotifications = Boolean(enabled);
+      if (enabled) window.settings.notifications = true;
+    }
+    try { localStorage.setItem('chronos90.browserNotifyPrefExplicit', '1'); } catch {}
+    window.saveSettings?.();
+    window.settingsFormFill?.();
+  }
+
   async function getVapidPublicKey(forceRefresh = false) {
     const projectId = window.firebaseConfig?.projectId || '';
     if (forceRefresh || vapidProjectId !== projectId) {
@@ -39764,7 +39967,7 @@ window.openShowcaseProject = function() {
         if (!projectId) throw new Error('Save a Firebase project configuration first.');
         const url = `https://${PUSH_REGION}-${encodeURIComponent(projectId)}.cloudfunctions.net/getWebPushConfig`;
         const response = await fetch(url, { cache: 'no-store', mode: 'cors' });
-        if (!response.ok) throw new Error(`Firebase push service is unavailable (${response.status}). Deploy the push functions first.`);
+        if (!response.ok) throw new Error(`Firebase push service is unavailable (${response.status}).`);
         const config = await response.json();
         if (!config.vapidPublicKey) throw new Error('The push service has no VAPID public key configured.');
         return String(config.vapidPublicKey);
@@ -39791,7 +39994,7 @@ window.openShowcaseProject = function() {
 
   async function savePushSubscription(uid, subscription) {
     const db = currentDb();
-    if (!db || !uid) throw new Error('Sign in to Chronos before enabling push.');
+    if (!db || !uid) throw new Error('Sign in to Chronos before saving push subscription.');
     const json = subscription.toJSON();
     if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
       throw new Error('The browser returned an incomplete push subscription.');
@@ -39829,7 +40032,7 @@ window.openShowcaseProject = function() {
       if (!quiet) throw error;
     }
 
-    let id = localStorage.getItem(localSubscriptionKey(uid)) || '';
+    let id = uid ? (localStorage.getItem(localSubscriptionKey(uid)) || '') : '';
     if (subscription?.endpoint) {
       try { id = await subscriptionDocId(subscription.endpoint); } catch {}
     }
@@ -39843,8 +40046,26 @@ window.openShowcaseProject = function() {
       try { await subscription.unsubscribe(); }
       catch (error) { if (!deleteError) deleteError = error; }
     }
-    localStorage.removeItem(localSubscriptionKey(uid));
+    if (uid) localStorage.removeItem(localSubscriptionKey(uid));
     if (deleteError && !quiet) throw deleteError;
+  }
+
+  async function tryProbeCloudPush() {
+    if (!currentUid() || !currentDb() || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return { available: false, subscribed: false };
+    }
+    try {
+      await getVapidPublicKey();
+      const registration = await getRegistration();
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await savePushSubscription(currentUid(), subscription);
+        return { available: true, subscribed: true };
+      }
+      return { available: true, subscribed: false };
+    } catch {
+      return { available: false, subscribed: false };
+    }
   }
 
   async function updatePushSettingsUI() {
@@ -39855,82 +40076,178 @@ window.openShowcaseProject = function() {
     disable.classList.add('hidden');
     enable.disabled = false;
 
-    if (!currentUid() || !currentDb()) {
-      setStatus('Sign in with Google to enable push notifications.');
+    if (!('Notification' in window)) {
+      setStatus('This browser does not support desktop or system notifications. In-app reminders remain active.', true);
       enable.disabled = true;
-      return;
-    }
-    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-      setStatus('This browser does not support Web Push notifications.', true);
-      enable.disabled = true;
+      syncBrowserToggle(false, true);
       return;
     }
     if (!window.isSecureContext) {
-      setStatus('Push notifications require an HTTPS site (or localhost).', true);
+      setStatus('Browser notifications require an HTTPS site (or localhost). In-app reminders remain active.', true);
       enable.disabled = true;
+      syncBrowserToggle(false, true);
       return;
     }
     if (Notification.permission === 'denied') {
-      setStatus('Notifications are blocked by this browser. Allow them in the site settings, then reload Chronos.', true);
+      setStatus('Notifications are blocked by this browser. Allow them in your browser site settings, then reload Chronos.', true);
       enable.disabled = true;
+      syncBrowserToggle(false, true);
       return;
     }
 
-    setStatus('Checking the Firebase push service…');
+    const browserActive = Notification.permission === 'granted' && Boolean(window.settings?.browserNotifications);
+    syncBrowserToggle(browserActive, false);
+
+    setStatus('Checking notification capabilities…');
     enable.disabled = true;
-    try {
-      await getVapidPublicKey();
-      const registration = await getRegistration();
-      const subscription = await registration.pushManager.getSubscription();
-      if (subscription) {
-        await savePushSubscription(currentUid(), subscription);
-        enable.classList.add('hidden');
-        disable.classList.remove('hidden');
-        setStatus('Push is enabled on this browser. Team updates and configured reminders can arrive when Chronos is closed.');
-      } else {
-        enable.disabled = false;
-        setStatus('Push is ready to enable on this browser.');
-      }
-    } catch (error) {
-      enable.disabled = true;
-      setStatus(error.message || 'Could not check push notification setup.', true);
+    const cloud = await tryProbeCloudPush();
+
+    if (cloud.available && cloud.subscribed) {
+      enable.classList.add('hidden');
+      disable.classList.remove('hidden');
+      syncBrowserToggle(true, false);
+      setStatus('Background Web Push and browser notifications are active on this browser.');
+      return;
+    }
+
+    if (cloud.available) {
+      enable.disabled = false;
+      enable.textContent = 'Enable push notifications';
+      setStatus(browserActive
+        ? 'Browser notifications are active while Chronos is open. Click Enable push notifications to also receive closed-tab push alerts.'
+        : 'Push service is ready to enable on this browser.');
+      return;
+    }
+
+    if (browserActive) {
+      enable.classList.add('hidden');
+      disable.classList.remove('hidden');
+      setStatus('Browser & OS notifications are active while Chronos is open (no Firebase Blaze server needed).');
+    } else {
+      enable.disabled = false;
+      enable.textContent = 'Enable browser notifications';
+      setStatus(Notification.permission === 'granted'
+        ? 'Permission is granted, but OS alerts are turned off. Click Enable browser notifications to turn them back on.'
+        : 'Ready for browser & OS alerts while Chronos is open (no Firebase push server required).');
     }
   }
 
   async function enablePushNotifications() {
-    const uid = currentUid();
-    const db = currentDb();
-    if (!uid || !db) throw new Error('Sign in with Google before enabling push notifications.');
-    if (!('Notification' in window)) throw new Error('This browser does not support Web Push notifications.');
-    if (!window.isSecureContext) throw new Error('Push notifications require HTTPS or localhost.');
+    if (!('Notification' in window)) throw new Error('This browser does not support desktop/OS notifications.');
+    if (!window.isSecureContext) throw new Error('Browser notifications require HTTPS or localhost.');
 
-    // Request permission directly from the click gesture.
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') throw new Error('Browser notification permission was not granted.');
+    // Request permission directly from the click/toggle gesture before any network awaits.
+    const permission = Notification.permission === 'granted'
+      ? 'granted'
+      : await Notification.requestPermission();
+    if (permission !== 'granted') {
+      syncBrowserToggle(false, Notification.permission === 'denied');
+      throw new Error('Browser notification permission was not granted.');
+    }
 
-    const publicKey = await getVapidPublicKey();
-    const registration = await getRegistration();
-    let subscription = await registration.pushManager.getSubscription();
-    if (subscription?.options?.applicationServerKey) {
-      const existingKey = new Uint8Array(subscription.options.applicationServerKey);
-      const wantedKey = decodeVapidKey(publicKey);
-      const sameKey = existingKey.length === wantedKey.length && existingKey.every((value, index) => value === wantedKey[index]);
-      if (!sameKey) {
-        await subscription.unsubscribe();
-        subscription = null;
+    setLocalBrowserNotifications(true);
+
+    let cloudPushEnabled = false;
+    if (currentUid() && currentDb() && 'serviceWorker' in navigator && 'PushManager' in window) {
+      try {
+        const publicKey = await getVapidPublicKey();
+        const registration = await getRegistration();
+        let subscription = await registration.pushManager.getSubscription();
+        if (subscription?.options?.applicationServerKey) {
+          const existingKey = new Uint8Array(subscription.options.applicationServerKey);
+          const wantedKey = decodeVapidKey(publicKey);
+          const sameKey = existingKey.length === wantedKey.length && existingKey.every((value, index) => value === wantedKey[index]);
+          if (!sameKey) {
+            await subscription.unsubscribe();
+            subscription = null;
+          }
+        }
+        if (!subscription) {
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: decodeVapidKey(publicKey)
+          });
+        }
+        await savePushSubscription(currentUid(), subscription);
+        cloudPushEnabled = true;
+      } catch (pushError) {
+        console.info('Closed-tab Firebase Web Push unavailable; continuing with active browser notifications.', pushError?.message || pushError);
       }
     }
-    if (!subscription) {
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: decodeVapidKey(publicKey)
-      });
+
+    const todayKey = typeof window.iso === 'function' ? window.iso(new Date()) : '';
+    const hadTodayOsDigest = todayKey && localStorage.getItem(`chronos90.dailyDigest.${todayKey}`) === 'os';
+    window.checkReminders?.();
+    const sentTodayOsNow = todayKey && !hadTodayOsDigest && localStorage.getItem(`chronos90.dailyDigest.${todayKey}`) === 'os';
+    if (!sentTodayOsNow) {
+      await window.deliverReminder?.(
+        cloudPushEnabled ? 'Push notifications enabled' : 'Browser notifications enabled',
+        'Chronos will alert you on this device for today\'s schedule and upcoming reminders.',
+        'chronos-enable-confirm',
+        { kind: 'system', forceOs: true, skipInApp: true }
+      );
     }
-    await savePushSubscription(uid, subscription);
-    setStatus('Push is enabled on this browser. Team updates and configured reminders can arrive when Chronos is closed.');
-    window.notify?.('Browser push notifications enabled.');
+
+    setStatus(cloudPushEnabled
+      ? 'Background Web Push and browser notifications are active on this browser.'
+      : 'Browser & OS notifications are active while Chronos is open.');
+    window.notify?.(cloudPushEnabled ? 'Browser push notifications enabled.' : 'Browser notifications enabled.');
     await updatePushSettingsUI();
   }
+
+  async function disableNotifications() {
+    const uid = currentUid();
+    setLocalBrowserNotifications(false);
+    try { await removePushSubscription(uid, true); } catch {}
+    setStatus('Browser & push notifications are disabled on this browser.');
+    window.notify?.('Browser notifications disabled on this browser.');
+    await updatePushSettingsUI();
+  }
+
+  async function sendTestNotification() {
+    if ('Notification' in window && Notification.permission === 'default' && window.isSecureContext) {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') setLocalBrowserNotifications(true);
+    }
+    const todayKey = typeof window.iso === 'function' ? window.iso(new Date()) : '';
+    const summary = todayKey ? window.getTodayScheduleItems?.(todayKey) : null;
+    const hasToday = Boolean(summary && (summary.todayEvents?.length || summary.todayTasks?.length));
+    const payload = hasToday && window.buildTodayScheduleBriefing
+      ? window.buildTodayScheduleBriefing(todayKey, summary.todayEvents, summary.todayTasks)
+      : {
+          title: 'Chronos test notification',
+          body: 'Notifications are active on this browser for today\'s schedules and upcoming reminders.'
+        };
+    const osShown = await window.deliverReminder?.(
+      payload.title,
+      payload.body,
+      `chronos-test:${Date.now()}`,
+      { kind: 'test', forceOs: true, renotify: true }
+    );
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      setStatus('In-app test alert shown. Allow browser notifications above to also receive Windows/OS popups.', Notification.permission === 'denied');
+    } else if (osShown) {
+      setStatus('Test notification sent (in-app + browser/OS alert).');
+    }
+    await updatePushSettingsUI();
+  }
+
+  window.chronosUpdatePushSettingsUI = updatePushSettingsUI;
+  window.chronosEnableBrowserOrPushNotifications = async () => {
+    try { await enablePushNotifications(); }
+    catch (error) {
+      setStatus(error.message || 'Could not enable browser notifications.', true);
+      window.notify?.(error.message || 'Could not enable browser notifications.');
+      await updatePushSettingsUI();
+    }
+  };
+  window.chronosDisableBrowserOrPushNotifications = async () => {
+    try { await disableNotifications(); }
+    catch (error) {
+      setStatus(error.message || 'Could not disable browser notifications.', true);
+      await updatePushSettingsUI();
+    }
+  };
 
   document.getElementById('enablePushNotifications')?.addEventListener('click', async () => {
     const button = enableButton();
@@ -39938,20 +40255,21 @@ window.openShowcaseProject = function() {
     setStatus('Requesting browser permission…');
     try { await enablePushNotifications(); }
     catch (error) {
-      setStatus(error.message || 'Could not enable browser push notifications.', true);
-      window.notify?.(error.message || 'Could not enable push notifications.');
+      setStatus(error.message || 'Could not enable browser notifications.', true);
+      window.notify?.(error.message || 'Could not enable browser notifications.');
     } finally { await updatePushSettingsUI(); }
   });
 
   document.getElementById('disablePushNotifications')?.addEventListener('click', async () => {
-    const uid = currentUid();
-    try {
-      await removePushSubscription(uid);
-      setStatus('Push notifications are disabled on this browser.');
-      window.notify?.('Push notifications disabled on this browser.');
-    } catch (error) {
-      setStatus(error.message || 'Could not disable push notifications.', true);
-    } finally { await updatePushSettingsUI(); }
+    await disableNotifications();
+  });
+
+  testButton()?.addEventListener('click', async () => {
+    const btn = testButton();
+    if (btn) btn.disabled = true;
+    try { await sendTestNotification(); }
+    catch (error) { setStatus(error.message || 'Could not send test notification.', true); }
+    finally { if (btn) btn.disabled = false; }
   });
 
   // Remove the device subscription before Firebase auth is cleared on sign-out.
