@@ -8,7 +8,9 @@
 <title>Chronos Flow — Collaborative Calendar, Tasks & Notes</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/chronos.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/chronos-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/chronos-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <!-- Open Graph / Social Media Preview Cards -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Chronos Flow — Collaborative Calendar, Tasks & Notes">
@@ -8099,7 +8101,8 @@ html[data-theme="dark"] .update-pill:hover {
           <span id="dashboardEyebrow">THURSDAY, OCTOBER 30</span>
           <span class="horizon-clock" id="horizonLiveClock">10:45 AM</span>
         </div>
-        <div class="horizon-greeting-row" style="text-align:center">
+        <div class="horizon-greeting-row" style="text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:12px">
+          <img src="icons/chronos-128.png" alt="Chronos Flow" class="horizon-brand-mascot" width="42" height="42">
           <h2 id="dashboardGreeting" style="font-size:clamp(26px,3vw,36px);font-weight:800;letter-spacing:-1px;margin:2px 0 0">Good morning.</h2>
         </div>
       </div>
@@ -10584,18 +10587,18 @@ html[data-theme="dark"] .update-pill:hover {
 
   <div class="settings-about-brand-card">
     <div class="about-brand-emblems">
-      <div class="about-emblem-wrap dark" title="Chronos Flow Dark Edition">
-        <img src="icons/flow-logo-dark.png" alt="Dark Edition Emblem">
-        <span>Dark Mode Emblem</span>
+      <div class="about-emblem-wrap dark" title="Chronos Flow Dark Surface">
+        <img src="icons/flow-logo-dark.png" alt="Dark Surface Icon">
+        <span>On Dark Surface</span>
       </div>
-      <div class="about-emblem-wrap light" title="Chronos Flow Light Edition">
-        <img src="icons/flow-logo-light.png" alt="Light Edition Emblem">
-        <span>Light Mode Emblem</span>
+      <div class="about-emblem-wrap light" title="Chronos Flow Light Surface">
+        <img src="icons/flow-logo-light.png" alt="Light Surface Icon">
+        <span>On Light Surface</span>
       </div>
     </div>
     <div class="about-brand-story">
-      <h5>The Infinity Flow Identity</h5>
-      <p>A harmonious fusion of <strong>Chronos</strong> (disciplined time mastery via the left precision analog clock) and <strong>Flow</strong> (frictionless multitasking through the fluid wave ribbons). United as a continuous loop of perpetual focus.</p>
+      <h5>The Unified Workspace Icon</h5>
+      <p>Four everyday pillars united in one transparent 3D emblem: a friendly <strong>Clock</strong> at center for time mastery, layered over a <strong>Calendar</strong> grid, an organized <strong>Tasks Checklist</strong>, a quick-capture <strong>Notes Pad</strong>, and a project <strong>Folder</strong>.</p>
     </div>
   </div>
 
@@ -10643,7 +10646,7 @@ html[data-theme="dark"] .update-pill:hover {
 </section>
 <div class="settings-actions"><button class="btn" id="settingsReset" type="button">Reset defaults</button><span class="settings-save-state" id="settingsSaveState" role="status">Changes are saved when you select Save.</span><button class="btn" id="settingsCancel" type="button">Close</button><button class="btn primary" id="settingsSave" type="button">Save preferences</button></div></div></div></section></div>
 <div id="status" class="status hidden" role="status" aria-live="polite"></div>
-<div id="chronosInAppAlert" class="chronos-inapp-alert hidden" role="alert" aria-live="assertive"><div class="chronos-inapp-alert-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div><div class="chronos-inapp-alert-content"><strong id="chronosInAppAlertTitle">Reminder</strong><p id="chronosInAppAlertBody"></p></div><button type="button" class="chronos-inapp-alert-close" id="chronosInAppAlertClose" aria-label="Close notification"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<div id="chronosInAppAlert" class="chronos-inapp-alert hidden" role="alert" aria-live="assertive"><div class="chronos-inapp-alert-icon"><img src="icons/chronos-64.png" alt="Chronos Flow" width="28" height="28" style="width:28px;height:28px;object-fit:contain;display:block"></div><div class="chronos-inapp-alert-content"><strong id="chronosInAppAlertTitle">Reminder</strong><p id="chronosInAppAlertBody"></p></div><button type="button" class="chronos-inapp-alert-close" id="chronosInAppAlertClose" aria-label="Close notification"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
 <div class="modal-backdrop hidden" id="chronosConfirmBackdrop" role="presentation"><section class="modal chronos-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chronosConfirmTitle"><div class="chronos-confirm-body"><div class="chronos-confirm-icon-wrap" id="chronosConfirmIconWrap"><span id="chronosConfirmIcon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="alert-triangle"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span></div><div><h3 id="chronosConfirmTitle">Are you sure?</h3><p id="chronosConfirmMessage">This action cannot be undone.</p></div></div><div class="chronos-confirm-actions"><button type="button" class="btn" id="chronosConfirmCancel">Cancel</button><button type="button" class="btn primary" id="chronosConfirmOk">Confirm</button></div></section></div>
 <div class="modal-backdrop hidden" id="chronosPromptBackdrop" role="presentation"><section class="modal chronos-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="chronosPromptTitle"><div class="chronos-confirm-body"><div class="chronos-confirm-icon-wrap info"><span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" class="lucide-icon" data-lucide="clipboard"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></span></div><div style="flex:1;min-width:0"><h3 id="chronosPromptTitle">Notice</h3><p id="chronosPromptMessage" style="margin-bottom:12px"></p><div style="display:flex;gap:8px"><input type="text" id="chronosPromptInput" style="flex:1;width:100%;border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:9px 12px;color:var(--text);font-size:13px"><button type="button" class="btn" id="chronosPromptCopyBtn" title="Copy to clipboard">Copy</button></div></div></div><div class="chronos-confirm-actions"><button type="button" class="btn" id="chronosPromptCancel">Close</button><button type="button" class="btn primary" id="chronosPromptOk">Done</button></div></section></div>
 <div class="modal-backdrop hidden" id="teamTaskEditBackdrop" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="teamTaskEditTitle"><div class="modal-head"><div><h3 id="teamTaskEditTitle">Edit shared team task</h3><p style="margin:4px 0 0;color:var(--muted);font-size:11px">Updates will sync live to the team workspace.</p></div><button class="close" id="teamTaskEditClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="x"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><form id="teamTaskEditForm" class="form"><input type="hidden" id="teamTaskEditTeamId"><input type="hidden" id="teamTaskEditId"><div class="field full"><label for="teamTaskEditTitleInput">Title</label><input id="teamTaskEditTitleInput" required maxlength="140"></div><div class="field"><label for="teamTaskEditDueInput">Due date</label><input id="teamTaskEditDueInput" type="date"></div><div class="field"><label for="teamTaskEditStatusInput">Status</label><select id="teamTaskEditStatusInput"><option value="open">To do</option><option value="in-progress">In progress</option><option value="done">Completed</option></select></div><div class="field full"><label for="teamTaskEditDetailsInput">Details / Instructions</label><textarea id="teamTaskEditDetailsInput" maxlength="5000" rows="4"></textarea></div><div class="modal-actions"><button class="btn danger" id="teamTaskEditDelete" type="button" style="margin-right:auto;">Delete task</button><button class="btn" id="teamTaskEditCancel" type="button">Cancel</button><button class="btn primary" type="submit">Save changes</button></div></form></section></div>
@@ -25486,10 +25489,11 @@ $('dictateNoteBtn')?.addEventListener('click',()=>{const SR=window.SpeechRecogni
 
 function showChronosStartupFailure(err){console.error('Chronos startup failed:',err);let panel=$('chronosStartupFailure');if(!panel){panel=document.createElement('section');panel.id='chronosStartupFailure';panel.setAttribute('role','alert');panel.style.cssText='position:fixed;inset:16px;z-index:2147483647;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:clamp(20px,5vw,48px);background:#101827;color:#f5f7fb;border:1px solid #53627a;border-radius:20px;font:16px/1.5 system-ui,sans-serif;box-shadow:0 20px 70px #0008';document.body.appendChild(panel)}panel.replaceChildren();const title=document.createElement('h1');title.textContent='Chronos could not finish loading';title.style.cssText='font-size:clamp(24px,4vw,36px);margin:0';const detail=document.createElement('p');detail.textContent=(err&&err.message?err.message:String(err||'Unknown startup error'))+' Your existing local data has not been intentionally cleared.';detail.style.cssText='max-width:720px;margin:0;color:#d4deee';const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-top:6px';const retry=document.createElement('button');retry.type='button';retry.textContent='Reload & Clear Stale Cache';retry.style.cssText='padding:12px 18px;border:0;border-radius:10px;background:#7da7ff;color:#101827;font-weight:700;cursor:pointer';retry.onclick=async()=>{retry.disabled=true;retry.textContent='Updating Chronos...';try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches' in window){const keys=await caches.keys();for(const k of keys)await caches.delete(k);}}catch(e){}window.location.replace(window.location.pathname+'?reload='+Date.now())};btnRow.appendChild(retry);panel.append(title,detail,btnRow)}
 try{load();loadTeamCache();removeLegacySampleActivities();removeLegacySampleNotes();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
-const CHRONOS_APP_VERSION='chronos-flow-5.10-v185';
+const CHRONOS_APP_VERSION='chronos-flow-5.10-v186';
 const CHRONOS_UPDATE_TITLE_PREFIX='↻ Update ready · ';
 function buildChronosUpdateFaviconHref(){
-  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="18" fill="#0e1726"/><path d="M32 32 C25 22 16 22 11.5 26.5 C7 31 7 37 11.5 41.5 C16 46 25 41 32 32 C39 23 48 18 52.5 22.5 C57 27 57 33 52.5 37.5 C48 42 39 42 32 32" stroke="#38bdf8" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="51" cy="13" r="10.5" fill="#10b981" stroke="#ffffff" stroke-width="3"/></svg>';
+  const iconDataUri='data:image/png;base64,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';
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><image width="64" height="64" href="'+iconDataUri+'"/><circle cx="52" cy="12" r="10.5" fill="#10b981" stroke="#ffffff" stroke-width="3"/></svg>';
   return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
 }
 function createChronosUpdateNotifier(opts={}){
@@ -28585,30 +28589,32 @@ html[data-theme=dark] .team-tools-modal-list::-webkit-scrollbar-thumb:hover {
 
 /* Chronos Flow 5.2 — 3D Brand Logo & Emblem System */
 .brand-logo-wrap {
-  width: 38px !important;
-  height: 38px !important;
-  border-radius: 11px !important;
-  overflow: hidden !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
   background: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   flex-shrink: 0 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
-  border: 1px solid var(--line, rgba(255, 255, 255, 0.12)) !important;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
+  box-shadow: none !important;
+  border: none !important;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.24));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease !important;
   cursor: pointer !important;
 }
 
 .brand:hover .brand-logo-wrap {
-  transform: scale(1.08) rotate(-2deg) !important;
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.32) !important;
+  transform: scale(1.09) rotate(-3deg) !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 6px 14px rgba(59, 130, 246, 0.36));
 }
 
 .brand-logo-img {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
   display: block !important;
 }
 
@@ -28629,17 +28635,38 @@ html[data-theme=dark] .brand-logo-light {
 
 /* Sign-In Hero 3D Emblem */
 .firebase-login-3d-logo {
-  width: 52px !important;
-  height: 52px !important;
-  border-radius: 14px !important;
-  object-fit: cover !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 16px rgba(79, 70, 229, 0.35) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
   flex-shrink: 0 !important;
   transition: transform 0.2s ease !important;
 }
 .firebase-login-3d-logo:hover {
-  transform: scale(1.05) !important;
+  transform: scale(1.06) rotate(-2deg) !important;
+}
+
+.horizon-brand-mascot {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  filter: drop-shadow(0 5px 12px rgba(15, 23, 42, 0.24));
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.horizon-brand-mascot:hover {
+  transform: scale(1.08) rotate(-3deg);
+}
+@media (max-width: 520px) {
+  .horizon-brand-mascot {
+    width: 34px;
+    height: 34px;
+  }
 }
 
 /* Settings About Brand Card */
@@ -28669,13 +28696,22 @@ html[data-theme=dark] .brand-logo-light {
 }
 
 .about-emblem-wrap img {
-  width: 64px !important;
-  height: 64px !important;
+  width: 68px !important;
+  height: 68px !important;
+  padding: 8px !important;
   border-radius: 16px !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
   border: 1px solid var(--line, #e2e8f0) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
   transition: transform 0.2s ease !important;
+}
+.about-emblem-wrap.dark img {
+  background: #0e1726 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+.about-emblem-wrap.light img {
+  background: #f8fafc !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
 }
 
 .about-emblem-wrap img:hover {
