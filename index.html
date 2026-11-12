@@ -8371,7 +8371,6 @@ html[data-theme="dark"] .update-pill:hover {
   <!-- STICKY ACTION FOOTER -->
   <div class="project-form-actions">
     <button type="button" class="btn danger hidden" id="projectDeleteBtn" style="margin-right:auto;">Delete project</button>
-    <button type="button" class="btn btn-cancel-rounded" id="projectCancelBtn">Cancel</button>
     <button class="btn btn-emerald-pill" type="submit">Save project</button>
   </div>
 </form><div id="projectDetail" class="project-detail hidden"></div><div id="projectViewContent" class="project-view-content"></div></div><div class="project-task-divider"><div><strong>Task workspace</strong><span id="selectedProjectLabel">All personal tasks and team assignments</span></div><button type="button" class="text-btn hidden" id="clearProjectSelection">Show all tasks ×</button></div><div class="task-quick-add"><input id="taskQuickTitle" type="text" maxlength="160" placeholder="Add a task…" aria-label="Quick add task"><input id="taskQuickDue" type="date" aria-label="Task due date"><button class="btn primary" id="taskQuickAddBtn" type="button" style="display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" class="lucide-icon" data-lucide="plus"><path d="M5 12h14M12 5v14"/></svg> Add</button></div><div class="tasks-toolbar"><div class="task-filters"><button class="active" data-task-filter="all">All</button><button data-task-filter="today">Today</button><button data-task-filter="upcoming">Upcoming</button><button data-task-filter="overdue">Overdue</button><button data-task-filter="open">To do</button><button data-task-filter="done">Completed</button><button data-task-filter="team" style="color:var(--teal);display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="users" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team Assigned</button></div></div><div id="tasksList" class="tasks-list"></div><p class="task-page-footnote">Personal tasks and tasks assigned to you by your teams appear here once. Browse the Team workspace to see all team tasks.</p></section>
@@ -11096,6 +11095,7 @@ function getLucideSvg(name, size=16, extraClass='', strokeWidth=1.8){
     'play': '<polygon points="6 3 20 12 6 21 6 3"/>',
     'arrow-left-right': '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
     'maximize-2': '<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/>',
+    'minimize-2': '<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" x2="21" y1="10" y2="3"/><line x1="3" x2="10" y1="21" y2="14"/>',
     'volume-2': '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
     'volume-x': '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>',
     'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
@@ -25570,7 +25570,7 @@ $('dictateNoteBtn')?.addEventListener('click',()=>{const SR=window.SpeechRecogni
 
 function showChronosStartupFailure(err){console.error('Chronos startup failed:',err);let panel=$('chronosStartupFailure');if(!panel){panel=document.createElement('section');panel.id='chronosStartupFailure';panel.setAttribute('role','alert');panel.style.cssText='position:fixed;inset:16px;z-index:2147483647;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:clamp(20px,5vw,48px);background:#101827;color:#f5f7fb;border:1px solid #53627a;border-radius:20px;font:16px/1.5 system-ui,sans-serif;box-shadow:0 20px 70px #0008';document.body.appendChild(panel)}panel.replaceChildren();const title=document.createElement('h1');title.textContent='Chronos could not finish loading';title.style.cssText='font-size:clamp(24px,4vw,36px);margin:0';const detail=document.createElement('p');detail.textContent=(err&&err.message?err.message:String(err||'Unknown startup error'))+' Your existing local data has not been intentionally cleared.';detail.style.cssText='max-width:720px;margin:0;color:#d4deee';const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-top:6px';const retry=document.createElement('button');retry.type='button';retry.textContent='Reload & Clear Stale Cache';retry.style.cssText='padding:12px 18px;border:0;border-radius:10px;background:#7da7ff;color:#101827;font-weight:700;cursor:pointer';retry.onclick=async()=>{retry.disabled=true;retry.textContent='Updating Chronos...';try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches' in window){const keys=await caches.keys();for(const k of keys)await caches.delete(k);}}catch(e){}window.location.replace(window.location.pathname+'?reload='+Date.now())};btnRow.appendChild(retry);panel.append(title,detail,btnRow)}
 try{load();loadTeamCache();removeLegacySampleActivities();removeLegacySampleNotes();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
-const CHRONOS_APP_VERSION='chronos-flow-5.10-v189';
+const CHRONOS_APP_VERSION='chronos-flow-5.10-v193';
 const CHRONOS_UPDATE_TITLE_PREFIX='↻ Update ready · ';
 function buildChronosUpdateFaviconHref(){
   const iconDataUri='data:image/png;base64,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';
@@ -28897,6 +28897,10 @@ html[data-theme=dark] .about-emblem-wrap img {
  window.chronosOpenManageTeam=openTeam;
  window.chronosCloseManageTeam=closeTeam;
  window.openTeam=openTeam;
+ window.openProject=openProject;
+ window.closeProject=closeProject;
+ window.chronosOpenProject=openProject;
+ window.chronosCloseProject=closeProject;
 
   // --- CHRONOS 5.2 TEAM CUSTOMIZATION & MODAL HANDLERS ---
   async function saveTeamCustomization(e) {
@@ -29165,7 +29169,6 @@ html[data-theme=dark] .about-emblem-wrap img {
 #projectModalRepair .chronos-repair-head h3{font-size:clamp(22px,3vw,28px);letter-spacing:-.035em}
 #projectModalRepair #projectFormMount{overflow:auto;padding:24px 26px 20px;min-height:0}
 #projectModalRepair .project-create{max-width:none}
-#projectModalRepair .project-create:before{content:"Set up the project, choose one owner, then add the people who will contribute.";display:block;color:var(--muted,#64748b);font-size:13px;line-height:1.5;margin:0 0 22px}
 #projectModalRepair .project-create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 22px;align-items:start}
 #projectModalRepair .project-create-grid>label{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:13px;font-weight:750;color:var(--text,#172033)}
 #projectModalRepair .project-create-grid input:not([type=checkbox]):not([type=radio]),#projectModalRepair .project-create-grid select:not(.project-value-store),#projectModalRepair .project-create-grid textarea{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--line,#d8e1ec);border-radius:13px;background:var(--surface,#fff);color:var(--text,#172033);padding:12px 13px;font:500 14px/1.4 inherit;outline:none;transition:border-color .15s,box-shadow .15s}
@@ -30524,37 +30527,54 @@ html[data-theme=dark] .btn-act-compact {
   const linkedTasks=allTasks.filter(task=>String(task.projectId)===projectId||(projectId==='proj_stem_showcase_2026'&&String(task.id).startsWith('task_mock_stem_')));
   const blockedTasks=linkedTasks.filter(task=>!canDeleteTaskRecord(task));
   if(blockedTasks.length)throw Error(`Cannot delete this project until you have permission to delete its ${blockedTasks.length} linked task(s).`);
-  const failures=[],taskFailures=[],results=[];
-  for(const task of linkedTasks){
-    try{results.push(await deleteTaskRecord(task,{updateLocal:false,renderLocal:false}))}
-    catch(error){taskFailures.push(`task ${task.id}: ${error.message||'cloud cleanup failed'}`)}
-  }
-  if(taskFailures.length){
-    const error=Error('Project was not deleted because cleanup failed for linked tasks. Retry the task cleanup before deleting the project. '+taskFailures.join(' | '));
-    error.taskCleanupFailed=true;
-    throw error;
-  }
-  if(results.some(result=>result?.queued)){
-    const error=Error('Project was not deleted because linked-task cleanup is queued to retry. Wait for the queued cleanup to finish, then retry project deletion.');
-    error.taskCleanupQueued=true;
-    throw error;
+  const projectTeamIds=getRecordTeamIds(project);
+  const hasSharedTask=linkedTasks.some(task=>getTaskTeamIds(task).length>0);
+  if((projectTeamIds.length||hasSharedTask)&&(typeof firebaseUser==='undefined'||!firebaseUser||typeof firebaseDb==='undefined'||!firebaseDb)){
+    throw Error('Sign in to finish deleting shared team copies.');
   }
   if(projectId==='proj_stem_showcase_2026'||project.isMock){try{localStorage.setItem('chronos90.showcaseProjectDismissed','1')}catch{}}
   recordLocalTombstone('projects',projectId);
-  try{results.push(await deleteCloudDocumentDirectly('projects',projectId,getRecordTeamIds(project)))}
-  catch(error){failures.push(`project: ${error.message||'cloud cleanup failed'}`)}
-
-  linkedTasks.forEach(task=>removeTaskFromLocalCollections(task.id));
+  linkedTasks.forEach(task=>{
+    recordLocalTombstone('tasks',String(task.id));
+    removeTaskFromLocalCollections(task.id);
+  });
   chronosProjects=(chronosProjects||[]).filter(item=>String(item.id)!==projectId);
+  if(typeof window!=='undefined')window.chronosProjects=chronosProjects;
   sharedProjects.splice(0,sharedProjects.length,...sharedProjects.filter(item=>String(item.id)!==projectId));
+  if(typeof teamLiveData==='object'&&teamLiveData){
+    Object.values(teamLiveData).forEach(entry=>{
+      if(!entry)return;
+      if(Array.isArray(entry.projects))entry.projects=entry.projects.filter(item=>String(item.id)!==projectId);
+      if(Array.isArray(entry.tasks))entry.tasks=entry.tasks.filter(item=>String(item.projectId||'')!==projectId);
+    });
+  }
   saveChronosProjects();persist();
-  if(String(selectedProjectId)===projectId)selectedProjectId='';
-  if(typeof closeProjectWorkspaceModal==='function')closeProjectWorkspaceModal();
-  if(typeof closeProject==='function')closeProject();
+  if(String(selectedProjectId)===projectId){
+    selectedProjectId='';
+    if(typeof window!=='undefined')window.selectedProjectId='';
+  }
+  const closeEditFn=typeof closeProject==='function'?closeProject:(typeof window!=='undefined'&&typeof window.closeProject==='function'?window.closeProject:null);
+  if(closeEditFn)closeEditFn();
+  else if(document.getElementById('projectModalRepair')){document.getElementById('projectModalRepair').hidden=true;document.body.style.overflow='';}
+  const closeWsFn=typeof closeProjectWorkspaceModal==='function'?closeProjectWorkspaceModal:(typeof window!=='undefined'&&typeof window.closeProjectWorkspaceModal==='function'?window.closeProjectWorkspaceModal:null);
+  if(closeWsFn)closeWsFn();
+  const detailEl=$('projectDetail');
+  if(detailEl&&!selectedProjectId)detailEl.innerHTML='';
   renderTasks();renderProjectManager();renderAssignedProjectNotes();
   if(typeof renderCalendar==='function')renderCalendar();
   if(typeof renderOverviewHorizon==='function')renderOverviewHorizon();
-  if(failures.length){const error=Error('Project and linked tasks were removed locally, but cloud cleanup was incomplete. '+failures.join(' | '));error.localDeleted=true;throw error}
+  if(typeof renderTaskDeletionViews==='function')renderTaskDeletionViews();
+  const failures=[],results=[];
+  const cloudJobs=[
+    ...linkedTasks.map(task=>deleteTaskRecord(task,{updateLocal:false,renderLocal:false}).then(res=>{results.push(res)}).catch(error=>{failures.push(`task ${task.id}: ${error.message||'cloud cleanup failed'}`)})),
+    deleteCloudDocumentDirectly('projects',projectId,projectTeamIds).then(res=>{results.push(res)}).catch(error=>{failures.push(`project: ${error.message||'cloud cleanup failed'}`)})
+  ];
+  await Promise.all(cloudJobs);
+  if(failures.length){
+    const error=Error('Project and linked tasks were removed locally, but cloud cleanup was incomplete. '+failures.join(' | '));
+    error.localDeleted=true;
+    throw error;
+  }
   return results.some(result=>result?.queued)?{queued:true}:{};
 }
  async function deleteTeamRecord(teamId,onProgress){
@@ -35721,27 +35741,27 @@ html[data-theme=dark] .btn-act-compact:hover {
       </div>
       <form id="distributeDeliverableForm">
         <div style="display:grid;gap:14px;">
-          <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);">
+          <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);min-width:0;">
             Deliverable Title *
-            <input id="distributeTitleInput" required maxlength="160" placeholder="e.g. Quarter 2 Daily Lesson Log (DLL)" style="padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;">
+            <input id="distributeTitleInput" required maxlength="160" placeholder="e.g. Quarter 2 Daily Lesson Log (DLL)" style="width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;font-size:14px;font-weight:400;">
           </label>
-          <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);">
+          <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);min-width:0;">
             Instructions / Guidelines for Personnel
-            <textarea id="distributeInstructionsInput" rows="2" maxlength="600" placeholder="e.g. Submit encoded PDF with weekly competencies and learning resources attached..." style="padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;"></textarea>
+            <textarea id="distributeInstructionsInput" rows="4" maxlength="600" placeholder="e.g. Submit encoded PDF with weekly competencies and learning resources attached..." style="width:100%;min-width:0;max-width:100%;box-sizing:border-box;min-height:132px;font-size:13.5px;line-height:1.45;padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;font-weight:400;resize:vertical;"></textarea>
           </label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);">
+          <div class="distribute-date-time-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
+            <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);min-width:0;">
               Submission Deadline Date *
-              <input id="distributeDueDateInput" type="date" required style="padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;">
+              <input id="distributeDueDateInput" type="date" required style="width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;font-weight:500;">
             </label>
-            <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);">
+            <label style="display:grid;gap:5px;font-size:13px;font-weight:750;color:var(--text,#1e293b);min-width:0;">
               Cutoff Time *
-              <input id="distributeDueTimeInput" type="time" value="17:00" required style="padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;">
+              <input id="distributeDueTimeInput" type="time" value="17:00" required style="width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;font-weight:500;">
             </label>
           </div>
           <!-- Target Personnel Selection -->
           <div style="margin-top:4px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
               <span style="font-size:13px;font-weight:750;color:var(--text,#1e293b);">Target Personnel</span>
               <label style="font-size:12px;font-weight:700;color:var(--accent,#2563eb);display:inline-flex;align-items:center;gap:5px;cursor:pointer;">
                 <input type="checkbox" id="distributeSelectAllMembers" checked> Select all project members
@@ -35750,8 +35770,7 @@ html[data-theme=dark] .btn-act-compact:hover {
             <div id="distributeMembersList" style="max-height:160px;overflow:auto;border:1px solid var(--line,#dce4ef);border-radius:12px;padding:8px;display:grid;gap:4px;background:var(--surface-2,#f8fafc);"></div>
           </div>
         </div>
-        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0);">
-          <button type="button" class="btn" data-close-modal="distribute">Cancel</button>
+        <div class="distribute-modal-footer" style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0);">
           <button type="submit" class="btn primary" id="distributeSubmitBtn">Distribute Deliverable</button>
         </div>
       </form>
@@ -35807,7 +35826,6 @@ html[data-theme=dark] .btn-act-compact:hover {
           <textarea id="submitNotesInput" rows="2" maxlength="400" placeholder="e.g. Attached complete weekly competencies and summative test for sections A and B..." style="padding:10px 12px;border:1px solid var(--line,#dce4ef);border-radius:10px;font:inherit;"></textarea>
         </label>
         <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0);">
-          <button type="button" class="btn" data-close-modal="submit">Cancel</button>
           <button type="submit" class="btn primary">Turn In Deliverable</button>
         </div>
       </form>
@@ -35873,7 +35891,6 @@ html[data-theme=dark] .btn-act-compact:hover {
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line,#e2e8f0);">
-          <button type="button" class="btn" data-close-modal="ta">Cancel</button>
           <button type="submit" class="btn primary" id="taSubmitBtn">Save TA Record</button>
         </div>
       </form>
@@ -41030,14 +41047,14 @@ html, body {
     font-size: 16px !important;
   }
 
-  /* Normalize App Container & Kill Double Horizontal Padding */
+  /* Normalize App Container & Edge-to-Edge Full-Bleed Topbar */
   .app {
-    padding: 0 max(12px, env(safe-area-inset-right)) calc(94px + var(--chronos-safe-bottom)) max(12px, env(safe-area-inset-left)) !important;
+    padding: 0 0 calc(94px + var(--chronos-safe-bottom)) 0 !important;
   }
   .main {
     padding-top: 14px !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: max(12px, env(safe-area-inset-left)) !important;
+    padding-right: max(12px, env(safe-area-inset-right)) !important;
     padding-bottom: 12px !important;
   }
 
@@ -41046,12 +41063,17 @@ html, body {
     display: none !important;
   }
 
-  /* Clean Topbar + Tap-Friendly Search Expansion */
+  /* Clean Edge-to-Edge Topbar + Tap-Friendly Search Expansion */
   header.topbar {
-    height: 58px !important;
-    padding: max(0px, var(--chronos-safe-top)) 0 0 !important;
-    gap: 6px !important;
-    position: relative;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 58px !important;
+    height: auto !important;
+    padding: max(6px, var(--chronos-safe-top)) max(12px, env(safe-area-inset-right)) 6px max(12px, env(safe-area-inset-left)) !important;
+    gap: 8px !important;
+    position: sticky !important;
+    top: 0 !important;
+    box-sizing: border-box !important;
   }
   .brand {
     min-width: 0 !important;
@@ -41067,7 +41089,7 @@ html, body {
     display: none !important;
   }
   .brand h1 {
-    font-size: 15.5px !important;
+    font-size: 15px !important;
     white-space: nowrap !important;
   }
   .brand p {
@@ -41076,44 +41098,44 @@ html, body {
 
   .top-actions {
     margin-left: auto !important;
-    gap: 5px !important;
+    gap: 7px !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
   }
   .top-actions .btn.icon,
   .top-actions .account-trigger {
     position: relative !important;
-    width: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-    height: 40px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
     padding: 0 !important;
     justify-content: center !important;
-    flex: 0 0 40px !important;
+    flex: 0 0 38px !important;
   }
   .top-actions .btn.icon::after,
   .top-actions .account-trigger::after,
   .top-actions .search::after {
     content: "";
     position: absolute;
-    inset: -3px;
+    inset: -4px;
   }
   .top-actions #chronosUpdateBtn {
     width: auto !important;
     min-width: 0 !important;
     max-width: none !important;
-    height: 38px !important;
+    height: 36px !important;
     padding: 0 10px !important;
     font-size: 11px !important;
     flex: 0 0 auto !important;
   }
   .top-actions .search {
     position: relative !important;
-    width: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-    height: 40px !important;
-    flex: 0 0 40px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
     padding: 0 !important;
     justify-content: center !important;
     cursor: pointer !important;
@@ -41279,10 +41301,16 @@ html, body {
   .floating-nav button span {
     font-size: 10.5px !important;
   }
-  .status {
-    bottom: calc(76px + var(--chronos-safe-bottom)) !important;
-    z-index: 95 !important;
+  .status,
+  .status.status-over-modal {
+    top: auto !important;
+    bottom: calc(78px + var(--chronos-safe-bottom)) !important;
+    z-index: 2147483647 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    width: auto !important;
     max-width: calc(100vw - 24px) !important;
+    padding: 10px 16px !important;
     text-align: center !important;
   }
   .journey-today-snap-btn {
@@ -41369,13 +41397,109 @@ html, body {
     width: 100% !important;
     justify-content: flex-end !important;
   }
+  /* Flow Mobile Redesign: Hide Left/Right Month Arrows & Center All Journey Cards */
+  .flow-sticky-nav-btn,
+  #flowStickyPrevMonthBtn,
+  #flowStickyNextMonthBtn,
+  .journey-month-nav-btn,
+  #journeyPrevMonthBtn,
+  #journeyNextMonthBtn {
+    display: none !important;
+  }
+  .flow-sticky-center,
+  .journey-watermark-row {
+    justify-content: center !important;
+    gap: 0 !important;
+  }
   .journey-watermark-text {
     font-size: clamp(28px, 8.2vw, 48px) !important;
     letter-spacing: -0.8px !important;
   }
-  .journey-month-nav-btn {
-    width: 38px !important;
-    height: 38px !important;
+  .journey-spine-v {
+    padding: 18px 4px 60px !important;
+    gap: 22px !important;
+    margin-top: 20px !important;
+  }
+  .journey-spine-v::before {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 1 !important;
+  }
+  .journey-v-header {
+    display: none !important;
+  }
+  .journey-day-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .journey-node-col {
+    order: 1 !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 4 !important;
+  }
+  .journey-wing-left,
+  .journey-wing-right {
+    order: 2 !important;
+    grid-row: auto !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: min(390px, 100%) !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+    z-index: 3 !important;
+  }
+  .journey-wing-left:empty,
+  .journey-wing-right:empty,
+  .journey-wing-left:not(.has-card),
+  .journey-wing-right:not(.has-card) {
+    display: none !important;
+  }
+  .journey-card,
+  .journey-card.full-banner-card,
+  .journey-event-cluster,
+  .journey-spanning-continuation {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    z-index: 3 !important;
+  }
+  .journey-card:not(.full-banner-card),
+  .journey-event-cluster,
+  .journey-spanning-continuation {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent, var(--day-hue, var(--accent))) 9%, var(--surface, #191e29)), var(--surface, #191e29)) !important;
+    backdrop-filter: blur(24px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+  }
+  .journey-card::before,
+  .journey-card::after,
+  .journey-event-cluster::before,
+  .journey-event-cluster::after,
+  .journey-spanning-continuation::before,
+  .journey-spanning-continuation::after {
+    display: none !important;
+  }
+  .journey-hourly-subspine {
+    order: 3 !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: min(390px, 100%) !important;
+    margin: 2px auto 0 !important;
+    position: relative !important;
+    z-index: 3 !important;
   }
   .horizon-date-ribbon {
     gap: 4px !important;
@@ -41418,12 +41542,27 @@ html, body {
     font-size: 13px !important;
   }
 
-  /* Project Workspace Bar & Deliverables Table-to-Card Transformation */
+  /* Project Workspace Bar, Composer, Modals & Deliverables Table-to-Card Transformation */
   .project-ws-segmented-bar {
+    display: flex !important;
+    width: 100% !important;
     max-width: 100% !important;
+    gap: 4px !important;
+    box-sizing: border-box !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+  }
+  .project-ws-segmented-bar > button,
+  .project-ws-segmented-bar .project-ws-seg-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    justify-content: center !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.25 !important;
   }
   #projectWorkspaceModalBackdrop .project-workspace-modal-topbar {
     padding: 10px 14px !important;
@@ -41434,15 +41573,328 @@ html, body {
     padding: 14px 14px calc(24px + var(--chronos-safe-bottom)) !important;
   }
 
+  /* Project Tasks Quick-Add Composer */
+  .project-task-create.project-task-composer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+    border-radius: 18px !important;
+  }
+  .project-task-create.project-task-composer .composer-title-wrap {
+    flex: 0 0 auto !important;
+    flex-basis: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .project-task-create.project-task-composer .composer-title-wrap input {
+    height: 40px !important;
+    padding: 6px 4px !important;
+  }
+  .project-task-create.project-task-composer .composer-controls-wrap {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+    gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+  .project-task-create.project-task-composer .composer-assignee-pill {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    padding: 6px 12px !important;
+    box-sizing: border-box !important;
+  }
+  .project-task-create.project-task-composer .composer-assignee-pill select {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .project-task-create.project-task-composer .composer-date-pill {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+    padding: 6px 10px !important;
+    box-sizing: border-box !important;
+  }
+  .project-task-create.project-task-composer .composer-date-pill input[type="date"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    font-size: 12.5px !important;
+  }
+  .project-task-create.project-task-composer .composer-date-sep {
+    justify-self: center !important;
+    font-weight: 700 !important;
+    color: var(--muted, #64748b) !important;
+    padding: 0 2px !important;
+  }
+  .project-task-create.project-task-composer .composer-add-btn {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    justify-content: center !important;
+    border-radius: 12px !important;
+  }
+
+  /* Project Deliverables Toolbar & Card Transformation */
+  .deliverable-group-card,
+  .deliverables-command-card,
+  .deliverables-command-top,
+  .deliverables-command-main {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .deliv-roster-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .deliv-roster-search {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .deliv-roster-search input {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .deliv-roster-filter-pills {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
   .deliverables-table-wrap.compact-scrollable-table {
     border: 0 !important;
     background: transparent !important;
-    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
   .deliverables-table.compact-table,
   .deliverables-table.compact-table tbody {
     display: block !important;
     width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+    box-sizing: border-box !important;
+  }
+  .deliverables-table.compact-table thead {
+    display: none !important;
+  }
+  .deliverables-table.compact-table tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .deliverables-table.compact-table tbody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "person"
+      "timeliness"
+      "proof"
+      "ta"
+      "actions" !important;
+    gap: 8px 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 13px 14px !important;
+    border: 1px solid var(--line, #e2e8f0) !important;
+    border-radius: 16px !important;
+    background: var(--surface, #fff) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+  }
+  .deliverables-table.compact-table tbody tr td {
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    border: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+  .deliverables-table.compact-table tbody tr td:nth-child(1) { grid-area: person; }
+  .deliverables-table.compact-table tbody tr td:nth-child(2) { grid-area: proof; }
+  .deliverables-table.compact-table tbody tr td:nth-child(3) { grid-area: timeliness; justify-self: start !important; align-self: start; }
+  .deliverables-table.compact-table tbody tr td:nth-child(4) { grid-area: ta; }
+  .deliverables-table.compact-table tbody tr td:nth-child(5) {
+    grid-area: actions;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--line, #e2e8f0) !important;
+  }
+  .deliv-person-cell {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .ta-remarks-cell {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .deliv-action-row-compact {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+  .deliv-action-row-compact .btn-act-compact {
+    min-width: 42px !important;
+    min-height: 40px !important;
+    padding: 6px 10px !important;
+  }
+
+  /* Project Edit Modal & Deliverable Modals Mobile Polish */
+  #projectModalRepair .chronos-repair-head {
+    padding: 14px 16px 12px !important;
+  }
+  #projectModalRepair #projectFormMount {
+    padding: 14px 16px 0 !important;
+  }
+  #projectModalRepair .project-color-swatches {
+    padding: 6px 6px !important;
+    margin: 0 -4px !important;
+  }
+  #projectModalRepair .project-dates-subgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  #projectModalRepair .project-form-actions {
+    padding: 12px 16px calc(12px + var(--chronos-safe-bottom)) !important;
+    margin: 16px -16px 0 !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+  }
+  #projectModalRepair #projectDeleteBtn {
+    min-height: 42px !important;
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+    border-radius: 9999px !important;
+    white-space: nowrap !important;
+  }
+  #projectModalRepair .btn-emerald-pill {
+    min-height: 42px !important;
+    padding: 10px 18px !important;
+    flex: 1 1 auto !important;
+    white-space: nowrap !important;
+  }
+  #deliverableDistributeModalBackdrop .chronos-repair-dialog,
+  #deliverableSubmitModalBackdrop .chronos-repair-dialog,
+  #deliverableTAModalBackdrop .chronos-repair-dialog {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding-bottom: 0 !important;
+  }
+  #deliverableDistributeModalBackdrop .chronos-repair-head,
+  #deliverableSubmitModalBackdrop .chronos-repair-head,
+  #deliverableTAModalBackdrop .chronos-repair-head {
+    position: sticky !important;
+    top: 0 !important;
+    flex: 0 0 auto !important;
+    z-index: 5 !important;
+    background: var(--surface, #ffffff) !important;
+    padding: 14px 16px 12px !important;
+    margin: 0 !important;
+    border-bottom: 1px solid var(--line, #e2e8f0) !important;
+  }
+  #deliverableDistributeModalBackdrop .chronos-repair-dialog > div,
+  #deliverableSubmitModalBackdrop .chronos-repair-dialog > div,
+  #deliverableTAModalBackdrop .chronos-repair-dialog > div {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px 16px calc(18px + var(--chronos-safe-bottom)) !important;
+  }
+  #deliverableDistributeModalBackdrop input,
+  #deliverableDistributeModalBackdrop textarea,
+  #deliverableSubmitModalBackdrop input,
+  #deliverableSubmitModalBackdrop textarea,
+  #deliverableTAModalBackdrop input,
+  #deliverableTAModalBackdrop textarea,
+  #deliverableTAModalBackdrop select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    font-weight: 400 !important;
+  }
+  #deliverableDistributeModalBackdrop #distributeInstructionsInput {
+    min-height: 132px !important;
+    line-height: 1.45 !important;
+  }
+  #deliverableDistributeModalBackdrop #distributeSelectAllMembers {
+    width: auto !important;
+  }
+  .distribute-modal-footer .btn.primary,
+  #submitDeliverableForm button[type="submit"],
+  #taDeliverableForm button[type="submit"] {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+  }
+}
+
+/* Global & Landscape Phone Safety for Deliverable Modals + Deliverables Table Container */
+#deliverableDistributeModalBackdrop .chronos-repair-dialog,
+#deliverableSubmitModalBackdrop .chronos-repair-dialog,
+#deliverableTAModalBackdrop .chronos-repair-dialog {
+  max-height: min(92dvh, 880px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+#deliverableDistributeModalBackdrop .chronos-repair-head,
+#deliverableSubmitModalBackdrop .chronos-repair-head,
+#deliverableTAModalBackdrop .chronos-repair-head {
+  position: sticky !important;
+  top: 0 !important;
+  flex: 0 0 auto !important;
+  z-index: 5 !important;
+  background: var(--surface, #ffffff) !important;
+}
+#deliverableDistributeModalBackdrop .chronos-repair-dialog > div,
+#deliverableSubmitModalBackdrop .chronos-repair-dialog > div,
+#deliverableTAModalBackdrop .chronos-repair-dialog > div {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+@media (max-width: 960px) and (max-height: 520px) {
+  .deliverables-table-wrap.compact-scrollable-table {
+    border: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+  .deliverables-table.compact-table,
+  .deliverables-table.compact-table tbody {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+    box-sizing: border-box !important;
   }
   .deliverables-table.compact-table thead {
     display: none !important;
@@ -41461,16 +41913,20 @@ html, body {
       "ta ta"
       "actions actions" !important;
     gap: 8px 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     padding: 13px 14px !important;
     border: 1px solid var(--line, #e2e8f0) !important;
     border-radius: 16px !important;
     background: var(--surface, #fff) !important;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
   }
   .deliverables-table.compact-table tbody tr td {
     display: block !important;
     width: auto !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     border: 0 !important;
     padding: 0 !important;
     text-align: left !important;
@@ -41479,28 +41935,14 @@ html, body {
   .deliverables-table.compact-table tbody tr td:nth-child(2) { grid-area: proof; }
   .deliverables-table.compact-table tbody tr td:nth-child(3) { grid-area: timeliness; justify-self: end; align-self: start; }
   .deliverables-table.compact-table tbody tr td:nth-child(4) { grid-area: ta; }
-  .deliverables-table.compact-table tbody tr td:nth-child(5) {
-    grid-area: actions;
-    padding-top: 8px !important;
-    border-top: 1px solid var(--line, #e2e8f0) !important;
-  }
-  .deliv-person-cell {
-    min-width: 0 !important;
-  }
-  .ta-remarks-cell {
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-  .deliv-action-row-compact {
-    display: flex !important;
-    justify-content: flex-end !important;
-    gap: 8px !important;
-    flex-wrap: wrap !important;
-  }
-  .deliv-action-row-compact .btn-act-compact {
-    min-width: 42px !important;
-    min-height: 40px !important;
-    padding: 6px 10px !important;
+  .deliverables-table.compact-table tbody tr td:nth-child(5) { grid-area: actions; padding-top: 8px !important; border-top: 1px solid var(--line, #e2e8f0) !important; }
+}
+
+@media (max-width: 420px) {
+  .distribute-date-time-grid,
+  #projectModalRepair .project-dates-subgrid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
 }
 
@@ -41704,39 +42146,108 @@ html, body {
     scroll-snap-align: start !important;
   }
 
-  /* Full-Screen Phone Workspaces (Notes, Settings, Project Workspace) */
+  /* Full-Screen Phone Workspaces (Notes, Settings, Project Workspace, Note Preview) */
   .modal-backdrop#noteBackdrop,
   .modal-backdrop#settingsBackdrop,
-  #projectWorkspaceModalBackdrop {
+  #projectWorkspaceModalBackdrop,
+  #itemPreviewBackdrop:has(.is-note-modal),
+  #itemPreviewBackdrop:has(.is-reading-mode) {
     padding: 0 !important;
+    place-items: stretch !important;
     align-items: stretch !important;
+    justify-items: stretch !important;
+    overflow: hidden !important;
   }
   .modal-backdrop#noteBackdrop .note-modal-wide,
   .modal-backdrop#settingsBackdrop .settings-modal,
   #projectWorkspaceModalBackdrop .project-workspace-modal-card,
   #projectWorkspaceModalBackdrop.is-fullscreen .project-workspace-modal-card,
-  #itemPreviewBackdrop .item-preview-modal.is-note-modal {
-    width: 100vw !important;
+  #itemPreviewBackdrop .item-preview-modal.is-note-modal,
+  #itemPreviewBackdrop .item-preview-modal.is-reading-mode {
+    width: 100% !important;
     max-width: 100vw !important;
     height: var(--chronos-vvh, 100dvh) !important;
     max-height: var(--chronos-vvh, 100dvh) !important;
     border-radius: 0 !important;
+    border: 0 !important;
     margin: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  #itemPreviewBackdrop .preview-modal-head.note-preview-head,
+  #itemPreviewBackdrop .item-preview-modal.is-reading-mode .note-preview-head {
+    padding: calc(10px + var(--chronos-safe-top)) 14px 10px !important;
+    gap: 8px !important;
+  }
+  #itemPreviewBackdrop .preview-modal-reading-btn {
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 0 8px !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+  }
+  #itemPreviewBackdrop .note-preview-main-scroll,
+  #itemPreviewBackdrop .item-preview-modal.is-reading-mode .note-preview-main-scroll {
+    padding: 16px 14px 24px !important;
+  }
+  #itemPreviewBackdrop .note-preview-side-scroll {
+    padding: 12px 14px 20px !important;
+  }
+  #itemPreviewBackdrop .note-preview-col-footer,
+  #itemPreviewBackdrop .item-preview-modal.is-reading-mode .note-preview-col-footer {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px 12px calc(10px + var(--chronos-safe-bottom)) !important;
+    gap: 8px !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+  }
+  #itemPreviewBackdrop .note-preview-col-footer > *,
+  #itemPreviewBackdrop .item-preview-modal.is-reading-mode .note-preview-col-footer > * {
+    max-width: 100% !important;
+  }
+  #itemPreviewBackdrop .note-preview-footer-left,
+  #itemPreviewBackdrop .item-preview-modal.is-reading-mode .note-preview-footer-left {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex: 1 1 auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  #itemPreviewBackdrop .note-preview-col-footer .btn {
+    min-height: 38px !important;
+    padding: 7px 11px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide .form {
+    padding: 12px 14px 16px !important;
+    gap: 11px !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide .modal-actions {
+    padding: 10px 14px max(12px, var(--chronos-safe-bottom)) !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
   }
   .modal-backdrop#noteBackdrop .note-modal-wide .note-body-editor {
     max-height: none !important;
     min-height: 150px !important;
   }
-  .modal-backdrop#noteBackdrop .note-modal-wide .modal-head {
+  .modal-backdrop#noteBackdrop .note-modal-wide .modal-head,
+  .modal-backdrop#noteBackdrop .note-modal-wide.is-reading-mode .modal-head {
     position: sticky !important;
     top: 0 !important;
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 8px !important;
-    padding: 12px 14px !important;
+    padding: calc(12px + var(--chronos-safe-top)) 14px 10px !important;
   }
   .modal-backdrop#noteBackdrop .note-modal-wide .modal-head > div:first-child {
-    padding-right: 48px !important;
+    padding-right: 98px !important;
   }
   .modal-backdrop#noteBackdrop .note-modal-wide .modal-head > div:last-child {
     display: flex !important;
@@ -41747,16 +42258,26 @@ html, body {
   }
   .modal-backdrop#noteBackdrop #noteModalClose {
     position: absolute !important;
-    top: 10px !important;
+    top: calc(10px + var(--chronos-safe-top)) !important;
     right: 10px !important;
+  }
+  .modal-backdrop#noteBackdrop #noteEditorReadingBtn {
+    position: absolute !important;
+    top: calc(10px + var(--chronos-safe-top)) !important;
+    right: 56px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
   }
   .modal-backdrop#noteBackdrop #noteDocStats,
   .modal-backdrop#noteBackdrop #noteAutosaveStatus {
     font-size: 11px !important;
   }
   .modal-backdrop#noteBackdrop #openNoteMediaDrawerBtn,
-  .modal-backdrop#noteBackdrop #noteCommentsPillBtn,
-  .modal-backdrop#noteBackdrop #noteEditorReadingBtn {
+  .modal-backdrop#noteBackdrop #noteCommentsPillBtn {
     padding: 5px 9px !important;
     min-height: 32px !important;
     font-size: 11.5px !important;
