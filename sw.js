@@ -1,26 +1,31 @@
-const CACHE_NAME = 'chronos-flow-5.10-v186';
+const CACHE_NAME = 'chronos-flow-5.10-v187';
 const APP_SHELL = [
   './',
   './index.html',
-  './manifest.webmanifest',
-  './icons/chronos.svg',
-  './icons/chronos-32.png',
-  './icons/chronos-64.png',
-  './icons/chronos-128.png',
-  './icons/chronos-192.png',
-  './icons/chronos-512.png',
-  './icons/chronos-maskable-512.png',
-  './icons/apple-touch-icon.png',
-  './icons/flow-logo-dark.png',
-  './icons/flow-logo-light.png',
-  './icons/flow-logo-dark-sm.png',
-  './icons/flow-logo-light-sm.png',
-  './icons/chronos-banner-opt.jpg'
+  './favicon.ico?v=187',
+  './manifest.webmanifest?v=187',
+  './icons/chronos.svg?v=187',
+  './icons/chronos-32.png?v=187',
+  './icons/chronos-48.png?v=187',
+  './icons/chronos-64.png?v=187',
+  './icons/chronos-128.png?v=187',
+  './icons/chronos-192.png?v=187',
+  './icons/chronos-256.png?v=187',
+  './icons/chronos-512.png?v=187',
+  './icons/chronos-maskable-512.png?v=187',
+  './icons/apple-touch-icon.png?v=187',
+  './icons/flow-logo-dark.png?v=187',
+  './icons/flow-logo-light.png?v=187',
+  './icons/flow-logo-dark-sm.png?v=187',
+  './icons/flow-logo-light-sm.png?v=187',
+  './icons/chronos-banner-opt.jpg?v=187'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.all(APP_SHELL.map(url => cache.add(new Request(url, { cache: 'reload' }))))
+    )
   );
   self.skipWaiting();
 });
@@ -53,9 +58,10 @@ self.addEventListener('fetch', event => {
                  url.pathname.endsWith('/') ||
                  url.pathname.endsWith('/index.html') ||
                  url.pathname === '';
+  const isManifest = url.pathname.endsWith('/manifest.webmanifest');
 
-  if (isHtml) {
-    // Network-First for HTML/navigation so code updates are received immediately
+  if (isHtml || isManifest) {
+    // Network-First for HTML/navigation and manifest so app & icon updates are received immediately
     event.respondWith(
       fetch(req)
         .then(res => {
@@ -65,23 +71,29 @@ self.addEventListener('fetch', event => {
           }
           return res;
         })
-        .catch(() => caches.match(req).then(cached => cached || caches.match('./index.html')))
+        .catch(() =>
+          caches.open(CACHE_NAME).then(cache =>
+            cache.match(req).then(cached => cached || cache.match(isHtml ? './index.html' : './manifest.webmanifest?v=187'))
+          )
+        )
     );
     return;
   }
 
-  // Cache-First with Network fallback for static assets
+  // Cache-First with Network fallback for static assets (scoped to active CACHE_NAME)
   event.respondWith(
-    caches.match(req).then(cached => {
-      if (cached) return cached;
-      return fetch(req).then(res => {
-        if (res && res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-        }
-        return res;
-      });
-    })
+    caches.open(CACHE_NAME).then(cache =>
+      cache.match(req).then(cached => {
+        if (cached) return cached;
+        return fetch(req).then(res => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            cache.put(req, copy);
+          }
+          return res;
+        });
+      })
+    )
   );
 });
 
@@ -103,8 +115,8 @@ self.addEventListener('push', event => {
   const body = String(payload.body || 'You have a new Chronos update.').slice(0, 300);
   const options = {
     body,
-    icon: './icons/chronos-192.png',
-    badge: './icons/chronos-192.png',
+    icon: './icons/chronos-192.png?v=187',
+    badge: './icons/chronos-192.png?v=187',
     tag: String(payload.tag || data.tag || 'chronos-push').slice(0, 120),
     renotify: false,
     data: { ...data, url: targetUrl }
