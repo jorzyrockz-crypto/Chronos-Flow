@@ -66,6 +66,13 @@
       "type": "image/jpeg",
       "form_factor": "wide",
       "label": "Chronos Flow Collaborative Workspace"
+    },
+    {
+      "src": "icons/chronos-mobile-preview.jpg?v=189",
+      "sizes": "780x1688",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Chronos Flow Mobile Flow View"
     }
   ]
 }

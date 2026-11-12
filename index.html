@@ -2,11 +2,15 @@
 <html lang="en" data-theme="dark" data-accent="cloud_pastel">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="theme-color" content="#0e1726">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chronos Flow">
 <meta name="description" content="Chronos Flow — Modern collaborative workspace with calendar, tasks, notes, and live team sync.">
 <title>Chronos Flow — Collaborative Calendar, Tasks & Notes</title>
-<link rel="manifest" href="manifest.webmanifest?v=187">
+<link rel="manifest" href="manifest.webmanifest?v=189">
 <link rel="icon" href="icons/chronos.svg?v=187" type="image/svg+xml">
 <link rel="icon" href="icons/chronos-32.png?v=187" sizes="32x32" type="image/png">
 <link rel="icon" href="icons/chronos-48.png?v=187" sizes="48x48" type="image/png">
@@ -18650,7 +18654,7 @@ $('deleteNote')?.addEventListener('click',async()=>{
 document.addEventListener('click',e=>{const a=e.target.closest('[data-wiki-note]');if(a){e.preventDefault();e.stopPropagation();const id=a.dataset.wikiNote;if($('noteBackdrop')&&!$('noteBackdrop').classList.contains('hidden'))$('noteBackdrop').classList.add('hidden');if(typeof openItemPreview==='function'){openItemPreview('note',id)}else{openNote(id)}}});
 
 $('globalSearch').addEventListener('input',e=>{query=e.target.value.toLowerCase().trim();if($('noteSearch'))$('noteSearch').value=query;if(query&&notes.some(n=>`${n.title} ${n.body}`.toLowerCase().includes(query))&& !events.some(v=>`${v.title} ${v.description}`.toLowerCase().includes(query)))setPage('notes');else setPage('calendar');$('noteSearch').value=query;render()});
-$('themeBtn').addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';settings.mode=next;document.documentElement.dataset.theme=next;saveSettings();settingsFormFill()});
+$('themeBtn').addEventListener('click',()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';settings.mode=next;document.documentElement.dataset.theme=next;const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=next==='dark'?'#10131b':'#f6f4fe';saveSettings();settingsFormFill()});
 $('settingsBtn').addEventListener('click',()=>openSettings());$('settingsClose').addEventListener('click',closeSettings);$('settingsCancel').addEventListener('click',closeSettings);$('settingsBackdrop').addEventListener('click',e=>{if(e.target===$('settingsBackdrop'))closeSettings()});document.querySelectorAll('[data-settings-tab]').forEach(b=>b.addEventListener('click',()=>{selectSettingsTab(b.dataset.settingsTab);if(b.dataset.settingsTab==='data')fillFirebaseConfig()}));document.querySelectorAll('[data-accent-choice]').forEach(b=>b.addEventListener('click',()=>{settings.accent=b.dataset.accentChoice;applySettings(false);settingsFormFill()}));$('settingMode').addEventListener('change',e=>{settings.mode=e.target.value;applySettings(false)});$('settingDensity').addEventListener('change',e=>{settings.density=e.target.value;applySettings(false)});$('settingMotion').addEventListener('change',e=>{settings.motion=e.target.value;applySettings(false)});$('settingsReset').addEventListener('click',async()=>{const ok=await confirmCustomInApp('Reset appearance, notification, sound, and calendar preferences to Chronos defaults?',{title:'Reset Preferences',confirmText:'Reset defaults',danger:true});if(!ok)return;settings={...defaultSettings};applySettings(false);settingsFormFill();saveSettings();notify('Settings reset to defaults.');$('settingsSaveState').textContent='Default preferences saved.'});$('settingsSave').addEventListener('click',()=>{settings.mode=$('settingMode').value;settings.density=$('settingDensity').value;settings.motion=$('settingMotion').value;settings.notifications=$('settingNotifications').checked;if($('settingDailyDigest'))settings.dailyDigest=$('settingDailyDigest').checked;if($('settingBrowserNotifications')){settings.browserNotifications=!!($('settingBrowserNotifications').checked&&typeof Notification!=='undefined'&&Notification.permission==='granted');try{localStorage.setItem('chronos90.browserNotifyPrefExplicit','1')}catch{}}settings.leadTime=Number($('settingLeadTime').value);settings.quietStart=$('settingQuietStart').value||'22:00';settings.quietEnd=$('settingQuietEnd').value||'07:00';settings.quietHours=$('settingQuietHours').checked;settings.sounds=$('settingSounds').checked;settings.interfaceSounds=$('settingInterfaceSounds').checked;settings.volume=Number($('settingVolume').value);settings.soundProfile=$('settingSoundProfile').value;settings.weekStart=$('settingWeekStart').value;settings.timeFormat=$('settingTimeFormat').value;settings.duration=Number($('settingDuration').value);
 if($('settingProjectWorkspaceSize')){
   settings.projectWorkspaceSize = $('settingProjectWorkspaceSize').value;
@@ -23879,6 +23883,8 @@ function initFlowSwipeGestures(){
 
   window.addEventListener('touchstart', e => {
     if(!$('journeyRoadmapWrap') || page !== 'dashboard') return;
+    if(document.documentElement.classList.contains('has-modal-open')) return;
+    if(e.target && e.target.closest && e.target.closest('.modal-backdrop, .chronos-repair-backdrop, .notification-backdrop, #accountMenu, .month-quick-picker, .horizon-date-ribbon, .horizon-filter-chips, .project-board, .note-table-scroll, .deliverables-table-wrap, input, textarea, select, [contenteditable]')) return;
     if(e.touches.length !== 1) return;
     const t = e.touches[0];
     touchStartX = t.clientX;
@@ -23888,15 +23894,16 @@ function initFlowSwipeGestures(){
   }, { passive: true });
 
   window.addEventListener('touchend', e => {
-    if(!isTouchSwiping || !$('journeyRoadmapWrap') || page !== 'dashboard') return;
+    if(!isTouchSwiping || !$('journeyRoadmapWrap') || page !== 'dashboard') { isTouchSwiping = false; return; }
     isTouchSwiping = false;
+    if(document.documentElement.classList.contains('has-modal-open')) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStartX;
     const dy = t.clientY - touchStartY;
     const dt = Date.now() - touchStartTime;
 
-    // Predominantly horizontal swipe: |dx| > 45px and |dx| > 1.35 * |dy|
-    if(Math.abs(dx) > Math.abs(dy) * 1.35 && (Math.abs(dx) > 45 || (Math.abs(dx) > 25 && dt < 280))){
+    // Predominantly horizontal swipe: clear horizontal intent to avoid vertical-scroll / chip misfires
+    if(Math.abs(dx) > Math.abs(dy) * 1.8 && (Math.abs(dx) > 60 || (Math.abs(dx) > 36 && dt < 240))){
       if(dx < 0){
         navigateHorizonMonth(1); // Swiped Left -> Next Month
       } else {
@@ -24616,6 +24623,8 @@ function getTouchCenter(t1, t2) {
 
 window.addEventListener('touchstart', e => {
   if (page !== 'dashboard') return;
+  if (document.documentElement.classList.contains('has-modal-open')) return;
+  if (!e.target || !e.target.closest || !e.target.closest('#journeyRoadmapWrap')) return;
   if (e.touches && e.touches.length === 2) {
     pinchActive = true;
     pinchInitialDist = getTouchDistance(e.touches[0], e.touches[1]);
@@ -25561,7 +25570,7 @@ $('dictateNoteBtn')?.addEventListener('click',()=>{const SR=window.SpeechRecogni
 
 function showChronosStartupFailure(err){console.error('Chronos startup failed:',err);let panel=$('chronosStartupFailure');if(!panel){panel=document.createElement('section');panel.id='chronosStartupFailure';panel.setAttribute('role','alert');panel.style.cssText='position:fixed;inset:16px;z-index:2147483647;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:clamp(20px,5vw,48px);background:#101827;color:#f5f7fb;border:1px solid #53627a;border-radius:20px;font:16px/1.5 system-ui,sans-serif;box-shadow:0 20px 70px #0008';document.body.appendChild(panel)}panel.replaceChildren();const title=document.createElement('h1');title.textContent='Chronos could not finish loading';title.style.cssText='font-size:clamp(24px,4vw,36px);margin:0';const detail=document.createElement('p');detail.textContent=(err&&err.message?err.message:String(err||'Unknown startup error'))+' Your existing local data has not been intentionally cleared.';detail.style.cssText='max-width:720px;margin:0;color:#d4deee';const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-top:6px';const retry=document.createElement('button');retry.type='button';retry.textContent='Reload & Clear Stale Cache';retry.style.cssText='padding:12px 18px;border:0;border-radius:10px;background:#7da7ff;color:#101827;font-weight:700;cursor:pointer';retry.onclick=async()=>{retry.disabled=true;retry.textContent='Updating Chronos...';try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches' in window){const keys=await caches.keys();for(const k of keys)await caches.delete(k);}}catch(e){}window.location.replace(window.location.pathname+'?reload='+Date.now())};btnRow.appendChild(retry);panel.append(title,detail,btnRow)}
 try{load();loadTeamCache();removeLegacySampleActivities();removeLegacySampleNotes();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
-const CHRONOS_APP_VERSION='chronos-flow-5.10-v188';
+const CHRONOS_APP_VERSION='chronos-flow-5.10-v189';
 const CHRONOS_UPDATE_TITLE_PREFIX='↻ Update ready · ';
 function buildChronosUpdateFaviconHref(){
   const iconDataUri='data:image/png;base64,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';
@@ -29781,7 +29790,10 @@ function renderMonth(){
 }
 function renderWeek(){
  const d=new Date(selected),monday=new Date(d);monday.setDate(d.getDate()-weekOffset(d));
- return `<div class="week-grid">${Array.from({length:7},(_,i)=>{const x=new Date(monday);x.setDate(monday.getDate()+i);const key=iso(x),list=calendarItemsFor(key).filter(calendarItemMatches);return `<div class="week-column ${key===iso(selected)?'selected':''}" data-date="${key}"><button class="week-head" data-date="${key}"><small>${x.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()}</small><strong>${x.getDate()}</strong></button><div class="week-events">${list.map(calendarItemChip).join('')||'<span style="font-size:10px;color:var(--muted)">No events or tasks</span>'}</div></div>`}).join('')}</div>`;
+ const selKey=iso(selected),todayKey=iso(today);
+ const days=Array.from({length:7},(_,i)=>{const x=new Date(monday);x.setDate(monday.getDate()+i);const key=iso(x),list=calendarItemsFor(key).filter(calendarItemMatches);return {x,key,list};});
+ const strip=`<div class="mobile-week-strip" role="tablist" aria-label="Days of week">${days.map(({x,key,list})=>`<button type="button" class="mobile-week-day ${key===selKey?'selected':''} ${key===todayKey?'today':''} ${list.length?'has-items':''}" data-date="${key}" role="tab" aria-selected="${key===selKey?'true':'false'}"><small>${x.toLocaleDateString(undefined,{weekday:'narrow'})}</small><strong>${x.getDate()}</strong><span class="mobile-week-dot" aria-hidden="true"></span></button>`).join('')}</div>`;
+ return `${strip}<div class="week-grid">${days.map(({x,key,list})=>`<div class="week-column ${key===selKey?'selected':''}" data-date="${key}"><button class="week-head" data-date="${key}"><small>${x.toLocaleDateString(undefined,{weekday:'short'}).toUpperCase()}</small><strong>${x.getDate()}</strong></button><div class="week-events">${list.map(calendarItemChip).join('')||'<span class="week-empty-label" style="font-size:10px;color:var(--muted)">No events or tasks</span>'}</div></div>`).join('')}</div>`;
 }
 function renderDay(){
  const key=iso(selected),list=calendarItemsFor(key).filter(calendarItemMatches);
@@ -39543,15 +39555,36 @@ window.openShowcaseProject = function() {
     openTaskStatusPopover(select);
   }, true);
 
-  // Intercept touchstart on task status selects for mobile
+  // Intercept touch tap (with scroll slop tolerance) on task status selects for mobile
+  let statusTouchStart = null;
   document.addEventListener('touchstart', e => {
     const select = e.target.closest('.compact-status-select, [data-project-task-status]');
     if (!select) {
+      statusTouchStart = null;
       if (!e.target.closest('#taskStatusGlobalMenu')) {
         closeTaskStatusPopover();
       }
       return;
     }
+    const t = e.touches && e.touches[0];
+    statusTouchStart = t ? { select, x: t.clientX, y: t.clientY, moved: false } : null;
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!statusTouchStart || statusTouchStart.moved) return;
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    if (Math.hypot(t.clientX - statusTouchStart.x, t.clientY - statusTouchStart.y) > 10) {
+      statusTouchStart.moved = true;
+    }
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchend', e => {
+    const state = statusTouchStart;
+    statusTouchStart = null;
+    if (!state || state.moved) return;
+    const select = e.target.closest('.compact-status-select, [data-project-task-status]');
+    if (!select || select !== state.select) return;
     e.preventDefault();
     const menu = document.getElementById('taskStatusGlobalMenu');
     if (menu && !menu.classList.contains('hidden') && menu._targetSelect === select) {
@@ -40345,7 +40378,7 @@ window.openShowcaseProject = function() {
         const el = candidates[i];
         if (el.hidden || el.classList.contains('hidden')) continue;
         const style = window.getComputedStyle(el);
-        if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
+        if (style.display !== 'none' && style.visibility !== 'hidden' && style.pointerEvents !== 'none') {
           active.push(el);
         }
       }
@@ -40360,21 +40393,61 @@ window.openShowcaseProject = function() {
   }
 
   let isLocked = false;
+  let savedScrollY = 0;
+
+  function syncVisualViewportVar() {
+    try {
+      const vv = window.visualViewport;
+      const h = vv ? Math.round(vv.height) : window.innerHeight;
+      document.documentElement.style.setProperty('--chronos-vvh', h + 'px');
+      const kbOpen = vv ? (window.innerHeight - vv.height > 140) : false;
+      document.documentElement.classList.toggle('chronos-kb-open', kbOpen);
+    } catch (_) {}
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncVisualViewportVar, { passive: true });
+    window.visualViewport.addEventListener('scroll', syncVisualViewportVar, { passive: true });
+  }
+  window.addEventListener('resize', syncVisualViewportVar, { passive: true });
+  syncVisualViewportVar();
+
+  document.addEventListener('focusin', function(e) {
+    const t = e.target;
+    if (!t || !t.matches) return;
+    if (!t.matches('input, textarea, select, [contenteditable="true"]')) return;
+    if (!isLocked) return;
+    setTimeout(() => {
+      try { t.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }); } catch (_) {}
+    }, 240);
+  }, { passive: true });
 
   function syncModalScrollLock() {
     const hasModals = isAnyModalOpen();
     if (hasModals && !isLocked) {
       isLocked = true;
+      savedScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
       document.documentElement.classList.add('has-modal-open');
       document.body.classList.add('has-modal-open');
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
     } else if (!hasModals && isLocked) {
       isLocked = false;
       document.documentElement.classList.remove('has-modal-open');
       document.body.classList.remove('has-modal-open');
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      try { window.scrollTo({ top: savedScrollY, behavior: 'instant' }); } catch (_) { window.scrollTo(0, savedScrollY); }
     }
   }
 
@@ -40441,6 +40514,7 @@ window.openShowcaseProject = function() {
   }
 
   const observer = new MutationObserver(function() {
+    syncModalScrollLock();
     scheduleSync();
   });
 
@@ -40862,6 +40936,1047 @@ window.openShowcaseProject = function() {
   }
 
   updatePushSettingsUI();
+})();
+</script>
+
+<style id="chronosMobileV2Styles">
+/* ==========================================================================
+   CHRONOS FLOW — MOBILE PHONE COMPATIBILITY UPGRADE (V2)
+   Canonical responsive shell, dvh bottom sheets, touch targets, & view adapters
+   ========================================================================== */
+:root {
+  --chronos-safe-top: env(safe-area-inset-top, 0px);
+  --chronos-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* Global Stacking & Grid Safety across all viewports */
+.status {
+  z-index: 95 !important;
+}
+.chronos-custom-select-popover,
+#taskStatusGlobalMenu,
+.modern-picker .picker-popover {
+  z-index: 2147483635 !important;
+}
+#teamAddAppModalBackdrop {
+  z-index: 10220 !important;
+}
+.team-spaces-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)) !important;
+}
+.team-apps-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)) !important;
+}
+.team-members-grid-unified {
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)) !important;
+}
+
+/* Desktop hides mobile-only week strip */
+.mobile-week-strip {
+  display: none;
+}
+
+/* Touch Devices (Hoverless / Coarse Pointer): surface hidden actions & block accidental long-press callouts */
+@media (hover: none), (pointer: coarse) {
+  .note-card-actions,
+  .note-inline-figure .figure-toolbar,
+  .note-inline-figure .fig-drag-handle {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  .task-card,
+  .project-task,
+  .note-card,
+  .ribbon-day-btn,
+  .mobile-week-day {
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
+  }
+  .task-card input,
+  .task-card textarea,
+  .note-card input,
+  .note-card textarea,
+  [contenteditable="true"] {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+}
+
+/* ==========================================================================
+   PHONE & COMPACT VIEWPORTS (<= 767px)
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* Prevent iOS Safari auto-zoom on form field focus */
+  .modal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .modal textarea,
+  .modal select,
+  .chronos-repair-dialog input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .chronos-repair-dialog textarea,
+  .chronos-repair-dialog select,
+  .team-form input,
+  .team-form textarea,
+  .team-form select,
+  .project-create input,
+  .project-create textarea,
+  .project-create select,
+  #projectSearch,
+  .deliv-search-input,
+  .top-actions .search input {
+    font-size: 16px !important;
+  }
+
+  /* Normalize App Container & Kill Double Horizontal Padding */
+  .app {
+    padding: 0 max(12px, env(safe-area-inset-right)) calc(94px + var(--chronos-safe-bottom)) max(12px, env(safe-area-inset-left)) !important;
+  }
+  .main {
+    padding-top: 14px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 12px !important;
+  }
+
+  /* Unambiguous Primary Bottom Nav: hide legacy desktop .nav completely */
+  .nav {
+    display: none !important;
+  }
+
+  /* Clean Topbar + Tap-Friendly Search Expansion */
+  header.topbar {
+    height: 58px !important;
+    padding: max(0px, var(--chronos-safe-top)) 0 0 !important;
+    gap: 6px !important;
+    position: relative;
+  }
+  .brand {
+    min-width: 0 !important;
+    gap: 8px !important;
+    flex: 0 1 auto !important;
+  }
+  .brand-logo-wrap,
+  .logo {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .brand-badge {
+    display: none !important;
+  }
+  .brand h1 {
+    font-size: 15.5px !important;
+    white-space: nowrap !important;
+  }
+  .brand p {
+    display: none !important;
+  }
+
+  .top-actions {
+    margin-left: auto !important;
+    gap: 5px !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+  .top-actions .btn.icon,
+  .top-actions .account-trigger {
+    position: relative !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    flex: 0 0 40px !important;
+  }
+  .top-actions .btn.icon::after,
+  .top-actions .account-trigger::after,
+  .top-actions .search::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+  }
+  .top-actions #chronosUpdateBtn {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+    flex: 0 0 auto !important;
+  }
+  .top-actions .search {
+    position: relative !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    flex: 0 0 40px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+  }
+  .top-actions .search input {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    pointer-events: none !important;
+    display: block !important;
+  }
+  .top-actions .search.mobile-search-expanded,
+  .top-actions .search:focus-within {
+    position: fixed !important;
+    top: max(6px, var(--chronos-safe-top)) !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 46px !important;
+    padding: 0 14px !important;
+    justify-content: flex-start !important;
+    z-index: 2147482600 !important;
+    background: var(--surface) !important;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.32), 0 0 0 10px var(--bg, var(--surface)) !important;
+    border-color: var(--accent) !important;
+  }
+  .top-actions .search.mobile-search-expanded::after,
+  .top-actions .search:focus-within::after {
+    display: none !important;
+  }
+  .top-actions .search.mobile-search-expanded input,
+  .top-actions .search:focus-within input {
+    position: static !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    pointer-events: auto !important;
+    font-size: 16px !important;
+  }
+  #teamSettingsBtn,
+  .team-settings-btn {
+    width: auto !important;
+    min-width: 42px !important;
+    padding: 0 13px !important;
+    font-size: 13px !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
+  }
+  #teamSettingsBtn svg,
+  .team-settings-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  /* Notes Studio Page Responsive Header, Quick Capture & Filter Controls */
+  #notesPage.notes-studio-v2 .notes-studio-head {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  #notesPage .notes-head-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  #notesPage #newNoteTop {
+    white-space: nowrap !important;
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+  }
+  #notesPage .notes-quick-capture-v3 {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+  #notesPage .capture-input-area {
+    width: 100% !important;
+    padding: 6px 2px !important;
+    text-align: left !important;
+  }
+  #notesPage .capture-shortcuts-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+  #notesPage .capture-shortcut-btn,
+  #notesPage .capture-new-btn {
+    flex: 1 1 auto !important;
+    min-height: 36px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+  #notesPage .notes-command-bar-v3 {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  #notesPage .notes-combined-filter-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  #notesPage .notes-segmented-control {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+  }
+  #notesPage .notes-tools-cluster {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  #notesPage .notes-select-pill-wrap {
+    flex: 1 1 calc(50% - 4px) !important;
+    min-width: 135px !important;
+  }
+  #notesPage .notes-select-pill,
+  #notesPage .notes-sort-select {
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 1 calc(50% - 4px) !important;
+    min-width: 135px !important;
+    height: 38px !important;
+    font-size: 13px !important;
+  }
+
+  /* Bottom Floating Navigation & Elevated Toasts / Docks */
+  .floating-nav {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: max(8px, var(--chronos-safe-bottom)) !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    gap: 2px !important;
+    padding: 5px !important;
+    border-radius: 18px !important;
+  }
+  .floating-nav button {
+    flex: 1 1 0 !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    min-height: 46px !important;
+    padding: 6px 2px !important;
+    font-size: 10.5px !important;
+    line-height: 1.1 !important;
+  }
+  .floating-nav button span {
+    font-size: 10.5px !important;
+  }
+  .status {
+    bottom: calc(76px + var(--chronos-safe-bottom)) !important;
+    z-index: 95 !important;
+    max-width: calc(100vw - 24px) !important;
+    text-align: center !important;
+  }
+  .journey-today-snap-btn {
+    bottom: calc(82px + var(--chronos-safe-bottom)) !important;
+    right: 14px !important;
+    z-index: 45 !important;
+  }
+  .global-voice-dock {
+    bottom: calc(82px + var(--chronos-safe-bottom)) !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+
+  /* Surface Secondary Page Heading Actions on Phones instead of Hiding Them */
+  .page-heading {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  .page-heading h2 {
+    font-size: clamp(22px, 6vw, 26px) !important;
+  }
+  .page-heading .heading-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .page-heading .heading-actions .btn:not(.primary) {
+    display: inline-flex !important;
+    min-height: 40px !important;
+    padding: 0 12px !important;
+    font-size: 12.5px !important;
+    width: auto !important;
+  }
+  .page-heading .heading-actions .btn.primary {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
+  }
+
+  /* Overview Horizon Adjustments */
+  .horizon-controls-bar {
+    padding: 10px !important;
+    gap: 8px !important;
+  }
+  .horizon-view-tabs {
+    width: 100% !important;
+  }
+  .horizon-view-tabs .horizon-tab {
+    flex: 1 !important;
+    min-height: 38px !important;
+    padding: 6px 8px !important;
+  }
+  .horizon-filter-chips {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+    padding-bottom: 2px;
+  }
+  .horizon-filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-chip {
+    flex: 0 0 auto !important;
+    min-height: 34px !important;
+  }
+  .horizon-spotlight {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+  .spotlight-body {
+    flex: 1 1 calc(100% - 92px) !important;
+  }
+  .spotlight-body strong,
+  .spotlight-body p {
+    white-space: normal !important;
+  }
+  .spotlight-actions {
+    width: 100% !important;
+    justify-content: flex-end !important;
+  }
+  .journey-watermark-text {
+    font-size: clamp(28px, 8.2vw, 48px) !important;
+    letter-spacing: -0.8px !important;
+  }
+  .journey-month-nav-btn {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  .horizon-date-ribbon {
+    gap: 4px !important;
+  }
+  .ribbon-day-btn {
+    min-height: 56px !important;
+    padding: 6px 2px !important;
+    border-radius: 11px !important;
+  }
+
+  /* Notifications & Account Popover */
+  .notification-panel {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding-top: var(--chronos-safe-top) !important;
+    padding-bottom: var(--chronos-safe-bottom) !important;
+    border-left: 0 !important;
+  }
+  .notification-icon-btn,
+  .notification-close-btn {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .chronos-notification-filters {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .account-menu {
+    position: fixed !important;
+    right: 12px !important;
+    left: auto !important;
+    top: calc(58px + var(--chronos-safe-top)) !important;
+    width: min(300px, calc(100vw - 24px)) !important;
+  }
+  .account-menu > button[role="menuitem"] {
+    min-height: 44px !important;
+    padding: 11px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Project Workspace Bar & Deliverables Table-to-Card Transformation */
+  .project-ws-segmented-bar {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #projectWorkspaceModalBackdrop .project-workspace-modal-topbar {
+    padding: 10px 14px !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+  #projectWorkspaceModalBackdrop #projectWorkspaceModalMount {
+    padding: 14px 14px calc(24px + var(--chronos-safe-bottom)) !important;
+  }
+
+  .deliverables-table-wrap.compact-scrollable-table {
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+  .deliverables-table.compact-table,
+  .deliverables-table.compact-table tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+  .deliverables-table.compact-table thead {
+    display: none !important;
+  }
+  .deliverables-table.compact-table tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .deliverables-table.compact-table tbody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "person timeliness"
+      "proof proof"
+      "ta ta"
+      "actions actions" !important;
+    gap: 8px 10px !important;
+    padding: 13px 14px !important;
+    border: 1px solid var(--line, #e2e8f0) !important;
+    border-radius: 16px !important;
+    background: var(--surface, #fff) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+  }
+  .deliverables-table.compact-table tbody tr td {
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    border: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+  .deliverables-table.compact-table tbody tr td:nth-child(1) { grid-area: person; }
+  .deliverables-table.compact-table tbody tr td:nth-child(2) { grid-area: proof; }
+  .deliverables-table.compact-table tbody tr td:nth-child(3) { grid-area: timeliness; justify-self: end; align-self: start; }
+  .deliverables-table.compact-table tbody tr td:nth-child(4) { grid-area: ta; }
+  .deliverables-table.compact-table tbody tr td:nth-child(5) {
+    grid-area: actions;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--line, #e2e8f0) !important;
+  }
+  .deliv-person-cell {
+    min-width: 0 !important;
+  }
+  .ta-remarks-cell {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .deliv-action-row-compact {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+  .deliv-action-row-compact .btn-act-compact {
+    min-width: 42px !important;
+    min-height: 40px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* ==========================================================================
+   PHONE PORTRAIT & HANDHELD SPECIFICS (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .top-actions .account-trigger .account-chevron {
+    display: none !important;
+  }
+  .top-actions .account-trigger {
+    gap: 0 !important;
+  }
+  /* Calendar Month: Crisp Dot Counters instead of 5px Squished Bars */
+  .month-grid {
+    grid-auto-rows: minmax(56px, auto) !important;
+    gap: 3px !important;
+  }
+  .month-grid .day {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    min-height: 56px !important;
+    padding: 5px 2px !important;
+  }
+  .month-grid .day .day-top {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .month-grid .day .day-num,
+  .month-grid .day .day-number {
+    flex: 0 0 auto !important;
+    margin: 0 auto !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11.5px !important;
+    line-height: 1 !important;
+  }
+  .month-grid .day .events,
+  .month-grid .day .day-events {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    width: 100% !important;
+  }
+  .month-grid .day .event-chip {
+    width: 7px !important;
+    height: 7px !important;
+    min-height: 7px !important;
+    flex: 0 0 7px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: var(--event-color, var(--accent)) !important;
+    font-size: 0 !important;
+    color: transparent !important;
+    overflow: hidden !important;
+  }
+  .month-grid .day .more-events {
+    flex: 0 0 100% !important;
+    text-align: center !important;
+    font-size: 9px !important;
+    font-weight: 750 !important;
+    line-height: 1.1 !important;
+    margin-top: 1px !important;
+  }
+  .calendar-toolbar .view {
+    order: 3 !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  .calendar-toolbar .view button {
+    min-height: 38px !important;
+    flex: 1 !important;
+    font-size: 12px !important;
+  }
+
+  /* Calendar Week: Interactive 7-Day Strip + Vertical Selected-Day Schedule */
+  .mobile-week-strip {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    margin-bottom: 12px !important;
+    padding: 6px !important;
+    border-radius: 14px !important;
+    background: var(--surface2) !important;
+    border: 1px solid var(--line) !important;
+  }
+  .mobile-week-day {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    min-height: 52px !important;
+    padding: 5px 2px !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: var(--muted) !important;
+    cursor: pointer !important;
+  }
+  .mobile-week-day small {
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+  }
+  .mobile-week-day strong {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: var(--text) !important;
+    line-height: 1.1 !important;
+  }
+  .mobile-week-day .mobile-week-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .mobile-week-day.has-items .mobile-week-dot {
+    background: var(--accent);
+  }
+  .mobile-week-day.today strong {
+    color: var(--accent) !important;
+  }
+  .mobile-week-day.selected {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent) !important;
+  }
+  .mobile-week-day.selected small,
+  .mobile-week-day.selected strong {
+    color: #fff !important;
+  }
+  .mobile-week-day.selected.has-items .mobile-week-dot {
+    background: #fff !important;
+  }
+  .week-grid {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+  .week-grid .week-column:not(.selected) {
+    display: none !important;
+  }
+  .week-grid .week-column.selected {
+    display: block !important;
+    width: 100% !important;
+    min-height: 160px !important;
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+  .week-grid .week-column.selected .week-head {
+    display: none !important;
+  }
+  .week-grid .week-column.selected .week-events {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .week-grid .week-column.selected .week-events .event-chip {
+    height: auto !important;
+    min-height: 42px !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    border-left: 4px solid var(--event-color, var(--accent)) !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    white-space: normal !important;
+    text-align: left !important;
+  }
+
+  /* Kanban Board: Horizontal Snap Carousel */
+  .project-board {
+    display: flex !important;
+    grid-template-columns: none !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 12px !important;
+    padding: 2px 2px 10px !important;
+  }
+  .project-board .project-lane {
+    flex: 0 0 84vw !important;
+    max-width: 340px !important;
+    scroll-snap-align: start !important;
+  }
+
+  /* Full-Screen Phone Workspaces (Notes, Settings, Project Workspace) */
+  .modal-backdrop#noteBackdrop,
+  .modal-backdrop#settingsBackdrop,
+  #projectWorkspaceModalBackdrop {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide,
+  .modal-backdrop#settingsBackdrop .settings-modal,
+  #projectWorkspaceModalBackdrop .project-workspace-modal-card,
+  #projectWorkspaceModalBackdrop.is-fullscreen .project-workspace-modal-card,
+  #itemPreviewBackdrop .item-preview-modal.is-note-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: var(--chronos-vvh, 100dvh) !important;
+    max-height: var(--chronos-vvh, 100dvh) !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide .note-body-editor {
+    max-height: none !important;
+    min-height: 150px !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide .modal-head {
+    position: sticky !important;
+    top: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 12px 14px !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide .modal-head > div:first-child {
+    padding-right: 48px !important;
+  }
+  .modal-backdrop#noteBackdrop .note-modal-wide .modal-head > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  .modal-backdrop#noteBackdrop #noteModalClose {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+  }
+  .modal-backdrop#noteBackdrop #noteDocStats,
+  .modal-backdrop#noteBackdrop #noteAutosaveStatus {
+    font-size: 11px !important;
+  }
+  .modal-backdrop#noteBackdrop #openNoteMediaDrawerBtn,
+  .modal-backdrop#noteBackdrop #noteCommentsPillBtn,
+  .modal-backdrop#noteBackdrop #noteEditorReadingBtn {
+    padding: 5px 9px !important;
+    min-height: 32px !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+  }
+  .modal-backdrop#noteBackdrop #noteEditorReadingBtn .reading-mode-label {
+    display: none !important;
+  }
+  .settings-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Standard Dialogs & Forms: Bottom-Sheet Presentation with Dynamic Visual Viewport */
+  #modalBackdrop,
+  #taskBackdrop,
+  #teamModalRepair,
+  #projectModalRepair,
+  #teamCreateModalBackdrop,
+  #teamShareModalBackdrop,
+  #teamJoinModalBackdrop,
+  #teamAddAppModalBackdrop,
+  #teamTaskEditBackdrop,
+  #teamRecordEditBackdrop,
+  #deliverableDistributeModalBackdrop,
+  #deliverableSubmitModalBackdrop,
+  #deliverableTAModalBackdrop,
+  #deliverableTransmittalModalBackdrop,
+  #noteLikesModalBackdrop {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  #itemPreviewBackdrop:not(:has(.is-note-modal)) {
+    padding: 0 !important;
+    align-items: end !important;
+  }
+  #modalBackdrop .modal,
+  #taskBackdrop .chronos-repair-dialog,
+  #teamModalRepair .chronos-repair-dialog,
+  #projectModalRepair .chronos-repair-dialog,
+  #teamCreateModalBackdrop .modal,
+  #teamShareModalBackdrop .modal,
+  #teamJoinModalBackdrop .modal,
+  #teamAddAppModalBackdrop .chronos-repair-dialog,
+  #teamTaskEditBackdrop .modal,
+  #teamRecordEditBackdrop .modal,
+  #deliverableDistributeModalBackdrop .chronos-repair-dialog,
+  #deliverableSubmitModalBackdrop .chronos-repair-dialog,
+  #deliverableTAModalBackdrop .chronos-repair-dialog,
+  #deliverableTransmittalModalBackdrop .chronos-repair-dialog,
+  #noteLikesModalBackdrop .modal,
+  #itemPreviewBackdrop .item-preview-modal.is-task-modal,
+  #itemPreviewBackdrop .item-preview-modal:not(.is-note-modal) {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(92dvh, calc(var(--chronos-vvh, 100dvh) - 16px)) !important;
+    border-radius: 22px 22px 0 0 !important;
+    margin: 0 !important;
+    padding-bottom: max(12px, var(--chronos-safe-bottom)) !important;
+  }
+
+  /* Confirm/Prompt Alerts stay Centered & Safe */
+  #chronosConfirmBackdrop,
+  #chronosPromptBackdrop {
+    align-items: center !important;
+    padding: 16px !important;
+  }
+
+  /* Notes Options Drawer & Inline Submenus (Never clip off right edge) */
+  .note-options-drawer {
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 84dvh !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--line) !important;
+    border-radius: 20px 20px 0 0 !important;
+    padding-bottom: var(--chronos-safe-bottom) !important;
+  }
+  .note-options-menu {
+    max-width: calc(100vw - 24px) !important;
+  }
+  .note-options-menu .menu-submenu {
+    position: static !important;
+    left: auto !important;
+    bottom: auto !important;
+    margin-top: 4px !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* Batch Action Dock: Wrapping & Unclipped Dropdown Menus */
+  .task-batch-dock {
+    bottom: max(10px, var(--chronos-safe-bottom)) !important;
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: 20px !important;
+    padding: 10px 12px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    z-index: 90 !important;
+  }
+  .batch-count-badge {
+    align-self: center !important;
+  }
+  .batch-actions-btns {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    overflow: visible !important;
+  }
+  .batch-act-btn {
+    min-height: 36px !important;
+    padding: 6px 10px !important;
+  }
+
+  /* Team Emoji Grid & Modal Close Buttons (>= 40px tap targets) */
+  .team-emoji-presets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)) !important;
+    gap: 6px !important;
+  }
+  .team-emoji-preset-btn {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 18px !important;
+    border-radius: 10px !important;
+  }
+  .modal-head .close,
+  .chronos-repair-close,
+  .preview-modal-close {
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+}
+
+/* ==========================================================================
+   ULTRA-NARROW PHONES (<= 360px, e.g. 320px iPhone SE)
+   ========================================================================== */
+@media (max-width: 360px) {
+  .brand h1 .brand-flow {
+    display: none !important;
+  }
+  .top-actions .btn.icon,
+  .top-actions .search,
+  .top-actions .account-trigger {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+  }
+  .top-actions .btn.icon::after,
+  .top-actions .search::after,
+  .top-actions .account-trigger::after {
+    inset: -4px;
+  }
+}
+
+/* ==========================================================================
+   PHONE LANDSCAPE (Short Viewports, max-height: 500px)
+   ========================================================================== */
+@media (orientation: landscape) and (max-height: 500px) {
+  header.topbar {
+    height: 50px !important;
+  }
+  .floating-nav {
+    padding: 4px 8px !important;
+    bottom: max(6px, var(--chronos-safe-bottom)) !important;
+    border-radius: 15px !important;
+  }
+  .floating-nav button {
+    position: relative !important;
+    flex-direction: row !important;
+    min-height: 42px !important;
+    gap: 6px !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+  .app {
+    padding-bottom: 66px !important;
+  }
+}
+</style>
+
+<script id="chronosMobileV2Script">
+(function initChronosMobileV2() {
+  const searchLabel = document.querySelector('header.topbar .search');
+  const searchInput = document.getElementById('globalSearch');
+  if (searchLabel && searchInput) {
+    searchLabel.addEventListener('click', () => {
+      if (window.innerWidth <= 767) {
+        searchLabel.classList.add('mobile-search-expanded');
+        searchInput.focus();
+      }
+    });
+    searchInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (!searchInput.value.trim()) {
+          searchLabel.classList.remove('mobile-search-expanded');
+        }
+      }, 120);
+    });
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        searchLabel.classList.remove('mobile-search-expanded');
+        searchInput.blur();
+      }
+    });
+    document.addEventListener('pointerdown', e => {
+      if (window.innerWidth <= 767 && searchLabel.classList.contains('mobile-search-expanded')) {
+        if (!searchLabel.contains(e.target) && !searchInput.value.trim()) {
+          searchLabel.classList.remove('mobile-search-expanded');
+        }
+      }
+    });
+  }
 })();
 </script>
 </body>

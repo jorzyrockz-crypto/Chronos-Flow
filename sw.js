@@ -1,9 +1,9 @@
-const CACHE_NAME = 'chronos-flow-5.10-v188';
+const CACHE_NAME = 'chronos-flow-5.10-v189';
 const APP_SHELL = [
   './',
   './index.html',
   './favicon.ico?v=187',
-  './manifest.webmanifest?v=187',
+  './manifest.webmanifest?v=189',
   './icons/chronos.svg?v=187',
   './icons/chronos-32.png?v=187',
   './icons/chronos-48.png?v=187',
@@ -18,7 +18,8 @@ const APP_SHELL = [
   './icons/flow-logo-light.png?v=187',
   './icons/flow-logo-dark-sm.png?v=187',
   './icons/flow-logo-light-sm.png?v=187',
-  './icons/chronos-banner-opt.jpg?v=187'
+  './icons/chronos-banner-opt.jpg?v=187',
+  './icons/chronos-mobile-preview.jpg?v=189'
 ];
 
 self.addEventListener('install', event => {
