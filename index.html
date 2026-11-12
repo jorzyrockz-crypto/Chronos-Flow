@@ -24309,7 +24309,7 @@ document.addEventListener('dblclick', e => {
 // Firebase cloud sync. User owns/configures their project; never store server credentials here.
 function updateSyncStatus(message){const el=$('syncStatus');if(!el)return;const configured=!!(firebaseConfig&&firebaseConfig.apiKey&&firebaseConfig.projectId);el.classList.toggle('connected',!!firebaseUser);el.classList.toggle('pending',!!message);const label=message||(firebaseUser?'Signed in · '+(firebaseUser.displayName||firebaseUser.email||firebaseUser.uid):configured?'Configured · sign in with Google':'Firebase not configured');el.innerHTML=`<span class="status-dot"></span><span>${esc(label)}</span>`}
 function fillFirebaseConfig(){const input=$('firebaseConfigJson');if(input&&firebaseConfig&&Object.keys(firebaseConfig).length)input.value=JSON.stringify(firebaseConfig,null,2);updateSyncStatus()}
-let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true,experimentalAutoDetectLongPolling:true})}catch(e){try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(_){}}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}flushPendingTeamDeletes().catch(err=>console.warn('Queued team deletion flush failed:',err));refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync().finally(()=>startPersonalRealtimeSync());}else{stopPersonalRealtimeSync();stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
+let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true,experimentalForceLongPolling:true})}catch(e){try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(_){}}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}flushPendingTeamDeletes().catch(err=>console.warn('Queued team deletion flush failed:',err));refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync().finally(()=>startPersonalRealtimeSync());}else{stopPersonalRealtimeSync();stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
 $('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=parsed;localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
 async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent='Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent='Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}if(status){status.classList.add('error');status.textContent=err.message||'Google sign-in failed. Check your Firebase Authentication settings and authorized domain.'}notify(err.message||'Google sign-in failed.')}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
 $('firebaseGoogleSignIn').addEventListener('click',()=>startFirebaseGoogleSignIn('settings'));
@@ -29863,6 +29863,79 @@ html[data-theme=dark] .btn-act-compact {
    });
    return Promise.race([Promise.resolve(promise),timeout]).finally(()=>clearTimeout(timerId));
   };
+  const projectId=firebaseDb?.app?.options?.projectId||(typeof firebaseApp!=='undefined'?firebaseApp?.options?.projectId:'')||(typeof firebaseConfig!=='undefined'?firebaseConfig?.projectId:'')||'';
+  const docPrefix=projectId?`projects/${projectId}/databases/(default)/documents`:'';
+  const restDocName=ref=>{
+   const rawPath=String(ref?.path||'').replace(/^\/+/,'');
+   if(!docPrefix||!rawPath)throw Error('Missing Firestore document path.');
+   return `${docPrefix}/${rawPath}`;
+  };
+  const canUseRestWrites=()=>Boolean(projectId&&typeof fetch==='function'&&firebaseUser&&typeof firebaseUser.getIdToken==='function');
+  let preferRestWrites=false;
+  const parseRestError=(status,payload,fallbackMsg)=>{
+   const statusCode=String(payload?.error?.status||'').toUpperCase();
+   const err=Error(payload?.error?.message||fallbackMsg||`Firestore request failed (${status}).`);
+   if(statusCode==='PERMISSION_DENIED'||status===403)err.code='permission-denied';
+   else if(statusCode==='NOT_FOUND'||status===404)err.code='not-found';
+   else if(statusCode==='UNAUTHENTICATED'||status===401)err.code='unauthenticated';
+   else if(statusCode==='FAILED_PRECONDITION'||status===400)err.code='failed-precondition';
+   else if(statusCode==='ABORTED'||status===409)err.code='aborted';
+   else if(statusCode==='DEADLINE_EXCEEDED'||status===408||status===504)err.code='deadline-exceeded';
+   else if(statusCode==='UNAVAILABLE'||status===503)err.code='unavailable';
+   return err;
+  };
+  const commitRestWrites=async(writes,label,retriedAuth=false)=>{
+   if(!writes.length)return;
+   const token=await withStepTimeout(firebaseUser.getIdToken(retriedAuth),label,10000);
+   const endpoint=`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents:commit`;
+   const controller=typeof AbortController==='function'?new AbortController():null;
+   let timerId;
+   if(controller)timerId=setTimeout(()=>controller.abort(),15000);
+   const sendFetch=async()=>{
+    try{
+     return await fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+      body:JSON.stringify({writes}),
+      ...(controller?{signal:controller.signal}:{})
+     });
+    }catch(err){
+     if(err?.name==='AbortError'){
+      const timeoutErr=Error(`Timed out while ${label}. Check your internet connection or reload the page, then retry.`);
+      timeoutErr.code='deadline-exceeded';
+      throw timeoutErr;
+     }
+     throw err;
+    }finally{
+     if(timerId)clearTimeout(timerId);
+    }
+   };
+   const res=await withStepTimeout(sendFetch(),label,15500);
+   const payload=await res.json().catch(()=>null);
+   if(!res.ok){
+    if(res.status===401&&!retriedAuth)return commitRestWrites(writes,label,true);
+    throw parseRestError(res.status,payload,`Firestore REST write failed while ${label} (HTTP ${res.status}).`);
+   }
+   return payload;
+  };
+  const runWriteWithRestFallback=async(sdkWriteFn,buildRestWritesFn,label)=>{
+   const restReady=canUseRestWrites();
+   if(preferRestWrites&&restReady){
+    return await commitRestWrites(buildRestWritesFn(),label);
+   }
+   try{
+    return await withStepTimeout(sdkWriteFn(),label,restReady?6000:15000);
+   }catch(err){
+    if(restReady&&(err?.code==='deadline-exceeded'||err?.code==='unavailable')){
+     if(!preferRestWrites){
+      preferRestWrites=true;
+      reportStage('Direct sync fallback…');
+     }
+     return await commitRestWrites(buildRestWritesFn(),label);
+    }
+    throw err;
+   }
+  };
   const finishLocalCleanup=async notifyText=>{
    clearPendingTeamDeletesForTeam(teamKey);
    teamTab='members';
@@ -29899,7 +29972,11 @@ html[data-theme=dark] .btn-act-compact {
    }
    reportStage('Cleaning up workspace…');
    const membershipRef=firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamKey);
-   await withStepTimeout(membershipRef.delete(),'cleaning up your team membership').catch(err=>{
+   await runWriteWithRestFallback(
+    ()=>membershipRef.delete(),
+    ()=>[{delete:restDocName(membershipRef)}],
+    'cleaning up your team membership'
+   ).catch(err=>{
     if(err?.code!=='not-found'&&err?.code!=='permission-denied')throw err;
    });
    await finishLocalCleanup('Team was already removed from Firestore; cleaned up local workspace.');
@@ -29912,9 +29989,16 @@ html[data-theme=dark] .btn-act-compact {
   if(typeof stopTeamRealtimeSync==='function')stopTeamRealtimeSync();
   const deleteRefsInBatches=async(refs,label='deleting team records')=>{
    for(let i=0;i<refs.length;i+=400){
-    const batch=firebaseDb.batch();
-    refs.slice(i,i+400).forEach(ref=>batch.delete(ref));
-    await withStepTimeout(batch.commit(),label);
+    const chunk=refs.slice(i,i+400);
+    await runWriteWithRestFallback(
+     ()=>{
+      const batch=firebaseDb.batch();
+      chunk.forEach(ref=>batch.delete(ref));
+      return batch.commit();
+     },
+     ()=>chunk.map(ref=>({delete:restDocName(ref)})),
+     label
+    );
    }
   };
 
@@ -29922,7 +30006,21 @@ html[data-theme=dark] .btn-act-compact {
    // Lock shared writes before enumerating collections so joins or new records cannot race cleanup.
    reportStage('Locking team…');
    try{
-    await withStepTimeout(teamRef.update({deleting:true,deletionStartedAt:Date.now()}),'locking the team workspace');
+    await runWriteWithRestFallback(
+     ()=>teamRef.update({deleting:true,deletionStartedAt:Date.now()}),
+     ()=>[{
+      update:{
+       name:restDocName(teamRef),
+       fields:{
+        deleting:{booleanValue:true},
+        deletionStartedAt:{integerValue:String(Math.trunc(Date.now()))}
+       }
+      },
+      updateMask:{fieldPaths:['deleting','deletionStartedAt']},
+      currentDocument:{exists:true}
+     }],
+     'locking the team workspace'
+    );
    }catch(err){
     if(err?.code!=='permission-denied')throw err;
    }
@@ -29951,7 +30049,13 @@ html[data-theme=dark] .btn-act-compact {
     }catch(err){
      if(err?.code!=='permission-denied')throw err;
      for(const ref of inviteIndexRefs){
-      try{await withStepTimeout(ref.delete(),'removing public invite code')}catch(e){if(e?.code!=='permission-denied'&&e?.code!=='not-found')throw e}
+      try{
+       await runWriteWithRestFallback(
+        ()=>ref.delete(),
+        ()=>[{delete:restDocName(ref)}],
+        'removing public invite code'
+       );
+      }catch(e){if(e?.code!=='permission-denied'&&e?.code!=='not-found')throw e}
      }
     }
    }
@@ -29988,13 +30092,20 @@ html[data-theme=dark] .btn-act-compact {
    if(otherMembers.length)reportStage('Removing team members…');
    for(let i=0;i<otherMembers.length;i+=9){
     const chunk=otherMembers.slice(i,i+9);
-    const batch=firebaseDb.batch();
-    chunk.forEach(memberDoc=>{
-     batch.delete(memberDoc.ref);
-     batch.delete(firebaseDb.collection('users').doc(memberDoc.id).collection('teamMemberships').doc(teamKey));
-    });
+    const pairRefs=chunk.flatMap(memberDoc=>[
+     memberDoc.ref,
+     firebaseDb.collection('users').doc(memberDoc.id).collection('teamMemberships').doc(teamKey)
+    ]);
     try{
-     await withStepTimeout(batch.commit(),'removing team members');
+     await runWriteWithRestFallback(
+      ()=>{
+       const batch=firebaseDb.batch();
+       pairRefs.forEach(ref=>batch.delete(ref));
+       return batch.commit();
+      },
+      ()=>pairRefs.map(ref=>({delete:restDocName(ref)})),
+      'removing team members'
+     );
     }catch(err){
      if(err?.code!=='permission-denied')throw err;
      await deleteRefsInBatches(chunk.map(doc=>doc.ref),'removing team member records');
@@ -30005,16 +30116,29 @@ html[data-theme=dark] .btn-act-compact {
    reportStage('Finalizing deletion…');
    const ownerMember=membersSnapshot.docs.find(doc=>doc.id===firebaseUser.uid);
    const ownerMembershipRef=firebaseDb.collection('users').doc(firebaseUser.uid).collection('teamMemberships').doc(teamKey);
-   const finalBatch=firebaseDb.batch();
-   if(ownerMember)finalBatch.delete(ownerMember.ref);
-   finalBatch.delete(ownerMembershipRef);
-   finalBatch.delete(teamRef);
+   const finalRefs=[...(ownerMember?[ownerMember.ref]:[]),ownerMembershipRef,teamRef];
    try{
-    await withStepTimeout(finalBatch.commit(),'finalizing team deletion');
+    await runWriteWithRestFallback(
+     ()=>{
+      const finalBatch=firebaseDb.batch();
+      finalRefs.forEach(ref=>finalBatch.delete(ref));
+      return finalBatch.commit();
+     },
+     ()=>finalRefs.map(ref=>({delete:restDocName(ref)})),
+     'finalizing team deletion'
+    );
    }catch(err){
     if(err?.code!=='permission-denied')throw err;
-    await withStepTimeout(teamRef.delete(),'deleting team document');
-    await withStepTimeout(ownerMembershipRef.delete(),'removing team membership index');
+    await runWriteWithRestFallback(
+     ()=>teamRef.delete(),
+     ()=>[{delete:restDocName(teamRef)}],
+     'deleting team document'
+    );
+    await runWriteWithRestFallback(
+     ()=>ownerMembershipRef.delete(),
+     ()=>[{delete:restDocName(ownerMembershipRef)}],
+     'removing team membership index'
+    );
    }
   }catch(err){
    if(chronosTeams.length&&typeof startTeamRealtimeSync==='function'){
