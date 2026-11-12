@@ -7979,6 +7979,69 @@ html[data-theme="dark"] .note-card p,
 html[data-theme="dark"] .note-card .md-card-preview {
   color: var(--text, #f1f5f9) !important;
 }
+.update-pill {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.42);
+  background: color-mix(in srgb, #10b981 14%, var(--surface));
+  color: #059669;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+.update-pill:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, #10b981 22%, var(--surface));
+  border-color: rgba(16, 185, 129, 0.72);
+}
+.update-pill:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+.update-pill.hidden {
+  display: none !important;
+}
+.update-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+  animation: chronosUpdatePulse 2s infinite;
+}
+@keyframes chronosUpdatePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.75; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .update-pill-dot { animation: none; }
+}
+html[data-theme="dark"] .update-pill {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(52, 211, 153, 0.42);
+}
+html[data-theme="dark"] .update-pill:hover {
+  background: rgba(16, 185, 129, 0.26);
+  border-color: rgba(52, 211, 153, 0.75);
+}
+@media (max-width: 760px) {
+  .update-pill {
+    padding: 0 9px;
+    gap: 5px;
+  }
+  .update-pill-label {
+    display: none;
+  }
+}
 </style>
 </head>
 <body>
@@ -8004,7 +8067,7 @@ html[data-theme="dark"] .note-card .md-card-preview {
   <div class="brand"><div class="logo brand-logo-wrap" title="Chronos Flow 5.2"><img src="icons/flow-logo-dark-sm.png" alt="Chronos Flow Dark" class="brand-logo-img brand-logo-dark"><img src="icons/flow-logo-light-sm.png" alt="Chronos Flow Light" class="brand-logo-img brand-logo-light"></div><div><h1>Chronos <span class="brand-flow">Flow</span> <span class="brand-badge">5.2</span></h1><p>Work, time &amp; collaboration in sync</p></div></div>
   <div class="top-actions">
     <label class="search" title="Search all Chronos content"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="search" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="globalSearch" placeholder="Search events, tasks, notes…" aria-label="Search Chronos"></label>
-    
+    <button class="btn update-pill hidden" id="chronosUpdateBtn" type="button" title="A new version of Chronos Flow is ready — click to reload and update" aria-label="Update Chronos Flow now"><span class="update-pill-dot" aria-hidden="true"></span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span class="update-pill-label">Update ready</span></button>
     <button class="btn icon notification-bell" id="notificationBell" type="button" title="Notifications" aria-label="Open notifications" aria-haspopup="dialog" aria-controls="notificationPanel"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon" data-lucide="bell" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span id="notificationBadge" class="notification-badge hidden">0</span></button>
     <div class="account-menu-wrap" id="accountMenuWrap">
       <button class="btn account-trigger" id="firebaseLoginTop" type="button" title="Sign in to Chronos" aria-haspopup="true" aria-expanded="false" aria-controls="accountMenu">
@@ -25423,9 +25486,214 @@ $('dictateNoteBtn')?.addEventListener('click',()=>{const SR=window.SpeechRecogni
 
 function showChronosStartupFailure(err){console.error('Chronos startup failed:',err);let panel=$('chronosStartupFailure');if(!panel){panel=document.createElement('section');panel.id='chronosStartupFailure';panel.setAttribute('role','alert');panel.style.cssText='position:fixed;inset:16px;z-index:2147483647;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:clamp(20px,5vw,48px);background:#101827;color:#f5f7fb;border:1px solid #53627a;border-radius:20px;font:16px/1.5 system-ui,sans-serif;box-shadow:0 20px 70px #0008';document.body.appendChild(panel)}panel.replaceChildren();const title=document.createElement('h1');title.textContent='Chronos could not finish loading';title.style.cssText='font-size:clamp(24px,4vw,36px);margin:0';const detail=document.createElement('p');detail.textContent=(err&&err.message?err.message:String(err||'Unknown startup error'))+' Your existing local data has not been intentionally cleared.';detail.style.cssText='max-width:720px;margin:0;color:#d4deee';const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-top:6px';const retry=document.createElement('button');retry.type='button';retry.textContent='Reload & Clear Stale Cache';retry.style.cssText='padding:12px 18px;border:0;border-radius:10px;background:#7da7ff;color:#101827;font-weight:700;cursor:pointer';retry.onclick=async()=>{retry.disabled=true;retry.textContent='Updating Chronos...';try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();for(const r of regs)await r.unregister();}if('caches' in window){const keys=await caches.keys();for(const k of keys)await caches.delete(k);}}catch(e){}window.location.replace(window.location.pathname+'?reload='+Date.now())};btnRow.appendChild(retry);panel.append(title,detail,btnRow)}
 try{load();loadTeamCache();removeLegacySampleActivities();removeLegacySampleNotes();ensureSchoolCalendarActivities();render();settingsFormFill();setPage(settings.homePage||'dashboard');fillFirebaseConfig();if(reminderTimer)clearInterval(reminderTimer);reminderTimer=setInterval(checkReminders,30000);setTimeout(checkReminders,2500);updateFirebaseLoginUI();if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(settings.mode==='system')applySettings(false)})}}catch(startupError){showChronosStartupFailure(startupError)}
-if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{try{reg.update()}catch(_){}}).catch(()=>{})})}
+const CHRONOS_APP_VERSION='chronos-flow-5.10-v185';
+const CHRONOS_UPDATE_TITLE_PREFIX='↻ Update ready · ';
+function buildChronosUpdateFaviconHref(){
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="18" fill="#0e1726"/><path d="M32 32 C25 22 16 22 11.5 26.5 C7 31 7 37 11.5 41.5 C16 46 25 41 32 32 C39 23 48 18 52.5 22.5 C57 27 57 33 52.5 37.5 C48 42 39 42 32 32" stroke="#38bdf8" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="51" cy="13" r="10.5" fill="#10b981" stroke="#ffffff" stroke-width="3"/></svg>';
+  return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+}
+function createChronosUpdateNotifier(opts={}){
+  const doc=opts.document||document;
+  const win=opts.window||window;
+  const nav=opts.navigator||navigator;
+  const fetchFn=opts.fetch||(typeof fetch==='function'?fetch.bind(win):null);
+  const cachesObj=opts.caches||(typeof caches!=='undefined'?caches:null);
+  const currentVersion=String(opts.appVersion||CHRONOS_APP_VERSION);
+  const protocol=opts.protocol!=null?opts.protocol:(win.location?win.location.protocol:'https:');
+  const onReload=opts.reload||(()=>{try{win.location.reload()}catch{}});
+  const minCheckIntervalMs=typeof opts.minCheckIntervalMs==='number'?opts.minCheckIntervalMs:60000;
+  const pollIntervalMs=typeof opts.pollIntervalMs==='number'?opts.pollIntervalMs:300000;
+  const rawTitle=String(doc.title||'Chronos Flow — Collaborative Calendar, Tasks & Notes');
+  const baseTitle=rawTitle.startsWith(CHRONOS_UPDATE_TITLE_PREFIX)?rawTitle.slice(CHRONOS_UPDATE_TITLE_PREFIX.length):rawTitle;
+  const hadSwController=Boolean(nav&&nav.serviceWorker&&nav.serviceWorker.controller);
+  let originalIconHref='';
+  let baselineSignature='';
+  let baselineCaptured=false;
+  let pendingUpdateMarker='';
+  let updateNotifiedMarker='';
+  let swRegistration=null;
+  let lastCheckAt=0;
+  let checkInFlight=null;
+  let reloadingForUpdate=false;
+  let pollTimer=null;
+  function notifyUpdateAvailable(marker='update'){
+    const key=String(marker||'update');
+    pendingUpdateMarker=key;
+    if(!String(doc.title||'').startsWith(CHRONOS_UPDATE_TITLE_PREFIX)){
+      doc.title=CHRONOS_UPDATE_TITLE_PREFIX+baseTitle;
+    }
+    const iconLink=doc.querySelector?doc.querySelector('link[rel~="icon"]'):null;
+    if(iconLink){
+      if(!originalIconHref)originalIconHref=iconLink.getAttribute('href')||'';
+      iconLink.setAttribute('href',buildChronosUpdateFaviconHref());
+    }
+    const btn=doc.getElementById?doc.getElementById('chronosUpdateBtn'):null;
+    if(btn)btn.classList.remove('hidden');
+    let alerted=false;
+    if(updateNotifiedMarker!==key){
+      updateNotifiedMarker=key;
+      alerted=true;
+      if(typeof opts.onNotify==='function'){
+        opts.onNotify('Chronos update available','A new version is ready. Click "Update ready" in the top bar or reload Chrome to update.');
+      }else if(typeof notifyCustomInApp==='function'){
+        notifyCustomInApp('Chronos update available','A new version is ready. Click "Update ready" in the top bar or reload Chrome to update.');
+      }
+    }
+    return{marker:key,title:doc.title,alerted};
+  }
+  function resetUpdateNotifier(){
+    pendingUpdateMarker='';
+    updateNotifiedMarker='';
+    reloadingForUpdate=false;
+    doc.title=baseTitle;
+    const iconLink=doc.querySelector?doc.querySelector('link[rel~="icon"]'):null;
+    if(iconLink&&originalIconHref)iconLink.setAttribute('href',originalIconHref);
+    const btn=doc.getElementById?doc.getElementById('chronosUpdateBtn'):null;
+    if(btn){
+      btn.classList.add('hidden');
+      btn.disabled=false;
+      const lbl=btn.querySelector?btn.querySelector('.update-pill-label'):null;
+      if(lbl)lbl.textContent='Update ready';
+    }
+  }
+  async function fetchIndexSignature(){
+    if(!fetchFn||protocol==='file:')return'';
+    try{
+      const res=await fetchFn('./index.html',{method:'HEAD',cache:'no-store'});
+      if(!res||!res.ok||!res.headers||typeof res.headers.get!=='function')return'';
+      const etag=String(res.headers.get('etag')||'').trim();
+      const lm=String(res.headers.get('last-modified')||'').trim();
+      return(etag||lm)?(etag+'|'+lm):'';
+    }catch{return''}
+  }
+  async function fetchRemoteSwVersion(){
+    if(!fetchFn||protocol==='file:')return'';
+    try{
+      const res=await fetchFn('./sw.js',{cache:'no-store'});
+      if(!res||!res.ok||typeof res.text!=='function')return'';
+      const text=await res.text();
+      const m=text.match(/const\s+CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
+      return m?String(m[1]||'').trim():'';
+    }catch{return''}
+  }
+  async function runCheck(){
+    lastCheckAt=Date.now();
+    if(swRegistration&&typeof swRegistration.update==='function'){
+      try{
+        await swRegistration.update();
+        if(hadSwController&&swRegistration.waiting){
+          return notifyUpdateAvailable('sw-waiting');
+        }
+      }catch{}
+    }
+    const[remoteSwVersion,indexSig]=await Promise.all([fetchRemoteSwVersion(),fetchIndexSignature()]);
+    if(remoteSwVersion&&remoteSwVersion!==currentVersion){
+      return notifyUpdateAvailable('sw-'+remoteSwVersion);
+    }
+    if(indexSig){
+      if(!baselineCaptured){
+        baselineSignature=indexSig;
+        baselineCaptured=true;
+      }else if(baselineSignature&&indexSig!==baselineSignature){
+        return notifyUpdateAvailable('html-'+indexSig);
+      }
+    }
+    return{marker:pendingUpdateMarker,title:doc.title,alerted:false};
+  }
+  function checkForAppUpdate({force=false}={}){
+    if(checkInFlight)return checkInFlight;
+    if(!force&&lastCheckAt&&Date.now()-lastCheckAt<minCheckIntervalMs){
+      return Promise.resolve({marker:pendingUpdateMarker,title:doc.title,alerted:false,throttled:true});
+    }
+    checkInFlight=runCheck().finally(()=>{checkInFlight=null});
+    return checkInFlight;
+  }
+  async function applyChronosAppUpdate(){
+    if(reloadingForUpdate)return;
+    reloadingForUpdate=true;
+    const btn=doc.getElementById?doc.getElementById('chronosUpdateBtn'):null;
+    if(btn){
+      btn.disabled=true;
+      const lbl=btn.querySelector?btn.querySelector('.update-pill-label'):null;
+      if(lbl)lbl.textContent='Updating…';
+    }
+    try{
+      if(swRegistration&&swRegistration.waiting&&typeof swRegistration.waiting.postMessage==='function'){
+        swRegistration.waiting.postMessage({type:'SKIP_WAITING'});
+      }
+    }catch{}
+    try{
+      if(cachesObj&&typeof cachesObj.keys==='function'){
+        const keys=await cachesObj.keys();
+        await Promise.all(keys.filter(k=>String(k).startsWith('chronos-')).map(k=>cachesObj.delete(k)));
+      }
+    }catch{}
+    onReload();
+  }
+  function watchRegistration(reg){
+    if(!reg)return;
+    swRegistration=reg;
+    if(hadSwController&&reg.waiting){
+      notifyUpdateAvailable('sw-waiting');
+    }
+    if(typeof reg.addEventListener==='function'){
+      reg.addEventListener('updatefound',()=>{
+        const installing=reg.installing;
+        if(!installing||typeof installing.addEventListener!=='function')return;
+        installing.addEventListener('statechange',()=>{
+          if(installing.state==='installed'&&hadSwController){
+            notifyUpdateAvailable('sw-installed');
+          }
+        });
+      });
+    }
+  }
+  function start(){
+    const btn=doc.getElementById?doc.getElementById('chronosUpdateBtn'):null;
+    if(btn&&typeof btn.addEventListener==='function'){
+      btn.addEventListener('click',()=>{applyChronosAppUpdate()});
+    }
+    if(nav&&'serviceWorker' in nav&&protocol!=='file:'){
+      if(typeof nav.serviceWorker.addEventListener==='function'){
+        nav.serviceWorker.addEventListener('controllerchange',()=>{
+          if(hadSwController&&!reloadingForUpdate){
+            notifyUpdateAvailable('sw-controller');
+          }
+        });
+      }
+      const registerSw=()=>{
+        nav.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
+          watchRegistration(reg);
+          return checkForAppUpdate({force:true});
+        }).catch(()=>{checkForAppUpdate({force:true})});
+      };
+      if(doc.readyState==='complete'){registerSw()}
+      else if(typeof win.addEventListener==='function'){win.addEventListener('load',registerSw,{once:true})}
+      else{registerSw()}
+    }else if(protocol!=='file:'){
+      checkForAppUpdate({force:true});
+    }
+    if(typeof doc.addEventListener==='function'){
+      doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)checkForAppUpdate()});
+    }
+    if(typeof win.addEventListener==='function'){
+      win.addEventListener('online',()=>checkForAppUpdate());
+    }
+    if(pollIntervalMs>0){
+      pollTimer=setInterval(()=>checkForAppUpdate(),pollIntervalMs);
+    }
+  }
+  function stop(){
+    if(pollTimer){clearInterval(pollTimer);pollTimer=null}
+  }
+  return{start,stop,checkForAppUpdate,applyChronosAppUpdate,notifyUpdateAvailable,resetUpdateNotifier,watchRegistration,getState:()=>({appVersion:currentVersion,hadSwController,baselineSignature,baselineCaptured,pendingUpdateMarker,updateNotifiedMarker,title:doc.title})};
+}
+const chronosUpdateNotifier=createChronosUpdateNotifier();
+chronosUpdateNotifier.start();
+function checkForAppUpdate(options){return chronosUpdateNotifier.checkForAppUpdate(options)}
+function applyChronosAppUpdate(){return chronosUpdateNotifier.applyChronosAppUpdate()}
  const expose=(name,get,set)=>{try{Object.defineProperty(window,name,{configurable:true,enumerable:false,get,set})}catch{try{window[name]=get()}catch{}}};
- [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['checkReminders',()=>checkReminders],['deliverReminder',()=>deliverReminder],['getTodayScheduleItems',()=>getTodayScheduleItems],['buildTodayScheduleBriefing',()=>buildTodayScheduleBriefing],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v],['startPersonalRealtimeSync',()=>startPersonalRealtimeSync,v=>startPersonalRealtimeSync=v],['stopPersonalRealtimeSync',()=>stopPersonalRealtimeSync,v=>stopPersonalRealtimeSync=v],['removeLegacySampleNotes',()=>removeLegacySampleNotes,v=>removeLegacySampleNotes=v]].forEach(([name,get,set])=>expose(name,get,set));
+ [['$',()=>$],['pad',()=>pad],['iso',()=>iso],['parseDate',()=>parseDate],['fmt',()=>fmt],['esc',()=>esc],['today',()=>today],['selected',()=>selected,v=>selected=v],['view',()=>view,v=>view=v],['page',()=>page,v=>page=v],['query',()=>query,v=>query=v],['events',()=>events,v=>events=v],['notes',()=>notes,v=>notes=v],['tasks',()=>tasks,v=>tasks=v],['settings',()=>settings,v=>settings=v],['firebaseApp',()=>firebaseApp,v=>firebaseApp=v],['firebaseAuth',()=>firebaseAuth,v=>firebaseAuth=v],['firebaseDb',()=>firebaseDb,v=>firebaseDb=v],['firebaseUser',()=>firebaseUser,v=>firebaseUser=v],['firebaseConfig',()=>firebaseConfig,v=>firebaseConfig=v],['firebaseSyncTimer',()=>firebaseSyncTimer,v=>firebaseSyncTimer=v],['firebaseSyncBusy',()=>firebaseSyncBusy,v=>firebaseSyncBusy=v],['firebaseApplyingRemote',()=>firebaseApplyingRemote,v=>firebaseApplyingRemote=v],['chronosTeams',()=>chronosTeams,v=>chronosTeams=v],['activeTeamId',()=>activeTeamId,v=>activeTeamId=v],['activeTeam',()=>activeTeam,v=>activeTeam=v],['teamMembers',()=>teamMembers,v=>teamMembers=v],['teamTab',()=>teamTab,v=>teamTab=v],['teamRecords',()=>teamRecords,v=>teamRecords=v],['teamAssignedTasks',()=>teamAssignedTasks,v=>teamAssignedTasks=v],['teamLiveUnsubs',()=>teamLiveUnsubs,v=>teamLiveUnsubs=v],['teamLiveData',()=>teamLiveData,v=>teamLiveData=v],['teamNotificationRead',()=>teamNotificationRead,v=>teamNotificationRead=v],['teamCalendarEvents',()=>teamCalendarEvents,v=>teamCalendarEvents=v],['pendingTeamInviteCode',()=>pendingTeamInviteCode,v=>pendingTeamInviteCode=v],['notify',()=>notify,v=>notify=v],['render',()=>render,v=>render=v],['setPage',()=>setPage,v=>setPage=v],['renderCalendar',()=>renderCalendar,v=>renderCalendar=v],['renderNotes',()=>renderNotes,v=>renderNotes=v],['renderTasks',()=>renderTasks,v=>renderTasks=v],['renderOverviewTeam',()=>renderOverviewTeam,v=>renderOverviewTeam=v],['renderSharedItemsInMainScreens',()=>renderSharedItemsInMainScreens,v=>renderSharedItemsInMainScreens=v],['renderTeamWorkspace',()=>renderTeamWorkspace,v=>renderTeamWorkspace=v],['renderTeamRecords',()=>renderTeamRecords,v=>renderTeamRecords=v],['refreshTeamWorkspace',()=>refreshTeamWorkspace,v=>refreshTeamWorkspace=v],['startTeamRealtimeSync',()=>startTeamRealtimeSync,v=>startTeamRealtimeSync=v],['stopTeamRealtimeSync',()=>stopTeamRealtimeSync,v=>stopTeamRealtimeSync=v],['teamStatus',()=>teamStatus,v=>teamStatus=v],['teamActivityItems',()=>teamActivityItems,v=>teamActivityItems=v],['renderNotificationList',()=>renderNotificationList,v=>renderNotificationList=v],['renderNotificationBell',()=>renderNotificationBell,v=>renderNotificationBell=v],['markNotificationRead',()=>markNotificationRead,v=>markNotificationRead=v],['markAllNotificationsRead',()=>markAllNotificationsRead,v=>markAllNotificationsRead=v],['refreshNotificationReadState',()=>refreshNotificationReadState,v=>refreshNotificationReadState=v],['openNotifications',()=>openNotifications,v=>openNotifications=v],['closeNotifications',()=>closeNotifications,v=>closeNotifications=v],['publishToTeams',()=>publishToTeams,v=>publishToTeams=v],['submitTeamRecord',()=>submitTeamRecord,v=>submitTeamRecord=v],['updateTeamTaskStatus',()=>updateTeamTaskStatus,v=>updateTeamTaskStatus=v],['updateAssignedTeamTaskStatus',()=>updateAssignedTeamTaskStatus,v=>updateAssignedTeamTaskStatus=v],['populateTeamSelectors',()=>populateTeamSelectors,v=>populateTeamSelectors=v],['refreshUnifiedTeamCalendar',()=>refreshUnifiedTeamCalendar,v=>refreshUnifiedTeamCalendar=v],['saveTeamCache',()=>saveTeamCache,v=>saveTeamCache=v],['loadTeamCache',()=>loadTeamCache,v=>loadTeamCache=v],['currentTeamRole',()=>currentTeamRole,v=>currentTeamRole=v],['isTeamAdmin',()=>isTeamAdmin,v=>isTeamAdmin=v],['teamReadList',()=>teamReadList,v=>teamReadList=v],['applyTeamLiveData',()=>applyTeamLiveData,v=>applyTeamLiveData=v],['teamEsc',()=>teamEsc,v=>teamEsc=v],['avatarMarkup',()=>avatarMarkup,v=>avatarMarkup=v],['updateFirebaseLoginUI',()=>updateFirebaseLoginUI,v=>updateFirebaseLoginUI=v],['hideFirebaseLogin',()=>hideFirebaseLogin,v=>hideFirebaseLogin=v],['updateSyncStatus',()=>updateSyncStatus,v=>updateSyncStatus=v],['fillFirebaseConfig',()=>fillFirebaseConfig,v=>fillFirebaseConfig=v],['persist',()=>persist,v=>persist=v],['saveSettings',()=>saveSettings,v=>saveSettings=v],['applySettings',()=>applySettings,v=>applySettings=v],['settingsFormFill',()=>settingsFormFill,v=>settingsFormFill=v],['checkReminders',()=>checkReminders],['deliverReminder',()=>deliverReminder],['getTodayScheduleItems',()=>getTodayScheduleItems],['buildTodayScheduleBriefing',()=>buildTodayScheduleBriefing],['chronosUpdateNotifier',()=>chronosUpdateNotifier],['checkForAppUpdate',()=>checkForAppUpdate],['applyChronosAppUpdate',()=>applyChronosAppUpdate],['firebaseMergeSync',()=>firebaseMergeSync,v=>firebaseMergeSync=v],['firebaseBackgroundSync',()=>firebaseBackgroundSync,v=>firebaseBackgroundSync=v],['scheduleFirebaseSync',()=>scheduleFirebaseSync,v=>scheduleFirebaseSync=v],['startPersonalRealtimeSync',()=>startPersonalRealtimeSync,v=>startPersonalRealtimeSync=v],['stopPersonalRealtimeSync',()=>stopPersonalRealtimeSync,v=>stopPersonalRealtimeSync=v],['removeLegacySampleNotes',()=>removeLegacySampleNotes,v=>removeLegacySampleNotes=v]].forEach(([name,get,set])=>expose(name,get,set));
  
 </script>
 
