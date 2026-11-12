@@ -6,6 +6,12 @@
 3. Add your HTTPS host or localhost to Authentication → Settings → Authorized domains.
 4. Open Chronos and configure the existing Firebase web configuration in Settings → Data & Cloud Sync if it is not already configured.
 
+### Installed-PWA Google sign-in
+
+Chronos uses Firebase's popup sign-in flow in both the browser and installed PWA. This avoids the cross-origin redirect-storage problem that can return to an Android app without a Firebase session. Keep the existing Firebase `authDomain` (`russapps-chronosflow.firebaseapp.com`) unless a fully tested same-origin Firebase Auth proxy and matching Google OAuth redirect URI have been configured.
+
+After deploying an update, use the PWA's update action if offered, then close and reopen Chronos before testing sign-in, sign-out, and sign-in again. If Android blocks the popup, use **Open Chronos in browser** in the sign-in dialog, complete authentication there, and return to the app.
+
 ## 2. Publish security rules
 Open Firestore Database → Rules and publish the included `firestore.rules`. Review rules before publishing to a live project. These rules preserve user-owned documents under `users/{uid}`, team membership and role controls, shared `events`, `tasks`, and `notes`, and recipient-specific team notifications.
 
