@@ -24309,7 +24309,7 @@ document.addEventListener('dblclick', e => {
 // Firebase cloud sync. User owns/configures their project; never store server credentials here.
 function updateSyncStatus(message){const el=$('syncStatus');if(!el)return;const configured=!!(firebaseConfig&&firebaseConfig.apiKey&&firebaseConfig.projectId);el.classList.toggle('connected',!!firebaseUser);el.classList.toggle('pending',!!message);const label=message||(firebaseUser?'Signed in · '+(firebaseUser.displayName||firebaseUser.email||firebaseUser.uid):configured?'Configured · sign in with Google':'Firebase not configured');el.innerHTML=`<span class="status-dot"></span><span>${esc(label)}</span>`}
 function fillFirebaseConfig(){const input=$('firebaseConfigJson');if(input&&firebaseConfig&&Object.keys(firebaseConfig).length)input.value=JSON.stringify(firebaseConfig,null,2);updateSyncStatus()}
-let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true,experimentalForceLongPolling:true})}catch(e){try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(_){}}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}flushPendingTeamDeletes().catch(err=>console.warn('Queued team deletion flush failed:',err));refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync().finally(()=>startPersonalRealtimeSync());}else{stopPersonalRealtimeSync();stopTeamRealtimeSync();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
+let firebaseSdkPromise=null;async function ensureFirebaseSdk(){if(window.firebase&&firebase.auth&&firebase.firestore)return;if(firebaseSdkPromise)return firebaseSdkPromise;firebaseSdkPromise=(async()=>{for(const src of ['https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js']){await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(Error('Firebase SDK could not load. Connect to the internet and try again.'));document.head.appendChild(script)})}})();try{await firebaseSdkPromise}catch(err){firebaseSdkPromise=null;throw err}}async function initFirebase(config){await ensureFirebaseSdk();const existing=firebase.apps.find(a=>a.name==='chronos');firebaseApp=existing||firebase.initializeApp(config,'chronos');firebaseAuth=firebaseApp.auth();firebaseDb=firebaseApp.firestore();try{firebaseDb.settings({ignoreUndefinedProperties:true,experimentalForceLongPolling:true})}catch(e){try{firebaseDb.settings({ignoreUndefinedProperties:true})}catch(_){}}firebaseAuth.onAuthStateChanged(user=>{firebaseUser=user||null;refreshNotificationReadState();updateSyncStatus();updateFirebaseLoginUI();renderOverviewTeam();if(user){hideFirebaseLogin();notify('Signed in to Firebase as '+(user.displayName||user.email||'your account')+'.');if(pendingTeamInviteCode){$('teamJoinCode').value=pendingTeamInviteCode.toUpperCase();setPage('team')}flushPendingTeamDeletes().catch(err=>console.warn('Queued team deletion flush failed:',err));refreshTeamWorkspace();localStorage.setItem('chronos60.firebaseMigrationComplete',user.uid);firebaseBackgroundSync().finally(()=>startPersonalRealtimeSync());}else{stopPersonalRealtimeSync();stopTeamRealtimeSync();if(typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.clear();teamCalendarEvents=[];chronosTeams=[];activeTeam=null;teamMembers=[];teamRecords={events:[],tasks:[],notes:[]};if(page==='team')renderTeamWorkspace();renderTasks();render()}});}
 $('firebaseConfigForm').addEventListener('submit',async e=>{e.preventDefault();try{const parsed=JSON.parse($('firebaseConfigJson').value);if(!parsed.apiKey||!parsed.projectId||!parsed.appId||!parsed.authDomain)throw Error('Configuration must include apiKey, authDomain, projectId, and appId.');firebaseConfig=parsed;localStorage.setItem('chronos60.firebaseConfig',JSON.stringify(firebaseConfig));if(location.protocol==='file:'){updateSyncStatus('Configuration saved · standalone local mode');notify('Firebase config saved. For Google sign-in, open Chronos from localhost or an HTTPS host.');return}await initFirebase(firebaseConfig);updateSyncStatus('Firebase configuration saved');notify('Firebase configuration saved on this device.')}catch(err){notify('Firebase config error: '+err.message)}});
 async function startFirebaseGoogleSignIn(source='login'){const status=$('firebaseLoginStatus');const btn=$('firebaseLoginGoogle');if(location.protocol==='file:'){const message='The standalone HTML is running from a local file. Chronos works offline here, but Firebase Google sign-in requires localhost or an HTTPS-hosted version. Open the PWA package through a local web server or deploy it to HTTPS to connect Firebase.';if(status){status.classList.add('error');status.textContent=message}notify('Firebase sign-in requires localhost or HTTPS. Your local workspace is still available.');return}try{if(status){status.classList.remove('error');status.textContent='Connecting to Firebase…'}if(btn){btn.disabled=true;$('firebaseLoginGoogleLabel').textContent='Connecting…'}if(!firebaseAuth){if(!firebaseConfig.apiKey)throw Error('Firebase configuration is missing. Open Settings → Data & Cloud Sync to configure it.');await initFirebase(firebaseConfig)}const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await firebaseAuth.signInWithPopup(provider)}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/operation-not-supported-in-environment'||err.code==='auth/operation-not-supported-in-this-environment'){try{await firebaseAuth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());return}catch(e){err=e}}if(status){status.classList.add('error');status.textContent=err.message||'Google sign-in failed. Check your Firebase Authentication settings and authorized domain.'}notify(err.message||'Google sign-in failed.')}finally{if(btn){btn.disabled=false;$('firebaseLoginGoogleLabel').textContent='Continue with Google'}}}
 $('firebaseGoogleSignIn').addEventListener('click',()=>startFirebaseGoogleSignIn('settings'));
@@ -24831,18 +24831,49 @@ function structuredCloneSafe(v){return JSON.parse(JSON.stringify(v??null))}
 function downloadLocalPreSyncBackup(){const payload={app:'Chronos',backupVersion:1,createdAt:new Date().toISOString(),events,notes,tasks,settings,theme:document.documentElement.dataset.theme||'dark'};try{localStorage.setItem('chronos60.preSyncBackup',JSON.stringify(payload))}catch{}const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`chronos-pre-firebase-merge-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);return payload}
 function itemTime(x){const vals=[x?.updated,x?.updatedAt,x?.modifiedAt,x?.createdAt].map(v=>Number(v||0)).filter(v=>Number.isFinite(v)&&v>0);const d=Date.parse(x?.updated_at||'');if(Number.isFinite(d)&&d>0)vals.push(d);return vals.length?Math.max(...vals):0}
 function mergeById(localItems,cloudItems){const map=new Map();for(const x of cloudItems||[])if(x&&x.id!=null)map.set(String(x.id),x);for(const x of localItems||[]){if(!x||x.id==null)continue;const id=String(x.id),old=map.get(id);if(!old||itemTime(x)>=itemTime(old))map.set(id,x)}return [...map.values()]}
-async function firestoreReadCollection(name){const snap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection(name).get();return snap.docs.map(d=>({...d.data(),id:d.data()._chronosId||d.id}))}
+const _chronosSyncedSigs=new Map();
+function _chronosStableStringify(val,skipSet){
+  if(val===null||val===undefined||typeof val!=='object')return JSON.stringify(val===undefined?null:val);
+  if(Array.isArray(val))return '['+val.map(x=>_chronosStableStringify(x,skipSet)).join(',')+']';
+  const keys=Object.keys(val).filter(k=>(!skipSet||!skipSet.has(k))&&val[k]!==undefined).sort();
+  return '{'+keys.map(k=>JSON.stringify(k)+':'+_chronosStableStringify(val[k],skipSet)).join(',')+'}';
+}
+function _chronosPayloadSig(val,excludeKeys){
+  const skipSet=new Set(excludeKeys||['_syncUpdatedAt']);
+  const s=_chronosStableStringify(val,skipSet);
+  let h=2166136261;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}
+  return s.length+':'+(h>>>0).toString(36);
+}
+async function firestoreReadCollection(name){
+  const snap=await firebaseDb.collection('users').doc(firebaseUser.uid).collection(name).get();
+  return snap.docs.map(d=>{
+    const raw=d.data()||{};
+    const cleanId=String(raw._chronosId||d.id).replace(/[.#$\[\]/]/g,'_');
+    if(raw._chronosId)_chronosSyncedSigs.set('users/'+firebaseUser.uid+'/'+name+'/'+cleanId,_chronosPayloadSig(raw));
+    else if(name==='tombstones')_chronosSyncedSigs.set('users/'+firebaseUser.uid+'/tombstones/'+d.id,_chronosPayloadSig(raw));
+    return {...raw,id:raw._chronosId||d.id};
+  });
+}
 async function firestoreWriteCollection(name,items){
   const tombs = (typeof localTombstones === 'function') ? localTombstones() : {};
   const cleanItems = (items || []).filter(item => item && item.id != null && !tombs[name + '|' + String(item.id)]);
   const col=firebaseDb.collection('users').doc(firebaseUser.uid).collection(name);
-  for(let i=0;i<cleanItems.length;i+=400){
+  const pending=[];
+  for(const item of cleanItems){
+    const id=String(item.id).replace(/[.#$\[\]/]/g,'_');
+    const payload={...item,_chronosId:String(item.id),_syncUpdatedAt:itemTime(item)||Date.now()};
+    const cacheKey='users/'+firebaseUser.uid+'/'+name+'/'+id;
+    const sig=_chronosPayloadSig(payload);
+    if(_chronosSyncedSigs.get(cacheKey)===sig)continue;
+    pending.push({id,payload,cacheKey,sig});
+  }
+  for(let i=0;i<pending.length;i+=400){
+    const chunk=pending.slice(i,i+400);
     const batch=firebaseDb.batch();
-    for(const item of cleanItems.slice(i,i+400)){
-      const id=String(item.id).replace(/[.#$\[\]/]/g,'_');
-      batch.set(col.doc(id),{...item,_chronosId:String(item.id),_syncUpdatedAt:itemTime(item)||Date.now()},{merge:true});
-    }
+    for(const entry of chunk)batch.set(col.doc(entry.id),entry.payload,{merge:true});
     await batch.commit();
+    for(const entry of chunk)_chronosSyncedSigs.set(entry.cacheKey,entry.sig);
   }
 }
 async function purgeCloudZombieDocs(tombs,cloudEvents,cloudNotes,cloudTasks,cloudProjects=[]){
@@ -24889,15 +24920,21 @@ async function writeTombstones(tombs){
     if(!cleanId)continue;
     const payload={...tombstone,id:String(tombstone.id),type:tombstone.type,tombstoneKey:key,deletedAt:Number(tombstone.deletedAt)||Date.now()};
     const kindDocId=typeStr?typeStr+'_'+cleanId:cleanId;
-    const rawDocId=String(key).replace(/[.#$\[\]/]/g,'_');
-    for(const docId of new Set([kindDocId,cleanId,rawDocId]))add(docId,payload);
+    add(kindDocId,payload);
   }
-  const entries=[...writes.entries()];
-  // Keep well below Firestore's 500-write batch ceiling, including future extra aliases.
-  for(let i=0;i<entries.length;i+=400){
+  const pending=[];
+  for(const [docId,payload] of writes.entries()){
+    const cacheKey='users/'+firebaseUser.uid+'/tombstones/'+docId;
+    const sig=_chronosPayloadSig(payload);
+    if(_chronosSyncedSigs.get(cacheKey)===sig)continue;
+    pending.push({docId,payload,cacheKey,sig});
+  }
+  for(let i=0;i<pending.length;i+=400){
+    const chunk=pending.slice(i,i+400);
     const batch=firebaseDb.batch();
-    for(const [docId,payload] of entries.slice(i,i+400))batch.set(col.doc(docId),payload,{merge:true});
+    for(const entry of chunk)batch.set(col.doc(entry.docId),entry.payload,{merge:true});
     await batch.commit();
+    for(const entry of chunk)_chronosSyncedSigs.set(entry.cacheKey,entry.sig);
   }
 }
 async function firebaseMergeSync(){if(firebaseSyncBusy)return;firebaseSyncBusy=true;const btn=$('firebaseSyncNow');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{if(!firebaseConfig.apiKey)throw Error('Save your Firebase Web App configuration first.');if(!firebaseAuth||!firebaseUser)throw Error('Sign in with Google before syncing.');if(!navigator.onLine)throw Error('You are offline. Your local changes remain saved and can sync when you are online.');const firstMigration=localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid;if(firstMigration){updateSyncStatus('Creating local backup…');downloadLocalPreSyncBackup();const ok=await confirmCustomInApp('A local JSON backup has been downloaded and saved in this browser. Merge local and cloud records by ID and update time? Existing records are not wholesale replaced.',{title:'Merge Cloud Workspace',confirmText:'Merge & sync'});if(!ok)return;}const userRef=firebaseDb.collection('users').doc(firebaseUser.uid);await userRef.set({uid:firebaseUser.uid,email:firebaseUser.email||'',displayName:firebaseUser.displayName||'',lastSyncAt:firebase.firestore.FieldValue.serverTimestamp(),schemaVersion:1},{merge:true});updateSyncStatus('Reading cloud data…');const [cloudEvents,cloudNotes,cloudTasks,cloudSettings,cloudTombstones,cloudProjects]=await Promise.all([
@@ -25076,7 +25113,14 @@ async function firebaseBackgroundSync(){
       firestoreWriteCollection('projects',(typeof chronosProjects !== 'undefined' ? chronosProjects : [])),
       writeTombstones(tombs)
     ]);
-    await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});
+    const prefKey='users/'+firebaseUser.uid+'/settings/preferences';
+    const nextPrefSig=_chronosPayloadSig(settings);
+    const cloudPrefSig=pref?.value?_chronosPayloadSig(pref.value):'';
+    if(cloudPrefSig)_chronosSyncedSigs.set(prefKey,cloudPrefSig);
+    if(_chronosSyncedSigs.get(prefKey)!==nextPrefSig){
+      await firebaseDb.collection('users').doc(firebaseUser.uid).collection('settings').doc('preferences').set({id:'preferences',value:settings,updatedAt:Date.now(),_syncUpdatedAt:Date.now()},{merge:true});
+      _chronosSyncedSigs.set(prefKey,nextPrefSig);
+    }
     render();
     renderTasks();
     renderNotes();
@@ -25090,7 +25134,7 @@ async function firebaseBackgroundSync(){
   }
 }
 function scheduleFirebaseSync(){if(firebaseApplyingRemote||!firebaseUser||!firebaseDb||!navigator.onLine)return;if(localStorage.getItem('chronos60.firebaseMigrationComplete')!==firebaseUser.uid)localStorage.setItem('chronos60.firebaseMigrationComplete',firebaseUser.uid);clearTimeout(firebaseSyncTimer);firebaseSyncTimer=setTimeout(()=>firebaseBackgroundSync(),1500)}
-window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace();startPersonalRealtimeSync()}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){refreshTeamWorkspace();firebaseBackgroundSync().catch(()=>{})}});
+window.addEventListener('online',()=>{if(firebaseUser){scheduleFirebaseSync();refreshTeamWorkspace();startPersonalRealtimeSync()}});let _chronosLastVisibilitySync=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&firebaseUser&&navigator.onLine){const now=Date.now();if(now-_chronosLastVisibilitySync<180000)return;_chronosLastVisibilitySync=now;refreshTeamWorkspace();firebaseBackgroundSync().catch(()=>{})}});
 // Restore saved config without blocking standalone startup. Firebase SDK is loaded only
 // on a secure origin when the user chooses to connect; file:// stays local-first and usable.
 try{firebaseConfig=JSON.parse(localStorage.getItem('chronos60.firebaseConfig')||'null')||{...DEFAULT_FIREBASE_CONFIG};if(firebaseConfig.apiKey&&firebaseConfig.projectId){$('firebaseConfigJson').value=JSON.stringify(firebaseConfig,null,2);if(location.protocol==='file:'){updateSyncStatus('Standalone mode · local workspace ready')}else{initFirebase(firebaseConfig).catch(err=>{console.warn('Firebase configuration not initialized:',err);updateSyncStatus('Firebase unavailable · local mode remains active')})}}}catch(err){console.warn('Firebase configuration not initialized:',err)}
@@ -29700,22 +29744,40 @@ html[data-theme=dark] .btn-act-compact {
   if(project.teamShared&&!canManageProject(projectForAccess))return;
   const teamId=project.teamId||activeTeamId;
   if(!teamId)return;
-  const now=Date.now(),team=chronosTeams.find(item=>String(item.id)===String(teamId));
+  const team=chronosTeams.find(item=>String(item.id)===String(teamId));
   const createdBy=project.createdBy&&project.createdBy!=='local'?project.createdBy:firebaseUser.uid;
+  const teamName=project.teamName||team?.name||activeTeam?.name||'Team';
+  const ownerUid=project.ownerUid||createdBy;
+  const createdByName=project.createdByName||firebaseUser.displayName||firebaseUser.email||'';
+  const pid=String(project.id);
+  const sigSkip=['updatedAt','updatedBy','_syncUpdatedAt'];
+  const draft={...project,id:pid,teamId,teamName,sharedProject:true,teamShared:true,createdBy,ownerUid,createdByName};
+  const nextSig=typeof _chronosPayloadSig==='function'?_chronosPayloadSig(draft,sigSkip):'';
+  const cacheKey='teams/'+teamId+'/projects/'+pid;
+  const liveRemote=(typeof teamLiveData!=='undefined'&&teamLiveData?.[teamId]?.projects||[]).find(p=>String(p.id)===pid);
+  if(nextSig&&typeof _chronosSyncedSigs!=='undefined'){
+   if(_chronosSyncedSigs.get(cacheKey)===nextSig)return;
+   if(liveRemote&&_chronosPayloadSig({...liveRemote,id:pid,teamId,teamName,sharedProject:true,teamShared:true},sigSkip)===nextSig){
+    _chronosSyncedSigs.set(cacheKey,nextSig);
+    return;
+   }
+  }
+  const now=Date.now();
   project.createdBy=createdBy;
-  project.ownerUid=project.ownerUid||createdBy;
+  project.ownerUid=ownerUid;
   project.teamId=teamId;
-  project.teamName=project.teamName||team?.name||activeTeam?.name||'Team';
+  project.teamName=teamName;
   project.teamShared=true;
   project.updatedAt=now;
-  const record={...project,id:String(project.id),teamId,teamName:project.teamName,sharedProject:true,createdBy,ownerUid:project.ownerUid,createdByName:project.createdByName||firebaseUser.displayName||firebaseUser.email||'',updatedBy:firebaseUser.uid,updatedAt:now};
-  await firebaseDb.collection('teams').doc(teamId).collection('projects').doc(String(project.id)).set(record,{merge:true});
+  const record={...project,id:pid,teamId,teamName,sharedProject:true,createdBy,ownerUid,createdByName,updatedBy:firebaseUser.uid,updatedAt:now};
+  await firebaseDb.collection('teams').doc(teamId).collection('projects').doc(pid).set(record,{merge:true});
+  if(nextSig&&typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.set(cacheKey,nextSig);
   saveChronosProjects();
  }
- async function syncSharedProjectTask(task){const project=projectFor(task?.projectId);if(!task||!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;const teamId=task.teamId||project.teamId;if(!teamId)return;const assignments=Array.isArray(task.teamAssignments)?task.teamAssignments.filter(a=>String(a.teamId)===String(teamId)).map(a=>a.uid).filter(Boolean):[];const assigneeUids=[...new Set([...(task.assigneeUids||[]),...(task.assigneeUid?[task.assigneeUid]:[]),...assignments])];const member=teamMembers.find(m=>String(m.uid)===String(assigneeUids[0]||''));const status=normalizeStatus(task.status),record={id:String(task.id),type:'tasks',sourceType:'project',teamShared:true,teamId,teamName:project.teamName||activeTeam?.name||'Team',projectId:String(project.id),projectName:project.name||'Project',projectDescription:project.description||'',title:task.title||'Untitled task',body:task.details||task.body||'',details:task.details||'',date:task.due||task.date||'',due:task.due||task.date||'',dueTime:task.dueTime||'',priority:task.priority||'medium',status:status==='in_progress'?'in-progress':status,done:status==='done'||!!task.done,assigneeUid:assigneeUids[0]||'',assigneeUids,assigneeEmail:member?.email||task.assigneeEmail||'',assigneeName:member?.displayName||task.assigneeName||'',assigneePhotoURL:member?.photoURL||task.assigneePhotoURL||'',createdBy:task.createdBy||firebaseUser.uid,createdByName:task.createdByName||firebaseUser.displayName||firebaseUser.email||'',createdAt:task.createdAt||Date.now(),updatedAt:Date.now(),updatedBy:firebaseUser.uid};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(String(task.id)).set(record,{merge:true});task.teamId=teamId;task.teamShared=true;task.sourceType='project';task.sharedRecordId=String(task.id)}
+ async function syncSharedProjectTask(task){const project=projectFor(task?.projectId);if(!task||!project||!firebaseUser||!firebaseDb||!navigator.onLine)return;const teamId=task.teamId||project.teamId;if(!teamId)return;const assignments=Array.isArray(task.teamAssignments)?task.teamAssignments.filter(a=>String(a.teamId)===String(teamId)).map(a=>a.uid).filter(Boolean):[];const assigneeUids=[...new Set([...(task.assigneeUids||[]),...(task.assigneeUid?[task.assigneeUid]:[]),...assignments])];const member=teamMembers.find(m=>String(m.uid)===String(assigneeUids[0]||''));const status=normalizeStatus(task.status),tid=String(task.id),baseRecord={id:tid,type:'tasks',sourceType:'project',teamShared:true,teamId,teamName:project.teamName||activeTeam?.name||'Team',projectId:String(project.id),projectName:project.name||'Project',projectDescription:project.description||'',title:task.title||'Untitled task',body:task.details||task.body||'',details:task.details||'',date:task.due||task.date||'',due:task.due||task.date||'',dueTime:task.dueTime||'',priority:task.priority||'medium',status:status==='in_progress'?'in-progress':status,done:status==='done'||!!task.done,assigneeUid:assigneeUids[0]||'',assigneeUids,assigneeEmail:member?.email||task.assigneeEmail||'',assigneeName:member?.displayName||task.assigneeName||'',assigneePhotoURL:member?.photoURL||task.assigneePhotoURL||'',createdBy:task.createdBy||firebaseUser.uid,createdByName:task.createdByName||firebaseUser.displayName||firebaseUser.email||'',createdAt:task.createdAt||Date.now()};const sigSkip=['updatedAt','updatedBy','_syncUpdatedAt'];const nextSig=typeof _chronosPayloadSig==='function'?_chronosPayloadSig(baseRecord,sigSkip):'';const cacheKey='teams/'+teamId+'/tasks/'+tid;const liveRemote=(typeof teamLiveData!=='undefined'&&teamLiveData?.[teamId]?.tasks||[]).find(t=>String(t.id)===tid);if(nextSig&&typeof _chronosSyncedSigs!=='undefined'){if(_chronosSyncedSigs.get(cacheKey)===nextSig){task.teamId=teamId;task.teamShared=true;task.sourceType='project';task.sharedRecordId=tid;return;}if(liveRemote&&_chronosPayloadSig(liveRemote,sigSkip)===nextSig){_chronosSyncedSigs.set(cacheKey,nextSig);task.teamId=teamId;task.teamShared=true;task.sourceType='project';task.sharedRecordId=tid;return;}}const record={...baseRecord,updatedAt:Date.now(),updatedBy:firebaseUser.uid};await firebaseDb.collection('teams').doc(teamId).collection('tasks').doc(tid).set(record,{merge:true});if(nextSig&&typeof _chronosSyncedSigs!=='undefined')_chronosSyncedSigs.set(cacheKey,nextSig);task.teamId=teamId;task.teamShared=true;task.sourceType='project';task.sharedRecordId=tid}
  async function syncAllSharedProjects(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;const currentTeamId=activeTeamId;if(!currentTeamId)return;const memberIds=new Set((teamMembers||[]).map(member=>String(member.uid||member.id||'')));const candidates=chronosProjects.filter(project=>{if(project.teamId)return true;const people=[project.ownerUid,...(project.memberUids||project.officerUids||[])].filter(Boolean).map(String);return people.some(uid=>memberIds.has(uid))});if(!candidates.length)return;sharedProjectSyncBusy=true;try{for(const project of candidates){if(!project.teamId)project.teamId=currentTeamId;await syncSharedProject(project)}}catch(err){console.warn('Project sharing backfill failed:',err)}finally{sharedProjectSyncBusy=false}}
  async function syncAllSharedProjectTasks(){if(sharedProjectSyncBusy||!firebaseUser||!firebaseDb||!navigator.onLine)return;sharedProjectSyncBusy=true;try{for(const task of tasks.filter(t=>t.projectId)){const project=projectFor(task.projectId);if(project?.teamId)await syncSharedProjectTask(task)}}catch(err){console.warn('Project task sharing failed:',err)}finally{sharedProjectSyncBusy=false}}
- const basePersistForProjects=window.persist;if(typeof basePersistForProjects==='function'&&!window.chronosSharedProjectPersist){window.chronosSharedProjectPersist=true;window.persist=function(){const result=basePersistForProjects.apply(this,arguments);setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},0);return result};persist=window.persist}
+ const basePersistForProjects=window.persist;if(typeof basePersistForProjects==='function'&&!window.chronosSharedProjectPersist){window.chronosSharedProjectPersist=true;window.persist=function(){const result=basePersistForProjects.apply(this,arguments);if(typeof firebaseApplyingRemote!=='undefined'&&firebaseApplyingRemote)return result;clearTimeout(window._chronosSharedProjectSyncTimer);window._chronosSharedProjectSyncTimer=setTimeout(async()=>{await syncAllSharedProjects();await syncAllSharedProjectTasks()},400);return result};persist=window.persist}
  function projectTaskMarkupShared(task,project){
    const done=!!task.done||(typeof normalizeStatus==='function'?normalizeStatus(task.status)==='done':task.status==='done');
    const status=typeof normalizeStatus==='function'?normalizeStatus(task.status):(task.status||'open');
@@ -29872,9 +29934,16 @@ html[data-theme=dark] .btn-act-compact {
   };
   const canUseRestWrites=()=>Boolean(projectId&&typeof fetch==='function'&&firebaseUser&&typeof firebaseUser.getIdToken==='function');
   let preferRestWrites=false;
+  const quotaExceededMessage='Firebase project daily Firestore quota is exceeded (Spark free tier: 20,000 writes/deletes per day). Wait until the daily reset at midnight Pacific Time (4:00 PM PHT) or upgrade the Firebase project to Blaze, then retry.';
   const parseRestError=(status,payload,fallbackMsg)=>{
    const statusCode=String(payload?.error?.status||'').toUpperCase();
-   const err=Error(payload?.error?.message||fallbackMsg||`Firestore request failed (${status}).`);
+   const rawMessage=payload?.error?.message||'';
+   if(statusCode==='RESOURCE_EXHAUSTED'||status===429||/quota exceeded/i.test(rawMessage)){
+    const quotaErr=Error(quotaExceededMessage);
+    quotaErr.code='resource-exhausted';
+    return quotaErr;
+   }
+   const err=Error(rawMessage||fallbackMsg||`Firestore request failed (${status}).`);
    if(statusCode==='PERMISSION_DENIED'||status===403)err.code='permission-denied';
    else if(statusCode==='NOT_FOUND'||status===404)err.code='not-found';
    else if(statusCode==='UNAUTHENTICATED'||status===401)err.code='unauthenticated';
@@ -29926,6 +29995,11 @@ html[data-theme=dark] .btn-act-compact {
    try{
     return await withStepTimeout(sdkWriteFn(),label,restReady?6000:15000);
    }catch(err){
+    if(err?.code==='resource-exhausted'||/quota exceeded/i.test(String(err?.message||''))){
+     const quotaErr=Error(quotaExceededMessage);
+     quotaErr.code='resource-exhausted';
+     throw quotaErr;
+    }
     if(restReady&&(err?.code==='deadline-exceeded'||err?.code==='unavailable')){
      if(!preferRestWrites){
       preferRestWrites=true;
@@ -30004,25 +30078,27 @@ html[data-theme=dark] .btn-act-compact {
 
   try{
    // Lock shared writes before enumerating collections so joins or new records cannot race cleanup.
-   reportStage('Locking team…');
-   try{
-    await runWriteWithRestFallback(
-     ()=>teamRef.update({deleting:true,deletionStartedAt:Date.now()}),
-     ()=>[{
-      update:{
-       name:restDocName(teamRef),
-       fields:{
-        deleting:{booleanValue:true},
-        deletionStartedAt:{integerValue:String(Math.trunc(Date.now()))}
-       }
-      },
-      updateMask:{fieldPaths:['deleting','deletionStartedAt']},
-      currentDocument:{exists:true}
-     }],
-     'locking the team workspace'
-    );
-   }catch(err){
-    if(err?.code!=='permission-denied')throw err;
+   if(team.deleting!==true){
+    reportStage('Locking team…');
+    try{
+     await runWriteWithRestFallback(
+      ()=>teamRef.update({deleting:true,deletionStartedAt:Date.now()}),
+      ()=>[{
+       update:{
+        name:restDocName(teamRef),
+        fields:{
+         deleting:{booleanValue:true},
+         deletionStartedAt:{integerValue:String(Math.trunc(Date.now()))}
+        }
+       },
+       updateMask:{fieldPaths:['deleting','deletionStartedAt']},
+       currentDocument:{exists:true}
+      }],
+      'locking the team workspace'
+     );
+    }catch(err){
+     if(err?.code!=='permission-denied')throw err;
+    }
    }
    reportStage('Loading invite codes…');
    const [membersSnapshot,invitationsSnapshot]=await withStepTimeout(
