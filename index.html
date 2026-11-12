@@ -18364,12 +18364,59 @@ function downloadFile(filename,content,type){
 }
 function blobToDataUrl(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=()=>reject(r.error||Error('Could not read media for backup'));r.readAsDataURL(blob)})}
 function dataUrlToBlob(dataUrl){const parts=String(dataUrl||'').split(',');if(parts.length<2)throw Error('A media item in this backup is invalid.');const match=parts[0].match(/data:([^;]*);base64/i);if(!match)throw Error('A media item in this backup has an unsupported format.');const raw=atob(parts[1]),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return new Blob([bytes],{type:match[1]||'application/octet-stream'})}
+function _chronosReadProjectsForBackup(){
+  const list=(typeof chronosProjects!=='undefined'&&Array.isArray(chronosProjects))?chronosProjects:(Array.isArray(window.chronosProjects)?window.chronosProjects:[]);
+  if(list.length)return list.filter(p=>p&&typeof p==='object');
+  try{
+    const saved=JSON.parse(localStorage.getItem('chronos90.projects')||'[]');
+    return Array.isArray(saved)?saved.filter(p=>p&&typeof p==='object'):[];
+  }catch{return []}
+}
+function _chronosNormalizeRestoredRecord(item,preserveCloudLinks,validTeamIds,uid,isProject=false){
+  const clone={...(item||{})};
+  const itemTeamId=clone.teamId?String(clone.teamId):'';
+  const keepTeam=preserveCloudLinks&&(!itemTeamId||validTeamIds.has(itemTeamId));
+  if(!keepTeam){
+    delete clone.teamId;
+    delete clone.teamName;
+    delete clone.teamShared;
+    delete clone.sharedProject;
+    delete clone.sharedRecordId;
+    delete clone.sharedTeamIds;
+    delete clone.teamAssignments;
+    if(clone.sourceType==='team')delete clone.sourceType;
+    clone.createdBy=uid||'local';
+    if(isProject||'ownerUid' in clone)clone.ownerUid=uid||'local';
+  }
+  return clone;
+}
+function _chronosClearRestoredTombstones(typeList,uid){
+  const keys=['chronos60.localTombstones'];
+  if(uid)keys.push('chronos60.firebaseTombstones.'+uid);
+  for(const storageKey of keys){
+    try{
+      const map=JSON.parse(localStorage.getItem(storageKey)||'{}');
+      if(!map||typeof map!=='object')continue;
+      let changed=false;
+      for(const [type,items] of typeList){
+        for(const item of items||[]){
+          if(item?.id==null)continue;
+          const k=type+'|'+String(item.id);
+          if(k in map){delete map[k];changed=true}
+        }
+      }
+      if(changed)localStorage.setItem(storageKey,JSON.stringify(map));
+    }catch{}
+  }
+}
 async function exportBackup(){
   try{
     let media=[];try{const db=await openMediaDB();media=await new Promise((resolve,reject)=>{const req=db.transaction(NOTE_MEDIA_STORE,'readonly').objectStore(NOTE_MEDIA_STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error||Error('Could not read note media'))})}catch(e){if(!/IndexedDB is not available/i.test(e.message||''))throw e}
     const mediaArchive=[];for(const item of media){mediaArchive.push({key:item.key,noteId:item.noteId,kind:item.kind,name:item.name,created:item.created,type:item.type||item.blob?.type||'application/octet-stream',dataUrl:await blobToDataUrl(item.blob)})}
-    const payload={app:'Chronos',version:'6.0',backupFormat:'chronos-media-archive-v1',exportedAt:new Date().toISOString(),events,notes,tasks,theme:document.documentElement.dataset.theme||'dark',settings,media:mediaArchive};
-    downloadFile(`chronos-full-backup-${iso(new Date())}.json`,JSON.stringify(payload), 'application/json');notify(`Full backup downloaded · ${mediaArchive.length} media item${mediaArchive.length===1?'':'s'}.`)
+    const exportProjects=_chronosReadProjectsForBackup();
+    const payload={app:'Chronos',version:'6.0',backupFormat:'chronos-media-archive-v1',exportedAt:new Date().toISOString(),sourceFirebaseUid:(typeof firebaseUser!=='undefined'&&firebaseUser?.uid)?String(firebaseUser.uid):'',sourceProjectId:(typeof firebaseConfig!=='undefined'&&firebaseConfig?.projectId)?String(firebaseConfig.projectId):'',events,notes,tasks,projects:exportProjects,theme:document.documentElement.dataset.theme||'dark',settings,media:mediaArchive};
+    downloadFile(`chronos-full-backup-${iso(new Date())}.json`,JSON.stringify(payload), 'application/json');
+    notify(`Full backup downloaded · ${events.length} events, ${tasks.length} tasks, ${notes.length} notes, ${exportProjects.length} projects, ${mediaArchive.length} media item${mediaArchive.length===1?'':'s'}.`);
   }catch(err){notify((err.message||'Could not create backup.')+' Try again after closing media playback.')}
 }
 async function importBackupFile(file){
@@ -18381,17 +18428,35 @@ async function importBackupFile(file){
       if(!data||!Array.isArray(data.events)||!Array.isArray(data.notes))throw Error('This file is not a valid Chronos backup.');
       const validEvents=data.events.every(e=>e&&typeof e.title==='string'&&typeof e.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(e.date));
       const validNotes=data.notes.every(n=>n&&typeof n.title==='string'&&typeof n.body==='string');
-      if(!validEvents||!validNotes)throw Error('The backup contains invalid event or note records.');
+      const hasProjects=Array.isArray(data.projects);
+      const validProjects=!hasProjects||data.projects.every(p=>p&&typeof p==='object'&&typeof p.name==='string');
+      if(!validEvents||!validNotes||!validProjects)throw Error('The backup contains invalid event, note, or project records.');
       const archive=Array.isArray(data.media)?data.media:[];
       if(archive.some(m=>!m||typeof m.noteId!=='string'||typeof m.dataUrl!=='string'||!['attachment','voice'].includes(m.kind)))throw Error('The backup contains invalid media records.');
       const mediaSize=archive.reduce((sum,m)=>sum+(m.dataUrl.length*0.75),0);
       const mediaMessage=archive.length?` and ${archive.length} media item${archive.length===1?'':'s'} (~${prettyBytes(mediaSize)})`:'';
-      const ok=await confirmCustomInApp(`Restore ${data.events.length} events, ${data.notes.length} notes, and ${Array.isArray(data.tasks)?data.tasks.length:0} tasks${mediaMessage}? This replaces current calendar, task, and note data${archive.length?' and the stored note media':''}.`,{title:'Restore Workspace Backup',confirmText:'Restore data',danger:true});if(!ok)return;
-      events=data.events.map(e=>({category:'other',start:'',end:'',location:'',description:'',allDay:false,...e,id:String(e.id||`e${Date.now()}${Math.random()}`)}));
-      notes=data.notes.map(n=>({tag:'',collection:'',trashed:false,archived:false,pinned:false,history:[],updated:Date.now(),...n,id:String(n.id||`n${Date.now()}${Math.random()}`)}));tasks=Array.isArray(data.tasks)?data.tasks:[];
+      const projectsMessage=hasProjects?`, ${data.projects.length} projects`:'';
+      const ok=await confirmCustomInApp(`Restore ${data.events.length} events, ${data.notes.length} notes, ${Array.isArray(data.tasks)?data.tasks.length:0} tasks${projectsMessage}${mediaMessage}? This replaces current calendar, task, note${hasProjects?', and project':''} data${archive.length?' and the stored note media':''}.`,{title:'Restore Workspace Backup',confirmText:'Restore data',danger:true});if(!ok)return;
+      const uid=(typeof firebaseUser!=='undefined'&&firebaseUser?.uid)?String(firebaseUser.uid):'';
+      const activeProjectId=(typeof firebaseConfig!=='undefined'&&firebaseConfig?.projectId)?String(firebaseConfig.projectId):'';
+      const preserveCloudLinks=Boolean(uid&&(!data.sourceFirebaseUid||String(data.sourceFirebaseUid)===uid)&&(!data.sourceProjectId||!activeProjectId||String(data.sourceProjectId)===activeProjectId));
+      const validTeamIds=new Set((typeof chronosTeams!=='undefined'&&Array.isArray(chronosTeams)?chronosTeams:[]).map(t=>String(t.id)));
+      events=data.events.map(e=>_chronosNormalizeRestoredRecord({category:'other',start:'',end:'',location:'',description:'',allDay:false,...e,id:String(e.id||`e${Date.now()}${Math.random()}`)},preserveCloudLinks,validTeamIds,uid));
+      notes=data.notes.map(n=>_chronosNormalizeRestoredRecord({tag:'',collection:'',trashed:false,archived:false,pinned:false,history:[],updated:Date.now(),...n,id:String(n.id||`n${Date.now()}${Math.random()}`)},preserveCloudLinks,validTeamIds,uid));
+      tasks=(Array.isArray(data.tasks)?data.tasks:[]).map(t=>_chronosNormalizeRestoredRecord({...t,id:String(t.id||`t${Date.now()}${Math.random()}`)},preserveCloudLinks,validTeamIds,uid));
+      const restoredProjects=hasProjects?data.projects.map(p=>_chronosNormalizeRestoredRecord({...p,id:String(p.id||`proj_${Date.now()}${Math.random().toString(36).slice(2,7)}`)},preserveCloudLinks,validTeamIds,uid,true)):null;
+      if(restoredProjects){
+        chronosProjects=restoredProjects;
+        window.chronosProjects=restoredProjects;
+        if(typeof selectedProjectId!=='undefined')selectedProjectId='';
+        if(typeof saveChronosProjects==='function')saveChronosProjects();
+        else safeStorageSet('chronos90.projects',JSON.stringify(restoredProjects));
+      }
+      _chronosClearRestoredTombstones([['events',events],['notes',notes],['tasks',tasks],...(restoredProjects?[['projects',restoredProjects]]:[])],uid);
       if(data.settings&&typeof data.settings==='object')settings={...defaultSettings,...data.settings};else if(['light','dark'].includes(data.theme))settings.mode=data.theme;applySettings(false);saveSettings();persist();
       if(data.backupFormat==='chronos-media-archive-v1'){const db=await openMediaDB();await new Promise((resolve,reject)=>{const tx=db.transaction(NOTE_MEDIA_STORE,'readwrite'),store=tx.objectStore(NOTE_MEDIA_STORE);store.clear();for(const m of archive){store.put({key:String(m.key||`${m.noteId}:${m.kind}:${Date.now()}:${Math.random().toString(36).slice(2,7)}`),noteId:m.noteId,kind:m.kind,name:String(m.name||'media'),created:Number(m.created)||Date.now(),type:m.type||'application/octet-stream',blob:dataUrlToBlob(m.dataUrl)})}tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||Error('Could not restore media'));tx.onabort=()=>reject(tx.error||Error('Media restore was cancelled'))})}
-      render();notify(archive.length?'Full Chronos backup restored, including media.':'Chronos data restored. This backup did not include media.');
+      render();if(typeof renderTasks==='function')renderTasks();if(typeof renderNotes==='function')renderNotes();if(typeof renderProjectManager==='function')renderProjectManager();if(typeof renderCalendar==='function')renderCalendar();if(typeof renderDashboard==='function')renderDashboard();
+      notify(archive.length?'Full Chronos backup restored, including media'+(hasProjects?' and projects.':'.'):'Chronos data restored'+(hasProjects?', including projects.':' (this backup did not include media or projects).'));
     }catch(err){notify(err.message||'Could not read that backup.');}
     finally{$('importFile').value='';}
   };
