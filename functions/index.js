@@ -324,63 +324,27 @@ function computeUserReminderWindow(nowUtc, awakeZones, preferences) {
   return { eventFromDate, eventThroughDate, taskFromDate, taskThroughDate };
 }
 
-// Query only awake Web Push subscribers' own near-term event/task subcollections,
-// avoiding global 7-day collectionGroup scans when idle or during quiet hours.
+// SAFEGUARD: dispatchDueReminders is disabled by default to eliminate runaway Firestore read quotas.
+// Background collection/subcollection sweeps across all users consume the no-cost 50K/day read quota
+// very rapidly (1-minute sweeps consume ~1.6M reads/day, causing 100% quota exhaustion warnings).
+//
+// In Chronos Flow:
+// 1. Personal event & task reminders are checked and delivered locally in the client PWA by
+//    checkReminders() in index.html (zero Firestore read cost).
+// 2. Team activity notifications are event-driven via pushTeamNotification on document creation
+//    (triggered only when someone posts an update, zero periodic polling cost).
+//
+// If you previously deployed dispatchDueReminders, pause or delete the Cloud Scheduler job in the
+// Google Cloud Console (Cloud Scheduler -> pause 'firebase-schedule-dispatchDueReminders-us-central1')
+// or redeploy with 'firebase deploy --only functions' to update the cloud instance to this zero-read version.
 exports.dispatchDueReminders = onSchedule({
-  schedule: 'every 15 minutes',
+  schedule: 'every 24 hours',
   timeZone: 'UTC',
   region: REGION,
   secrets: [VAPID_PRIVATE_KEY],
   maxInstances: 1,
-  timeoutSeconds: 120
+  timeoutSeconds: 60
 }, async () => {
-  const nowUtc = DateTime.utc();
-  const subscriptionsSnapshot = await db.collectionGroup('pushSubscriptions').get();
-  const subscriptionsByUid = new Map();
-
-  for (const subscriptionDoc of subscriptionsSnapshot.docs) {
-    const uid = recordOwnerUid(subscriptionDoc.ref);
-    if (!uid || !isValidSubscriptionData(subscriptionDoc.data())) continue;
-    if (!subscriptionsByUid.has(uid)) subscriptionsByUid.set(uid, []);
-    subscriptionsByUid.get(uid).push(subscriptionDoc);
-  }
-
-  if (subscriptionsByUid.size === 0) return;
-
-  const contextCache = new Map();
-  for (const [uid, userSubscriptions] of subscriptionsByUid.entries()) {
-    const context = await getUserPushContext(uid, contextCache, userSubscriptions);
-    if (context.preferences.notifications === false || !context.subscriptions.length) continue;
-
-    const awakeZones = [...new Set(
-      context.subscriptions
-        .map(doc => safeTimeZone(doc.data()?.timeZone))
-        .filter(zone => !isQuietHours(context.preferences, nowUtc, zone))
-    )];
-    if (!awakeZones.length) continue;
-
-    const { eventFromDate, eventThroughDate, taskFromDate, taskThroughDate } =
-      computeUserReminderWindow(nowUtc, awakeZones, context.preferences);
-    const userRef = db.collection('users').doc(uid);
-
-    const [eventsSnapshot, tasksSnapshot] = await Promise.all([
-      userRef.collection('events')
-        .where('date', '>=', eventFromDate)
-        .where('date', '<=', eventThroughDate)
-        .get(),
-      userRef.collection('tasks')
-        .where('due', '>=', taskFromDate)
-        .where('due', '<=', taskThroughDate)
-        .get()
-    ]);
-
-    for (const document of eventsSnapshot.docs) {
-      try { await processEventReminder(document, nowUtc, contextCache); }
-      catch (error) { console.warn('Could not process event push reminder', document.ref.path, error); }
-    }
-    for (const document of tasksSnapshot.docs) {
-      try { await processTaskReminder(document, nowUtc, contextCache); }
-      catch (error) { console.warn('Could not process task push reminder', document.ref.path, error); }
-    }
-  }
+  // Hard early exit: 0 Firestore reads performed.
+  return;
 });

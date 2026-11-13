@@ -53,7 +53,21 @@ Chronos uses standards-based Web Push (VAPID). The app stores each opted-in brow
 4. In Chronos, sign in with Google, open **Settings → Notifications**, and choose **Enable push notifications** in each browser/device. Allow the browser permission. **HTTPS is required** (localhost is suitable for development).
 5. Complete **Settings → Data & Cloud Sync → Merge & sync data** on devices that have not yet synced their local calendar/tasks. Scheduled reminders are sent from the Firestore copies of personal events and tasks. Team activity push is triggered by the existing team notification records.
 
-Firebase Functions (2nd gen) and the one-minute scheduled reminder sweep require a Firebase project with billing enabled (Blaze) and the applicable Cloud Scheduler/Functions APIs. Reminder timing uses each browser subscription's saved timezone and the app's reminder/quiet-hours preferences. Browser and operating-system support varies; iOS/iPadOS generally requires Chronos to be installed to the Home Screen. Disabling push in Chronos removes that browser's subscription; revoking notification permission in browser settings also stops delivery.
+Firebase Functions (2nd gen) team notifications are event-driven (`onDocumentCreated`), meaning they only run when a team item is posted and consume zero idle reads.
+
+> [!IMPORTANT]
+> **Firestore Read Quota Protection (Spark 50K/day limit):**
+> Previously, the legacy `dispatchDueReminders` function executed a 1-minute `collectionGroup` scheduled sweep across Firestore documents, which generates ~1.6M reads/day and quickly triggers the `100% of your quota has been used (50K / day)` alert.
+> In this build, `dispatchDueReminders` is safely disabled (zero Firestore reads). Personal event and task reminders are handled directly on-device in the PWA by `checkReminders()` in `index.html` at zero cloud cost.
+>
+> **How to immediately halt active read quota consumption:**
+> 1. Open the [Google Cloud Cloud Scheduler Console](https://console.cloud.google.com/cloudscheduler?project=russapps-chronosflow) or [Firebase Functions Console](https://console.firebase.google.com/project/russapps-chronosflow/functions).
+> 2. Find the scheduled job `firebase-schedule-dispatchDueReminders-us-central1` and click **Pause** or **Delete**.
+> 3. To redeploy the zero-read functions package from your CLI:
+>    ```bash
+>    npx firebase-tools login
+>    npx firebase-tools deploy --project russapps-chronosflow --only functions
+>    ```
 
 ## 6. Validation checklist
 - Enable push on a recipient browser, close/minimize Chronos, then share a team event/note or assign a task and confirm a system notification arrives.
