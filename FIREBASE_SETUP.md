@@ -51,7 +51,7 @@ Chronos uses standards-based Web Push (VAPID). The app stores each opted-in brow
    ```
    On first deploy, Firebase CLI prompts for `VAPID_PUBLIC_KEY` and `VAPID_SUBJECT`. Enter the matching generated public key and a valid contact such as `mailto:you@example.com`. The `.env.<project-id>` parameter file is ignored by Git.
 4. In Chronos, sign in with Google, open **Settings → Notifications**, and choose **Enable push notifications** in each browser/device. Allow the browser permission. **HTTPS is required** (localhost is suitable for development).
-5. Complete **Settings → Data & Cloud Sync → Merge & sync data** on devices that have not yet synced their local calendar/tasks. Scheduled reminders are sent from the Firestore copies of personal events and tasks. Team activity push is triggered by the existing team notification records.
+5. Complete **Settings → Data & Cloud Sync → Merge & sync data** on devices that have not yet synced their local calendar/tasks. Personal reminders are handled on-device in the PWA by `checkReminders()`. Team activity push is triggered event-driven on new team notification records.
 
 Firebase Functions (2nd gen) team notifications are event-driven (`onDocumentCreated`), meaning they only run when a team item is posted and consume zero idle reads.
 

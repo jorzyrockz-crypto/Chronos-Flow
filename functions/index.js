@@ -4,28 +4,19 @@ const crypto = require('node:crypto');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const webpush = require('web-push');
-const { DateTime } = require('luxon');
 const { defineSecret, defineString } = require('firebase-functions/params');
 const { onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { onRequest } = require('firebase-functions/v2/https');
-const { onSchedule } = require('firebase-functions/v2/scheduler');
 
 initializeApp();
 const db = getFirestore();
 const REGION = 'us-central1';
-const REMINDER_POLL_INTERVAL_MINUTES = 15;
-const REMINDER_GRACE_MS = REMINDER_POLL_INTERVAL_MINUTES * 60 * 1000;
-const MAX_EVENT_OPTION_LEAD_MINUTES = 60;
 const VAPID_PUBLIC_KEY = defineString('VAPID_PUBLIC_KEY');
 const VAPID_PRIVATE_KEY = defineSecret('VAPID_PRIVATE_KEY');
 const VAPID_SUBJECT = defineString('VAPID_SUBJECT');
 
 const DEFAULT_PREFERENCES = {
-  notifications: true,
-  leadTime: 10,
-  quietHours: true,
-  quietStart: '22:00',
-  quietEnd: '07:00'
+  notifications: true
 };
 
 function configureWebPush() {
@@ -34,11 +25,6 @@ function configureWebPush() {
     VAPID_PUBLIC_KEY.value(),
     VAPID_PRIVATE_KEY.value()
   );
-}
-
-function safeTimeZone(value) {
-  const zone = typeof value === 'string' && value.trim() ? value.trim() : 'UTC';
-  return DateTime.now().setZone(zone).isValid ? zone : 'UTC';
 }
 
 function makePayload(title, body, tag, data = {}) {
@@ -148,117 +134,12 @@ async function getUserPushContext(uid, cache, preloadedSubscriptions = null) {
 
 async function sendToUser(uid, payload, dedupeKey) {
   const context = await getUserPushContext(uid, new Map());
+  if (context.preferences.notifications === false || !context.subscriptions.length) return;
   const results = await Promise.allSettled(context.subscriptions.map(subscriptionDoc =>
     sendToSubscription(uid, subscriptionDoc, payload, dedupeKey)
   ));
   const failure = results.find(result => result.status === 'rejected');
   if (failure) throw failure.reason;
-}
-
-function recordOwnerUid(documentRef) {
-  const parentDocument = documentRef.parent?.parent;
-  if (!parentDocument || parentDocument.parent?.id !== 'users') return null;
-  return parentDocument.id;
-}
-
-function parseLocalDateTime(date, time, zone) {
-  const parsed = DateTime.fromISO(`${date}T${time}`, { zone });
-  return parsed.isValid ? parsed : null;
-}
-
-function isQuietHours(preferences, instant, zone) {
-  if (preferences.quietHours === false) return false;
-  const local = instant.setZone(zone);
-  const parseClock = (value, fallback) => {
-    const match = /^(\d{1,2}):(\d{2})$/.exec(String(value || fallback));
-    return match ? Number(match[1]) * 60 + Number(match[2]) : null;
-  };
-  const start = parseClock(preferences.quietStart, '22:00');
-  const end = parseClock(preferences.quietEnd, '07:00');
-  if (start === null || end === null) return false;
-  const now = local.hour * 60 + local.minute;
-  if (start === end) return true;
-  return start < end ? now >= start && now < end : now >= start || now < end;
-}
-
-async function sendReminderToSubscriptions(uid, context, payload, dedupeKey, nowUtc, isEligible) {
-  const results = await Promise.allSettled(context.subscriptions.map(async subscriptionDoc => {
-    const zone = safeTimeZone(subscriptionDoc.data()?.timeZone);
-    if (!isEligible(zone, context.preferences, nowUtc)) return false;
-    return sendToSubscription(uid, subscriptionDoc, payload, dedupeKey);
-  }));
-  const failure = results.find(result => result.status === 'rejected');
-  if (failure) console.warn('One or more push reminder deliveries failed', failure.reason);
-}
-
-async function processEventReminder(document, nowUtc, contextCache) {
-  const uid = recordOwnerUid(document.ref);
-  if (!uid) return;
-  const event = document.data() || {};
-  if (!event.date || (!event.allDay && !event.start) || event.reminderMinutes === null) return;
-
-  const context = await getUserPushContext(uid, contextCache);
-  const preferences = context.preferences;
-  if (preferences.notifications === false || !context.subscriptions.length) return;
-
-  const rawLead = event.reminderMinutes === undefined ? preferences.leadTime : event.reminderMinutes;
-  const lead = Number(rawLead);
-  if (!Number.isFinite(lead)) return;
-  const leadWindow = Math.max(lead, 1) * 60 * 1000;
-  const time = event.allDay ? '09:00' : String(event.start);
-  const id = String(event.id || event._chronosId || document.id);
-  const dedupeKey = `event:${id}:${event.date}`;
-
-  await sendReminderToSubscriptions(
-    uid,
-    context,
-    makePayload('Chronos event reminder', `${event.title || 'Your event'} is coming up.`, `event-${id}-${event.date}`, {
-      kind: 'event-reminder', recordId: id
-    }),
-    dedupeKey,
-    nowUtc,
-    (zone, userPreferences, now) => {
-      const dueAt = parseLocalDateTime(String(event.date), time, zone);
-      if (!dueAt) return false;
-      const diff = dueAt.toMillis() - now.toMillis();
-      return diff >= -REMINDER_GRACE_MS && diff <= leadWindow && !isQuietHours(userPreferences, now, zone);
-    }
-  );
-}
-
-async function processTaskReminder(document, nowUtc, contextCache) {
-  const uid = recordOwnerUid(document.ref);
-  if (!uid) return;
-  const task = document.data() || {};
-  if (!task.due || task.done || task.status === 'done' || !task.reminder || task.reminder === 'none') return;
-
-  const id = String(task.id || task._chronosId || document.id);
-  const reminderKey = `task:${id}:${task.due}:${task.dueTime || '09:00'}:${task.reminder}`;
-  if (task.reminderFiredKey === reminderKey) return;
-
-  const context = await getUserPushContext(uid, contextCache);
-  const preferences = context.preferences;
-  if (preferences.notifications === false || !context.subscriptions.length) return;
-
-  const dueTime = String(task.dueTime || '09:00');
-
-  await sendReminderToSubscriptions(
-    uid,
-    context,
-    makePayload('Chronos task reminder', `${task.title || 'A task'} is due ${task.due}.`, `task-${id}-${task.due}`, {
-      kind: 'task-reminder', recordId: id
-    }),
-    reminderKey,
-    nowUtc,
-    (zone, userPreferences, now) => {
-      let dueAt = parseLocalDateTime(String(task.due), dueTime, zone);
-      if (!dueAt) return false;
-      if (task.reminder === 'dayBefore') dueAt = dueAt.minus({ days: 1 });
-      else if (task.reminder === 'hourBefore') dueAt = dueAt.minus({ hours: 1 });
-      else if (task.reminder !== 'atDue') return false;
-      return dueAt.toMillis() <= now.toMillis() && !isQuietHours(userPreferences, now, zone);
-    }
-  );
 }
 
 // Public VAPID key only; the corresponding private key is stored in Secret Manager.
@@ -267,7 +148,9 @@ exports.getWebPushConfig = onRequest({ region: REGION, cors: true }, (request, r
   response.status(200).json({ vapidPublicKey: VAPID_PUBLIC_KEY.value() });
 });
 
-// Existing team notification documents are the source of push activity alerts.
+// Event-driven team notification delivery.
+// Only executes when an actual notification record is created in Firestore.
+// Consumes zero idle reads and requires zero background scheduler crons.
 exports.pushTeamNotification = onDocumentCreated({
   document: 'teams/{teamId}/notifications/{notificationId}',
   region: REGION,
@@ -295,56 +178,4 @@ exports.pushTeamNotification = onDocumentCreated({
     payload,
     `team:${teamId}:${notificationId}`
   );
-});
-
-function computeUserReminderWindow(nowUtc, awakeZones, preferences) {
-  const lead = Number(preferences?.leadTime);
-  const effectiveLeadMinutes = Math.max(Number.isFinite(lead) ? lead : DEFAULT_PREFERENCES.leadTime, MAX_EVENT_OPTION_LEAD_MINUTES);
-  const lookbackInstant = nowUtc.minus({ milliseconds: REMINDER_GRACE_MS });
-  const lookaheadInstant = nowUtc.plus({ minutes: effectiveLeadMinutes });
-
-  let eventFromDate = null;
-  let eventThroughDate = null;
-  let taskFromDate = null;
-  let taskThroughDate = null;
-
-  for (const zone of awakeZones) {
-    const evFrom = lookbackInstant.setZone(zone).toISODate();
-    const evTo = lookaheadInstant.setZone(zone).toISODate();
-    const localNow = nowUtc.setZone(zone);
-    const tFrom = localNow.minus({ days: 1 }).toISODate();
-    const tTo = localNow.plus({ days: 1 }).toISODate();
-
-    if (!eventFromDate || evFrom < eventFromDate) eventFromDate = evFrom;
-    if (!eventThroughDate || evTo > eventThroughDate) eventThroughDate = evTo;
-    if (!taskFromDate || tFrom < taskFromDate) taskFromDate = tFrom;
-    if (!taskThroughDate || tTo > taskThroughDate) taskThroughDate = tTo;
-  }
-
-  return { eventFromDate, eventThroughDate, taskFromDate, taskThroughDate };
-}
-
-// SAFEGUARD: dispatchDueReminders is disabled by default to eliminate runaway Firestore read quotas.
-// Background collection/subcollection sweeps across all users consume the no-cost 50K/day read quota
-// very rapidly (1-minute sweeps consume ~1.6M reads/day, causing 100% quota exhaustion warnings).
-//
-// In Chronos Flow:
-// 1. Personal event & task reminders are checked and delivered locally in the client PWA by
-//    checkReminders() in index.html (zero Firestore read cost).
-// 2. Team activity notifications are event-driven via pushTeamNotification on document creation
-//    (triggered only when someone posts an update, zero periodic polling cost).
-//
-// If you previously deployed dispatchDueReminders, pause or delete the Cloud Scheduler job in the
-// Google Cloud Console (Cloud Scheduler -> pause 'firebase-schedule-dispatchDueReminders-us-central1')
-// or redeploy with 'firebase deploy --only functions' to update the cloud instance to this zero-read version.
-exports.dispatchDueReminders = onSchedule({
-  schedule: 'every 24 hours',
-  timeZone: 'UTC',
-  region: REGION,
-  secrets: [VAPID_PRIVATE_KEY],
-  maxInstances: 1,
-  timeoutSeconds: 60
-}, async () => {
-  // Hard early exit: 0 Firestore reads performed.
-  return;
 });
